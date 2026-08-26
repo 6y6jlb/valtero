@@ -130,6 +130,13 @@
   "periodAll": "Всё время",
   "periodFrom": "С",
   "periodTo": "По",
+  "periodFromTo": "{from} — {to}",
+  "@periodFromTo": {
+    "placeholders": {
+      "from": { "type": "String" },
+      "to": { "type": "String" }
+    }
+  },
   "showExpenses": "Показать траты",
   "sortBy": "Сортировка",
   "sortDate": "Дата",
@@ -155,5 +162,60 @@
   "currencyCrypto": "Крипта",
   "currencyCustom": "Свои",
   "addCustomCurrency": "Добавить валюту",
-  "currencyCode": "Код валюты"
+  "currencyCode": "Код валюты",
+  "applyFilters": "Применить",
+  "clearFilters": "Сбросить",
+  "selectTags": "Теги",
+  "tagsSelected": "{count} тегов",
+  "@tagsSelected": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "summaryCount": "Трат",
+  "summaryTotal": "Сумма",
+  "summaryCurrencies": "Валют",
+  "totalRecords": "Всего: {count}",
+  "@totalRecords": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "perPage": "На странице",
+  "export": "Выгрузка",
+  "listingView": "Вид",
+  "viewList": "Список",
+  "viewGrouping": "Группировка",
+  "viewChart": "График",
+  "columnDate": "Дата",
+  "columnAmount": "Сумма",
+  "columnCurrency": "Валюта",
+  "columnTags": "Теги",
+  "noMatchingExpenses": "Нет трат по выбранным фильтрам",
+  "displayIn": "Отобразить в",
+  "displayOriginal": "Исходные валюты",
+  "displayOriginalHint": "Показывать сохранённые суммы без конвертации",
+  "ratesReady": "Все курсы есть",
+  "ratesMissingCount": "Нет курсов: {count}",
+  "@ratesMissingCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "pickOtherCurrency": "Другая валюта…",
+  "missingRatesTitle": "Конвертация невозможна",
+  "missingRatesBody": "Нет курсов для {count} пар в {target}. Укажите их, чтобы продолжить.",
+  "@missingRatesBody": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "target": { "type": "String" }
+    }
+  },
+  "retryConversion": "Проверить снова",
+  "missingRatesStill": "Всё ещё нет курсов: {count}",
+  "@missingRatesStill": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  }
 }

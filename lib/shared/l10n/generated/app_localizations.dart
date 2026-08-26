@@ -752,6 +752,12 @@ abstract class AppLocalizations {
   /// **'To'**
   String get periodTo;
 
+  /// No description provided for @periodFromTo.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} — {to}'**
+  String periodFromTo(String from, String to);
+
   /// No description provided for @showExpenses.
   ///
   /// In en, this message translates to:
@@ -907,6 +913,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Currency code'**
   String get currencyCode;
+
+  /// No description provided for @applyFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get applyFilters;
+
+  /// No description provided for @clearFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clearFilters;
+
+  /// No description provided for @selectTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get selectTags;
+
+  /// No description provided for @tagsSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} tags'**
+  String tagsSelected(int count);
+
+  /// No description provided for @summaryCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get summaryCount;
+
+  /// No description provided for @summaryCurrencies.
+  ///
+  /// In en, this message translates to:
+  /// **'Currencies'**
+  String get summaryCurrencies;
+
+  /// No description provided for @totalRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Total: {count}'**
+  String totalRecords(int count);
+
+  /// No description provided for @perPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Per page'**
+  String get perPage;
+
+  /// No description provided for @export.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get export;
+
+  /// No description provided for @listingView.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get listingView;
+
+  /// No description provided for @viewList.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get viewList;
+
+  /// No description provided for @viewGrouping.
+  ///
+  /// In en, this message translates to:
+  /// **'Grouping'**
+  String get viewGrouping;
+
+  /// No description provided for @viewChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Chart'**
+  String get viewChart;
+
+  /// No description provided for @columnDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get columnDate;
+
+  /// No description provided for @columnAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get columnAmount;
+
+  /// No description provided for @columnCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get columnCurrency;
+
+  /// No description provided for @columnTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get columnTags;
+
+  /// No description provided for @noMatchingExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses match the filters'**
+  String get noMatchingExpenses;
+
+  /// No description provided for @displayIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Display in'**
+  String get displayIn;
+
+  /// No description provided for @displayOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Original currencies'**
+  String get displayOriginal;
+
+  /// No description provided for @displayOriginalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Show stored amounts without conversion'**
+  String get displayOriginalHint;
+
+  /// No description provided for @ratesReady.
+  ///
+  /// In en, this message translates to:
+  /// **'All rates available'**
+  String get ratesReady;
+
+  /// No description provided for @ratesMissingCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} rates missing'**
+  String ratesMissingCount(int count);
+
+  /// No description provided for @pickOtherCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Other currency…'**
+  String get pickOtherCurrency;
+
+  /// No description provided for @missingRatesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversion not possible'**
+  String get missingRatesTitle;
+
+  /// No description provided for @missingRatesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing rates for {count} pairs to {target}. Set them to continue.'**
+  String missingRatesBody(int count, String target);
+
+  /// No description provided for @retryConversion.
+  ///
+  /// In en, this message translates to:
+  /// **'Check again'**
+  String get retryConversion;
+
+  /// No description provided for @missingRatesStill.
+  ///
+  /// In en, this message translates to:
+  /// **'Still missing {count} rates'**
+  String missingRatesStill(int count);
 }
 
 class _AppLocalizationsDelegate

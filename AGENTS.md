@@ -62,10 +62,11 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 
 ## Navigation
 
-- Single home screen: **Dashboard** (no bottom nav)
+- Home: **Dashboard** (no bottom nav)
+- **Expenses**: full page via FAB “Show expenses” (back arrow); add expense stays a sheet (`+` on Dashboard and on Expenses AppBar)
 - Settings via gear in the AppBar → full page with back arrow
-- Sheets (full window width): add expense, tags, export, currency, appearance, rates list, **expenses list**
-- Dashboard: one donut (by tags / months / currency), tag exclude filters, date period, FAB “Show expenses”
+- Sheets (full window width): add expense, tags, export, currency, appearance, rates list
+- Dashboard: one donut (by tags / months / currency), tag exclude filters, date period; FABs “Show expenses” + add
 - AppBar shows live date/time in the selected timezone (default: auto-detected system zone)
 - Desktop default window size: **853×720** (≈⅔ of the previous 1280 width)
 

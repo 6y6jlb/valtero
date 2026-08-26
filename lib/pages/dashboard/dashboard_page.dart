@@ -5,8 +5,8 @@ import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
 import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
 import 'package:valtero/features/currency_settings/ui/rates_sheet.dart';
-import 'package:valtero/features/expenses_list/ui/expenses_sheet.dart';
 import 'package:valtero/features/export_expenses/ui/export_panel.dart';
+import 'package:valtero/pages/expenses/expenses_page.dart';
 import 'package:valtero/pages/settings/settings_page.dart';
 import 'package:valtero/pages/tags/tags_sheet.dart';
 import 'package:valtero/shared/consts/palette.dart';
@@ -104,10 +104,23 @@ class DashboardPage extends ConsumerWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => showExpensesSheet(context),
-        icon: const Icon(Icons.list_alt),
-        label: Text(l10n.showExpenses),
+      floatingActionButton: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: 'dashboard_show_expenses',
+            onPressed: () => ExpensesPage.open(context),
+            icon: const Icon(Icons.list_alt),
+            label: Text(l10n.showExpenses),
+          ),
+          const SizedBox(width: 12),
+          FloatingActionButton(
+            heroTag: 'dashboard_add_expense',
+            tooltip: l10n.addExpense,
+            onPressed: () => showAddExpenseSheet(context),
+            child: const Icon(Icons.add, size: 32),
+          ),
+        ],
       ),
       body: FutureBuilder<({int total, List<_Slice> slices})>(
         future: _aggregate(
@@ -129,12 +142,6 @@ class DashboardPage extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
             children: [
-              FilledButton.icon(
-                onPressed: () => showAddExpenseSheet(context),
-                icon: const Icon(Icons.add),
-                label: Text(l10n.addExpense),
-              ),
-              const SizedBox(height: 12),
               Card(
                 child: ListTile(
                   title: Text(l10n.summaryTotal),

@@ -130,6 +130,13 @@
   "periodAll": "All time",
   "periodFrom": "From",
   "periodTo": "To",
+  "periodFromTo": "{from} — {to}",
+  "@periodFromTo": {
+    "placeholders": {
+      "from": { "type": "String" },
+      "to": { "type": "String" }
+    }
+  },
   "showExpenses": "Show expenses",
   "sortBy": "Sort by",
   "sortDate": "Date",
@@ -155,5 +162,60 @@
   "currencyCrypto": "Crypto",
   "currencyCustom": "Custom",
   "addCustomCurrency": "Add currency",
-  "currencyCode": "Currency code"
+  "currencyCode": "Currency code",
+  "applyFilters": "Apply",
+  "clearFilters": "Clear",
+  "selectTags": "Tags",
+  "tagsSelected": "{count} tags",
+  "@tagsSelected": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "summaryCount": "Expenses",
+  "summaryTotal": "Total",
+  "summaryCurrencies": "Currencies",
+  "totalRecords": "Total: {count}",
+  "@totalRecords": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "perPage": "Per page",
+  "export": "Export",
+  "listingView": "View",
+  "viewList": "List",
+  "viewGrouping": "Grouping",
+  "viewChart": "Chart",
+  "columnDate": "Date",
+  "columnAmount": "Amount",
+  "columnCurrency": "Currency",
+  "columnTags": "Tags",
+  "noMatchingExpenses": "No expenses match the filters",
+  "displayIn": "Display in",
+  "displayOriginal": "Original currencies",
+  "displayOriginalHint": "Show stored amounts without conversion",
+  "ratesReady": "All rates available",
+  "ratesMissingCount": "{count} rates missing",
+  "@ratesMissingCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "pickOtherCurrency": "Other currency…",
+  "missingRatesTitle": "Conversion not possible",
+  "missingRatesBody": "Missing rates for {count} pairs to {target}. Set them to continue.",
+  "@missingRatesBody": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "target": { "type": "String" }
+    }
+  },
+  "retryConversion": "Check again",
+  "missingRatesStill": "Still missing {count} rates",
+  "@missingRatesStill": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  }
 }

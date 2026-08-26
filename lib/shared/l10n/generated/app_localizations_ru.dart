@@ -178,7 +178,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get telegramEnabled => 'Включить Telegram';
 
   @override
-  String get summaryTotal => 'Итого';
+  String get summaryTotal => 'Сумма';
 
   @override
   String get byTag => 'По тегам';
@@ -344,6 +344,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get periodTo => 'По';
 
   @override
+  String periodFromTo(String from, String to) {
+    return '$from — $to';
+  }
+
+  @override
   String get showExpenses => 'Показать траты';
 
   @override
@@ -420,4 +425,99 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get currencyCode => 'Код валюты';
+
+  @override
+  String get applyFilters => 'Применить';
+
+  @override
+  String get clearFilters => 'Сбросить';
+
+  @override
+  String get selectTags => 'Теги';
+
+  @override
+  String tagsSelected(int count) {
+    return '$count тегов';
+  }
+
+  @override
+  String get summaryCount => 'Трат';
+
+  @override
+  String get summaryCurrencies => 'Валют';
+
+  @override
+  String totalRecords(int count) {
+    return 'Всего: $count';
+  }
+
+  @override
+  String get perPage => 'На странице';
+
+  @override
+  String get export => 'Выгрузка';
+
+  @override
+  String get listingView => 'Вид';
+
+  @override
+  String get viewList => 'Список';
+
+  @override
+  String get viewGrouping => 'Группировка';
+
+  @override
+  String get viewChart => 'График';
+
+  @override
+  String get columnDate => 'Дата';
+
+  @override
+  String get columnAmount => 'Сумма';
+
+  @override
+  String get columnCurrency => 'Валюта';
+
+  @override
+  String get columnTags => 'Теги';
+
+  @override
+  String get noMatchingExpenses => 'Нет трат по выбранным фильтрам';
+
+  @override
+  String get displayIn => 'Отобразить в';
+
+  @override
+  String get displayOriginal => 'Исходные валюты';
+
+  @override
+  String get displayOriginalHint =>
+      'Показывать сохранённые суммы без конвертации';
+
+  @override
+  String get ratesReady => 'Все курсы есть';
+
+  @override
+  String ratesMissingCount(int count) {
+    return 'Нет курсов: $count';
+  }
+
+  @override
+  String get pickOtherCurrency => 'Другая валюта…';
+
+  @override
+  String get missingRatesTitle => 'Конвертация невозможна';
+
+  @override
+  String missingRatesBody(int count, String target) {
+    return 'Нет курсов для $count пар в $target. Укажите их, чтобы продолжить.';
+  }
+
+  @override
+  String get retryConversion => 'Проверить снова';
+
+  @override
+  String missingRatesStill(int count) {
+    return 'Всё ещё нет курсов: $count';
+  }
 }

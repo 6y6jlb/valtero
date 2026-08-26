@@ -344,6 +344,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get periodTo => 'To';
 
   @override
+  String periodFromTo(String from, String to) {
+    return '$from — $to';
+  }
+
+  @override
   String get showExpenses => 'Show expenses';
 
   @override
@@ -420,4 +425,98 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get currencyCode => 'Currency code';
+
+  @override
+  String get applyFilters => 'Apply';
+
+  @override
+  String get clearFilters => 'Clear';
+
+  @override
+  String get selectTags => 'Tags';
+
+  @override
+  String tagsSelected(int count) {
+    return '$count tags';
+  }
+
+  @override
+  String get summaryCount => 'Expenses';
+
+  @override
+  String get summaryCurrencies => 'Currencies';
+
+  @override
+  String totalRecords(int count) {
+    return 'Total: $count';
+  }
+
+  @override
+  String get perPage => 'Per page';
+
+  @override
+  String get export => 'Export';
+
+  @override
+  String get listingView => 'View';
+
+  @override
+  String get viewList => 'List';
+
+  @override
+  String get viewGrouping => 'Grouping';
+
+  @override
+  String get viewChart => 'Chart';
+
+  @override
+  String get columnDate => 'Date';
+
+  @override
+  String get columnAmount => 'Amount';
+
+  @override
+  String get columnCurrency => 'Currency';
+
+  @override
+  String get columnTags => 'Tags';
+
+  @override
+  String get noMatchingExpenses => 'No expenses match the filters';
+
+  @override
+  String get displayIn => 'Display in';
+
+  @override
+  String get displayOriginal => 'Original currencies';
+
+  @override
+  String get displayOriginalHint => 'Show stored amounts without conversion';
+
+  @override
+  String get ratesReady => 'All rates available';
+
+  @override
+  String ratesMissingCount(int count) {
+    return '$count rates missing';
+  }
+
+  @override
+  String get pickOtherCurrency => 'Other currency…';
+
+  @override
+  String get missingRatesTitle => 'Conversion not possible';
+
+  @override
+  String missingRatesBody(int count, String target) {
+    return 'Missing rates for $count pairs to $target. Set them to continue.';
+  }
+
+  @override
+  String get retryConversion => 'Check again';
+
+  @override
+  String missingRatesStill(int count) {
+    return 'Still missing $count rates';
+  }
 }
