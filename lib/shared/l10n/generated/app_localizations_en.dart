@@ -1,0 +1,229 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
+class AppLocalizationsEn extends AppLocalizations {
+  AppLocalizationsEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get appTitle => 'Valtero';
+
+  @override
+  String get navDashboard => 'Dashboard';
+
+  @override
+  String get navExpenses => 'Expenses';
+
+  @override
+  String get navAdd => 'Add';
+
+  @override
+  String get navTags => 'Tags';
+
+  @override
+  String get navCurrency => 'Currency';
+
+  @override
+  String get navExport => 'Export';
+
+  @override
+  String get addExpense => 'Add expense';
+
+  @override
+  String get editExpense => 'Edit expense';
+
+  @override
+  String get amount => 'Amount';
+
+  @override
+  String get currency => 'Currency';
+
+  @override
+  String get saveAsIs => 'Save as-is';
+
+  @override
+  String get convertTo => 'Convert to';
+
+  @override
+  String exchangeRate(String rate) {
+    return 'Rate: $rate';
+  }
+
+  @override
+  String get rateUnavailable =>
+      'Could not get rate — enter manually or open Currency settings';
+
+  @override
+  String get tag => 'Tag';
+
+  @override
+  String get note => 'Note';
+
+  @override
+  String get date => 'Date';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get add => 'Add';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get reportingCurrencies => 'Reporting currencies';
+
+  @override
+  String get primaryCurrency => 'Primary currency';
+
+  @override
+  String get apiKey => 'ExchangeRate-API key';
+
+  @override
+  String get validateKey => 'Validate & bind';
+
+  @override
+  String get refreshRates => 'Refresh rates now';
+
+  @override
+  String get manualRates => 'Manual rates';
+
+  @override
+  String get baseCurrency => 'From';
+
+  @override
+  String get targetCurrency => 'To';
+
+  @override
+  String get rate => 'Rate';
+
+  @override
+  String get tagsTitle => 'Tags';
+
+  @override
+  String get suggestedTags => 'Suggested tags';
+
+  @override
+  String get detectCountry => 'Detect country again';
+
+  @override
+  String get country => 'Country';
+
+  @override
+  String get defaultTags => 'Default tags';
+
+  @override
+  String get dismiss => 'Dismiss';
+
+  @override
+  String get exportTitle => 'Export';
+
+  @override
+  String get exportCsv => 'CSV';
+
+  @override
+  String get exportJson => 'JSON';
+
+  @override
+  String get saveFile => 'Save file';
+
+  @override
+  String get share => 'Share';
+
+  @override
+  String get sendTelegram => 'Send to Telegram';
+
+  @override
+  String get telegramBotToken => 'Telegram bot token';
+
+  @override
+  String get telegramChatId => 'Telegram chat id';
+
+  @override
+  String get telegramEnabled => 'Enable Telegram';
+
+  @override
+  String get summaryTotal => 'Total';
+
+  @override
+  String get byTag => 'By tag';
+
+  @override
+  String get byPeriod => 'By period';
+
+  @override
+  String get displayCurrency => 'Display currency';
+
+  @override
+  String get noExpenses => 'No expenses yet';
+
+  @override
+  String get filterTag => 'Tag filter';
+
+  @override
+  String get filterCurrency => 'Currency filter';
+
+  @override
+  String get all => 'All';
+
+  @override
+  String get theme => 'Theme';
+
+  @override
+  String get locale => 'Language';
+
+  @override
+  String get system => 'System';
+
+  @override
+  String get light => 'Light';
+
+  @override
+  String get dark => 'Dark';
+
+  @override
+  String get keyValid => 'API key is valid';
+
+  @override
+  String get keyInvalid => 'API key is invalid';
+
+  @override
+  String get ratesRefreshed => 'Rates refreshed';
+
+  @override
+  String get exportDone => 'Export ready';
+
+  @override
+  String get telegramSent => 'Sent to Telegram';
+
+  @override
+  String get telegramFailed => 'Telegram send failed';
+
+  @override
+  String get untagged => 'Untagged';
+
+  @override
+  String get periodDay => 'Day';
+
+  @override
+  String get periodWeek => 'Week';
+
+  @override
+  String get periodMonth => 'Month';
+
+  @override
+  String get newTag => 'New tag';
+
+  @override
+  String get addTag => 'Add tag';
+}

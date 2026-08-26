@@ -1,0 +1,240 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:valtero/entities/tag/model/tags_provider.dart';
+import 'package:valtero/entities/tag/ui/tag_chip.dart';
+import 'package:valtero/features/add_expense/model/add_expense_controller.dart';
+import 'package:valtero/features/manage_tags/model/manage_tags_controller.dart';
+import 'package:valtero/shared/consts/currencies.dart';
+import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/shared/settings/app_settings_provider.dart';
+import 'package:valtero/shared/utils/money.dart';
+
+class AddExpenseForm extends ConsumerStatefulWidget {
+  const AddExpenseForm({super.key});
+
+  @override
+  ConsumerState<AddExpenseForm> createState() => _AddExpenseFormState();
+}
+
+class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
+  final _amountController = TextEditingController();
+  final _noteController = TextEditingController();
+  final _newTagController = TextEditingController();
+
+  String _currency = 'RUB';
+  bool _convert = false;
+  String? _targetCurrency;
+  int? _tagId;
+  DateTime _occurredAt = DateTime.now();
+  double? _rate;
+  bool _loadingRate = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final settings = ref.read(appSettingsProvider).value;
+      if (settings != null) {
+        setState(() {
+          _currency = settings.primaryCurrency;
+          _targetCurrency = settings.primaryCurrency;
+          _tagId = settings.defaultTagId;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _noteController.dispose();
+    _newTagController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _refreshRate() async {
+    if (!_convert || _targetCurrency == null || _targetCurrency == _currency) {
+      setState(() => _rate = _currency == _targetCurrency ? 1.0 : null);
+      return;
+    }
+    setState(() => _loadingRate = true);
+    final rate = await ref
+        .read(addExpenseControllerProvider)
+        .previewRate(_currency, _targetCurrency!);
+    if (!mounted) return;
+    setState(() {
+      _rate = rate;
+      _loadingRate = false;
+    });
+  }
+
+  Future<void> _save() async {
+    final l10n = AppLocalizations.of(context)!;
+    final amount = Money.parseMajorToMinor(_amountController.text);
+    if (amount <= 0) {
+      setState(() => _error = l10n.amount);
+      return;
+    }
+    try {
+      await ref.read(addExpenseControllerProvider).save(
+            AddExpenseInput(
+              originalAmountMinor: amount,
+              originalCurrencyCode: _currency,
+              convert: _convert,
+              targetCurrencyCode: _targetCurrency,
+              tagId: _tagId,
+              note: _noteController.text,
+              occurredAt: _occurredAt,
+            ),
+          );
+      if (!mounted) return;
+      _amountController.clear();
+      _noteController.clear();
+      setState(() => _error = null);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.save)),
+      );
+    } catch (_) {
+      setState(() => _error = l10n.rateUnavailable);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final settings = ref.watch(appSettingsProvider).value;
+    final tags = ref.watch(tagsStreamProvider).value ?? const [];
+    final reporting = settings?.reportingCurrencies ?? const ['RUB'];
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Text(l10n.addExpense, style: Theme.of(context).textTheme.headlineSmall),
+        const SizedBox(height: 16),
+        TextField(
+          controller: _amountController,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(labelText: l10n.amount),
+        ),
+        const SizedBox(height: 12),
+        DropdownButtonFormField<String>(
+          // ignore: deprecated_member_use
+          value: supportedCurrencyCodes.contains(_currency) ? _currency : 'RUB',
+          decoration: InputDecoration(labelText: l10n.currency),
+          items: [
+            for (final code in supportedCurrencyCodes)
+              DropdownMenuItem(value: code, child: Text(code)),
+          ],
+          onChanged: (v) {
+            if (v == null) return;
+            setState(() => _currency = v);
+            _refreshRate();
+          },
+        ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(_convert ? l10n.convertTo : l10n.saveAsIs),
+          value: _convert,
+          onChanged: (v) {
+            setState(() => _convert = v);
+            _refreshRate();
+          },
+        ),
+        if (_convert) ...[
+          DropdownButtonFormField<String>(
+            // ignore: deprecated_member_use
+            value: reporting.contains(_targetCurrency) ? _targetCurrency : reporting.first,
+            decoration: InputDecoration(labelText: l10n.convertTo),
+            items: [
+              for (final code in reporting)
+                DropdownMenuItem(value: code, child: Text(code)),
+            ],
+            onChanged: (v) {
+              setState(() => _targetCurrency = v);
+              _refreshRate();
+            },
+          ),
+          const SizedBox(height: 8),
+          if (_loadingRate)
+            const LinearProgressIndicator()
+          else if (_rate != null)
+            Text(l10n.exchangeRate(_rate!.toStringAsFixed(6)))
+          else
+            Text(l10n.rateUnavailable, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+        ],
+        const SizedBox(height: 12),
+        Text(l10n.tag, style: Theme.of(context).textTheme.titleSmall),
+        Wrap(
+          spacing: 8,
+          children: [
+            for (final tag in tags)
+              TagChip(
+                tag: tag,
+                selected: _tagId == tag.id,
+                onTap: () => setState(() => _tagId = _tagId == tag.id ? null : tag.id),
+              ),
+          ],
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _newTagController,
+                decoration: InputDecoration(labelText: l10n.newTag),
+              ),
+            ),
+            IconButton(
+              onPressed: () async {
+                final id = await ref
+                    .read(manageTagsControllerProvider)
+                    .addTag(_newTagController.text);
+                if (id > 0) {
+                  _newTagController.clear();
+                  setState(() => _tagId = id);
+                }
+              },
+              icon: const Icon(Icons.add),
+              tooltip: l10n.addTag,
+            ),
+          ],
+        ),
+        TextField(
+          controller: _noteController,
+          decoration: InputDecoration(labelText: l10n.note),
+        ),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(l10n.date),
+          subtitle: Text(
+            '${_occurredAt.year}-${_occurredAt.month.toString().padLeft(2, '0')}-${_occurredAt.day.toString().padLeft(2, '0')}',
+          ),
+          trailing: const Icon(Icons.calendar_today),
+          onTap: () async {
+            final picked = await showDatePicker(
+              context: context,
+              initialDate: _occurredAt,
+              firstDate: DateTime(2000),
+              lastDate: DateTime.now().add(const Duration(days: 365)),
+            );
+            if (picked != null) {
+              setState(() {
+                _occurredAt = DateTime(
+                  picked.year,
+                  picked.month,
+                  picked.day,
+                  _occurredAt.hour,
+                  _occurredAt.minute,
+                );
+              });
+            }
+          },
+        ),
+        if (_error != null)
+          Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+        const SizedBox(height: 16),
+        FilledButton(onPressed: _save, child: Text(l10n.save)),
+      ],
+    );
+  }
+}

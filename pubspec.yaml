@@ -1,0 +1,40 @@
+name: valtero
+description: "Multi-currency expense tracker"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  flutter_riverpod: ^2.6.1
+  dio: ^5.9.0
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  drift: ^2.28.0
+  path_provider: ^2.1.5
+  path: ^1.9.1
+  intl: any
+  fl_chart: ^1.0.0
+  csv: ^6.0.0
+  share_plus: ^11.0.0
+  file_selector: ^1.0.3
+  collection: ^1.19.0
+  sqlite3: ^2.7.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  drift_dev: ^2.28.0
+  build_runner: ^2.4.13
+
+flutter:
+  uses-material-design: true
+  generate: true
