@@ -20,6 +20,8 @@ import 'package:valtero/shared/utils/money.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/money_text.dart';
+import 'package:valtero/widgets/period_picker.dart';
+import 'package:valtero/shared/utils/date_period.dart';
 
 const _pageSizeOptions = [10, 25, 50, 100];
 
@@ -41,11 +43,13 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
   late ExpenseListQuery _draft;
   late ExpenseListQuery _applied;
   ExpenseListViewMode _view = ExpenseListViewMode.list;
+  ExpenseChartBreakdown _chartBreakdown = ExpenseChartBreakdown.currency;
   int _pageSize = 25;
   int _page = 0;
   String? _exportMessage;
   String? _displayCurrency;
   Map<String, double>? _displayRates;
+  String? _displayRatesSourcesKey;
 
   @override
   void initState() {
@@ -139,6 +143,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
         setState(() {
           _displayCurrency = null;
           _displayRates = null;
+          _displayRatesSourcesKey = null;
         });
       case DisplayCurrencyChosen(:final code):
         final ok = await ensureRatesForDisplay(
@@ -157,8 +162,85 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
         setState(() {
           _displayCurrency = code;
           _displayRates = rates;
+          _displayRatesSourcesKey =
+              '${code.toUpperCase()}|${([...sources]..sort()).join(',')}';
         });
     }
+  }
+
+  Future<void> _syncDisplayRates(Set<String> sources) async {
+    final target = _displayCurrency;
+    if (target == null) {
+      _displayRatesSourcesKey = null;
+      return;
+    }
+    final key = '${target.toUpperCase()}|${([...sources]..sort()).join(',')}';
+    if (key == _displayRatesSourcesKey && _displayRates != null) return;
+    _displayRatesSourcesKey = key;
+
+    final ok = await ensureRatesForDisplay(
+      context,
+      ref,
+      sourceCurrencies: sources,
+      target: target,
+    );
+    if (!mounted) return;
+    if (!ok) {
+      setState(() {
+        _displayCurrency = null;
+        _displayRates = null;
+        _displayRatesSourcesKey = null;
+      });
+      return;
+    }
+    final rates = await loadDisplayRates(
+      resolver: ref.read(rateResolverProvider),
+      sourceCurrencies: sources,
+      target: target,
+    );
+    if (!mounted) return;
+    setState(() => _displayRates = rates);
+  }
+
+  Future<void> _confirmDeleteExpense(int id) async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.confirmDeleteExpense),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.no),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.yes),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    await ref.read(addExpenseControllerProvider).delete(id);
+    ref.invalidate(expenseTagIdsProvider);
+    if (!mounted) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(l10n.expenseDeleted),
+        behavior: SnackBarBehavior.floating,
+        margin: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          bottom: screenHeight - 140,
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   List<({String header, List<Expense> items})> _group(
@@ -209,21 +291,18 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
   }
 
   Future<void> _pickDraftDateRange() async {
-    final now = DateTime.now();
-    final initialStart = _draft.from ?? _draft.to ?? now;
-    final initialEnd = _draft.to ?? _draft.from ?? now;
-    final range = await showDateRangePicker(
-      context: context,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-      initialDateRange: DateTimeRange(
-        start: initialStart.isBefore(initialEnd) ? initialStart : initialEnd,
-        end: initialStart.isBefore(initialEnd) ? initialEnd : initialStart,
-      ),
+    final picked = await showPeriodPicker(
+      context,
+      initial: DatePeriod(from: _draft.from, to: _draft.to),
     );
-    if (range == null) return;
+    if (picked == null) return;
     setState(() {
-      _draft = _draft.copyWith(from: range.start, to: range.end);
+      _draft = _draft.copyWith(
+        from: picked.from,
+        to: picked.to,
+        clearFrom: picked.from == null,
+        clearTo: picked.to == null,
+      );
     });
   }
 
@@ -363,17 +442,18 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
     String primary,
   ) async {
     final resolver = ref.read(rateResolverProvider);
+    final target = primary.toUpperCase();
     var total = 0;
     var convertible = 0;
     for (final e in expenses) {
-      final rate = await resolver.getRate(e.storedCurrencyCode, primary);
-      if (rate == null) {
-        if (e.storedCurrencyCode == primary) {
-          total += e.storedAmountMinor;
-          convertible++;
-        }
+      final from = e.storedCurrencyCode.toUpperCase();
+      if (from == target) {
+        total += e.storedAmountMinor;
+        convertible++;
         continue;
       }
+      final rate = await resolver.getRate(from, target);
+      if (rate == null) continue;
       total += Money.convertMinor(
         originalMinor: e.storedAmountMinor,
         rate: rate,
@@ -383,23 +463,53 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
     return (totalMinor: total, convertibleCount: convertible);
   }
 
-  Future<Map<String, int>> _chartByCurrency(
+  Future<Map<String, int>> _chartAggregate(
     List<Expense> expenses,
-    String primary,
-  ) async {
+    String primary, {
+    required Map<int, List<int>> expenseTags,
+    required Map<int, String> tagLabels,
+    required String untaggedLabel,
+  }) async {
     final resolver = ref.read(rateResolverProvider);
     final amounts = <String, int>{};
     for (final e in expenses) {
       final rate = await resolver.getRate(e.storedCurrencyCode, primary);
       final amount = rate == null
-          ? (e.storedCurrencyCode == primary ? e.storedAmountMinor : 0)
+          ? (e.storedCurrencyCode.toUpperCase() == primary.toUpperCase()
+              ? e.storedAmountMinor
+              : 0)
           : Money.convertMinor(
               originalMinor: e.storedAmountMinor,
               rate: rate,
             );
       if (amount <= 0) continue;
-      amounts[e.storedCurrencyCode] =
-          (amounts[e.storedCurrencyCode] ?? 0) + amount;
+
+      switch (_chartBreakdown) {
+        case ExpenseChartBreakdown.currency:
+          final key = e.storedCurrencyCode.toUpperCase();
+          amounts[key] = (amounts[key] ?? 0) + amount;
+        case ExpenseChartBreakdown.month:
+          final key =
+              '${e.occurredAt.year}-${e.occurredAt.month.toString().padLeft(2, '0')}';
+          amounts[key] = (amounts[key] ?? 0) + amount;
+        case ExpenseChartBreakdown.year:
+          final key = '${e.occurredAt.year}';
+          amounts[key] = (amounts[key] ?? 0) + amount;
+        case ExpenseChartBreakdown.tags:
+          final ids = expenseTags[e.id] ?? const <int>[];
+          if (ids.isEmpty) {
+            amounts[untaggedLabel] = (amounts[untaggedLabel] ?? 0) + amount;
+          } else {
+            final share = amount ~/ ids.length;
+            var remainder = amount - share * ids.length;
+            for (final id in ids) {
+              final label = tagLabels[id] ?? untaggedLabel;
+              final part = share + (remainder > 0 ? 1 : 0);
+              if (remainder > 0) remainder--;
+              amounts[label] = (amounts[label] ?? 0) + part;
+            }
+          }
+      }
     }
     return amounts;
   }
@@ -432,6 +542,12 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
           for (final e in filtered) e.storedCurrencyCode.toUpperCase(),
         };
         final summaryCurrency = _displayCurrency ?? primary;
+        if (_displayCurrency != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            _syncDisplayRates(sourceCurrencies);
+          });
+        }
         final pageCount = filtered.isEmpty
             ? 1
             : ((filtered.length - 1) ~/ _pageSize) + 1;
@@ -448,7 +564,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
           controller: scrollController,
           slivers: [
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
               sliver: SliverToBoxAdapter(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -477,7 +593,6 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                       draft: _draft,
                       applied: _applied,
                       currencyOptions: currencyOptions,
-                      formatDay: _formatDay,
                       sort: _applied.sort,
                       ascending: _applied.ascending,
                       onPickPeriod: _pickDraftDateRange,
@@ -548,6 +663,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                       group: _applied.group == ExpenseListGroup.none
                           ? ExpenseListGroup.currency
                           : _applied.group,
+                      chartBreakdown: _chartBreakdown,
                       displayCurrency: _displayCurrency,
                       exportMessage: _exportMessage,
                       onDisplayIn: () => _pickDisplayCurrency(sourceCurrencies),
@@ -578,6 +694,9 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                         setState(
                           () => _applied = _applied.copyWith(group: g),
                         );
+                      },
+                      onChartBreakdownChanged: (b) {
+                        setState(() => _chartBreakdown = b);
                       },
                       onExport: _export,
                       child: filtered.isEmpty
@@ -612,9 +731,12 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                                   onDelete: _deleteExpense,
                                 ),
                               ExpenseListViewMode.chart => _ExpenseChart(
-                                  future: _chartByCurrency(
+                                  future: _chartAggregate(
                                     filtered,
                                     summaryCurrency,
+                                    expenseTags: expenseTags,
+                                    tagLabels: tagLabels,
+                                    untaggedLabel: l10n.untagged,
                                   ),
                                   primaryCurrency: summaryCurrency,
                                 ),
@@ -631,8 +753,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
   }
 
   void _deleteExpense(int id) {
-    ref.read(addExpenseControllerProvider).delete(id);
-    ref.invalidate(expenseTagIdsProvider);
+    _confirmDeleteExpense(id);
   }
 }
 
@@ -640,7 +761,6 @@ class _FilterCard extends StatelessWidget {
   final ExpenseListQuery draft;
   final ExpenseListQuery applied;
   final List<String> currencyOptions;
-  final String Function(DateTime) formatDay;
   final ExpenseListSortField sort;
   final bool ascending;
   final VoidCallback onPickPeriod;
@@ -659,7 +779,6 @@ class _FilterCard extends StatelessWidget {
     required this.draft,
     required this.applied,
     required this.currencyOptions,
-    required this.formatDay,
     required this.sort,
     required this.ascending,
     required this.onPickPeriod,
@@ -686,23 +805,27 @@ class _FilterCard extends StatelessWidget {
         applied.tagIds.isNotEmpty;
 
     String periodLabel() {
-      if (draft.from == null && draft.to == null) return l10n.periodAll;
-      if (draft.from != null && draft.to != null) {
-        return l10n.periodFromTo(
-          formatDay(draft.from!),
-          formatDay(draft.to!),
-        );
-      }
-      if (draft.from != null) {
-        return '${l10n.periodFrom}: ${formatDay(draft.from!)}';
-      }
-      return '${l10n.periodTo}: ${formatDay(draft.to!)}';
+      return formatPeriodLabel(
+        l10n,
+        DatePeriod(from: draft.from, to: draft.to),
+      );
     }
 
     final border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
       borderSide: BorderSide(color: theme.colorScheme.outline),
     );
+    const filterHeight = 56.0;
+    const filterPadding = EdgeInsets.fromLTRB(12, 14, 8, 14);
+
+    InputDecoration filterDecoration(String label) => InputDecoration(
+          labelText: label,
+          isDense: true,
+          border: border,
+          enabledBorder: border,
+          focusedBorder: border,
+          contentPadding: filterPadding,
+        );
 
     return Card(
       margin: EdgeInsets.zero,
@@ -719,6 +842,7 @@ class _FilterCard extends StatelessWidget {
                     (constraints.maxWidth - gap * (columns - 1)) / columns;
                 Widget cell(Widget child) => SizedBox(
                       width: cellWidth,
+                      height: filterHeight,
                       child: child,
                     );
 
@@ -728,10 +852,9 @@ class _FilterCard extends StatelessWidget {
                   children: [
                     cell(
                       _FilterOutlineButton(
-                        label: l10n.periodRange,
                         value: periodLabel(),
                         icon: Icons.date_range,
-                        border: border,
+                        decoration: filterDecoration(l10n.periodRange),
                         onTap: onPickPeriod,
                       ),
                     ),
@@ -740,16 +863,14 @@ class _FilterCard extends StatelessWidget {
                         // ignore: deprecated_member_use
                         value: draft.currencyCode,
                         isExpanded: true,
-                        decoration: InputDecoration(
-                          labelText: l10n.filterCurrency,
-                          isDense: true,
-                          border: border,
-                          enabledBorder: border,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 14,
-                          ),
-                        ),
+                        isDense: true,
+                        iconSize: 20,
+                        decoration: filterDecoration(l10n.filterCurrency),
+                        selectedItemBuilder: (context) => [
+                          Text(l10n.all, overflow: TextOverflow.ellipsis),
+                          for (final code in currencyOptions)
+                            Text(code, overflow: TextOverflow.ellipsis),
+                        ],
                         items: [
                           DropdownMenuItem<String?>(
                             value: null,
@@ -758,7 +879,7 @@ class _FilterCard extends StatelessWidget {
                           for (final code in currencyOptions)
                             DropdownMenuItem<String?>(
                               value: code,
-                              child: CurrencyCodeLabel(code),
+                              child: CurrencyCodeLabel(code, compact: true),
                             ),
                         ],
                         onChanged: onCurrencyChanged,
@@ -766,12 +887,11 @@ class _FilterCard extends StatelessWidget {
                     ),
                     cell(
                       _FilterOutlineButton(
-                        label: l10n.selectTags,
                         value: draft.tagIds.isEmpty
                             ? l10n.all
                             : l10n.tagsSelected(draft.tagIds.length),
                         icon: Icons.label_outline,
-                        border: border,
+                        decoration: filterDecoration(l10n.selectTags),
                         onTap: onPickTags,
                       ),
                     ),
@@ -780,16 +900,9 @@ class _FilterCard extends StatelessWidget {
                         // ignore: deprecated_member_use
                         value: _sortKey,
                         isExpanded: true,
-                        decoration: InputDecoration(
-                          labelText: l10n.sortBy,
-                          isDense: true,
-                          border: border,
-                          enabledBorder: border,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 14,
-                          ),
-                        ),
+                        isDense: true,
+                        iconSize: 20,
+                        decoration: filterDecoration(l10n.sortBy),
                         items: [
                           for (final field in ExpenseListSortField.values)
                             for (final asc in [false, true])
@@ -805,6 +918,7 @@ class _FilterCard extends StatelessWidget {
                                     ExpenseListSortField.currency =>
                                       l10n.sortCurrency,
                                   }} · ${asc ? l10n.ascending : l10n.descending}',
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                         ],
@@ -849,14 +963,10 @@ class _FilterCard extends StatelessWidget {
                   if (hasPeriod)
                     InputChip(
                       label: Text(
-                        applied.from != null && applied.to != null
-                            ? l10n.periodFromTo(
-                                formatDay(applied.from!),
-                                formatDay(applied.to!),
-                              )
-                            : applied.from != null
-                                ? '${l10n.periodFrom}: ${formatDay(applied.from!)}'
-                                : '${l10n.periodTo}: ${formatDay(applied.to!)}',
+                        formatPeriodLabel(
+                          l10n,
+                          DatePeriod(from: applied.from, to: applied.to),
+                        ),
                       ),
                       onDeleted: onClearPeriod,
                     ),
@@ -883,33 +993,22 @@ class _FilterCard extends StatelessWidget {
 }
 
 class _FilterOutlineButton extends StatelessWidget {
-  final String label;
   final String value;
   final IconData icon;
-  final InputBorder border;
+  final InputDecoration decoration;
   final VoidCallback onTap;
 
   const _FilterOutlineButton({
-    required this.label,
     required this.value,
     required this.icon,
-    required this.border,
+    required this.decoration,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return InputDecorator(
-      decoration: InputDecoration(
-        labelText: label,
-        isDense: true,
-        border: border,
-        enabledBorder: border,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 10,
-        ),
-      ),
+      decoration: decoration,
       child: InkWell(
         onTap: onTap,
         child: Row(
@@ -920,6 +1019,7 @@ class _FilterOutlineButton extends StatelessWidget {
               child: Text(
                 value,
                 overflow: TextOverflow.ellipsis,
+                maxLines: 1,
               ),
             ),
             const Icon(Icons.arrow_drop_down, size: 20),
@@ -978,12 +1078,28 @@ class _SummaryRow extends StatelessWidget {
                   );
                 }
                 final data = snap.data!;
-                return MoneyText(
-                  amountMinor: data.totalMinor,
-                  currencyCode: primaryCurrency,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                final theme = Theme.of(context);
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    MoneyText(
+                      amountMinor: data.totalMinor,
+                      currencyCode: primaryCurrency,
+                      style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
+                    ),
+                    if (count > 0 && data.convertibleCount < count)
+                      Text(
+                        l10n.summaryPartialTotal(
+                          data.convertibleCount,
+                          count,
+                        ),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.error,
+                        ),
+                      ),
+                  ],
                 );
               },
             ),
@@ -1058,6 +1174,7 @@ class _ListingCard extends StatelessWidget {
   final int pageCount;
   final ExpenseListViewMode view;
   final ExpenseListGroup group;
+  final ExpenseChartBreakdown chartBreakdown;
   final String? displayCurrency;
   final String? exportMessage;
   final VoidCallback onDisplayIn;
@@ -1065,6 +1182,7 @@ class _ListingCard extends StatelessWidget {
   final ValueChanged<int> onPageChanged;
   final ValueChanged<ExpenseListViewMode> onViewChanged;
   final ValueChanged<ExpenseListGroup> onGroupChanged;
+  final ValueChanged<ExpenseChartBreakdown> onChartBreakdownChanged;
   final Future<void> Function(ExportFormat format, {required bool share})
       onExport;
   final Widget child;
@@ -1076,6 +1194,7 @@ class _ListingCard extends StatelessWidget {
     required this.pageCount,
     required this.view,
     required this.group,
+    required this.chartBreakdown,
     required this.displayCurrency,
     required this.exportMessage,
     required this.onDisplayIn,
@@ -1083,6 +1202,7 @@ class _ListingCard extends StatelessWidget {
     required this.onPageChanged,
     required this.onViewChanged,
     required this.onGroupChanged,
+    required this.onChartBreakdownChanged,
     required this.onExport,
     required this.child,
   });
@@ -1226,6 +1346,7 @@ class _ListingCard extends StatelessWidget {
             ),
           ),
           if (view == ExpenseListViewMode.grouping ||
+              view == ExpenseListViewMode.chart ||
               (view == ExpenseListViewMode.list && pageCount > 1))
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
@@ -1256,6 +1377,40 @@ class _ListingCard extends StatelessWidget {
                       ],
                       onChanged: (v) {
                         if (v != null) onGroupChanged(v);
+                      },
+                    ),
+                  if (view == ExpenseListViewMode.chart)
+                    DropdownButton<ExpenseChartBreakdown>(
+                      value: chartBreakdown,
+                      underline: const SizedBox.shrink(),
+                      items: [
+                        DropdownMenuItem(
+                          value: ExpenseChartBreakdown.currency,
+                          child: Text(
+                            '${l10n.chartBy}: ${l10n.chartByCurrency}',
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: ExpenseChartBreakdown.tags,
+                          child: Text(
+                            '${l10n.chartBy}: ${l10n.chartByTags}',
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: ExpenseChartBreakdown.month,
+                          child: Text(
+                            '${l10n.chartBy}: ${l10n.chartByMonth}',
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: ExpenseChartBreakdown.year,
+                          child: Text(
+                            '${l10n.chartBy}: ${l10n.chartByYear}',
+                          ),
+                        ),
+                      ],
+                      onChanged: (v) {
+                        if (v != null) onChartBreakdownChanged(v);
                       },
                     ),
                   if (view == ExpenseListViewMode.list && pageCount > 1)

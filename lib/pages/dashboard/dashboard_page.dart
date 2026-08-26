@@ -18,6 +18,8 @@ import 'package:valtero/shared/utils/money.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
 import 'package:valtero/widgets/header_clock.dart';
 import 'package:valtero/widgets/money_text.dart';
+import 'package:valtero/widgets/period_picker.dart';
+import 'package:valtero/shared/utils/date_period.dart';
 import 'package:valtero/entities/expense/model/expenses_provider.dart';
 
 enum DonutBreakdown { tags, month, currency }
@@ -56,11 +58,6 @@ class DashboardPage extends ConsumerWidget {
 
   DateTime _dayEnd(DateTime d) =>
       DateTime(d.year, d.month, d.day, 23, 59, 59, 999);
-
-  String _formatDay(DateTime? d) {
-    if (d == null) return '—';
-    return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -179,48 +176,26 @@ class DashboardPage extends ConsumerWidget {
               Text(l10n.periodRange,
                   style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  FilterChip(
-                    label: Text(l10n.periodAll),
-                    selected: from == null && to == null,
-                    onSelected: (_) {
-                      ref.read(dashboardFromProvider.notifier).state = null;
-                      ref.read(dashboardToProvider.notifier).state = null;
-                    },
+              Align(
+                alignment: Alignment.centerLeft,
+                child: ActionChip(
+                  avatar: const Icon(Icons.date_range, size: 18),
+                  label: Text(
+                    formatPeriodLabel(
+                      l10n,
+                      DatePeriod(from: from, to: to),
+                    ),
                   ),
-                  ActionChip(
-                    label: Text('${l10n.periodFrom}: ${_formatDay(from)}'),
-                    onPressed: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: from ?? DateTime.now(),
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime.now().add(const Duration(days: 365)),
-                      );
-                      if (picked != null) {
-                        ref.read(dashboardFromProvider.notifier).state = picked;
-                      }
-                    },
-                  ),
-                  ActionChip(
-                    label: Text('${l10n.periodTo}: ${_formatDay(to)}'),
-                    onPressed: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: to ?? DateTime.now(),
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime.now().add(const Duration(days: 365)),
-                      );
-                      if (picked != null) {
-                        ref.read(dashboardToProvider.notifier).state = picked;
-                      }
-                    },
-                  ),
-                ],
+                  onPressed: () async {
+                    final picked = await showPeriodPicker(
+                      context,
+                      initial: DatePeriod(from: from, to: to),
+                    );
+                    if (picked == null) return;
+                    ref.read(dashboardFromProvider.notifier).state = picked.from;
+                    ref.read(dashboardToProvider.notifier).state = picked.to;
+                  },
+                ),
               ),
               if (tags.isNotEmpty) ...[
                 const SizedBox(height: 12),

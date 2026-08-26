@@ -40,6 +40,10 @@
   "save": "Save",
   "delete": "Delete",
   "cancel": "Cancel",
+  "yes": "Yes",
+  "no": "No",
+  "confirmDeleteExpense": "Delete this expense?",
+  "expenseDeleted": "Expense deleted",
   "add": "Add",
   "settings": "Settings",
   "reportingCurrencies": "Reporting currencies",
@@ -124,6 +128,7 @@
   "chartByTags": "Tags",
   "chartByMonth": "Months",
   "chartByCurrency": "Currency",
+  "chartByYear": "Years",
   "filterTags": "Filter tags",
   "excludeTag": "Exclude",
   "periodRange": "Period",
@@ -137,6 +142,18 @@
       "to": { "type": "String" }
     }
   },
+  "periodToday": "Today",
+  "periodYesterday": "Yesterday",
+  "periodLast7Days": "Last 7 days",
+  "periodLast30Days": "Last 30 days",
+  "periodThisMonth": "This month",
+  "periodLastMonth": "Last month",
+  "periodThisQuarter": "This quarter",
+  "periodThisYear": "This year",
+  "periodLast12Months": "Last 12 months",
+  "periodCustom": "Custom range",
+  "periodCustomHint": "Pick from and to dates",
+  "periodPickRange": "Pick dates",
   "showExpenses": "Show expenses",
   "sortBy": "Sort by",
   "sortDate": "Date",
@@ -175,6 +192,13 @@
   "summaryCount": "Expenses",
   "summaryTotal": "Total",
   "summaryCurrencies": "Currencies",
+  "summaryPartialTotal": "Converted {converted} of {total}",
+  "@summaryPartialTotal": {
+    "placeholders": {
+      "converted": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
   "totalRecords": "Total: {count}",
   "@totalRecords": {
     "placeholders": {

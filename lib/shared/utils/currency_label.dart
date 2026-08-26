@@ -1,29 +1,27 @@
-import 'package:l10n_currencies/l10n_currencies.dart';
+import 'package:sealed_currencies/sealed_currencies.dart';
 import 'package:valtero/shared/consts/currencies.dart';
 
-/// Cached names per language. `CurrenciesLocaleMapper` is single-use after
-/// [CurrenciesLocaleMapper.localize], so we materialize maps once.
+/// Cached names per language (fiat via `sealed_currencies` l10n, crypto/custom
+/// from the local catalog).
 final Map<String, Map<String, String>> _namesByLang = {};
+
+NaturalLanguage _languageFor(String languageCode) {
+  return NaturalLanguage.maybeFromCodeShort(languageCode) ??
+      const LangEng();
+}
 
 Map<String, String> _namesFor(String languageCode) {
   final lang = languageCode == 'ru' ? 'ru' : 'en';
   final cached = _namesByLang[lang];
   if (cached != null) return cached;
 
-  final fiatCodes = fiatCurrencies.map((c) => c.code).toSet();
-  final mapper = CurrenciesLocaleMapper();
-  final localized = mapper.localize(
-    fiatCodes,
-    mainLocale: lang,
-    fallbackLocale: 'en',
-  );
+  final locale = BasicLocale(_languageFor(lang));
   final names = <String, String>{
     for (final c in cryptoCurrencies) c.code: c.name,
   };
-  for (final entry in localized.entries) {
-    if (entry.key.locale == lang || !names.containsKey(entry.key.isoCode)) {
-      names[entry.key.isoCode] = entry.value;
-    }
+  for (final fiat in FiatCurrency.list) {
+    names[fiat.code] =
+        fiat.maybeCommonNameFor(locale) ?? fiat.name;
   }
   return _namesByLang[lang] = names;
 }
@@ -39,26 +37,20 @@ String localizedCurrencyName(
   final cached = names[upper];
   if (cached != null) return cached;
 
+  final fiat = FiatCurrency.maybeFromCode(upper);
+  if (fiat != null) {
+    final locale = BasicLocale(_languageFor(languageCode));
+    final name = fiat.maybeCommonNameFor(locale) ?? fiat.name;
+    names[upper] = name;
+    return name;
+  }
+
   final known = currencyByCode(upper, customCodes: customCodes);
-  if (known != null && known.kind != CurrencyKind.fiat) {
+  if (known != null) {
     names[upper] = known.name;
     return known.name;
   }
-
-  final lang = languageCode == 'ru' ? 'ru' : 'en';
-  final mapper = CurrenciesLocaleMapper();
-  final localized = mapper.localize(
-    {upper},
-    mainLocale: lang,
-    fallbackLocale: 'en',
-  );
-  for (final entry in localized.entries) {
-    if (entry.key.isoCode == upper) {
-      names[upper] = entry.value;
-      return entry.value;
-    }
-  }
-  return known?.name ?? upper;
+  return upper;
 }
 
 /// Display label: `US Dollar (USD)`.

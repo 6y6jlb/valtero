@@ -272,6 +272,30 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get cancel;
 
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// No description provided for @confirmDeleteExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this expense?'**
+  String get confirmDeleteExpense;
+
+  /// No description provided for @expenseDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense deleted'**
+  String get expenseDeleted;
+
   /// No description provided for @add.
   ///
   /// In en, this message translates to:
@@ -716,6 +740,12 @@ abstract class AppLocalizations {
   /// **'Currency'**
   String get chartByCurrency;
 
+  /// No description provided for @chartByYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Years'**
+  String get chartByYear;
+
   /// No description provided for @filterTags.
   ///
   /// In en, this message translates to:
@@ -757,6 +787,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{from} — {to}'**
   String periodFromTo(String from, String to);
+
+  /// No description provided for @periodToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get periodToday;
+
+  /// No description provided for @periodYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get periodYesterday;
+
+  /// No description provided for @periodLast7Days.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get periodLast7Days;
+
+  /// No description provided for @periodLast30Days.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days'**
+  String get periodLast30Days;
+
+  /// No description provided for @periodThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get periodThisMonth;
+
+  /// No description provided for @periodLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last month'**
+  String get periodLastMonth;
+
+  /// No description provided for @periodThisQuarter.
+  ///
+  /// In en, this message translates to:
+  /// **'This quarter'**
+  String get periodThisQuarter;
+
+  /// No description provided for @periodThisYear.
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get periodThisYear;
+
+  /// No description provided for @periodLast12Months.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 12 months'**
+  String get periodLast12Months;
+
+  /// No description provided for @periodCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom range'**
+  String get periodCustom;
+
+  /// No description provided for @periodCustomHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick from and to dates'**
+  String get periodCustomHint;
+
+  /// No description provided for @periodPickRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick dates'**
+  String get periodPickRange;
 
   /// No description provided for @showExpenses.
   ///
@@ -949,6 +1051,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Currencies'**
   String get summaryCurrencies;
+
+  /// No description provided for @summaryPartialTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Converted {converted} of {total}'**
+  String summaryPartialTotal(int converted, int total);
 
   /// No description provided for @totalRecords.
   ///

@@ -26,13 +26,12 @@ class ExpensesPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.navExpenses),
-        actions: [
-          IconButton(
-            tooltip: l10n.addExpense,
-            onPressed: () => showAddExpenseSheet(context),
-            icon: const Icon(Icons.add, size: 28),
-          ),
-        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'expenses_add_expense',
+        tooltip: l10n.addExpense,
+        onPressed: () => showAddExpenseSheet(context),
+        child: const Icon(Icons.add, size: 32),
       ),
       body: ExpensesSheetBody(
         initial: initial ?? const ExpenseListQuery(),

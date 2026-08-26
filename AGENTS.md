@@ -63,7 +63,7 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 ## Navigation
 
 - Home: **Dashboard** (no bottom nav)
-- **Expenses**: full page via FAB “Show expenses” (back arrow); add expense stays a sheet (`+` on Dashboard and on Expenses AppBar)
+- **Expenses**: full page via FAB “Show expenses” (back arrow); add expense stays a sheet (`+` FAB sticky bottom on Dashboard and Expenses page)
 - Settings via gear in the AppBar → full page with back arrow
 - Sheets (full window width): add expense, tags, export, currency, appearance, rates list
 - Dashboard: one donut (by tags / months / currency), tag exclude filters, date period; FABs “Show expenses” + add

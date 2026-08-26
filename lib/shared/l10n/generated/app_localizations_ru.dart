@@ -100,6 +100,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cancel => 'Отмена';
 
   @override
+  String get yes => 'Да';
+
+  @override
+  String get no => 'Нет';
+
+  @override
+  String get confirmDeleteExpense => 'Удалить эту трату?';
+
+  @override
+  String get expenseDeleted => 'Трата удалена';
+
+  @override
   String get add => 'Добавить';
 
   @override
@@ -326,6 +338,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get chartByCurrency => 'Валюта';
 
   @override
+  String get chartByYear => 'Годы';
+
+  @override
   String get filterTags => 'Фильтр тегов';
 
   @override
@@ -347,6 +362,42 @@ class AppLocalizationsRu extends AppLocalizations {
   String periodFromTo(String from, String to) {
     return '$from — $to';
   }
+
+  @override
+  String get periodToday => 'Сегодня';
+
+  @override
+  String get periodYesterday => 'Вчера';
+
+  @override
+  String get periodLast7Days => 'Последние 7 дней';
+
+  @override
+  String get periodLast30Days => 'Последние 30 дней';
+
+  @override
+  String get periodThisMonth => 'Этот месяц';
+
+  @override
+  String get periodLastMonth => 'Прошлый месяц';
+
+  @override
+  String get periodThisQuarter => 'Этот квартал';
+
+  @override
+  String get periodThisYear => 'Этот год';
+
+  @override
+  String get periodLast12Months => 'Последние 12 месяцев';
+
+  @override
+  String get periodCustom => 'Свой период';
+
+  @override
+  String get periodCustomHint => 'Укажите даты от и до';
+
+  @override
+  String get periodPickRange => 'Выбрать даты';
 
   @override
   String get showExpenses => 'Показать траты';
@@ -445,6 +496,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get summaryCurrencies => 'Валют';
+
+  @override
+  String summaryPartialTotal(int converted, int total) {
+    return 'Сконвертировано $converted из $total';
+  }
 
   @override
   String totalRecords(int count) {

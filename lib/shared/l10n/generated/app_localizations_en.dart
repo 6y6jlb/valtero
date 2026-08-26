@@ -100,6 +100,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cancel => 'Cancel';
 
   @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get confirmDeleteExpense => 'Delete this expense?';
+
+  @override
+  String get expenseDeleted => 'Expense deleted';
+
+  @override
   String get add => 'Add';
 
   @override
@@ -326,6 +338,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartByCurrency => 'Currency';
 
   @override
+  String get chartByYear => 'Years';
+
+  @override
   String get filterTags => 'Filter tags';
 
   @override
@@ -347,6 +362,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String periodFromTo(String from, String to) {
     return '$from — $to';
   }
+
+  @override
+  String get periodToday => 'Today';
+
+  @override
+  String get periodYesterday => 'Yesterday';
+
+  @override
+  String get periodLast7Days => 'Last 7 days';
+
+  @override
+  String get periodLast30Days => 'Last 30 days';
+
+  @override
+  String get periodThisMonth => 'This month';
+
+  @override
+  String get periodLastMonth => 'Last month';
+
+  @override
+  String get periodThisQuarter => 'This quarter';
+
+  @override
+  String get periodThisYear => 'This year';
+
+  @override
+  String get periodLast12Months => 'Last 12 months';
+
+  @override
+  String get periodCustom => 'Custom range';
+
+  @override
+  String get periodCustomHint => 'Pick from and to dates';
+
+  @override
+  String get periodPickRange => 'Pick dates';
 
   @override
   String get showExpenses => 'Show expenses';
@@ -445,6 +496,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get summaryCurrencies => 'Currencies';
+
+  @override
+  String summaryPartialTotal(int converted, int total) {
+    return 'Converted $converted of $total';
+  }
 
   @override
   String totalRecords(int count) {

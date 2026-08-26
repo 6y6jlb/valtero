@@ -40,6 +40,10 @@
   "save": "Сохранить",
   "delete": "Удалить",
   "cancel": "Отмена",
+  "yes": "Да",
+  "no": "Нет",
+  "confirmDeleteExpense": "Удалить эту трату?",
+  "expenseDeleted": "Трата удалена",
   "add": "Добавить",
   "settings": "Настройки",
   "reportingCurrencies": "Базовые валюты",
@@ -124,6 +128,7 @@
   "chartByTags": "Теги",
   "chartByMonth": "Месяцы",
   "chartByCurrency": "Валюта",
+  "chartByYear": "Годы",
   "filterTags": "Фильтр тегов",
   "excludeTag": "Исключить",
   "periodRange": "Период",
@@ -137,6 +142,18 @@
       "to": { "type": "String" }
     }
   },
+  "periodToday": "Сегодня",
+  "periodYesterday": "Вчера",
+  "periodLast7Days": "Последние 7 дней",
+  "periodLast30Days": "Последние 30 дней",
+  "periodThisMonth": "Этот месяц",
+  "periodLastMonth": "Прошлый месяц",
+  "periodThisQuarter": "Этот квартал",
+  "periodThisYear": "Этот год",
+  "periodLast12Months": "Последние 12 месяцев",
+  "periodCustom": "Свой период",
+  "periodCustomHint": "Укажите даты от и до",
+  "periodPickRange": "Выбрать даты",
   "showExpenses": "Показать траты",
   "sortBy": "Сортировка",
   "sortDate": "Дата",
@@ -175,6 +192,13 @@
   "summaryCount": "Трат",
   "summaryTotal": "Сумма",
   "summaryCurrencies": "Валют",
+  "summaryPartialTotal": "Сконвертировано {converted} из {total}",
+  "@summaryPartialTotal": {
+    "placeholders": {
+      "converted": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
   "totalRecords": "Всего: {count}",
   "@totalRecords": {
     "placeholders": {
