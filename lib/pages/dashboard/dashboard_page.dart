@@ -1,22 +1,66 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
-import 'package:valtero/entities/expense/model/expenses_provider.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
+import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
+import 'package:valtero/features/currency_settings/ui/rates_sheet.dart';
+import 'package:valtero/features/expenses_list/ui/expenses_sheet.dart';
+import 'package:valtero/features/export_expenses/ui/export_panel.dart';
+import 'package:valtero/pages/settings/settings_page.dart';
+import 'package:valtero/pages/tags/tags_sheet.dart';
+import 'package:valtero/shared/consts/palette.dart';
+import 'package:valtero/shared/database/app_database.dart';
+import 'package:valtero/shared/database/database_provider.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/money.dart';
+import 'package:valtero/shared/utils/tag_label.dart';
+import 'package:valtero/widgets/header_clock.dart';
 import 'package:valtero/widgets/money_text.dart';
-import 'package:fl_chart/fl_chart.dart';
+import 'package:valtero/entities/expense/model/expenses_provider.dart';
 
-enum DashboardPeriod { day, week, month }
+enum DonutBreakdown { tags, month, currency }
 
-final displayCurrencyProvider = StateProvider<String?>((ref) => null);
-final dashboardPeriodProvider =
-    StateProvider<DashboardPeriod>((ref) => DashboardPeriod.month);
+final donutBreakdownProvider =
+    StateProvider<DonutBreakdown>((ref) => DonutBreakdown.tags);
+final dashboardExcludedTagIdsProvider =
+    StateProvider<Set<int>>((ref) => <int>{});
+final dashboardFromProvider = StateProvider<DateTime?>((ref) => null);
+final dashboardToProvider = StateProvider<DateTime?>((ref) => null);
+
+class _Slice {
+  final String key;
+  final String label;
+  final int amountMinor;
+  final Color color;
+
+  const _Slice({
+    required this.key,
+    required this.label,
+    required this.amountMinor,
+    required this.color,
+  });
+}
 
 class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
+
+  void _openSettings(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => const SettingsPage()),
+    );
+  }
+
+  DateTime _dayStart(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  DateTime _dayEnd(DateTime d) =>
+      DateTime(d.year, d.month, d.day, 23, 59, 59, 999);
+
+  String _formatDay(DateTime? d) {
+    if (d == null) return '—';
+    return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,181 +68,290 @@ class DashboardPage extends ConsumerWidget {
     final settings = ref.watch(appSettingsProvider).value;
     final expenses = ref.watch(allExpensesProvider).value ?? const [];
     final tags = ref.watch(tagsStreamProvider).value ?? const [];
-    final period = ref.watch(dashboardPeriodProvider);
-    final displayCurrency = ref.watch(displayCurrencyProvider) ??
-        settings?.primaryCurrency ??
-        'RUB';
-    final reporting = settings?.reportingCurrencies ?? [displayCurrency];
+    final breakdown = ref.watch(donutBreakdownProvider);
+    final excluded = ref.watch(dashboardExcludedTagIdsProvider);
+    final from = ref.watch(dashboardFromProvider);
+    final to = ref.watch(dashboardToProvider);
+    final displayCurrency = settings?.primaryCurrency ?? 'RUB';
+    final tagById = {for (final t in tags) t.id: t};
+    final tagLabels = {
+      for (final t in tags) t.id: localizedTagLabel(context, t),
+    };
 
-    return FutureBuilder<Map<String, dynamic>>(
-      future: _aggregate(
-        ref: ref,
-        expenses: expenses,
-        tags: {for (final t in tags) t.id: t.name},
-        displayCurrency: displayCurrency,
-        period: period,
-        untaggedLabel: l10n.untagged,
+    return Scaffold(
+      appBar: AppBar(
+        title: const HeaderClock(),
+        actions: [
+          IconButton(
+            tooltip: l10n.navTags,
+            onPressed: () => showTagsSheet(context),
+            icon: const Icon(Icons.label_outline),
+          ),
+          IconButton(
+            tooltip: l10n.viewRates,
+            onPressed: () => showRatesSheet(context),
+            icon: const Icon(Icons.currency_exchange),
+          ),
+          IconButton(
+            tooltip: l10n.settingsExport,
+            onPressed: () => showExportSheet(context),
+            icon: const Icon(Icons.ios_share_outlined),
+          ),
+          IconButton(
+            tooltip: l10n.settings,
+            onPressed: () => _openSettings(context),
+            icon: const Icon(Icons.settings_outlined),
+          ),
+        ],
       ),
-      builder: (context, snapshot) {
-        final data = snapshot.data;
-        final total = data?['total'] as int? ?? 0;
-        final byTag = (data?['byTag'] as Map<String, int>?) ?? {};
-        final byPeriod = (data?['byPeriod'] as Map<String, int>?) ?? {};
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => showExpensesSheet(context),
+        icon: const Icon(Icons.list_alt),
+        label: Text(l10n.showExpenses),
+      ),
+      body: FutureBuilder<({int total, List<_Slice> slices})>(
+        future: _aggregate(
+          ref: ref,
+          expenses: expenses,
+          tagById: tagById,
+          tagLabels: tagLabels,
+          displayCurrency: displayCurrency,
+          breakdown: breakdown,
+          excludedTagIds: excluded,
+          from: from,
+          to: to,
+          untaggedLabel: l10n.untagged,
+        ),
+        builder: (context, snapshot) {
+          final total = snapshot.data?.total ?? 0;
+          final slices = snapshot.data?.slices ?? const <_Slice>[];
 
-        return ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    l10n.navDashboard,
-                    style: Theme.of(context).textTheme.headlineSmall,
+          return ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+            children: [
+              FilledButton.icon(
+                onPressed: () => showAddExpenseSheet(context),
+                icon: const Icon(Icons.add),
+                label: Text(l10n.addExpense),
+              ),
+              const SizedBox(height: 12),
+              Card(
+                child: ListTile(
+                  title: Text(l10n.summaryTotal),
+                  trailing: MoneyText(
+                    amountMinor: total,
+                    currencyCode: displayCurrency,
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ),
-                DropdownButton<String>(
-                  value: reporting.contains(displayCurrency)
-                      ? displayCurrency
-                      : reporting.first,
-                  items: [
-                    for (final code in reporting)
-                      DropdownMenuItem(value: code, child: Text(code)),
-                  ],
-                  onChanged: (v) {
-                    if (v != null) {
-                      ref.read(displayCurrencyProvider.notifier).state = v;
-                    }
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Card(
-              child: ListTile(
-                title: Text(l10n.summaryTotal),
-                trailing: MoneyText(
-                  amountMinor: total,
-                  currencyCode: displayCurrency,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            SegmentedButton<DashboardPeriod>(
-              segments: [
-                ButtonSegment(
-                  value: DashboardPeriod.day,
-                  label: Text(l10n.periodDay),
+              const SizedBox(height: 12),
+              Text(l10n.chartBy, style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: 8),
+              SegmentedButton<DonutBreakdown>(
+                segments: [
+                  ButtonSegment(
+                    value: DonutBreakdown.tags,
+                    label: Text(l10n.chartByTags),
+                  ),
+                  ButtonSegment(
+                    value: DonutBreakdown.month,
+                    label: Text(l10n.chartByMonth),
+                  ),
+                  ButtonSegment(
+                    value: DonutBreakdown.currency,
+                    label: Text(l10n.chartByCurrency),
+                  ),
+                ],
+                selected: {breakdown},
+                onSelectionChanged: (s) {
+                  ref.read(donutBreakdownProvider.notifier).state = s.first;
+                },
+              ),
+              const SizedBox(height: 12),
+              Text(l10n.periodRange,
+                  style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  FilterChip(
+                    label: Text(l10n.periodAll),
+                    selected: from == null && to == null,
+                    onSelected: (_) {
+                      ref.read(dashboardFromProvider.notifier).state = null;
+                      ref.read(dashboardToProvider.notifier).state = null;
+                    },
+                  ),
+                  ActionChip(
+                    label: Text('${l10n.periodFrom}: ${_formatDay(from)}'),
+                    onPressed: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: from ?? DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime.now().add(const Duration(days: 365)),
+                      );
+                      if (picked != null) {
+                        ref.read(dashboardFromProvider.notifier).state = picked;
+                      }
+                    },
+                  ),
+                  ActionChip(
+                    label: Text('${l10n.periodTo}: ${_formatDay(to)}'),
+                    onPressed: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: to ?? DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime.now().add(const Duration(days: 365)),
+                      );
+                      if (picked != null) {
+                        ref.read(dashboardToProvider.notifier).state = picked;
+                      }
+                    },
+                  ),
+                ],
+              ),
+              if (tags.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Text(l10n.filterTags,
+                    style: Theme.of(context).textTheme.titleSmall),
+                const SizedBox(height: 4),
+                Text(
+                  l10n.excludeTag,
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
-                ButtonSegment(
-                  value: DashboardPeriod.week,
-                  label: Text(l10n.periodWeek),
-                ),
-                ButtonSegment(
-                  value: DashboardPeriod.month,
-                  label: Text(l10n.periodMonth),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final tag in tags)
+                      FilterChip(
+                        avatar: tag.colorValue == null
+                            ? null
+                            : CircleAvatar(
+                                backgroundColor: Color(tag.colorValue!),
+                                radius: 8,
+                              ),
+                        label: Text(tagLabels[tag.id] ?? tag.name),
+                        selected: excluded.contains(tag.id),
+                        onSelected: (selected) {
+                          final next = {...excluded};
+                          if (selected) {
+                            next.add(tag.id);
+                          } else {
+                            next.remove(tag.id);
+                          }
+                          ref
+                              .read(dashboardExcludedTagIdsProvider.notifier)
+                              .state = next;
+                        },
+                      ),
+                  ],
                 ),
               ],
-              selected: {period},
-              onSelectionChanged: (s) {
-                ref.read(dashboardPeriodProvider.notifier).state = s.first;
-              },
-            ),
-            const SizedBox(height: 16),
-            Text(l10n.byTag, style: Theme.of(context).textTheme.titleMedium),
-            SizedBox(
-              height: 220,
-              child: byTag.isEmpty
-                  ? Center(child: Text(l10n.noExpenses))
-                  : PieChart(
-                      PieChartData(
-                        sections: [
-                          for (final entry in byTag.entries)
-                            PieChartSectionData(
-                              value: entry.value.toDouble().abs() == 0
-                                  ? 1
-                                  : entry.value.toDouble().abs(),
-                              title: entry.key,
-                              radius: 60,
-                              titleStyle: const TextStyle(fontSize: 10),
-                            ),
-                        ],
-                      ),
-                    ),
-            ),
-            const SizedBox(height: 16),
-            Text(l10n.byPeriod, style: Theme.of(context).textTheme.titleMedium),
-            SizedBox(
-              height: 220,
-              child: byPeriod.isEmpty
-                  ? Center(child: Text(l10n.noExpenses))
-                  : BarChart(
-                      BarChartData(
-                        titlesData: FlTitlesData(
-                          bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              getTitlesWidget: (value, meta) {
-                                final keys = byPeriod.keys.toList();
-                                final i = value.toInt();
-                                if (i < 0 || i >= keys.length) {
-                                  return const SizedBox.shrink();
-                                }
-                                return Padding(
-                                  padding: const EdgeInsets.only(top: 4),
-                                  child: Text(keys[i], style: const TextStyle(fontSize: 9)),
-                                );
-                              },
-                            ),
-                          ),
-                          leftTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          topTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          rightTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                        ),
-                        barGroups: [
-                          for (var i = 0; i < byPeriod.length; i++)
-                            BarChartGroupData(
-                              x: i,
-                              barRods: [
-                                BarChartRodData(
-                                  toY: (byPeriod.values.elementAt(i) / 100)
-                                      .toDouble(),
-                                  width: 14,
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 260,
+                child: slices.isEmpty
+                    ? Center(child: Text(l10n.noExpenses))
+                    : PieChart(
+                        PieChartData(
+                          sectionsSpace: 2,
+                          centerSpaceRadius: 48,
+                          sections: [
+                            for (var i = 0; i < slices.length; i++)
+                              PieChartSectionData(
+                                value: slices[i].amountMinor.toDouble().abs() ==
+                                        0
+                                    ? 1
+                                    : slices[i].amountMinor.toDouble().abs(),
+                                title: slices[i].label,
+                                color: slices[i].color,
+                                radius: 72,
+                                titleStyle: const TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                              ],
-                            ),
-                        ],
+                              ),
+                          ],
+                        ),
                       ),
+              ),
+              if (slices.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                for (final slice in slices)
+                  ListTile(
+                    dense: true,
+                    leading: CircleAvatar(
+                      backgroundColor: slice.color,
+                      radius: 8,
                     ),
-            ),
-            if (snapshot.connectionState == ConnectionState.waiting)
-              const LinearProgressIndicator(),
-          ],
-        );
-      },
+                    title: Text(slice.label),
+                    trailing: MoneyText(
+                      amountMinor: slice.amountMinor,
+                      currencyCode: displayCurrency,
+                    ),
+                  ),
+              ],
+              if (snapshot.connectionState == ConnectionState.waiting)
+                const LinearProgressIndicator(),
+            ],
+          );
+        },
+      ),
     );
   }
 
-  Future<Map<String, dynamic>> _aggregate({
+  Future<({int total, List<_Slice> slices})> _aggregate({
     required WidgetRef ref,
     required List expenses,
-    required Map<int, String> tags,
+    required Map<int, Tag> tagById,
+    required Map<int, String> tagLabels,
     required String displayCurrency,
-    required DashboardPeriod period,
+    required DonutBreakdown breakdown,
+    required Set<int> excludedTagIds,
+    required DateTime? from,
+    required DateTime? to,
     required String untaggedLabel,
   }) async {
     final resolver = ref.read(rateResolverProvider);
-    var total = 0;
-    final byTag = <String, int>{};
-    final byPeriod = <String, int>{};
-
+    final db = ref.read(appDatabaseProvider);
+    final filtered = <dynamic>[];
     for (final expense in expenses) {
+      final occurredAt = expense.occurredAt as DateTime;
+      if (from != null && occurredAt.isBefore(_dayStart(from))) continue;
+      if (to != null && occurredAt.isAfter(_dayEnd(to))) continue;
+      filtered.add(expense);
+    }
+
+    final expenseIds = filtered.map((e) => e.id as int).toList();
+    final tagIdsByExpense = await db.getTagIdsByExpenseIds(expenseIds);
+
+    var total = 0;
+    final amounts = <String, int>{};
+    final colors = <String, Color>{};
+    final labels = <String, String>{};
+
+    for (final expense in filtered) {
+      final tagIds = List<int>.from(
+        tagIdsByExpense[expense.id as int] ?? const <int>[],
+      )..removeWhere(excludedTagIds.contains);
+
+      // If all tags excluded and expense had tags, skip it for tag breakdown;
+      // for other breakdowns still include the amount.
+      if (breakdown == DonutBreakdown.tags &&
+          (tagIdsByExpense[expense.id as int] ?? const <int>[])
+              .isNotEmpty &&
+          tagIds.isEmpty) {
+        continue;
+      }
+
       final rate = await resolver.getRate(
         expense.storedCurrencyCode as String,
         displayCurrency,
@@ -212,35 +365,55 @@ class DashboardPage extends ConsumerWidget {
               rate: rate,
             );
       total += amount;
-      final tagName = expense.tagId == null
-          ? untaggedLabel
-          : (tags[expense.tagId as int] ?? untaggedLabel);
-      byTag[tagName] = (byTag[tagName] ?? 0) + amount;
 
-      final occurredAt = expense.occurredAt as DateTime;
-      final key = switch (period) {
-        DashboardPeriod.day =>
-          '${occurredAt.year}-${occurredAt.month.toString().padLeft(2, '0')}-${occurredAt.day.toString().padLeft(2, '0')}',
-        DashboardPeriod.week => _weekKey(occurredAt),
-        DashboardPeriod.month =>
-          '${occurredAt.year}-${occurredAt.month.toString().padLeft(2, '0')}',
-      };
-      byPeriod[key] = (byPeriod[key] ?? 0) + amount;
+      switch (breakdown) {
+        case DonutBreakdown.tags:
+          if (tagIds.isEmpty) {
+            const key = '__untagged__';
+            amounts[key] = (amounts[key] ?? 0) + amount;
+            labels[key] = untaggedLabel;
+            colors[key] ??= chartColorAt(0);
+          } else {
+            final share = amount ~/ tagIds.length;
+            var remainder = amount - share * tagIds.length;
+            for (final tagId in tagIds) {
+              final key = 'tag_$tagId';
+              final part = share + (remainder > 0 ? 1 : 0);
+              if (remainder > 0) remainder--;
+              amounts[key] = (amounts[key] ?? 0) + part;
+              labels[key] = tagLabels[tagId] ?? untaggedLabel;
+              final tag = tagById[tagId];
+              colors[key] ??=
+                  colorFromValue(tag?.colorValue) ?? chartColorAt(tagId);
+            }
+          }
+        case DonutBreakdown.month:
+          final occurredAt = expense.occurredAt as DateTime;
+          final key =
+              '${occurredAt.year}-${occurredAt.month.toString().padLeft(2, '0')}';
+          amounts[key] = (amounts[key] ?? 0) + amount;
+          labels[key] = key;
+          colors[key] ??= chartColorAt(amounts.length);
+        case DonutBreakdown.currency:
+          final key = expense.storedCurrencyCode as String;
+          amounts[key] = (amounts[key] ?? 0) + amount;
+          labels[key] = key;
+          colors[key] ??= chartColorAt(key.hashCode);
+      }
     }
 
-    final sortedPeriod = Map.fromEntries(
-      byPeriod.entries.toList()..sort((a, b) => a.key.compareTo(b.key)),
-    );
-
-    return {
-      'total': total,
-      'byTag': byTag,
-      'byPeriod': sortedPeriod,
-    };
-  }
-
-  String _weekKey(DateTime dt) {
-    final start = dt.subtract(Duration(days: dt.weekday - 1));
-    return '${start.year}-W${start.month.toString().padLeft(2, '0')}${start.day.toString().padLeft(2, '0')}';
+    final entries = amounts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    var i = 0;
+    final slices = [
+      for (final e in entries)
+        _Slice(
+          key: e.key,
+          label: labels[e.key] ?? e.key,
+          amountMinor: e.value,
+          color: colors[e.key] ?? chartColorAt(i++),
+        ),
+    ];
+    return (total: total, slices: slices);
   }
 }

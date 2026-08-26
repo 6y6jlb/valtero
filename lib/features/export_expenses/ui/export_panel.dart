@@ -4,6 +4,14 @@ import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
 import 'package:valtero/features/export_expenses/model/export_controller.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
+import 'package:valtero/widgets/app_modal_sheet.dart';
+
+Future<void> showExportSheet(BuildContext context) {
+  return showAppModalSheet(
+    context: context,
+    child: const ExportPanel(),
+  );
+}
 
 class ExportPanel extends ConsumerStatefulWidget {
   const ExportPanel({super.key});
@@ -41,11 +49,13 @@ class _ExportPanelState extends ConsumerState<ExportPanel> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final settings = ref.watch(appSettingsProvider).value;
+    final scrollController = PrimaryScrollController.maybeOf(context);
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      controller: scrollController,
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       children: [
-        Text(l10n.exportTitle, style: Theme.of(context).textTheme.headlineSmall),
+        Text(l10n.settingsExport, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 16),
         SegmentedButton<ExportFormat>(
           segments: [

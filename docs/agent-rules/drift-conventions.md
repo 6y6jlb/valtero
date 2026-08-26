@@ -1,5 +1,11 @@
 # Drift conventions
 
+## Native SQLite
+
+- Keep `sqlite3_flutter_libs` in `pubspec.yaml` while on Drift/`sqlite3` 2.x — it bundles `libsqlite3.so` for Android/Linux/Windows.
+- Without it, Linux debug runs fail with `Failed to load dynamic library 'libsqlite3.so'`.
+- After upgrading to Drift ≥2.32 / `sqlite3` ≥3.x (build hooks), revisit whether `sqlite3_flutter_libs` can be removed.
+
 ## Placement
 
 - Table + DAO definitions live under `lib/entities/<name>/data/`

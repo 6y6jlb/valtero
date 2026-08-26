@@ -5,14 +5,14 @@ import 'package:valtero/widgets/money_text.dart';
 
 class ExpenseTile extends StatelessWidget {
   final Expense expense;
-  final String? tagName;
+  final String tagLabel;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
 
   const ExpenseTile({
     super.key,
     required this.expense,
-    this.tagName,
+    required this.tagLabel,
     this.onTap,
     this.onDelete,
   });
@@ -20,7 +20,7 @@ class ExpenseTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final subtitle = StringBuffer()
-      ..write(tagName ?? '—')
+      ..write(tagLabel)
       ..write(' · ')
       ..write(
         '${expense.occurredAt.year}-'

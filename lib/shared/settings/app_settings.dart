@@ -10,6 +10,10 @@ class AppSettings {
   final DateTime? countryDetectedAt;
   final String themeMode;
   final String locale;
+  /// IANA id, or `'system'` to follow the device timezone.
+  final String timeZoneId;
+  /// User-defined currency codes (e.g. niche crypto).
+  final List<String> customCurrencyCodes;
   final bool telegramEnabled;
   final String telegramBotToken;
   final String telegramChatId;
@@ -27,6 +31,8 @@ class AppSettings {
     this.countryDetectedAt,
     this.themeMode = 'system',
     this.locale = 'system',
+    this.timeZoneId = 'system',
+    this.customCurrencyCodes = const [],
     this.telegramEnabled = false,
     this.telegramBotToken = '',
     this.telegramChatId = '',
@@ -55,6 +61,8 @@ class AppSettings {
     DateTime? countryDetectedAt,
     String? themeMode,
     String? locale,
+    String? timeZoneId,
+    List<String>? customCurrencyCodes,
     bool? telegramEnabled,
     String? telegramBotToken,
     String? telegramChatId,
@@ -75,6 +83,8 @@ class AppSettings {
       countryDetectedAt: countryDetectedAt ?? this.countryDetectedAt,
       themeMode: themeMode ?? this.themeMode,
       locale: locale ?? this.locale,
+      timeZoneId: timeZoneId ?? this.timeZoneId,
+      customCurrencyCodes: customCurrencyCodes ?? this.customCurrencyCodes,
       telegramEnabled: telegramEnabled ?? this.telegramEnabled,
       telegramBotToken: telegramBotToken ?? this.telegramBotToken,
       telegramChatId: telegramChatId ?? this.telegramChatId,
@@ -95,6 +105,8 @@ class AppSettings {
         'countryDetectedAt': countryDetectedAt?.toIso8601String(),
         'themeMode': themeMode,
         'locale': locale,
+        'timeZoneId': timeZoneId,
+        'customCurrencyCodes': customCurrencyCodes,
         'telegramEnabled': telegramEnabled,
         'telegramBotToken': telegramBotToken,
         'telegramChatId': telegramChatId,
@@ -121,6 +133,11 @@ class AppSettings {
           : null,
       themeMode: json['themeMode'] as String? ?? 'system',
       locale: json['locale'] as String? ?? 'system',
+      timeZoneId: json['timeZoneId'] as String? ?? 'system',
+      customCurrencyCodes: (json['customCurrencyCodes'] as List<dynamic>?)
+              ?.map((e) => e.toString().toUpperCase())
+              .toList() ??
+          const [],
       telegramEnabled: json['telegramEnabled'] as bool? ?? false,
       telegramBotToken: json['telegramBotToken'] as String? ?? '',
       telegramChatId: json['telegramChatId'] as String? ?? '',

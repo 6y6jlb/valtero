@@ -5,22 +5,58 @@ import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:valtero/entities/exchange_rate/data/exchange_rates_table.dart';
+import 'package:valtero/entities/expense/data/expense_tags_table.dart';
 import 'package:valtero/entities/expense/data/expenses_table.dart';
 import 'package:valtero/entities/tag/data/tags_table.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [Tags, Expenses, ExchangeRates])
+@DriftDatabase(tables: [Tags, Expenses, ExpenseTags, ExchangeRates])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (Migrator m) async {
           await m.createAll();
+        },
+        onUpgrade: (Migrator m, int from, int to) async {
+          if (from < 2) {
+            await m.addColumn(tags, tags.kind);
+            await m.addColumn(tags, tags.countryCode);
+            await m.createTable(expenseTags);
+            await customStatement('''
+              INSERT OR IGNORE INTO expense_tags (expense_id, tag_id)
+              SELECT id, tag_id FROM expenses WHERE tag_id IS NOT NULL
+            ''');
+          }
+          if (from < 3) {
+            await m.addColumn(tags, tags.stableKey);
+            const legacy = {
+              'Groceries': 'groceries',
+              'Transport': 'transport',
+              'Housing': 'housing',
+              'Dining': 'dining',
+              'Health': 'health',
+              'Entertainment': 'entertainment',
+              'Shopping': 'shopping',
+              'Travel': 'travel',
+              'Продукты': 'groceries',
+              'Транспорт': 'transport',
+            };
+            for (final entry in legacy.entries) {
+              await customStatement(
+                'UPDATE tags SET stable_key = ? WHERE name = ? AND (stable_key IS NULL OR stable_key = \'\')',
+                [entry.value, entry.key],
+              );
+            }
+            await customStatement(
+              "UPDATE tags SET stable_key = 'country_' || country_code WHERE kind = 'country' AND country_code IS NOT NULL AND (stable_key IS NULL OR stable_key = '')",
+            );
+          }
         },
       );
 
@@ -36,17 +72,111 @@ class AppDatabase extends _$AppDatabase {
 
   Future<int> deleteTagById(int id) => (delete(tags)..where((t) => t.id.equals(id))).go();
 
+  Future<Tag?> findCountryTag(String countryCode) {
+    return (select(tags)
+          ..where(
+            (t) =>
+                t.kind.equals('country') &
+                t.countryCode.equals(countryCode.toUpperCase()),
+          ))
+        .getSingleOrNull();
+  }
+
+  Future<Tag?> findByStableKey(String key) {
+    return (select(tags)..where((t) => t.stableKey.equals(key))).getSingleOrNull();
+  }
+
+  Future<int> ensureTagByStableKey({
+    required String stableKey,
+    required String fallbackName,
+    bool isDefault = false,
+    String kind = 'normal',
+    int? colorValue,
+  }) async {
+    final existing = await findByStableKey(stableKey);
+    if (existing != null) {
+      var updated = existing;
+      if (existing.kind != kind) {
+        updated = updated.copyWith(kind: kind);
+      }
+      if (existing.colorValue == null && colorValue != null) {
+        updated = updated.copyWith(colorValue: Value(colorValue));
+      }
+      if (updated != existing) {
+        await updateTagRow(updated);
+      }
+      return existing.id;
+    }
+    final all = await watchTagsList();
+    final nextOrder =
+        all.isEmpty ? 0 : all.map((t) => t.sortOrder).reduce((a, b) => a > b ? a : b) + 1;
+    return insertTag(
+      TagsCompanion.insert(
+        name: fallbackName,
+        kind: Value(kind),
+        colorValue: Value(colorValue),
+        stableKey: Value(stableKey),
+        isDefault: Value(isDefault),
+        sortOrder: Value(nextOrder),
+      ),
+    );
+  }
+
+  Future<int> ensureCountryTag({
+    required String countryCode,
+    required String displayName,
+  }) async {
+    final code = countryCode.toUpperCase();
+    final existing = await findCountryTag(code);
+    if (existing != null) {
+      if (existing.name != displayName) {
+        await updateTagRow(existing.copyWith(name: displayName));
+      }
+      return existing.id;
+    }
+    final all = await watchTagsList();
+    final nextOrder =
+        all.isEmpty ? 0 : all.map((t) => t.sortOrder).reduce((a, b) => a > b ? a : b) + 1;
+    return insertTag(
+      TagsCompanion.insert(
+        name: displayName,
+        kind: const Value('country'),
+        countryCode: Value(code),
+        stableKey: Value('country_$code'),
+        isDefault: const Value(true),
+        sortOrder: Value(nextOrder),
+      ),
+    );
+  }
+
   Stream<List<Expense>> watchExpenses({
     int? tagId,
     String? currencyCode,
     DateTime? from,
     DateTime? to,
   }) {
-    final query = select(expenses)
-      ..orderBy([(e) => OrderingTerm.desc(e.occurredAt)]);
     if (tagId != null) {
-      query.where((e) => e.tagId.equals(tagId));
+      final query = select(expenses).join([
+        innerJoin(
+          expenseTags,
+          expenseTags.expenseId.equalsExp(expenses.id),
+        ),
+      ])
+        ..where(expenseTags.tagId.equals(tagId))
+        ..orderBy([OrderingTerm.desc(expenses.occurredAt)]);
+      if (currencyCode != null && currencyCode.isNotEmpty) {
+        query.where(expenses.storedCurrencyCode.equals(currencyCode));
+      }
+      if (from != null) {
+        query.where(expenses.occurredAt.isBiggerOrEqualValue(from));
+      }
+      if (to != null) {
+        query.where(expenses.occurredAt.isSmallerOrEqualValue(to));
+      }
+      return query.watch().map((rows) => rows.map((r) => r.readTable(expenses)).toList());
     }
+
+    final query = select(expenses)..orderBy([(e) => OrderingTerm.desc(e.occurredAt)]);
     if (currencyCode != null && currencyCode.isNotEmpty) {
       query.where((e) => e.storedCurrencyCode.equals(currencyCode));
     }
@@ -65,10 +195,40 @@ class AppDatabase extends _$AppDatabase {
 
   Future<int> insertExpense(ExpensesCompanion entry) => into(expenses).insert(entry);
 
+  Future<void> setExpenseTags(int expenseId, List<int> tagIds) async {
+    await (delete(expenseTags)..where((et) => et.expenseId.equals(expenseId))).go();
+    for (final tagId in tagIds.toSet()) {
+      await into(expenseTags).insert(
+        ExpenseTagsCompanion.insert(expenseId: expenseId, tagId: tagId),
+      );
+    }
+  }
+
+  Future<List<int>> getTagIdsForExpense(int expenseId) async {
+    final rows = await (select(expenseTags)
+          ..where((et) => et.expenseId.equals(expenseId)))
+        .get();
+    return rows.map((r) => r.tagId).toList();
+  }
+
+  Future<Map<int, List<int>>> getTagIdsByExpenseIds(List<int> expenseIds) async {
+    if (expenseIds.isEmpty) return {};
+    final rows = await (select(expenseTags)
+          ..where((et) => et.expenseId.isIn(expenseIds)))
+        .get();
+    final map = <int, List<int>>{};
+    for (final row in rows) {
+      map.putIfAbsent(row.expenseId, () => []).add(row.tagId);
+    }
+    return map;
+  }
+
   Future<bool> updateExpenseRow(Expense row) => update(expenses).replace(row);
 
-  Future<int> deleteExpenseById(int id) =>
-      (delete(expenses)..where((e) => e.id.equals(id))).go();
+  Future<int> deleteExpenseById(int id) async {
+    await (delete(expenseTags)..where((et) => et.expenseId.equals(id))).go();
+    return (delete(expenses)..where((e) => e.id.equals(id))).go();
+  }
 
   Future<Expense?> getExpenseById(int id) {
     return (select(expenses)..where((e) => e.id.equals(id))).getSingleOrNull();
@@ -96,6 +256,26 @@ class AppDatabase extends _$AppDatabase {
                 r.baseCurrencyCode.equals(base) &
                 r.targetCurrencyCode.equals(target),
           ))
+        .get();
+  }
+
+  Stream<List<ExchangeRate>> watchAllExchangeRates() {
+    return (select(exchangeRates)
+          ..orderBy([
+            (r) => OrderingTerm.asc(r.baseCurrencyCode),
+            (r) => OrderingTerm.asc(r.targetCurrencyCode),
+            (r) => OrderingTerm.asc(r.source),
+          ]))
+        .watch();
+  }
+
+  Future<List<ExchangeRate>> getAllExchangeRates() {
+    return (select(exchangeRates)
+          ..orderBy([
+            (r) => OrderingTerm.asc(r.baseCurrencyCode),
+            (r) => OrderingTerm.asc(r.targetCurrencyCode),
+            (r) => OrderingTerm.asc(r.source),
+          ]))
         .get();
   }
 

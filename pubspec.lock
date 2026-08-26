@@ -153,6 +153,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
+  country_flags:
+    dependency: "direct main"
+    description:
+      name: country_flags
+      sha256: f022d18337f3861f1f4e319b936cb53920de9259f38cb09e169eace9942e2b79
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.2"
   cross_file:
     dependency: transitive
     description:
@@ -368,6 +376,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_timezone:
+    dependency: "direct main"
+    description:
+      name: flutter_timezone
+      sha256: "869677426fde92dbe170fb7d2d4929f2a8343c2f5f62f08b0bb64f908630b073"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.1.0"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -477,6 +493,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  jovial_misc:
+    dependency: transitive
+    description:
+      name: jovial_misc
+      sha256: "065b5240badae6b13472efdea28fffe8baf914a7831361469a95c6456d9b8dc8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.10.0"
+  jovial_svg:
+    dependency: transitive
+    description:
+      name: jovial_svg
+      sha256: "99e9c3afcf7371ae38083ad52de23677d6d751f46150c3c6ae842e009e84d9f0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.29"
   json_annotation:
     dependency: transitive
     description:
@@ -485,6 +517,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.12.0"
+  l10n_currencies:
+    dependency: "direct main"
+    description:
+      name: l10n_currencies
+      sha256: "1ddeed160a8b433ab24515bd8366688b0f6fdaa555a10f1782197744436c9682"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.3"
+  l10n_languages:
+    dependency: transitive
+    description:
+      name: l10n_languages
+      sha256: "48f5a8effe7b2818f95c5d9a7b1ea3671d1b149b76ea408c0aea76400c0ba0db"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.3"
   leak_tracker:
     dependency: transitive
     description:
@@ -629,6 +677,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.0"
+  petitparser:
+    dependency: transitive
+    description:
+      name: petitparser
+      sha256: "91bd59303e9f769f108f8df05e371341b15d59e995e6806aefab827b58336675"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.2"
   platform:
     dependency: transitive
     description:
@@ -693,6 +749,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.6.1"
+  sealed_currencies:
+    dependency: "direct main"
+    description:
+      name: sealed_currencies
+      sha256: c39ef88a551a4a7095007f542770db5d3dba8d05fa6efbbdd86b7d0f3b6237f8
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.3.0"
+  sealed_languages:
+    dependency: transitive
+    description:
+      name: sealed_languages
+      sha256: "0f2ac56ed6bc181d103a74ae409b6c343fe472f47c403e81fa7131df161779c7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.3.0"
   share_plus:
     dependency: "direct main"
     description:
@@ -754,6 +826,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.9.4"
+  sqlite3_flutter_libs:
+    dependency: "direct main"
+    description:
+      name: sqlite3_flutter_libs
+      sha256: eeb9e3a45207649076b808f8a5a74d68770d0b7f26ccef6d5f43106eee5375ad
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.42"
   sqlparser:
     dependency: transitive
     description:
@@ -818,6 +898,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.10"
+  timezone:
+    dependency: "direct main"
+    description:
+      name: timezone
+      sha256: "981d1020d6ef8fe1e7b3de5054e5b25579ae7c403d7734adc508ffc47668e9cb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.11.1"
   typed_data:
     dependency: transitive
     description:
@@ -930,6 +1018,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  xml:
+    dependency: transitive
+    description:
+      name: xml
+      sha256: "971043b3a0d3da28727e40ed3e0b5d18b742fa5a68665cca88e74b7876d5e025"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.6.1"
   yaml:
     dependency: transitive
     description:

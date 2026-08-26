@@ -7,6 +7,11 @@
   "navTags": "Tags",
   "navCurrency": "Currency",
   "navExport": "Export",
+  "navSettings": "Settings",
+  "settingsAppearance": "Appearance",
+  "settingsCurrency": "Currency & rates",
+  "settingsExport": "Export & Telegram",
+  "selectCountry": "Select country",
   "addExpense": "Add expense",
   "editExpense": "Edit expense",
   "amount": "Amount",
@@ -19,7 +24,16 @@
       "rate": {"type": "String"}
     }
   },
-  "rateUnavailable": "Could not get rate — enter manually or open Currency settings",
+  "rateUnavailable": "No rate for this pair",
+  "setRateNow": "Set rate",
+  "setManualRateTitle": "Set exchange rate",
+  "setManualRateHint": "How many {target} for 1 {base}",
+  "@setManualRateHint": {
+    "placeholders": {
+      "base": {"type": "String"},
+      "target": {"type": "String"}
+    }
+  },
   "tag": "Tag",
   "note": "Note",
   "date": "Date",
@@ -62,6 +76,13 @@
   "all": "All",
   "theme": "Theme",
   "locale": "Language",
+  "timeZone": "Time zone",
+  "timeZoneSystem": "System ({id})",
+  "@timeZoneSystem": {
+    "placeholders": {
+      "id": {"type": "String"}
+    }
+  },
   "system": "System",
   "light": "Light",
   "dark": "Dark",
@@ -76,5 +97,63 @@
   "periodWeek": "Week",
   "periodMonth": "Month",
   "newTag": "New tag",
-  "addTag": "Add tag"
+  "addTag": "Add tag",
+  "tagGroceries": "Groceries",
+  "tagTransport": "Transport",
+  "tagHousing": "Housing",
+  "tagDining": "Dining",
+  "tagHealth": "Health",
+  "tagEntertainment": "Entertainment",
+  "tagShopping": "Shopping",
+  "tagTravel": "Travel",
+  "tagUtilities": "Utilities",
+  "tagCash": "Cash",
+  "tagCard": "Card",
+  "tagCrypto": "Crypto",
+  "tagTransfer": "Bank transfer",
+  "tagEwallet": "E-wallet",
+  "tripTag": "Trip: {region}",
+  "@tripTag": {
+    "placeholders": {
+      "region": {"type": "String"}
+    }
+  },
+  "tagColor": "Color",
+  "tagColorNone": "None",
+  "chartBy": "Chart by",
+  "chartByTags": "Tags",
+  "chartByMonth": "Months",
+  "chartByCurrency": "Currency",
+  "filterTags": "Filter tags",
+  "excludeTag": "Exclude",
+  "periodRange": "Period",
+  "periodAll": "All time",
+  "periodFrom": "From",
+  "periodTo": "To",
+  "showExpenses": "Show expenses",
+  "sortBy": "Sort by",
+  "sortDate": "Date",
+  "sortAmount": "Amount",
+  "sortCurrency": "Currency",
+  "groupBy": "Group by",
+  "groupNone": "None",
+  "groupDate": "Date",
+  "groupCurrency": "Currency",
+  "groupTag": "Tag",
+  "groupTags": "Tags",
+  "excludeTags": "Exclude tags",
+  "ascending": "Ascending",
+  "descending": "Descending",
+  "viewRates": "View rates",
+  "allRates": "All rates",
+  "addRate": "Add rate",
+  "noRatesYet": "No rates saved yet — refresh or add a manual rate",
+  "rateSourceApi": "ExchangeRate-API",
+  "rateSourceFrankfurter": "Frankfurter",
+  "rateSourceManual": "Manual",
+  "currencyFiat": "Fiat",
+  "currencyCrypto": "Crypto",
+  "currencyCustom": "Custom",
+  "addCustomCurrency": "Add currency",
+  "currencyCode": "Currency code"
 }

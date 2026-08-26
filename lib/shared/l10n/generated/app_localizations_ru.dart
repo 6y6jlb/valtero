@@ -30,6 +30,21 @@ class AppLocalizationsRu extends AppLocalizations {
   String get navExport => 'Экспорт';
 
   @override
+  String get navSettings => 'Настройки';
+
+  @override
+  String get settingsAppearance => 'Оформление';
+
+  @override
+  String get settingsCurrency => 'Валюта и курсы';
+
+  @override
+  String get settingsExport => 'Экспорт и Telegram';
+
+  @override
+  String get selectCountry => 'Выбрать страну';
+
+  @override
   String get addExpense => 'Добавить трату';
 
   @override
@@ -53,8 +68,18 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get rateUnavailable =>
-      'Не удалось получить курс — введите вручную или откройте настройки валют';
+  String get rateUnavailable => 'Нет курса для этой пары';
+
+  @override
+  String get setRateNow => 'Указать курс';
+
+  @override
+  String get setManualRateTitle => 'Задать курс';
+
+  @override
+  String setManualRateHint(String base, String target) {
+    return 'Сколько $target за 1 $base';
+  }
 
   @override
   String get tag => 'Тег';
@@ -183,6 +208,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get locale => 'Язык';
 
   @override
+  String get timeZone => 'Часовой пояс';
+
+  @override
+  String timeZoneSystem(String id) {
+    return 'Системный ($id)';
+  }
+
+  @override
   String get system => 'Системная';
 
   @override
@@ -226,4 +259,165 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get addTag => 'Добавить тег';
+
+  @override
+  String get tagGroceries => 'Продукты';
+
+  @override
+  String get tagTransport => 'Транспорт';
+
+  @override
+  String get tagHousing => 'Жильё';
+
+  @override
+  String get tagDining => 'Кафе и рестораны';
+
+  @override
+  String get tagHealth => 'Здоровье';
+
+  @override
+  String get tagEntertainment => 'Развлечения';
+
+  @override
+  String get tagShopping => 'Покупки';
+
+  @override
+  String get tagTravel => 'Путешествия';
+
+  @override
+  String get tagUtilities => 'Коммуналка';
+
+  @override
+  String get tagCash => 'Наличка';
+
+  @override
+  String get tagCard => 'Карта';
+
+  @override
+  String get tagCrypto => 'Крипта';
+
+  @override
+  String get tagTransfer => 'Перевод';
+
+  @override
+  String get tagEwallet => 'Электронный кошелёк';
+
+  @override
+  String tripTag(String region) {
+    return 'Поездка: $region';
+  }
+
+  @override
+  String get tagColor => 'Цвет';
+
+  @override
+  String get tagColorNone => 'Без цвета';
+
+  @override
+  String get chartBy => 'График по';
+
+  @override
+  String get chartByTags => 'Теги';
+
+  @override
+  String get chartByMonth => 'Месяцы';
+
+  @override
+  String get chartByCurrency => 'Валюта';
+
+  @override
+  String get filterTags => 'Фильтр тегов';
+
+  @override
+  String get excludeTag => 'Исключить';
+
+  @override
+  String get periodRange => 'Период';
+
+  @override
+  String get periodAll => 'Всё время';
+
+  @override
+  String get periodFrom => 'С';
+
+  @override
+  String get periodTo => 'По';
+
+  @override
+  String get showExpenses => 'Показать траты';
+
+  @override
+  String get sortBy => 'Сортировка';
+
+  @override
+  String get sortDate => 'Дата';
+
+  @override
+  String get sortAmount => 'Сумма';
+
+  @override
+  String get sortCurrency => 'Валюта';
+
+  @override
+  String get groupBy => 'Группировка';
+
+  @override
+  String get groupNone => 'Нет';
+
+  @override
+  String get groupDate => 'Дата';
+
+  @override
+  String get groupCurrency => 'Валюта';
+
+  @override
+  String get groupTag => 'Тег';
+
+  @override
+  String get groupTags => 'Теги';
+
+  @override
+  String get excludeTags => 'Исключить теги';
+
+  @override
+  String get ascending => 'По возрастанию';
+
+  @override
+  String get descending => 'По убыванию';
+
+  @override
+  String get viewRates => 'Смотреть курсы';
+
+  @override
+  String get allRates => 'Все курсы';
+
+  @override
+  String get addRate => 'Добавить курс';
+
+  @override
+  String get noRatesYet => 'Курсов пока нет — обновите или добавьте вручную';
+
+  @override
+  String get rateSourceApi => 'ExchangeRate-API';
+
+  @override
+  String get rateSourceFrankfurter => 'Frankfurter';
+
+  @override
+  String get rateSourceManual => 'Вручную';
+
+  @override
+  String get currencyFiat => 'Фиат';
+
+  @override
+  String get currencyCrypto => 'Крипта';
+
+  @override
+  String get currencyCustom => 'Свои';
+
+  @override
+  String get addCustomCurrency => 'Добавить валюту';
+
+  @override
+  String get currencyCode => 'Код валюты';
 }

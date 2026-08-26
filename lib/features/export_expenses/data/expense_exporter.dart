@@ -14,7 +14,11 @@ import 'package:valtero/shared/utils/money.dart';
 enum ExportFormat { csv, json }
 
 class ExpenseExporter {
-  String buildCsv(List<Expense> expenses, Map<int, String> tagNames) {
+  String buildCsv(
+    List<Expense> expenses,
+    Map<int, String> tagNames,
+    Map<int, List<int>> tagsByExpense,
+  ) {
     final rows = <List<dynamic>>[
       [
         'id',
@@ -24,7 +28,7 @@ class ExpenseExporter {
         'storedAmount',
         'storedCurrency',
         'rateUsed',
-        'tag',
+        'tags',
         'note',
       ],
       for (final e in expenses)
@@ -36,14 +40,21 @@ class ExpenseExporter {
           Money.formatMinor(e.storedAmountMinor),
           e.storedCurrencyCode,
           e.rateUsed,
-          e.tagId == null ? '' : (tagNames[e.tagId!] ?? ''),
+          (tagsByExpense[e.id] ?? const [])
+              .map((id) => tagNames[id] ?? '')
+              .where((n) => n.isNotEmpty)
+              .join('|'),
           e.note ?? '',
         ],
     ];
     return const ListToCsvConverter().convert(rows);
   }
 
-  String buildJson(List<Expense> expenses, Map<int, String> tagNames) {
+  String buildJson(
+    List<Expense> expenses,
+    Map<int, String> tagNames,
+    Map<int, List<int>> tagsByExpense,
+  ) {
     final list = expenses
         .map(
           (e) => {
@@ -54,7 +65,10 @@ class ExpenseExporter {
             'storedAmount': Money.formatMinor(e.storedAmountMinor),
             'storedCurrency': e.storedCurrencyCode,
             'rateUsed': e.rateUsed,
-            'tag': e.tagId == null ? null : tagNames[e.tagId!],
+            'tags': (tagsByExpense[e.id] ?? const [])
+                .map((id) => tagNames[id])
+                .whereType<String>()
+                .toList(),
             'note': e.note,
           },
         )

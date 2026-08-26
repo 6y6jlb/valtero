@@ -105,6 +105,34 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     await _save(current.copyWith(locale: locale));
   }
 
+  Future<void> setTimeZoneId(String timeZoneId) async {
+    final current = state.value;
+    if (current == null) return;
+    await _save(current.copyWith(timeZoneId: timeZoneId));
+  }
+
+  Future<void> addCustomCurrency(String code) async {
+    final current = state.value;
+    if (current == null) return;
+    final upper = code.trim().toUpperCase();
+    if (upper.length < 2 || upper.length > 12) return;
+    if (!RegExp(r'^[A-Z0-9]+$').hasMatch(upper)) return;
+    if (current.customCurrencyCodes.contains(upper)) return;
+    await _save(current.copyWith(
+      customCurrencyCodes: [...current.customCurrencyCodes, upper],
+    ));
+  }
+
+  Future<void> removeCustomCurrency(String code) async {
+    final current = state.value;
+    if (current == null) return;
+    final upper = code.toUpperCase();
+    await _save(current.copyWith(
+      customCurrencyCodes:
+          current.customCurrencyCodes.where((c) => c != upper).toList(),
+    ));
+  }
+
   Future<void> setTelegram({
     bool? enabled,
     String? botToken,

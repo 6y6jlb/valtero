@@ -10,7 +10,7 @@ class AddExpenseInput {
   final String originalCurrencyCode;
   final bool convert;
   final String? targetCurrencyCode;
-  final int? tagId;
+  final List<int> tagIds;
   final String? note;
   final DateTime occurredAt;
 
@@ -19,7 +19,7 @@ class AddExpenseInput {
     required this.originalCurrencyCode,
     required this.convert,
     this.targetCurrencyCode,
-    this.tagId,
+    this.tagIds = const [],
     this.note,
     required this.occurredAt,
   });
@@ -59,7 +59,7 @@ class AddExpenseController {
       rateTimestamp = DateTime.now();
     }
 
-    return db.insertExpense(
+    final id = await db.insertExpense(
       ExpensesCompanion.insert(
         occurredAt: input.occurredAt,
         originalAmountMinor: input.originalAmountMinor,
@@ -68,11 +68,12 @@ class AddExpenseController {
         storedCurrencyCode: storedCurrency,
         rateUsed: Value(rateUsed),
         rateTimestamp: Value(rateTimestamp),
-        tagId: Value(input.tagId),
         note: Value(input.note?.trim().isEmpty == true ? null : input.note?.trim()),
         createdAt: DateTime.now(),
       ),
     );
+    await db.setExpenseTags(id, input.tagIds);
+    return id;
   }
 
   Future<void> delete(int id) {

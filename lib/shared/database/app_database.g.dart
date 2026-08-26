@@ -68,6 +68,38 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, Tag> {
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('normal'),
+  );
+  static const VerificationMeta _countryCodeMeta = const VerificationMeta(
+    'countryCode',
+  );
+  @override
+  late final GeneratedColumn<String> countryCode = GeneratedColumn<String>(
+    'country_code',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _stableKeyMeta = const VerificationMeta(
+    'stableKey',
+  );
+  @override
+  late final GeneratedColumn<String> stableKey = GeneratedColumn<String>(
+    'stable_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -75,6 +107,9 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, Tag> {
     colorValue,
     isDefault,
     sortOrder,
+    kind,
+    countryCode,
+    stableKey,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -117,6 +152,27 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, Tag> {
         sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
       );
     }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    }
+    if (data.containsKey('country_code')) {
+      context.handle(
+        _countryCodeMeta,
+        countryCode.isAcceptableOrUnknown(
+          data['country_code']!,
+          _countryCodeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('stable_key')) {
+      context.handle(
+        _stableKeyMeta,
+        stableKey.isAcceptableOrUnknown(data['stable_key']!, _stableKeyMeta),
+      );
+    }
     return context;
   }
 
@@ -146,6 +202,18 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, Tag> {
         DriftSqlType.int,
         data['${effectivePrefix}sort_order'],
       )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+      countryCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}country_code'],
+      ),
+      stableKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}stable_key'],
+      ),
     );
   }
 
@@ -161,12 +229,22 @@ class Tag extends DataClass implements Insertable<Tag> {
   final int? colorValue;
   final bool isDefault;
   final int sortOrder;
+
+  /// `normal` | `country`
+  final String kind;
+  final String? countryCode;
+
+  /// Stable id for localized defaults/suggestions, e.g. `groceries`, `trip_USD`.
+  final String? stableKey;
   const Tag({
     required this.id,
     required this.name,
     this.colorValue,
     required this.isDefault,
     required this.sortOrder,
+    required this.kind,
+    this.countryCode,
+    this.stableKey,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -178,6 +256,13 @@ class Tag extends DataClass implements Insertable<Tag> {
     }
     map['is_default'] = Variable<bool>(isDefault);
     map['sort_order'] = Variable<int>(sortOrder);
+    map['kind'] = Variable<String>(kind);
+    if (!nullToAbsent || countryCode != null) {
+      map['country_code'] = Variable<String>(countryCode);
+    }
+    if (!nullToAbsent || stableKey != null) {
+      map['stable_key'] = Variable<String>(stableKey);
+    }
     return map;
   }
 
@@ -190,6 +275,13 @@ class Tag extends DataClass implements Insertable<Tag> {
           : Value(colorValue),
       isDefault: Value(isDefault),
       sortOrder: Value(sortOrder),
+      kind: Value(kind),
+      countryCode: countryCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(countryCode),
+      stableKey: stableKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(stableKey),
     );
   }
 
@@ -204,6 +296,9 @@ class Tag extends DataClass implements Insertable<Tag> {
       colorValue: serializer.fromJson<int?>(json['colorValue']),
       isDefault: serializer.fromJson<bool>(json['isDefault']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      kind: serializer.fromJson<String>(json['kind']),
+      countryCode: serializer.fromJson<String?>(json['countryCode']),
+      stableKey: serializer.fromJson<String?>(json['stableKey']),
     );
   }
   @override
@@ -215,6 +310,9 @@ class Tag extends DataClass implements Insertable<Tag> {
       'colorValue': serializer.toJson<int?>(colorValue),
       'isDefault': serializer.toJson<bool>(isDefault),
       'sortOrder': serializer.toJson<int>(sortOrder),
+      'kind': serializer.toJson<String>(kind),
+      'countryCode': serializer.toJson<String?>(countryCode),
+      'stableKey': serializer.toJson<String?>(stableKey),
     };
   }
 
@@ -224,12 +322,18 @@ class Tag extends DataClass implements Insertable<Tag> {
     Value<int?> colorValue = const Value.absent(),
     bool? isDefault,
     int? sortOrder,
+    String? kind,
+    Value<String?> countryCode = const Value.absent(),
+    Value<String?> stableKey = const Value.absent(),
   }) => Tag(
     id: id ?? this.id,
     name: name ?? this.name,
     colorValue: colorValue.present ? colorValue.value : this.colorValue,
     isDefault: isDefault ?? this.isDefault,
     sortOrder: sortOrder ?? this.sortOrder,
+    kind: kind ?? this.kind,
+    countryCode: countryCode.present ? countryCode.value : this.countryCode,
+    stableKey: stableKey.present ? stableKey.value : this.stableKey,
   );
   Tag copyWithCompanion(TagsCompanion data) {
     return Tag(
@@ -240,6 +344,11 @@ class Tag extends DataClass implements Insertable<Tag> {
           : this.colorValue,
       isDefault: data.isDefault.present ? data.isDefault.value : this.isDefault,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      countryCode: data.countryCode.present
+          ? data.countryCode.value
+          : this.countryCode,
+      stableKey: data.stableKey.present ? data.stableKey.value : this.stableKey,
     );
   }
 
@@ -250,13 +359,25 @@ class Tag extends DataClass implements Insertable<Tag> {
           ..write('name: $name, ')
           ..write('colorValue: $colorValue, ')
           ..write('isDefault: $isDefault, ')
-          ..write('sortOrder: $sortOrder')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('kind: $kind, ')
+          ..write('countryCode: $countryCode, ')
+          ..write('stableKey: $stableKey')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, colorValue, isDefault, sortOrder);
+  int get hashCode => Object.hash(
+    id,
+    name,
+    colorValue,
+    isDefault,
+    sortOrder,
+    kind,
+    countryCode,
+    stableKey,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -265,7 +386,10 @@ class Tag extends DataClass implements Insertable<Tag> {
           other.name == this.name &&
           other.colorValue == this.colorValue &&
           other.isDefault == this.isDefault &&
-          other.sortOrder == this.sortOrder);
+          other.sortOrder == this.sortOrder &&
+          other.kind == this.kind &&
+          other.countryCode == this.countryCode &&
+          other.stableKey == this.stableKey);
 }
 
 class TagsCompanion extends UpdateCompanion<Tag> {
@@ -274,12 +398,18 @@ class TagsCompanion extends UpdateCompanion<Tag> {
   final Value<int?> colorValue;
   final Value<bool> isDefault;
   final Value<int> sortOrder;
+  final Value<String> kind;
+  final Value<String?> countryCode;
+  final Value<String?> stableKey;
   const TagsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.colorValue = const Value.absent(),
     this.isDefault = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.countryCode = const Value.absent(),
+    this.stableKey = const Value.absent(),
   });
   TagsCompanion.insert({
     this.id = const Value.absent(),
@@ -287,6 +417,9 @@ class TagsCompanion extends UpdateCompanion<Tag> {
     this.colorValue = const Value.absent(),
     this.isDefault = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.countryCode = const Value.absent(),
+    this.stableKey = const Value.absent(),
   }) : name = Value(name);
   static Insertable<Tag> custom({
     Expression<int>? id,
@@ -294,6 +427,9 @@ class TagsCompanion extends UpdateCompanion<Tag> {
     Expression<int>? colorValue,
     Expression<bool>? isDefault,
     Expression<int>? sortOrder,
+    Expression<String>? kind,
+    Expression<String>? countryCode,
+    Expression<String>? stableKey,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -301,6 +437,9 @@ class TagsCompanion extends UpdateCompanion<Tag> {
       if (colorValue != null) 'color_value': colorValue,
       if (isDefault != null) 'is_default': isDefault,
       if (sortOrder != null) 'sort_order': sortOrder,
+      if (kind != null) 'kind': kind,
+      if (countryCode != null) 'country_code': countryCode,
+      if (stableKey != null) 'stable_key': stableKey,
     });
   }
 
@@ -310,6 +449,9 @@ class TagsCompanion extends UpdateCompanion<Tag> {
     Value<int?>? colorValue,
     Value<bool>? isDefault,
     Value<int>? sortOrder,
+    Value<String>? kind,
+    Value<String?>? countryCode,
+    Value<String?>? stableKey,
   }) {
     return TagsCompanion(
       id: id ?? this.id,
@@ -317,6 +459,9 @@ class TagsCompanion extends UpdateCompanion<Tag> {
       colorValue: colorValue ?? this.colorValue,
       isDefault: isDefault ?? this.isDefault,
       sortOrder: sortOrder ?? this.sortOrder,
+      kind: kind ?? this.kind,
+      countryCode: countryCode ?? this.countryCode,
+      stableKey: stableKey ?? this.stableKey,
     );
   }
 
@@ -338,6 +483,15 @@ class TagsCompanion extends UpdateCompanion<Tag> {
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
     }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (countryCode.present) {
+      map['country_code'] = Variable<String>(countryCode.value);
+    }
+    if (stableKey.present) {
+      map['stable_key'] = Variable<String>(stableKey.value);
+    }
     return map;
   }
 
@@ -348,7 +502,10 @@ class TagsCompanion extends UpdateCompanion<Tag> {
           ..write('name: $name, ')
           ..write('colorValue: $colorValue, ')
           ..write('isDefault: $isDefault, ')
-          ..write('sortOrder: $sortOrder')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('kind: $kind, ')
+          ..write('countryCode: $countryCode, ')
+          ..write('stableKey: $stableKey')
           ..write(')'))
         .toString();
   }
@@ -676,6 +833,8 @@ class Expense extends DataClass implements Insertable<Expense> {
   final String storedCurrencyCode;
   final double? rateUsed;
   final DateTime? rateTimestamp;
+
+  /// Legacy single-tag column (schema v1). Prefer [ExpenseTags]. Kept for migration.
   final int? tagId;
   final String? note;
   final DateTime createdAt;
@@ -1043,6 +1202,227 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
           ..write('tagId: $tagId, ')
           ..write('note: $note, ')
           ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ExpenseTagsTable extends ExpenseTags
+    with TableInfo<$ExpenseTagsTable, ExpenseTag> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ExpenseTagsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _expenseIdMeta = const VerificationMeta(
+    'expenseId',
+  );
+  @override
+  late final GeneratedColumn<int> expenseId = GeneratedColumn<int>(
+    'expense_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES expenses (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _tagIdMeta = const VerificationMeta('tagId');
+  @override
+  late final GeneratedColumn<int> tagId = GeneratedColumn<int>(
+    'tag_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES tags (id) ON DELETE CASCADE',
+    ),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [expenseId, tagId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'expense_tags';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ExpenseTag> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('expense_id')) {
+      context.handle(
+        _expenseIdMeta,
+        expenseId.isAcceptableOrUnknown(data['expense_id']!, _expenseIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_expenseIdMeta);
+    }
+    if (data.containsKey('tag_id')) {
+      context.handle(
+        _tagIdMeta,
+        tagId.isAcceptableOrUnknown(data['tag_id']!, _tagIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tagIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {expenseId, tagId};
+  @override
+  ExpenseTag map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ExpenseTag(
+      expenseId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}expense_id'],
+      )!,
+      tagId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}tag_id'],
+      )!,
+    );
+  }
+
+  @override
+  $ExpenseTagsTable createAlias(String alias) {
+    return $ExpenseTagsTable(attachedDatabase, alias);
+  }
+}
+
+class ExpenseTag extends DataClass implements Insertable<ExpenseTag> {
+  final int expenseId;
+  final int tagId;
+  const ExpenseTag({required this.expenseId, required this.tagId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['expense_id'] = Variable<int>(expenseId);
+    map['tag_id'] = Variable<int>(tagId);
+    return map;
+  }
+
+  ExpenseTagsCompanion toCompanion(bool nullToAbsent) {
+    return ExpenseTagsCompanion(
+      expenseId: Value(expenseId),
+      tagId: Value(tagId),
+    );
+  }
+
+  factory ExpenseTag.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ExpenseTag(
+      expenseId: serializer.fromJson<int>(json['expenseId']),
+      tagId: serializer.fromJson<int>(json['tagId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'expenseId': serializer.toJson<int>(expenseId),
+      'tagId': serializer.toJson<int>(tagId),
+    };
+  }
+
+  ExpenseTag copyWith({int? expenseId, int? tagId}) => ExpenseTag(
+    expenseId: expenseId ?? this.expenseId,
+    tagId: tagId ?? this.tagId,
+  );
+  ExpenseTag copyWithCompanion(ExpenseTagsCompanion data) {
+    return ExpenseTag(
+      expenseId: data.expenseId.present ? data.expenseId.value : this.expenseId,
+      tagId: data.tagId.present ? data.tagId.value : this.tagId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExpenseTag(')
+          ..write('expenseId: $expenseId, ')
+          ..write('tagId: $tagId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(expenseId, tagId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ExpenseTag &&
+          other.expenseId == this.expenseId &&
+          other.tagId == this.tagId);
+}
+
+class ExpenseTagsCompanion extends UpdateCompanion<ExpenseTag> {
+  final Value<int> expenseId;
+  final Value<int> tagId;
+  final Value<int> rowid;
+  const ExpenseTagsCompanion({
+    this.expenseId = const Value.absent(),
+    this.tagId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ExpenseTagsCompanion.insert({
+    required int expenseId,
+    required int tagId,
+    this.rowid = const Value.absent(),
+  }) : expenseId = Value(expenseId),
+       tagId = Value(tagId);
+  static Insertable<ExpenseTag> custom({
+    Expression<int>? expenseId,
+    Expression<int>? tagId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (expenseId != null) 'expense_id': expenseId,
+      if (tagId != null) 'tag_id': tagId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ExpenseTagsCompanion copyWith({
+    Value<int>? expenseId,
+    Value<int>? tagId,
+    Value<int>? rowid,
+  }) {
+    return ExpenseTagsCompanion(
+      expenseId: expenseId ?? this.expenseId,
+      tagId: tagId ?? this.tagId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (expenseId.present) {
+      map['expense_id'] = Variable<int>(expenseId.value);
+    }
+    if (tagId.present) {
+      map['tag_id'] = Variable<int>(tagId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExpenseTagsCompanion(')
+          ..write('expenseId: $expenseId, ')
+          ..write('tagId: $tagId, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -1480,6 +1860,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $TagsTable tags = $TagsTable(this);
   late final $ExpensesTable expenses = $ExpensesTable(this);
+  late final $ExpenseTagsTable expenseTags = $ExpenseTagsTable(this);
   late final $ExchangeRatesTable exchangeRates = $ExchangeRatesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -1488,8 +1869,26 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     tags,
     expenses,
+    expenseTags,
     exchangeRates,
   ];
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'expenses',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('expense_tags', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'tags',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('expense_tags', kind: UpdateKind.delete)],
+    ),
+  ]);
 }
 
 typedef $$TagsTableCreateCompanionBuilder =
@@ -1499,6 +1898,9 @@ typedef $$TagsTableCreateCompanionBuilder =
       Value<int?> colorValue,
       Value<bool> isDefault,
       Value<int> sortOrder,
+      Value<String> kind,
+      Value<String?> countryCode,
+      Value<String?> stableKey,
     });
 typedef $$TagsTableUpdateCompanionBuilder =
     TagsCompanion Function({
@@ -1507,6 +1909,9 @@ typedef $$TagsTableUpdateCompanionBuilder =
       Value<int?> colorValue,
       Value<bool> isDefault,
       Value<int> sortOrder,
+      Value<String> kind,
+      Value<String?> countryCode,
+      Value<String?> stableKey,
     });
 
 final class $$TagsTableReferences
@@ -1527,6 +1932,24 @@ final class $$TagsTableReferences
     ).filter((f) => f.tagId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_expensesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$ExpenseTagsTable, List<ExpenseTag>>
+  _expenseTagsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.expenseTags,
+    aliasName: $_aliasNameGenerator(db.tags.id, db.expenseTags.tagId),
+  );
+
+  $$ExpenseTagsTableProcessedTableManager get expenseTagsRefs {
+    final manager = $$ExpenseTagsTableTableManager(
+      $_db,
+      $_db.expenseTags,
+    ).filter((f) => f.tagId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_expenseTagsRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -1566,6 +1989,21 @@ class $$TagsTableFilterComposer extends Composer<_$AppDatabase, $TagsTable> {
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get countryCode => $composableBuilder(
+    column: $table.countryCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get stableKey => $composableBuilder(
+    column: $table.stableKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> expensesRefs(
     Expression<bool> Function($$ExpensesTableFilterComposer f) f,
   ) {
@@ -1582,6 +2020,31 @@ class $$TagsTableFilterComposer extends Composer<_$AppDatabase, $TagsTable> {
           }) => $$ExpensesTableFilterComposer(
             $db: $db,
             $table: $db.expenses,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> expenseTagsRefs(
+    Expression<bool> Function($$ExpenseTagsTableFilterComposer f) f,
+  ) {
+    final $$ExpenseTagsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.expenseTags,
+      getReferencedColumn: (t) => t.tagId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ExpenseTagsTableFilterComposer(
+            $db: $db,
+            $table: $db.expenseTags,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -1624,6 +2087,21 @@ class $$TagsTableOrderingComposer extends Composer<_$AppDatabase, $TagsTable> {
     column: $table.sortOrder,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get countryCode => $composableBuilder(
+    column: $table.countryCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get stableKey => $composableBuilder(
+    column: $table.stableKey,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$TagsTableAnnotationComposer
@@ -1652,6 +2130,17 @@ class $$TagsTableAnnotationComposer
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
 
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get countryCode => $composableBuilder(
+    column: $table.countryCode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get stableKey =>
+      $composableBuilder(column: $table.stableKey, builder: (column) => column);
+
   Expression<T> expensesRefs<T extends Object>(
     Expression<T> Function($$ExpensesTableAnnotationComposer a) f,
   ) {
@@ -1676,6 +2165,31 @@ class $$TagsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> expenseTagsRefs<T extends Object>(
+    Expression<T> Function($$ExpenseTagsTableAnnotationComposer a) f,
+  ) {
+    final $$ExpenseTagsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.expenseTags,
+      getReferencedColumn: (t) => t.tagId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ExpenseTagsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.expenseTags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$TagsTableTableManager
@@ -1691,7 +2205,7 @@ class $$TagsTableTableManager
           $$TagsTableUpdateCompanionBuilder,
           (Tag, $$TagsTableReferences),
           Tag,
-          PrefetchHooks Function({bool expensesRefs})
+          PrefetchHooks Function({bool expensesRefs, bool expenseTagsRefs})
         > {
   $$TagsTableTableManager(_$AppDatabase db, $TagsTable table)
     : super(
@@ -1711,12 +2225,18 @@ class $$TagsTableTableManager
                 Value<int?> colorValue = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
+                Value<String> kind = const Value.absent(),
+                Value<String?> countryCode = const Value.absent(),
+                Value<String?> stableKey = const Value.absent(),
               }) => TagsCompanion(
                 id: id,
                 name: name,
                 colorValue: colorValue,
                 isDefault: isDefault,
                 sortOrder: sortOrder,
+                kind: kind,
+                countryCode: countryCode,
+                stableKey: stableKey,
               ),
           createCompanionCallback:
               ({
@@ -1725,12 +2245,18 @@ class $$TagsTableTableManager
                 Value<int?> colorValue = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
+                Value<String> kind = const Value.absent(),
+                Value<String?> countryCode = const Value.absent(),
+                Value<String?> stableKey = const Value.absent(),
               }) => TagsCompanion.insert(
                 id: id,
                 name: name,
                 colorValue: colorValue,
                 isDefault: isDefault,
                 sortOrder: sortOrder,
+                kind: kind,
+                countryCode: countryCode,
+                stableKey: stableKey,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -1738,29 +2264,50 @@ class $$TagsTableTableManager
                     (e.readTable(table), $$TagsTableReferences(db, table, e)),
               )
               .toList(),
-          prefetchHooksCallback: ({expensesRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (expensesRefs) db.expenses],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (expensesRefs)
-                    await $_getPrefetchedData<Tag, $TagsTable, Expense>(
-                      currentTable: table,
-                      referencedTable: $$TagsTableReferences._expensesRefsTable(
-                        db,
-                      ),
-                      managerFromTypedResult: (p0) =>
-                          $$TagsTableReferences(db, table, p0).expensesRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.tagId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({expensesRefs = false, expenseTagsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (expensesRefs) db.expenses,
+                    if (expenseTagsRefs) db.expenseTags,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (expensesRefs)
+                        await $_getPrefetchedData<Tag, $TagsTable, Expense>(
+                          currentTable: table,
+                          referencedTable: $$TagsTableReferences
+                              ._expensesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$TagsTableReferences(db, table, p0).expensesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.tagId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (expenseTagsRefs)
+                        await $_getPrefetchedData<Tag, $TagsTable, ExpenseTag>(
+                          currentTable: table,
+                          referencedTable: $$TagsTableReferences
+                              ._expenseTagsRefsTable(db),
+                          managerFromTypedResult: (p0) => $$TagsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).expenseTagsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.tagId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -1777,7 +2324,7 @@ typedef $$TagsTableProcessedTableManager =
       $$TagsTableUpdateCompanionBuilder,
       (Tag, $$TagsTableReferences),
       Tag,
-      PrefetchHooks Function({bool expensesRefs})
+      PrefetchHooks Function({bool expensesRefs, bool expenseTagsRefs})
     >;
 typedef $$ExpensesTableCreateCompanionBuilder =
     ExpensesCompanion Function({
@@ -1826,6 +2373,24 @@ final class $$ExpensesTableReferences
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$ExpenseTagsTable, List<ExpenseTag>>
+  _expenseTagsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.expenseTags,
+    aliasName: $_aliasNameGenerator(db.expenses.id, db.expenseTags.expenseId),
+  );
+
+  $$ExpenseTagsTableProcessedTableManager get expenseTagsRefs {
+    final manager = $$ExpenseTagsTableTableManager(
+      $_db,
+      $_db.expenseTags,
+    ).filter((f) => f.expenseId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_expenseTagsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
     );
   }
 }
@@ -1910,6 +2475,31 @@ class $$ExpensesTableFilterComposer
           ),
     );
     return composer;
+  }
+
+  Expression<bool> expenseTagsRefs(
+    Expression<bool> Function($$ExpenseTagsTableFilterComposer f) f,
+  ) {
+    final $$ExpenseTagsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.expenseTags,
+      getReferencedColumn: (t) => t.expenseId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ExpenseTagsTableFilterComposer(
+            $db: $db,
+            $table: $db.expenseTags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
   }
 }
 
@@ -2069,6 +2659,31 @@ class $$ExpensesTableAnnotationComposer
     );
     return composer;
   }
+
+  Expression<T> expenseTagsRefs<T extends Object>(
+    Expression<T> Function($$ExpenseTagsTableAnnotationComposer a) f,
+  ) {
+    final $$ExpenseTagsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.expenseTags,
+      getReferencedColumn: (t) => t.expenseId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ExpenseTagsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.expenseTags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$ExpensesTableTableManager
@@ -2084,7 +2699,7 @@ class $$ExpensesTableTableManager
           $$ExpensesTableUpdateCompanionBuilder,
           (Expense, $$ExpensesTableReferences),
           Expense,
-          PrefetchHooks Function({bool tagId})
+          PrefetchHooks Function({bool tagId, bool expenseTagsRefs})
         > {
   $$ExpensesTableTableManager(_$AppDatabase db, $ExpensesTable table)
     : super(
@@ -2157,10 +2772,10 @@ class $$ExpensesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({tagId = false}) {
+          prefetchHooksCallback: ({tagId = false, expenseTagsRefs = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [],
+              explicitlyWatchedTables: [if (expenseTagsRefs) db.expenseTags],
               addJoins:
                   <
                     T extends TableManagerState<
@@ -2194,7 +2809,26 @@ class $$ExpensesTableTableManager
                     return state;
                   },
               getPrefetchedDataCallback: (items) async {
-                return [];
+                return [
+                  if (expenseTagsRefs)
+                    await $_getPrefetchedData<
+                      Expense,
+                      $ExpensesTable,
+                      ExpenseTag
+                    >(
+                      currentTable: table,
+                      referencedTable: $$ExpensesTableReferences
+                          ._expenseTagsRefsTable(db),
+                      managerFromTypedResult: (p0) => $$ExpensesTableReferences(
+                        db,
+                        table,
+                        p0,
+                      ).expenseTagsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.expenseId == item.id),
+                      typedResults: items,
+                    ),
+                ];
               },
             );
           },
@@ -2214,7 +2848,356 @@ typedef $$ExpensesTableProcessedTableManager =
       $$ExpensesTableUpdateCompanionBuilder,
       (Expense, $$ExpensesTableReferences),
       Expense,
-      PrefetchHooks Function({bool tagId})
+      PrefetchHooks Function({bool tagId, bool expenseTagsRefs})
+    >;
+typedef $$ExpenseTagsTableCreateCompanionBuilder =
+    ExpenseTagsCompanion Function({
+      required int expenseId,
+      required int tagId,
+      Value<int> rowid,
+    });
+typedef $$ExpenseTagsTableUpdateCompanionBuilder =
+    ExpenseTagsCompanion Function({
+      Value<int> expenseId,
+      Value<int> tagId,
+      Value<int> rowid,
+    });
+
+final class $$ExpenseTagsTableReferences
+    extends BaseReferences<_$AppDatabase, $ExpenseTagsTable, ExpenseTag> {
+  $$ExpenseTagsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ExpensesTable _expenseIdTable(_$AppDatabase db) =>
+      db.expenses.createAlias(
+        $_aliasNameGenerator(db.expenseTags.expenseId, db.expenses.id),
+      );
+
+  $$ExpensesTableProcessedTableManager get expenseId {
+    final $_column = $_itemColumn<int>('expense_id')!;
+
+    final manager = $$ExpensesTableTableManager(
+      $_db,
+      $_db.expenses,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_expenseIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $TagsTable _tagIdTable(_$AppDatabase db) => db.tags.createAlias(
+    $_aliasNameGenerator(db.expenseTags.tagId, db.tags.id),
+  );
+
+  $$TagsTableProcessedTableManager get tagId {
+    final $_column = $_itemColumn<int>('tag_id')!;
+
+    final manager = $$TagsTableTableManager(
+      $_db,
+      $_db.tags,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_tagIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$ExpenseTagsTableFilterComposer
+    extends Composer<_$AppDatabase, $ExpenseTagsTable> {
+  $$ExpenseTagsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$ExpensesTableFilterComposer get expenseId {
+    final $$ExpensesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.expenseId,
+      referencedTable: $db.expenses,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ExpensesTableFilterComposer(
+            $db: $db,
+            $table: $db.expenses,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TagsTableFilterComposer get tagId {
+    final $$TagsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.tagId,
+      referencedTable: $db.tags,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TagsTableFilterComposer(
+            $db: $db,
+            $table: $db.tags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ExpenseTagsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ExpenseTagsTable> {
+  $$ExpenseTagsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$ExpensesTableOrderingComposer get expenseId {
+    final $$ExpensesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.expenseId,
+      referencedTable: $db.expenses,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ExpensesTableOrderingComposer(
+            $db: $db,
+            $table: $db.expenses,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TagsTableOrderingComposer get tagId {
+    final $$TagsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.tagId,
+      referencedTable: $db.tags,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TagsTableOrderingComposer(
+            $db: $db,
+            $table: $db.tags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ExpenseTagsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ExpenseTagsTable> {
+  $$ExpenseTagsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$ExpensesTableAnnotationComposer get expenseId {
+    final $$ExpensesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.expenseId,
+      referencedTable: $db.expenses,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ExpensesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.expenses,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TagsTableAnnotationComposer get tagId {
+    final $$TagsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.tagId,
+      referencedTable: $db.tags,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TagsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.tags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ExpenseTagsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ExpenseTagsTable,
+          ExpenseTag,
+          $$ExpenseTagsTableFilterComposer,
+          $$ExpenseTagsTableOrderingComposer,
+          $$ExpenseTagsTableAnnotationComposer,
+          $$ExpenseTagsTableCreateCompanionBuilder,
+          $$ExpenseTagsTableUpdateCompanionBuilder,
+          (ExpenseTag, $$ExpenseTagsTableReferences),
+          ExpenseTag,
+          PrefetchHooks Function({bool expenseId, bool tagId})
+        > {
+  $$ExpenseTagsTableTableManager(_$AppDatabase db, $ExpenseTagsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ExpenseTagsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ExpenseTagsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ExpenseTagsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> expenseId = const Value.absent(),
+                Value<int> tagId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ExpenseTagsCompanion(
+                expenseId: expenseId,
+                tagId: tagId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required int expenseId,
+                required int tagId,
+                Value<int> rowid = const Value.absent(),
+              }) => ExpenseTagsCompanion.insert(
+                expenseId: expenseId,
+                tagId: tagId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ExpenseTagsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({expenseId = false, tagId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (expenseId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.expenseId,
+                                referencedTable: $$ExpenseTagsTableReferences
+                                    ._expenseIdTable(db),
+                                referencedColumn: $$ExpenseTagsTableReferences
+                                    ._expenseIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+                    if (tagId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.tagId,
+                                referencedTable: $$ExpenseTagsTableReferences
+                                    ._tagIdTable(db),
+                                referencedColumn: $$ExpenseTagsTableReferences
+                                    ._tagIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$ExpenseTagsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ExpenseTagsTable,
+      ExpenseTag,
+      $$ExpenseTagsTableFilterComposer,
+      $$ExpenseTagsTableOrderingComposer,
+      $$ExpenseTagsTableAnnotationComposer,
+      $$ExpenseTagsTableCreateCompanionBuilder,
+      $$ExpenseTagsTableUpdateCompanionBuilder,
+      (ExpenseTag, $$ExpenseTagsTableReferences),
+      ExpenseTag,
+      PrefetchHooks Function({bool expenseId, bool tagId})
     >;
 typedef $$ExchangeRatesTableCreateCompanionBuilder =
     ExchangeRatesCompanion Function({
@@ -2440,6 +3423,8 @@ class $AppDatabaseManager {
   $$TagsTableTableManager get tags => $$TagsTableTableManager(_db, _db.tags);
   $$ExpensesTableTableManager get expenses =>
       $$ExpensesTableTableManager(_db, _db.expenses);
+  $$ExpenseTagsTableTableManager get expenseTags =>
+      $$ExpenseTagsTableTableManager(_db, _db.expenseTags);
   $$ExchangeRatesTableTableManager get exchangeRates =>
       $$ExchangeRatesTableTableManager(_db, _db.exchangeRates);
 }

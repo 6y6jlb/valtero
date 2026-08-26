@@ -1,29 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/shared/database/app_database.dart';
+import 'package:valtero/shared/consts/tag_suggestions.dart';
+import 'package:valtero/shared/utils/tag_label.dart';
+import 'package:valtero/widgets/flag_icon.dart';
 
 class TagChip extends StatelessWidget {
   final Tag tag;
   final bool selected;
   final VoidCallback? onTap;
+  final String? labelOverride;
 
   const TagChip({
     super.key,
     required this.tag,
     this.selected = false,
     this.onTap,
+    this.labelOverride,
   });
+
+  Widget? _avatar() {
+    if (tag.kind == 'country' && tag.countryCode != null) {
+      return FlagIcon.country(tag.countryCode!, size: 18);
+    }
+    final tripCurrency = currencyFromTripKey(tag.stableKey ?? '');
+    if (tripCurrency != null) {
+      return FlagIcon.currency(tripCurrency, size: 18);
+    }
+    final resourceIcon = switch (tag.stableKey) {
+      'cash' => Icons.payments_outlined,
+      'card' => Icons.credit_card,
+      'crypto' => Icons.currency_bitcoin,
+      'transfer' => Icons.account_balance_outlined,
+      'ewallet' => Icons.account_balance_wallet_outlined,
+      _ => null,
+    };
+    if (resourceIcon != null) {
+      return Icon(resourceIcon, size: 18);
+    }
+    if (tag.colorValue != null) {
+      return CircleAvatar(backgroundColor: Color(tag.colorValue!), radius: 8);
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
     final color = tag.colorValue != null ? Color(tag.colorValue!) : null;
+    final label = labelOverride ?? localizedTagLabel(context, tag);
     return FilterChip(
-      label: Text(tag.name),
+      label: Text(label),
       selected: selected,
       onSelected: onTap == null ? null : (_) => onTap!(),
       selectedColor: color?.withValues(alpha: 0.35),
-      avatar: color == null
-          ? null
-          : CircleAvatar(backgroundColor: color, radius: 8),
+      avatar: _avatar(),
     );
   }
 }

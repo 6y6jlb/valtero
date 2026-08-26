@@ -1,42 +1,105 @@
+import 'package:sealed_currencies/sealed_currencies.dart';
+
+enum CurrencyKind { fiat, crypto, custom }
+
 class CurrencyInfo {
   final String code;
   final String name;
   final int fractionDigits;
+  final CurrencyKind kind;
 
-  const CurrencyInfo(this.code, this.name, {this.fractionDigits = 2});
+  const CurrencyInfo(
+    this.code,
+    this.name, {
+    this.fractionDigits = 2,
+    this.kind = CurrencyKind.fiat,
+  });
 }
 
-/// Common ISO currencies used by the app.
-const List<CurrencyInfo> supportedCurrencies = [
-  CurrencyInfo('RUB', 'Russian Ruble'),
-  CurrencyInfo('USD', 'US Dollar'),
-  CurrencyInfo('EUR', 'Euro'),
-  CurrencyInfo('GBP', 'British Pound'),
-  CurrencyInfo('CNY', 'Chinese Yuan'),
-  CurrencyInfo('JPY', 'Japanese Yen', fractionDigits: 0),
-  CurrencyInfo('PLN', 'Polish Zloty'),
-  CurrencyInfo('TRY', 'Turkish Lira'),
-  CurrencyInfo('KZT', 'Kazakhstani Tenge'),
-  CurrencyInfo('UAH', 'Ukrainian Hryvnia'),
-  CurrencyInfo('BYN', 'Belarusian Ruble'),
-  CurrencyInfo('CHF', 'Swiss Franc'),
-  CurrencyInfo('CAD', 'Canadian Dollar'),
-  CurrencyInfo('AUD', 'Australian Dollar'),
-  CurrencyInfo('SEK', 'Swedish Krona'),
-  CurrencyInfo('NOK', 'Norwegian Krone'),
-  CurrencyInfo('CZK', 'Czech Koruna'),
-  CurrencyInfo('HUF', 'Hungarian Forint', fractionDigits: 0),
-  CurrencyInfo('INR', 'Indian Rupee'),
-  CurrencyInfo('BRL', 'Brazilian Real'),
+/// Popular crypto tickers (not ISO 4217). Rates are usually manual.
+const List<CurrencyInfo> cryptoCurrencies = [
+  CurrencyInfo('BTC', 'Bitcoin', fractionDigits: 8, kind: CurrencyKind.crypto),
+  CurrencyInfo('ETH', 'Ethereum', fractionDigits: 8, kind: CurrencyKind.crypto),
+  CurrencyInfo('USDT', 'Tether', kind: CurrencyKind.crypto),
+  CurrencyInfo('USDC', 'USD Coin', kind: CurrencyKind.crypto),
+  CurrencyInfo('BNB', 'BNB', fractionDigits: 8, kind: CurrencyKind.crypto),
+  CurrencyInfo('XRP', 'XRP', fractionDigits: 6, kind: CurrencyKind.crypto),
+  CurrencyInfo('SOL', 'Solana', fractionDigits: 8, kind: CurrencyKind.crypto),
+  CurrencyInfo('ADA', 'Cardano', fractionDigits: 6, kind: CurrencyKind.crypto),
+  CurrencyInfo('DOGE', 'Dogecoin', fractionDigits: 8, kind: CurrencyKind.crypto),
+  CurrencyInfo('TRX', 'TRON', fractionDigits: 6, kind: CurrencyKind.crypto),
+  CurrencyInfo('TON', 'Toncoin', fractionDigits: 8, kind: CurrencyKind.crypto),
+  CurrencyInfo('DOT', 'Polkadot', fractionDigits: 8, kind: CurrencyKind.crypto),
+  CurrencyInfo('LTC', 'Litecoin', fractionDigits: 8, kind: CurrencyKind.crypto),
+  CurrencyInfo('BCH', 'Bitcoin Cash', fractionDigits: 8, kind: CurrencyKind.crypto),
+  CurrencyInfo('LINK', 'Chainlink', fractionDigits: 8, kind: CurrencyKind.crypto),
 ];
 
-CurrencyInfo? currencyByCode(String code) {
+List<CurrencyInfo> _fiatFromSealed() {
+  return [
+    for (final c in FiatCurrency.list)
+      CurrencyInfo(
+        c.code,
+        c.name,
+        fractionDigits: _fractionDigitsFromSubunit(c.subunitToUnit),
+      ),
+  ]..sort((a, b) => a.code.compareTo(b.code));
+}
+
+int _fractionDigitsFromSubunit(int subunitToUnit) {
+  if (subunitToUnit <= 1) return 0;
+  var n = 0;
+  var v = subunitToUnit;
+  while (v > 1 && v % 10 == 0) {
+    v ~/= 10;
+    n++;
+  }
+  return n == 0 ? 2 : n;
+}
+
+final List<CurrencyInfo> _fiatCurrencies = _fiatFromSealed();
+
+List<CurrencyInfo> get fiatCurrencies => _fiatCurrencies;
+
+/// All built-in fiat + crypto (custom codes are merged by callers via settings).
+List<CurrencyInfo> get builtInCurrencies => [
+      ..._fiatCurrencies,
+      ...cryptoCurrencies,
+    ];
+
+CurrencyInfo? currencyByCode(
+  String code, {
+  List<String> customCodes = const [],
+}) {
   final upper = code.toUpperCase();
-  for (final c in supportedCurrencies) {
+  for (final c in cryptoCurrencies) {
     if (c.code == upper) return c;
+  }
+  for (final c in _fiatCurrencies) {
+    if (c.code == upper) return c;
+  }
+  if (customCodes.map((e) => e.toUpperCase()).contains(upper)) {
+    return CurrencyInfo(upper, upper, kind: CurrencyKind.custom);
   }
   return null;
 }
 
-List<String> get supportedCurrencyCodes =>
-    supportedCurrencies.map((c) => c.code).toList(growable: false);
+List<CurrencyInfo> currenciesCatalog({List<String> customCodes = const []}) {
+  final custom = [
+    for (final code in customCodes)
+      if (currencyByCode(code) == null)
+        CurrencyInfo(code.toUpperCase(), code.toUpperCase(),
+            kind: CurrencyKind.custom),
+  ]..sort((a, b) => a.code.compareTo(b.code));
+  return [...builtInCurrencies, ...custom];
+}
+
+List<String> currencyCodesCatalog({List<String> customCodes = const []}) =>
+    currenciesCatalog(customCodes: customCodes)
+        .map((c) => c.code)
+        .toList(growable: false);
+
+/// Backward-compatible alias used across the app.
+List<String> get supportedCurrencyCodes => currencyCodesCatalog();
+
+List<CurrencyInfo> get supportedCurrencies => builtInCurrencies;

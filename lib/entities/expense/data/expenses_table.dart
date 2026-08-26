@@ -10,6 +10,7 @@ class Expenses extends Table {
   TextColumn get storedCurrencyCode => text().withLength(min: 3, max: 3)();
   RealColumn get rateUsed => real().nullable()();
   DateTimeColumn get rateTimestamp => dateTime().nullable()();
+  /// Legacy single-tag column (schema v1). Prefer [ExpenseTags]. Kept for migration.
   IntColumn get tagId => integer().nullable().references(Tags, #id)();
   TextColumn get note => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();

@@ -1,110 +1,42 @@
-/// Suggested expense tags by ISO country code.
-const Map<String, List<String>> countryTagSuggestions = {
-  'RU': [
-    'Продукты',
-    'Транспорт',
-    'Коммуналка',
-    'Кафе и рестораны',
-    'Здоровье',
-    'Развлечения',
-  ],
-  'US': [
-    'Groceries',
-    'Transport',
-    'Utilities',
-    'Dining',
-    'Health',
-    'Entertainment',
-  ],
-  'GB': [
-    'Groceries',
-    'Transport',
-    'Bills',
-    'Eating out',
-    'Health',
-    'Leisure',
-  ],
-  'DE': [
-    'Lebensmittel',
-    'Transport',
-    'Wohnen',
-    'Restaurants',
-    'Gesundheit',
-    'Freizeit',
-  ],
-  'PL': [
-    'Zakupy',
-    'Transport',
-    'Rachunki',
-    'Jedzenie poza',
-    'Zdrowie',
-    'Rozrywka',
-  ],
-  'TR': [
-    'Market',
-    'Ulaşım',
-    'Faturalar',
-    'Yemek',
-    'Sağlık',
-    'Eğlence',
-  ],
-  'KZ': [
-    'Продукты',
-    'Транспорт',
-    'Коммуналка',
-    'Кафе',
-    'Здоровье',
-    'Развлечения',
-  ],
-};
-
-/// Generic fallback suggestions (English keys; UI can show as-is).
-const List<String> genericTagSuggestions = [
-  'Groceries',
-  'Transport',
-  'Housing',
-  'Dining',
-  'Health',
-  'Entertainment',
-  'Shopping',
-  'Travel',
+/// Stable suggestion keys (localized via AppLocalizations / [tagLabelForKey]).
+const List<String> defaultSeedTagKeys = [
+  'groceries',
+  'transport',
+  'housing',
+  'dining',
+  'health',
+  'entertainment',
+  'shopping',
+  'travel',
 ];
 
-/// Short region label for a currency — used for trip-tag suggestions.
-const Map<String, String> currencyRegionLabel = {
-  'RUB': 'Russia',
-  'USD': 'USA',
-  'EUR': 'Eurozone',
-  'GBP': 'UK',
-  'CNY': 'China',
-  'JPY': 'Japan',
-  'PLN': 'Poland',
-  'TRY': 'Turkey',
-  'KZT': 'Kazakhstan',
-  'UAH': 'Ukraine',
-  'BYN': 'Belarus',
-  'CHF': 'Switzerland',
-  'CAD': 'Canada',
-  'AUD': 'Australia',
-  'SEK': 'Sweden',
-  'NOK': 'Norway',
-  'CZK': 'Czechia',
-  'HUF': 'Hungary',
-  'INR': 'India',
-  'BRL': 'Brazil',
-};
+/// Payment / funding source tags seeded for every install.
+const List<String> resourceSeedTagKeys = [
+  'cash',
+  'card',
+  'crypto',
+  'transfer',
+  'ewallet',
+];
 
-List<String> suggestionsForCountry(String? countryCode) {
-  if (countryCode == null || countryCode.isEmpty) {
-    return List<String>.from(genericTagSuggestions);
-  }
-  return List<String>.from(
-    countryTagSuggestions[countryCode.toUpperCase()] ?? genericTagSuggestions,
-  );
+/// Extra suggestion keys shown for any country (beyond seeds).
+const List<String> extraSuggestionKeys = [
+  'utilities',
+];
+
+String tripStableKey(String currencyCode) => 'trip_${currencyCode.toUpperCase()}';
+
+bool isTripStableKey(String? key) => key != null && key.startsWith('trip_');
+
+bool isResourceStableKey(String? key) =>
+    key != null && resourceSeedTagKeys.contains(key);
+
+String? currencyFromTripKey(String key) {
+  if (!isTripStableKey(key)) return null;
+  return key.substring('trip_'.length);
 }
 
-String? tripTagForCurrency(String currencyCode) {
-  final label = currencyRegionLabel[currencyCode.toUpperCase()];
-  if (label == null) return null;
-  return 'Trip: $label';
+List<String> suggestionKeysForCountry(String? countryCode) {
+  // Same category set for all countries; language comes from app locale, not country.
+  return [...defaultSeedTagKeys, ...extraSuggestionKeys];
 }

@@ -3,12 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
 import 'package:valtero/features/manage_tags/model/manage_tags_controller.dart';
 import 'package:valtero/features/tag_suggestions/model/country_detection.dart';
-import 'package:valtero/pages/add_expense/add_expense_page.dart';
-import 'package:valtero/pages/currency_settings/currency_settings_page.dart';
 import 'package:valtero/pages/dashboard/dashboard_page.dart';
-import 'package:valtero/pages/expenses_list/expenses_list_page.dart';
-import 'package:valtero/pages/export/export_page.dart';
-import 'package:valtero/pages/tags_settings/tags_settings_page.dart';
+import 'package:valtero/shared/consts/countries.dart';
+import 'package:valtero/shared/database/database_provider.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 
@@ -20,7 +17,6 @@ class App extends ConsumerStatefulWidget {
 }
 
 class _AppState extends ConsumerState<App> {
-  int _index = 0;
   bool _bootstrapped = false;
 
   @override
@@ -33,11 +29,23 @@ class _AppState extends ConsumerState<App> {
     if (_bootstrapped) return;
     _bootstrapped = true;
     await ref.read(manageTagsControllerProvider).seedDefaultsIfEmpty();
-    final settings = ref.read(appSettingsProvider).value;
+    var settings = ref.read(appSettingsProvider).value;
     if (settings?.detectedCountryCode == null) {
       await ref.read(detectCountryControllerProvider)();
+      settings = ref.read(appSettingsProvider).value;
     }
-    // Fire-and-forget daily rate refresh.
+    final code = settings?.detectedCountryCode;
+    if (code != null && code.isNotEmpty) {
+      final lang = settings?.locale == 'ru'
+          ? 'ru'
+          : settings?.locale == 'en'
+              ? 'en'
+              : WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+      await ref.read(appDatabaseProvider).ensureCountryTag(
+            countryCode: code,
+            displayName: countryDisplayName(code, languageCode: lang),
+          );
+    }
     // ignore: unawaited_futures
     ref.read(rateResolverProvider).refreshIfStale();
   }
@@ -64,15 +72,6 @@ class _AppState extends ConsumerState<App> {
       error: (_, _) => null,
     );
 
-    final pages = const [
-      DashboardPage(),
-      ExpensesListPage(),
-      AddExpensePage(),
-      TagsSettingsPage(),
-      CurrencySettingsPage(),
-      ExportPage(),
-    ];
-
     return MaterialApp(
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       theme: ThemeData(
@@ -90,44 +89,18 @@ class _AppState extends ConsumerState<App> {
       locale: locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: Builder(
-        builder: (context) {
-          final l10n = AppLocalizations.of(context)!;
-          return Scaffold(
-            body: SafeArea(child: pages[_index]),
-            bottomNavigationBar: NavigationBar(
-              selectedIndex: _index,
-              onDestinationSelected: (i) => setState(() => _index = i),
-              destinations: [
-                NavigationDestination(
-                  icon: const Icon(Icons.pie_chart_outline),
-                  label: l10n.navDashboard,
-                ),
-                NavigationDestination(
-                  icon: const Icon(Icons.list_alt),
-                  label: l10n.navExpenses,
-                ),
-                NavigationDestination(
-                  icon: const Icon(Icons.add_circle_outline),
-                  label: l10n.navAdd,
-                ),
-                NavigationDestination(
-                  icon: const Icon(Icons.label_outline),
-                  label: l10n.navTags,
-                ),
-                NavigationDestination(
-                  icon: const Icon(Icons.currency_exchange),
-                  label: l10n.navCurrency,
-                ),
-                NavigationDestination(
-                  icon: const Icon(Icons.ios_share),
-                  label: l10n.navExport,
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+      localeResolutionCallback: (deviceLocale, supported) {
+        if (locale != null) return locale;
+        if (deviceLocale != null) {
+          for (final supportedLocale in supported) {
+            if (supportedLocale.languageCode == deviceLocale.languageCode) {
+              return supportedLocale;
+            }
+          }
+        }
+        return const Locale('en');
+      },
+      home: const DashboardPage(),
     );
   }
 }

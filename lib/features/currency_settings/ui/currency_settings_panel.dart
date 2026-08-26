@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
-import 'package:valtero/shared/consts/currencies.dart';
+import 'package:valtero/features/currency_settings/ui/rates_sheet.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
+import 'package:valtero/shared/utils/currency_label.dart';
+import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/currency_picker.dart';
+import 'package:valtero/widgets/flag_icon.dart';
+import 'package:valtero/widgets/set_manual_rate_sheet.dart';
+
+Future<void> showCurrencySettingsSheet(BuildContext context) {
+  return showAppModalSheet(
+    context: context,
+    child: const CurrencySettingsPanel(),
+  );
+}
 
 class CurrencySettingsPanel extends ConsumerStatefulWidget {
   const CurrencySettingsPanel({super.key});
@@ -15,9 +27,6 @@ class CurrencySettingsPanel extends ConsumerStatefulWidget {
 
 class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
   final _apiKeyController = TextEditingController();
-  final _manualRateController = TextEditingController();
-  String _manualBase = 'USD';
-  String _manualTarget = 'RUB';
   String? _status;
 
   @override
@@ -32,7 +41,6 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
   @override
   void dispose() {
     _apiKeyController.dispose();
-    _manualRateController.dispose();
     super.dispose();
   }
 
@@ -40,37 +48,63 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final settingsAsync = ref.watch(appSettingsProvider);
+    final scrollController = PrimaryScrollController.maybeOf(context);
 
     return settingsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('$e')),
       data: (settings) {
         return ListView(
-          padding: const EdgeInsets.all(16),
+          controller: scrollController,
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
           children: [
+            Text(
+              l10n.settingsCurrency,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
             Text(l10n.reportingCurrencies,
                 style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
+              runSpacing: 8,
               children: [
-                for (final code in supportedCurrencyCodes)
-                  FilterChip(
-                    label: Text(code),
-                    selected: settings.reportingCurrencies.contains(code),
-                    onSelected: (selected) async {
-                      final next = [...settings.reportingCurrencies];
-                      if (selected) {
-                        if (!next.contains(code)) next.add(code);
-                      } else {
-                        if (next.length <= 1) return;
-                        next.remove(code);
-                      }
-                      await ref
-                          .read(appSettingsProvider.notifier)
-                          .setReportingCurrencies(next);
-                    },
+                for (final code in settings.reportingCurrencies)
+                  InputChip(
+                    avatar: FlagIcon.currency(code, size: 18),
+                    label: Text(
+                      currencyDisplayLabel(
+                        code,
+                        languageCode:
+                            Localizations.localeOf(context).languageCode,
+                        customCodes: settings.customCurrencyCodes,
+                      ),
+                    ),
+                    onDeleted: settings.reportingCurrencies.length <= 1
+                        ? null
+                        : () async {
+                            final next = [...settings.reportingCurrencies]
+                              ..remove(code);
+                            await ref
+                                .read(appSettingsProvider.notifier)
+                                .setReportingCurrencies(next);
+                          },
                   ),
+                ActionChip(
+                  avatar: const Icon(Icons.add, size: 18),
+                  label: Text(l10n.add),
+                  onPressed: () async {
+                    final code = await showCurrencyPicker(context);
+                    if (code == null) return;
+                    if (settings.reportingCurrencies.contains(code)) return;
+                    await ref
+                        .read(appSettingsProvider.notifier)
+                        .setReportingCurrencies(
+                          [...settings.reportingCurrencies, code],
+                        );
+                  },
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -79,10 +113,14 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
               value: settings.reportingCurrencies.contains(settings.primaryCurrency)
                   ? settings.primaryCurrency
                   : settings.reportingCurrencies.first,
+              isExpanded: true,
               decoration: InputDecoration(labelText: l10n.primaryCurrency),
               items: [
                 for (final code in settings.reportingCurrencies)
-                  DropdownMenuItem(value: code, child: Text(code)),
+                  DropdownMenuItem(
+                    value: code,
+                    child: CurrencyCodeLabel(code),
+                  ),
               ],
               onChanged: (v) {
                 if (v != null) {
@@ -97,7 +135,9 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
               obscureText: true,
             ),
             const SizedBox(height: 8),
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
                 FilledButton(
                   onPressed: () async {
@@ -120,7 +160,6 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
                   },
                   child: Text(l10n.validateKey),
                 ),
-                const SizedBox(width: 8),
                 OutlinedButton(
                   onPressed: () async {
                     await ref.read(rateResolverProvider).refreshIfStale(force: true);
@@ -128,6 +167,10 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
                     setState(() => _status = l10n.ratesRefreshed);
                   },
                   child: Text(l10n.refreshRates),
+                ),
+                FilledButton.tonal(
+                  onPressed: () => showRatesSheet(context),
+                  child: Text(l10n.viewRates),
                 ),
               ],
             ),
@@ -138,83 +181,17 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
             const SizedBox(height: 24),
             Text(l10n.manualRates, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: DropdownButtonFormField<String>(
-                    // ignore: deprecated_member_use
-                    value: _manualBase,
-                    decoration: InputDecoration(labelText: l10n.baseCurrency),
-                    items: [
-                      for (final code in supportedCurrencyCodes)
-                        DropdownMenuItem(value: code, child: Text(code)),
-                    ],
-                    onChanged: (v) => setState(() => _manualBase = v ?? _manualBase),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: DropdownButtonFormField<String>(
-                    // ignore: deprecated_member_use
-                    value: _manualTarget,
-                    decoration: InputDecoration(labelText: l10n.targetCurrency),
-                    items: [
-                      for (final code in supportedCurrencyCodes)
-                        DropdownMenuItem(value: code, child: Text(code)),
-                    ],
-                    onChanged: (v) =>
-                        setState(() => _manualTarget = v ?? _manualTarget),
-                  ),
-                ),
-              ],
-            ),
-            TextField(
-              controller: _manualRateController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(labelText: l10n.rate),
-            ),
-            const SizedBox(height: 8),
-            FilledButton(
+            FilledButton.icon(
               onPressed: () async {
-                final rate = double.tryParse(
-                  _manualRateController.text.trim().replaceAll(',', '.'),
+                final rate = await showSetManualRateSheet(
+                  context,
+                  allowPickPair: true,
                 );
-                if (rate == null || rate <= 0) return;
-                await ref.read(rateResolverProvider).setManualRate(
-                      base: _manualBase,
-                      target: _manualTarget,
-                      rate: rate,
-                    );
-                if (!mounted) return;
+                if (!mounted || rate == null) return;
                 setState(() => _status = l10n.save);
               },
-              child: Text(l10n.save),
-            ),
-            const SizedBox(height: 24),
-            Text(l10n.theme, style: Theme.of(context).textTheme.titleMedium),
-            SegmentedButton<String>(
-              segments: [
-                ButtonSegment(value: 'system', label: Text(l10n.system)),
-                ButtonSegment(value: 'light', label: Text(l10n.light)),
-                ButtonSegment(value: 'dark', label: Text(l10n.dark)),
-              ],
-              selected: {settings.themeMode},
-              onSelectionChanged: (s) {
-                ref.read(appSettingsProvider.notifier).setThemeMode(s.first);
-              },
-            ),
-            const SizedBox(height: 16),
-            Text(l10n.locale, style: Theme.of(context).textTheme.titleMedium),
-            SegmentedButton<String>(
-              segments: [
-                ButtonSegment(value: 'system', label: Text(l10n.system)),
-                const ButtonSegment(value: 'en', label: Text('EN')),
-                const ButtonSegment(value: 'ru', label: Text('RU')),
-              ],
-              selected: {settings.locale},
-              onSelectionChanged: (s) {
-                ref.read(appSettingsProvider.notifier).setLocale(s.first);
-              },
+              icon: const Icon(Icons.add),
+              label: Text(l10n.addRate),
             ),
           ],
         );

@@ -30,6 +30,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navExport => 'Export';
 
   @override
+  String get navSettings => 'Settings';
+
+  @override
+  String get settingsAppearance => 'Appearance';
+
+  @override
+  String get settingsCurrency => 'Currency & rates';
+
+  @override
+  String get settingsExport => 'Export & Telegram';
+
+  @override
+  String get selectCountry => 'Select country';
+
+  @override
   String get addExpense => 'Add expense';
 
   @override
@@ -53,8 +68,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get rateUnavailable =>
-      'Could not get rate — enter manually or open Currency settings';
+  String get rateUnavailable => 'No rate for this pair';
+
+  @override
+  String get setRateNow => 'Set rate';
+
+  @override
+  String get setManualRateTitle => 'Set exchange rate';
+
+  @override
+  String setManualRateHint(String base, String target) {
+    return 'How many $target for 1 $base';
+  }
 
   @override
   String get tag => 'Tag';
@@ -183,6 +208,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get locale => 'Language';
 
   @override
+  String get timeZone => 'Time zone';
+
+  @override
+  String timeZoneSystem(String id) {
+    return 'System ($id)';
+  }
+
+  @override
   String get system => 'System';
 
   @override
@@ -226,4 +259,165 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addTag => 'Add tag';
+
+  @override
+  String get tagGroceries => 'Groceries';
+
+  @override
+  String get tagTransport => 'Transport';
+
+  @override
+  String get tagHousing => 'Housing';
+
+  @override
+  String get tagDining => 'Dining';
+
+  @override
+  String get tagHealth => 'Health';
+
+  @override
+  String get tagEntertainment => 'Entertainment';
+
+  @override
+  String get tagShopping => 'Shopping';
+
+  @override
+  String get tagTravel => 'Travel';
+
+  @override
+  String get tagUtilities => 'Utilities';
+
+  @override
+  String get tagCash => 'Cash';
+
+  @override
+  String get tagCard => 'Card';
+
+  @override
+  String get tagCrypto => 'Crypto';
+
+  @override
+  String get tagTransfer => 'Bank transfer';
+
+  @override
+  String get tagEwallet => 'E-wallet';
+
+  @override
+  String tripTag(String region) {
+    return 'Trip: $region';
+  }
+
+  @override
+  String get tagColor => 'Color';
+
+  @override
+  String get tagColorNone => 'None';
+
+  @override
+  String get chartBy => 'Chart by';
+
+  @override
+  String get chartByTags => 'Tags';
+
+  @override
+  String get chartByMonth => 'Months';
+
+  @override
+  String get chartByCurrency => 'Currency';
+
+  @override
+  String get filterTags => 'Filter tags';
+
+  @override
+  String get excludeTag => 'Exclude';
+
+  @override
+  String get periodRange => 'Period';
+
+  @override
+  String get periodAll => 'All time';
+
+  @override
+  String get periodFrom => 'From';
+
+  @override
+  String get periodTo => 'To';
+
+  @override
+  String get showExpenses => 'Show expenses';
+
+  @override
+  String get sortBy => 'Sort by';
+
+  @override
+  String get sortDate => 'Date';
+
+  @override
+  String get sortAmount => 'Amount';
+
+  @override
+  String get sortCurrency => 'Currency';
+
+  @override
+  String get groupBy => 'Group by';
+
+  @override
+  String get groupNone => 'None';
+
+  @override
+  String get groupDate => 'Date';
+
+  @override
+  String get groupCurrency => 'Currency';
+
+  @override
+  String get groupTag => 'Tag';
+
+  @override
+  String get groupTags => 'Tags';
+
+  @override
+  String get excludeTags => 'Exclude tags';
+
+  @override
+  String get ascending => 'Ascending';
+
+  @override
+  String get descending => 'Descending';
+
+  @override
+  String get viewRates => 'View rates';
+
+  @override
+  String get allRates => 'All rates';
+
+  @override
+  String get addRate => 'Add rate';
+
+  @override
+  String get noRatesYet => 'No rates saved yet — refresh or add a manual rate';
+
+  @override
+  String get rateSourceApi => 'ExchangeRate-API';
+
+  @override
+  String get rateSourceFrankfurter => 'Frankfurter';
+
+  @override
+  String get rateSourceManual => 'Manual';
+
+  @override
+  String get currencyFiat => 'Fiat';
+
+  @override
+  String get currencyCrypto => 'Crypto';
+
+  @override
+  String get currencyCustom => 'Custom';
+
+  @override
+  String get addCustomCurrency => 'Add currency';
+
+  @override
+  String get currencyCode => 'Currency code';
 }

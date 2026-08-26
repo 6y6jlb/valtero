@@ -7,6 +7,11 @@
   "navTags": "Теги",
   "navCurrency": "Валюта",
   "navExport": "Экспорт",
+  "navSettings": "Настройки",
+  "settingsAppearance": "Оформление",
+  "settingsCurrency": "Валюта и курсы",
+  "settingsExport": "Экспорт и Telegram",
+  "selectCountry": "Выбрать страну",
   "addExpense": "Добавить трату",
   "editExpense": "Изменить трату",
   "amount": "Сумма",
@@ -19,7 +24,16 @@
       "rate": {"type": "String"}
     }
   },
-  "rateUnavailable": "Не удалось получить курс — введите вручную или откройте настройки валют",
+  "rateUnavailable": "Нет курса для этой пары",
+  "setRateNow": "Указать курс",
+  "setManualRateTitle": "Задать курс",
+  "setManualRateHint": "Сколько {target} за 1 {base}",
+  "@setManualRateHint": {
+    "placeholders": {
+      "base": {"type": "String"},
+      "target": {"type": "String"}
+    }
+  },
   "tag": "Тег",
   "note": "Заметка",
   "date": "Дата",
@@ -62,6 +76,13 @@
   "all": "Все",
   "theme": "Тема",
   "locale": "Язык",
+  "timeZone": "Часовой пояс",
+  "timeZoneSystem": "Системный ({id})",
+  "@timeZoneSystem": {
+    "placeholders": {
+      "id": {"type": "String"}
+    }
+  },
   "system": "Системная",
   "light": "Светлая",
   "dark": "Тёмная",
@@ -76,5 +97,63 @@
   "periodWeek": "Неделя",
   "periodMonth": "Месяц",
   "newTag": "Новый тег",
-  "addTag": "Добавить тег"
+  "addTag": "Добавить тег",
+  "tagGroceries": "Продукты",
+  "tagTransport": "Транспорт",
+  "tagHousing": "Жильё",
+  "tagDining": "Кафе и рестораны",
+  "tagHealth": "Здоровье",
+  "tagEntertainment": "Развлечения",
+  "tagShopping": "Покупки",
+  "tagTravel": "Путешествия",
+  "tagUtilities": "Коммуналка",
+  "tagCash": "Наличка",
+  "tagCard": "Карта",
+  "tagCrypto": "Крипта",
+  "tagTransfer": "Перевод",
+  "tagEwallet": "Электронный кошелёк",
+  "tripTag": "Поездка: {region}",
+  "@tripTag": {
+    "placeholders": {
+      "region": {"type": "String"}
+    }
+  },
+  "tagColor": "Цвет",
+  "tagColorNone": "Без цвета",
+  "chartBy": "График по",
+  "chartByTags": "Теги",
+  "chartByMonth": "Месяцы",
+  "chartByCurrency": "Валюта",
+  "filterTags": "Фильтр тегов",
+  "excludeTag": "Исключить",
+  "periodRange": "Период",
+  "periodAll": "Всё время",
+  "periodFrom": "С",
+  "periodTo": "По",
+  "showExpenses": "Показать траты",
+  "sortBy": "Сортировка",
+  "sortDate": "Дата",
+  "sortAmount": "Сумма",
+  "sortCurrency": "Валюта",
+  "groupBy": "Группировка",
+  "groupNone": "Нет",
+  "groupDate": "Дата",
+  "groupCurrency": "Валюта",
+  "groupTag": "Тег",
+  "groupTags": "Теги",
+  "excludeTags": "Исключить теги",
+  "ascending": "По возрастанию",
+  "descending": "По убыванию",
+  "viewRates": "Смотреть курсы",
+  "allRates": "Все курсы",
+  "addRate": "Добавить курс",
+  "noRatesYet": "Курсов пока нет — обновите или добавьте вручную",
+  "rateSourceApi": "ExchangeRate-API",
+  "rateSourceFrankfurter": "Frankfurter",
+  "rateSourceManual": "Вручную",
+  "currencyFiat": "Фиат",
+  "currencyCrypto": "Крипта",
+  "currencyCustom": "Свои",
+  "addCustomCurrency": "Добавить валюту",
+  "currencyCode": "Код валюты"
 }

@@ -32,8 +32,8 @@ Details: [docs/agent-rules/fsd-layers.md](docs/agent-rules/fsd-layers.md)
 ## State & storage
 
 - **Riverpod** for state (`AsyncNotifier` for Hive/Drift-backed state)
-- **Drift (SQLite)** for expenses, tags, exchange-rate cache/overrides
-- **Hive** for `AppSettings` only (reporting currencies, API key, detection cache, theme/locale)
+- **Drift (SQLite)** for expenses, tags, exchange-rate cache/overrides (`sqlite3_flutter_libs` bundles native SQLite on Linux/Android/Windows while on Drift/`sqlite3` 2.x)
+- **Hive** for `AppSettings` only (reporting currencies, API key, detection cache, theme/locale/timezone)
 
 Details: [docs/agent-rules/riverpod-conventions.md](docs/agent-rules/riverpod-conventions.md), [docs/agent-rules/drift-conventions.md](docs/agent-rules/drift-conventions.md)
 
@@ -54,11 +54,20 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 
 ## Key domain flows
 
-1. **Add expense** → amount + currency → as-is or convert-to reporting currency (show live rate) → tag → persist original + stored amounts
-2. **Dashboard** → load expenses → convert stored amounts to display currency via `RateResolver` in Dart → charts/summary
-3. **Rates** → on launch if last refresh >24h, refresh in background; Settings can force refresh / bind API key / set manual rates
-4. **Tag suggestions** → detect country/currency (ip-api.com, locale fallback) → suggest tags by country + trip tags by foreign currency
-5. **Export** → CSV/JSON → save file / OS share / Telegram `sendDocument`
+1. **Add expense** (bottom sheet from Dashboard) → amount + currency → as-is or convert-to reporting currency (show live rate) → **multiple tags** (incl. auto country tag + “Select country” + payment **resource** tags: cash/card/crypto/…) → persist original + stored amounts
+2. **Dashboard** → charts/summary + recent expenses list; entry points for add / tags / export sheets; convert stored amounts to display currency via `RateResolver` in Dart
+3. **Rates** → on launch if last refresh >24h, refresh in background; Settings → Currency sheet can force refresh / bind API key / set manual rates / view all rates
+4. **Tag suggestions** → detect country/currency (ip-api.com, locale fallback) → suggest tags by country + trip tags by foreign currency (Tags sheet)
+5. **Export** → CSV/JSON → save file / OS share / Telegram `sendDocument` (sheet from Dashboard or Settings)
+
+## Navigation
+
+- Single home screen: **Dashboard** (no bottom nav)
+- Settings via gear in the AppBar → full page with back arrow
+- Sheets (full window width): add expense, tags, export, currency, appearance, rates list, **expenses list**
+- Dashboard: one donut (by tags / months / currency), tag exclude filters, date period, FAB “Show expenses”
+- AppBar shows live date/time in the selected timezone (default: auto-detected system zone)
+- Desktop default window size: **853×720** (≈⅔ of the previous 1280 width)
 
 ## Code style
 
