@@ -42,9 +42,9 @@ help:
 	@echo '  make pub-get                 flutter pub get'
 	@echo '  make codegen                 dart run build_runner (Drift)'
 	@echo '  make doctor                  flutter doctor'
-	@echo '  make run-linux               flutter run -d linux (+ version flags)'
-	@echo '  make run-windows             flutter run -d windows (+ version flags)'
-	@echo '  make run-android             flutter run -d android (+ version flags)'
+	@echo '  make run-linux               flutter run -d linux (+ APP_VERSION define)'
+	@echo '  make run-windows             flutter run -d windows (+ APP_VERSION define)'
+	@echo '  make run-android             flutter run -d android (+ APP_VERSION define)'
 	@echo '  make build-linux             flutter build linux --release (+ version)'
 	@echo '  make build-windows           flutter build windows --release (+ version)'
 	@echo '  make build-android           flutter build apk --release (+ version)'
@@ -91,13 +91,13 @@ codegen:
 	dart run build_runner build --delete-conflicting-outputs
 
 run-linux: sync-version
-	flutter run -d linux $$($(VERSION_SCRIPT) flutter-args)
+	flutter run -d linux $$($(VERSION_SCRIPT) dart-define-args)
 
 run-windows: sync-version
-	flutter run -d windows $$($(VERSION_SCRIPT) flutter-args)
+	flutter run -d windows $$($(VERSION_SCRIPT) dart-define-args)
 
 run-android: sync-version
-	flutter run -d android $$($(VERSION_SCRIPT) flutter-args)
+	flutter run -d android $$($(VERSION_SCRIPT) dart-define-args)
 
 build-linux: sync-version
 	flutter build linux --release $$($(VERSION_SCRIPT) flutter-args)

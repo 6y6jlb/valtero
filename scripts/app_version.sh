@@ -5,7 +5,8 @@
 #   ./scripts/app_version.sh print
 #   ./scripts/app_version.sh build-name
 #   ./scripts/app_version.sh build-number
-#   ./scripts/app_version.sh flutter-args
+#   ./scripts/app_version.sh flutter-args       # build/release: --build-name/--build-number/--dart-define
+#   ./scripts/app_version.sh dart-define-args   # run: --dart-define only (flutter run has no --build-name)
 #   ./scripts/app_version.sh sync                 # VERSION → pubspec.yaml
 #   ./scripts/app_version.sh set 1.2.0+3          # write VERSION + sync pubspec
 #   ./scripts/app_version.sh bump major|minor|patch|build
@@ -169,6 +170,10 @@ case "$cmd" in
     full="$(normalized_version_of "$raw")"
     printf -- '--build-name=%s --build-number=%s --dart-define=APP_VERSION=%s\n' \
       "$name" "$number" "$full"
+    ;;
+  dart-define-args)
+    full="$(normalized_version_of "$(read_raw_version)")"
+    printf -- '--dart-define=APP_VERSION=%s\n' "$full"
     ;;
   sync)
     synced="$(sync_pubspec "$(read_raw_version)")"

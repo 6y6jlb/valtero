@@ -5,6 +5,7 @@
 #   .\scripts\app_version.ps1 build-name
 #   .\scripts\app_version.ps1 build-number
 #   .\scripts\app_version.ps1 flutter-args
+#   .\scripts\app_version.ps1 dart-define-args
 #   .\scripts\app_version.ps1 sync
 #   .\scripts\app_version.ps1 set 1.2.0+3
 #   .\scripts\app_version.ps1 bump major|minor|patch|build
@@ -17,7 +18,7 @@
 
 param(
   [Parameter(Position = 0)]
-  [ValidateSet('print', 'build-name', 'build-number', 'flutter-args', 'sync', 'set', 'bump')]
+  [ValidateSet('print', 'build-name', 'build-number', 'flutter-args', 'dart-define-args', 'sync', 'set', 'bump')]
   [string]$Command = 'print',
 
   [Parameter(Position = 1)]
@@ -133,6 +134,10 @@ switch ($Command) {
     $number = Get-BuildNumber $raw
     $full = Get-NormalizedVersion $raw
     Write-Output "--build-name=$name --build-number=$number --dart-define=APP_VERSION=$full"
+  }
+  'dart-define-args' {
+    $full = Get-NormalizedVersion (Read-RawVersion)
+    Write-Output "--dart-define=APP_VERSION=$full"
   }
   'sync' {
     $synced = Sync-Pubspec (Read-RawVersion)
