@@ -220,7 +220,11 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
       initialSelection: _draft.tagIds,
     );
     if (result == null) return;
-    setState(() => _draft = _draft.copyWith(tagIds: result));
+    setState(() {
+      _draft = _draft.copyWith(tagIds: result);
+      _applied = _applied.copyWith(tagIds: result);
+      _page = 0;
+    });
   }
 
   Future<void> _export(
@@ -399,25 +403,19 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                       draft: _draft,
                       applied: _applied,
                       currencyOptions: currencyOptions,
-                      sort: _applied.sort,
-                      ascending: _applied.ascending,
                       onPickPeriod: _pickDraftDateRange,
                       onCurrencyChanged: (v) {
                         setState(() {
                           _draft = v == null
                               ? _draft.copyWith(clearCurrencyCode: true)
                               : _draft.copyWith(currencyCode: v);
+                          _applied = v == null
+                              ? _applied.copyWith(clearCurrencyCode: true)
+                              : _applied.copyWith(currencyCode: v);
+                          _page = 0;
                         });
                       },
                       onPickTags: () => _pickTags(tags),
-                      onSortChanged: (field, ascending) {
-                        setState(() {
-                          _applied = _applied.copyWith(
-                            sort: field,
-                            ascending: ascending,
-                          );
-                        });
-                      },
                       onApply: _applyFilters,
                       onClear: _clearFilters,
                       tagLabels: tagLabels,
@@ -469,6 +467,8 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                           ? ExpenseListGroup.currency
                           : _applied.group,
                       chartBreakdown: _chartBreakdown,
+                      sort: _applied.sort,
+                      ascending: _applied.ascending,
                       displayCurrency: _displayCurrency,
                       onDisplayIn: () => _pickDisplayCurrency(sourceCurrencies),
                       onPageSizeChanged: (v) {
@@ -478,6 +478,14 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                         });
                       },
                       onPageChanged: (v) => setState(() => _page = v),
+                      onSortChanged: (field, ascending) {
+                        setState(() {
+                          _applied = _applied.copyWith(
+                            sort: field,
+                            ascending: ascending,
+                          );
+                        });
+                      },
                       onViewChanged: (v) {
                         setState(() {
                           _view = v;

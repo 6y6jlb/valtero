@@ -13,13 +13,9 @@ class ExpensesFilterCard extends StatelessWidget {
   final ExpenseListQuery draft;
   final ExpenseListQuery applied;
   final List<String> currencyOptions;
-  final ExpenseListSortField sort;
-  final bool ascending;
   final VoidCallback onPickPeriod;
   final ValueChanged<String?> onCurrencyChanged;
   final VoidCallback onPickTags;
-  final void Function(ExpenseListSortField field, bool ascending)
-      onSortChanged;
   final VoidCallback onApply;
   final VoidCallback onClear;
   final Map<int, String> tagLabels;
@@ -32,12 +28,9 @@ class ExpensesFilterCard extends StatelessWidget {
     required this.draft,
     required this.applied,
     required this.currencyOptions,
-    required this.sort,
-    required this.ascending,
     required this.onPickPeriod,
     required this.onCurrencyChanged,
     required this.onPickTags,
-    required this.onSortChanged,
     required this.onApply,
     required this.onClear,
     required this.tagLabels,
@@ -45,8 +38,6 @@ class ExpensesFilterCard extends StatelessWidget {
     required this.onClearPeriod,
     required this.onClearTags,
   });
-
-  String get _sortKey => '${sort.name}:${ascending ? 'asc' : 'desc'}';
 
   InputDecoration _decoration(ThemeData theme, String label) {
     final border = OutlineInputBorder(
@@ -70,9 +61,9 @@ class ExpensesFilterCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final hasPeriod = applied.from != null || applied.to != null;
-    final hasActive = hasPeriod ||
-        applied.currencyCode != null ||
-        applied.tagIds.isNotEmpty;
+    final hasCurrency = applied.currencyCode != null;
+    final hasTags = applied.tagIds.isNotEmpty;
+    final hasActive = hasPeriod || hasCurrency || hasTags;
 
     final periodLabel = formatPeriodLabel(
       l10n,
@@ -148,43 +139,6 @@ class ExpensesFilterCard extends StatelessWidget {
                         onTap: onPickTags,
                       ),
                     ),
-                    cell(
-                      DropdownButtonFormField<String>(
-                        // ignore: deprecated_member_use
-                        value: _sortKey,
-                        isExpanded: true,
-                        isDense: true,
-                        iconSize: 20,
-                        style: theme.textTheme.bodyMedium,
-                        decoration: _decoration(theme, l10n.sortBy),
-                        items: [
-                          for (final field in ExpenseListSortField.values)
-                            for (final asc in [false, true])
-                              DropdownMenuItem(
-                                value:
-                                    '${field.name}:${asc ? 'asc' : 'desc'}',
-                                child: Text(
-                                  '${switch (field) {
-                                    ExpenseListSortField.date =>
-                                      l10n.sortDate,
-                                    ExpenseListSortField.amount =>
-                                      l10n.sortAmount,
-                                    ExpenseListSortField.currency =>
-                                      l10n.sortCurrency,
-                                  }} · ${asc ? l10n.ascending : l10n.descending}',
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                        ],
-                        onChanged: (v) {
-                          if (v == null) return;
-                          final parts = v.split(':');
-                          final field = ExpenseListSortField.values
-                              .firstWhere((e) => e.name == parts[0]);
-                          onSortChanged(field, parts[1] == 'asc');
-                        },
-                      ),
-                    ),
                   ],
                 );
               },
@@ -224,14 +178,14 @@ class ExpensesFilterCard extends StatelessWidget {
                       ),
                       onDeleted: onClearPeriod,
                     ),
-                  if (applied.currencyCode != null)
+                  if (hasCurrency)
                     InputChip(
                       label: Text(
                         '${l10n.filterCurrency}: ${applied.currencyCode}',
                       ),
                       onDeleted: onClearCurrency,
                     ),
-                  if (applied.tagIds.isNotEmpty)
+                  if (hasTags)
                     InputChip(
                       label: Text(
                         '${l10n.selectTags}: ${applied.tagIds.map((id) => tagLabels[id] ?? '?').join(', ')}',
