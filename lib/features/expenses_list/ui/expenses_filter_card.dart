@@ -58,15 +58,15 @@ class ExpensesFilterCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final hasPeriod = draft.from != null || draft.to != null;
-    final hasCurrency = draft.currencyCode != null;
-    final hasTags = draft.tagIds.isNotEmpty;
-    final hasActive = hasPeriod || hasCurrency || hasTags;
 
     final periodLabel = formatPeriodLabel(
       l10n,
       DatePeriod(from: draft.from, to: draft.to),
     );
+    final currencyLabel = draft.currencyCode ?? l10n.all;
+    final tagsLabel = draft.tagIds.isEmpty
+        ? l10n.all
+        : draft.tagIds.map((id) => tagLabels[id] ?? '?').join(', ');
 
     return Card(
       margin: EdgeInsets.zero,
@@ -160,36 +160,25 @@ class ExpensesFilterCard extends StatelessWidget {
                 ),
               ],
             ),
-            if (hasActive) ...[
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: [
-                  if (hasPeriod)
-                    InputChip(
-                      label: Text(
-                        '${l10n.periodRange}: $periodLabel',
-                      ),
-                      onDeleted: onClearPeriod,
-                    ),
-                  if (hasCurrency)
-                    InputChip(
-                      label: Text(
-                        '${l10n.filterCurrency}: ${draft.currencyCode}',
-                      ),
-                      onDeleted: onClearCurrency,
-                    ),
-                  if (hasTags)
-                    InputChip(
-                      label: Text(
-                        '${l10n.selectTags}: ${draft.tagIds.map((id) => tagLabels[id] ?? '?').join(', ')}',
-                      ),
-                      onDeleted: onClearTags,
-                    ),
-                ],
-              ),
-            ],
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                InputChip(
+                  label: Text('${l10n.periodRange}: $periodLabel'),
+                  onDeleted: onClearPeriod,
+                ),
+                InputChip(
+                  label: Text('${l10n.filterCurrency}: $currencyLabel'),
+                  onDeleted: onClearCurrency,
+                ),
+                InputChip(
+                  label: Text('${l10n.selectTags}: $tagsLabel'),
+                  onDeleted: onClearTags,
+                ),
+              ],
+            ),
           ],
         ),
       ),
