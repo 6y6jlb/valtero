@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/utils/date_period.dart';
+import 'package:valtero/widgets/period_month_calendar.dart';
 
-/// Opens a period picker with presets and a combined from–to custom range.
+/// Opens a period picker with presets and dual-month custom range selection.
 /// Returns `null` if cancelled.
 Future<DatePeriod?> showPeriodPicker(
   BuildContext context, {
@@ -10,7 +11,7 @@ Future<DatePeriod?> showPeriodPicker(
 }) {
   return showDialog<DatePeriod>(
     context: context,
-    builder: (context) => _PeriodPickerDialog(initial: initial.normalized()),
+    builder: (context) => PeriodPickerDialog(initial: initial.normalized()),
   );
 }
 
@@ -28,6 +29,7 @@ String localizedPeriodPreset(AppLocalizations l10n, PeriodPreset preset) {
     PeriodPreset.lastMonth => l10n.periodLastMonth,
     PeriodPreset.thisQuarter => l10n.periodThisQuarter,
     PeriodPreset.thisYear => l10n.periodThisYear,
+    PeriodPreset.previousYear => l10n.periodPreviousYear,
     PeriodPreset.last12Months => l10n.periodLast12Months,
     PeriodPreset.custom => l10n.periodCustom,
   };
@@ -55,19 +57,35 @@ String formatPeriodLabel(
   return l10n.periodAll;
 }
 
-class _PeriodPickerDialog extends StatefulWidget {
+const _sidebarPresets = <PeriodPreset>[
+  PeriodPreset.today,
+  PeriodPreset.yesterday,
+  PeriodPreset.last7Days,
+  PeriodPreset.last30Days,
+  PeriodPreset.thisMonth,
+  PeriodPreset.lastMonth,
+  PeriodPreset.thisQuarter,
+  PeriodPreset.thisYear,
+  PeriodPreset.previousYear,
+  PeriodPreset.last12Months,
+  PeriodPreset.all,
+];
+
+class PeriodPickerDialog extends StatefulWidget {
   final DatePeriod initial;
 
-  const _PeriodPickerDialog({required this.initial});
+  const PeriodPickerDialog({super.key, required this.initial});
 
   @override
-  State<_PeriodPickerDialog> createState() => _PeriodPickerDialogState();
+  State<PeriodPickerDialog> createState() => _PeriodPickerDialogState();
 }
 
-class _PeriodPickerDialogState extends State<_PeriodPickerDialog> {
+class _PeriodPickerDialogState extends State<PeriodPickerDialog> {
   late PeriodPreset _preset;
   late DateTime? _from;
   late DateTime? _to;
+  late DateTime _leftMonth;
+  bool _awaitingEnd = false;
 
   @override
   void initState() {
@@ -75,137 +93,230 @@ class _PeriodPickerDialogState extends State<_PeriodPickerDialog> {
     _from = widget.initial.from;
     _to = widget.initial.to;
     _preset = matchPeriodPreset(widget.initial) ?? PeriodPreset.custom;
+    _leftMonth = PeriodMonthCalendar.monthStart(
+      _from ?? _to ?? DateTime.now(),
+    );
+  }
+
+  DateTime get _rightMonth =>
+      DateTime(_leftMonth.year, _leftMonth.month + 1, 1);
+
+  void _shiftMonths(int delta) {
+    setState(() {
+      _leftMonth = DateTime(_leftMonth.year, _leftMonth.month + delta, 1);
+    });
   }
 
   void _selectPreset(PeriodPreset preset) {
-    if (preset == PeriodPreset.custom) {
-      setState(() => _preset = PeriodPreset.custom);
-      return;
-    }
     final period = periodForPreset(preset);
     setState(() {
       _preset = preset;
       _from = period.from;
       _to = period.to;
+      _awaitingEnd = false;
+      if (_from != null) {
+        _leftMonth = PeriodMonthCalendar.monthStart(_from!);
+      }
     });
   }
 
-  Future<void> _pickCustomRange() async {
-    final now = DateTime.now();
-    final initialStart = _from ?? _to ?? now;
-    final initialEnd = _to ?? _from ?? now;
-    final start = initialStart.isBefore(initialEnd) ? initialStart : initialEnd;
-    final end = initialStart.isBefore(initialEnd) ? initialEnd : initialStart;
-
-    final range = await showDateRangePicker(
-      context: context,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-      initialDateRange: DateTimeRange(start: start, end: end),
-      helpText: AppLocalizations.of(context)!.periodCustom,
-      saveText: AppLocalizations.of(context)!.applyFilters,
-    );
-    if (range == null || !mounted) return;
+  void _onDaySelected(DateTime day) {
+    final selected = dateOnly(day);
     setState(() {
       _preset = PeriodPreset.custom;
-      _from = dateOnly(range.start);
-      _to = dateOnly(range.end);
+      if (!_awaitingEnd || _from == null) {
+        _from = selected;
+        _to = selected;
+        _awaitingEnd = true;
+      } else {
+        if (selected.isBefore(_from!)) {
+          _to = _from;
+          _from = selected;
+        } else {
+          _to = selected;
+        }
+        _awaitingEnd = false;
+      }
     });
+  }
+
+  DatePeriod get _result {
+    if (_preset != PeriodPreset.custom) {
+      return periodForPreset(_preset);
+    }
+    return DatePeriod(from: _from, to: _to).normalized();
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final presets = PeriodPreset.values
-        .where((p) => p != PeriodPreset.custom)
-        .toList();
+    final theme = Theme.of(context);
+    final wide = MediaQuery.sizeOf(context).width >= 720;
 
-    return AlertDialog(
-      title: Text(l10n.periodRange),
-      content: SizedBox(
-        width: 420,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 320),
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  for (final preset in presets)
-                    RadioListTile<PeriodPreset>(
-                      dense: true,
-                      value: preset,
-                      // ignore: deprecated_member_use
-                      groupValue: _preset,
-                      title: Text(localizedPeriodPreset(l10n, preset)),
-                      // ignore: deprecated_member_use
-                      onChanged: (v) {
-                        if (v != null) _selectPreset(v);
-                      },
-                    ),
-                  RadioListTile<PeriodPreset>(
-                    dense: true,
-                    value: PeriodPreset.custom,
-                    // ignore: deprecated_member_use
-                    groupValue: _preset,
-                    title: Text(l10n.periodCustom),
-                    subtitle: _preset == PeriodPreset.custom &&
-                            (_from != null || _to != null)
-                        ? Text(
-                            formatPeriodLabel(
-                              l10n,
-                              DatePeriod(from: _from, to: _to),
-                            ),
-                          )
-                        : Text(l10n.periodCustomHint),
-                    // ignore: deprecated_member_use
-                    onChanged: (v) {
-                      if (v != null) _selectPreset(v);
-                    },
-                  ),
-                ],
-              ),
+    final calendars = Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        PeriodMonthCalendar(
+          month: _leftMonth,
+          rangeStart: _from,
+          rangeEnd: _to,
+          onDaySelected: _onDaySelected,
+          onPrevMonth: () => _shiftMonths(-1),
+          onNextMonth: () => _shiftMonths(1),
+        ),
+        const SizedBox(width: 12),
+        PeriodMonthCalendar(
+          month: _rightMonth,
+          rangeStart: _from,
+          rangeEnd: _to,
+          onDaySelected: _onDaySelected,
+          onPrevMonth: () => _shiftMonths(-1),
+          onNextMonth: () => _shiftMonths(1),
+        ),
+      ],
+    );
+
+    final presets = SizedBox(
+      width: wide ? 168 : double.infinity,
+      child: ListView(
+        shrinkWrap: true,
+        children: [
+          for (final preset in _sidebarPresets)
+            _PresetTile(
+              label: localizedPeriodPreset(l10n, preset),
+              selected: _preset == preset,
+              onTap: () => _selectPreset(preset),
             ),
-            if (_preset == PeriodPreset.custom) ...[
-              const SizedBox(height: 8),
-              OutlinedButton.icon(
-                onPressed: _pickCustomRange,
-                icon: const Icon(Icons.date_range),
-                label: Text(
-                  _from == null && _to == null
-                      ? l10n.periodPickRange
-                      : l10n.periodFromTo(
-                          formatPeriodDay(_from ?? _to!),
-                          formatPeriodDay(_to ?? _from!),
+        ],
+      ),
+    );
+
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: wide ? 780 : 360,
+          maxHeight: MediaQuery.sizeOf(context).height * 0.9,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+                child: Text(
+                  l10n.periodRange,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              Flexible(
+                child: wide
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          presets,
+                          VerticalDivider(
+                            width: 24,
+                            color: theme.colorScheme.outlineVariant,
+                          ),
+                          Flexible(
+                            child: SingleChildScrollView(
+                              child: calendars,
+                            ),
+                          ),
+                        ],
+                      )
+                    : SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            SizedBox(height: 220, child: presets),
+                            const Divider(),
+                            calendars,
+                          ],
                         ),
+                      ),
+              ),
+              const SizedBox(height: 8),
+              if (_preset == PeriodPreset.custom &&
+                  (_from != null || _to != null))
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    formatPeriodLabel(
+                      l10n,
+                      DatePeriod(from: _from, to: _to),
+                    ),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(4, 8, 4, 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(l10n.cancel),
+                    ),
+                    const SizedBox(width: 8),
+                    FilledButton(
+                      onPressed: () => Navigator.pop(context, _result),
+                      child: Text(l10n.applyFilters),
+                    ),
+                  ],
                 ),
               ),
             ],
-          ],
+          ),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(l10n.cancel),
+    );
+  }
+}
+
+class _PresetTile extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _PresetTile({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Material(
+      color: selected
+          ? theme.colorScheme.primary.withValues(alpha: 0.12)
+          : Colors.transparent,
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Text(
+            label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+              color: selected
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.onSurface,
+            ),
+          ),
         ),
-        FilledButton(
-          onPressed: () {
-            if (_preset == PeriodPreset.custom &&
-                _from == null &&
-                _to == null) {
-              return;
-            }
-            final period = _preset == PeriodPreset.custom
-                ? DatePeriod(from: _from, to: _to).normalized()
-                : periodForPreset(_preset);
-            Navigator.pop(context, period);
-          },
-          child: Text(l10n.applyFilters),
-        ),
-      ],
+      ),
     );
   }
 }

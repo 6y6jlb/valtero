@@ -836,6 +836,12 @@ abstract class AppLocalizations {
   /// **'This year'**
   String get periodThisYear;
 
+  /// No description provided for @periodPreviousYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous year'**
+  String get periodPreviousYear;
+
   /// No description provided for @periodLast12Months.
   ///
   /// In en, this message translates to:

@@ -388,6 +388,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get periodThisYear => 'This year';
 
   @override
+  String get periodPreviousYear => 'Previous year';
+
+  @override
   String get periodLast12Months => 'Last 12 months';
 
   @override

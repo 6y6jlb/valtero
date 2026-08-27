@@ -150,6 +150,7 @@
   "periodLastMonth": "Last month",
   "periodThisQuarter": "This quarter",
   "periodThisYear": "This year",
+  "periodPreviousYear": "Previous year",
   "periodLast12Months": "Last 12 months",
   "periodCustom": "Custom range",
   "periodCustomHint": "Pick from and to dates",

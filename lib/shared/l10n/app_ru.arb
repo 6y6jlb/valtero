@@ -150,6 +150,7 @@
   "periodLastMonth": "Прошлый месяц",
   "periodThisQuarter": "Этот квартал",
   "periodThisYear": "Этот год",
+  "periodPreviousYear": "Прошлый год",
   "periodLast12Months": "Последние 12 месяцев",
   "periodCustom": "Свой период",
   "periodCustomHint": "Укажите даты от и до",

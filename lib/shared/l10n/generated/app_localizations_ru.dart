@@ -388,6 +388,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get periodThisYear => 'Этот год';
 
   @override
+  String get periodPreviousYear => 'Прошлый год';
+
+  @override
   String get periodLast12Months => 'Последние 12 месяцев';
 
   @override

@@ -37,6 +37,7 @@ enum PeriodPreset {
   lastMonth,
   thisQuarter,
   thisYear,
+  previousYear,
   last12Months,
   custom,
 }
@@ -82,6 +83,12 @@ DatePeriod periodForPreset(PeriodPreset preset, [DateTime? now]) {
       return DatePeriod(
         from: DateTime(today.year, 1, 1),
         to: today,
+      );
+    case PeriodPreset.previousYear:
+      final y = today.year - 1;
+      return DatePeriod(
+        from: DateTime(y, 1, 1),
+        to: DateTime(y, 12, 31),
       );
     case PeriodPreset.last12Months:
       return DatePeriod(
