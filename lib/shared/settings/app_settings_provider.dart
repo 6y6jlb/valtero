@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:valtero/shared/settings/app_settings.dart';
 import 'package:valtero/shared/settings/hive_service.dart';
 
