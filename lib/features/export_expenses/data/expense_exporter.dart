@@ -47,7 +47,7 @@ class ExpenseExporter {
           e.note ?? '',
         ],
     ];
-    return const ListToCsvConverter().convert(rows);
+    return csv.encode(rows);
   }
 
   String buildJson(

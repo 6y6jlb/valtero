@@ -24,7 +24,7 @@ dependencies:
   path: ^1.9.1
   intl: any
   fl_chart: ^1.0.0
-  csv: ^6.0.0
+  csv: ^8.0.0
   share_plus: ^11.0.0
   file_selector: ^1.0.3
   country_flags: ^4.1.2
