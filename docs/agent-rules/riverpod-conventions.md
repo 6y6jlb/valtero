@@ -10,6 +10,7 @@
 
 - Prefer `AsyncNotifier` / `AsyncNotifierProvider` for Hive- or Drift-backed state
 - Dispose IO clients / subscriptions in `ref.onDispose`
+- On Riverpod 3+, `StateProvider` / `StateNotifierProvider` / `ChangeNotifierProvider` live in `package:flutter_riverpod/legacy.dart` — prefer Notifier APIs for new code
 
 ```dart
 // ❌ BAD — global mutable singleton for settings

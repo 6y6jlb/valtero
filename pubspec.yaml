@@ -15,7 +15,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  flutter_riverpod: ^2.6.1
+  flutter_riverpod: ^3.0.0
   dio: ^5.9.0
   hive_ce: ^2.15.1
   hive_ce_flutter: ^2.3.3
