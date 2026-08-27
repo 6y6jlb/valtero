@@ -5,6 +5,7 @@ import 'package:valtero/features/export_expenses/model/export_controller.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_toast.dart';
 
 Future<void> showExportSheet(BuildContext context) {
   return showAppModalSheet(
@@ -24,7 +25,6 @@ class _ExportPanelState extends ConsumerState<ExportPanel> {
   ExportFormat _format = ExportFormat.csv;
   final _tokenController = TextEditingController();
   final _chatController = TextEditingController();
-  String? _message;
 
   @override
   void initState() {
@@ -68,9 +68,10 @@ class _ExportPanelState extends ConsumerState<ExportPanel> {
         const SizedBox(height: 16),
         FilledButton(
           onPressed: () async {
-            final path = await ref.read(exportControllerProvider).saveFile(_format);
-            if (!mounted) return;
-            setState(() => _message = path == null ? null : l10n.exportDone);
+            final path =
+                await ref.read(exportControllerProvider).saveFile(_format);
+            if (!context.mounted || path == null) return;
+            showAppToast(context, l10n.exportDone);
           },
           child: Text(l10n.saveFile),
         ),
@@ -78,8 +79,8 @@ class _ExportPanelState extends ConsumerState<ExportPanel> {
         OutlinedButton(
           onPressed: () async {
             await ref.read(exportControllerProvider).share(_format);
-            if (!mounted) return;
-            setState(() => _message = l10n.exportDone);
+            if (!context.mounted) return;
+            showAppToast(context, l10n.exportDone);
           },
           child: Text(l10n.share),
         ),
@@ -112,19 +113,15 @@ class _ExportPanelState extends ConsumerState<ExportPanel> {
           onPressed: () async {
             try {
               await ref.read(exportControllerProvider).sendTelegram(_format);
-              if (!mounted) return;
-              setState(() => _message = l10n.telegramSent);
+              if (!context.mounted) return;
+              showAppToast(context, l10n.telegramSent);
             } catch (_) {
-              if (!mounted) return;
-              setState(() => _message = l10n.telegramFailed);
+              if (!context.mounted) return;
+              showAppToast(context, l10n.telegramFailed);
             }
           },
           child: Text(l10n.sendTelegram),
         ),
-        if (_message != null) ...[
-          const SizedBox(height: 12),
-          Text(_message!),
-        ],
       ],
     );
   }

@@ -4,6 +4,7 @@ import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_resolver.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
+import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/currency_picker.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/set_manual_rate_sheet.dart';
@@ -105,9 +106,7 @@ Future<bool> ensureRatesForDisplay(
     );
     if (stillMissing.isEmpty) return true;
     if (!context.mounted) return false;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.missingRatesStill(stillMissing.length))),
-    );
+    showAppToast(context, l10n.missingRatesStill(stillMissing.length));
   }
   return false;
 }

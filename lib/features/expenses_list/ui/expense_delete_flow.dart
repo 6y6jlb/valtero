@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/expense/model/expense_tags_provider.dart';
 import 'package:valtero/features/add_expense/model/add_expense_controller.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/widgets/app_toast.dart';
 
 Future<void> confirmAndDeleteExpense(
   BuildContext context,
@@ -32,19 +33,5 @@ Future<void> confirmAndDeleteExpense(
   ref.invalidate(expenseTagIdsProvider);
   if (!context.mounted) return;
 
-  final messenger = ScaffoldMessenger.of(context);
-  messenger.hideCurrentSnackBar();
-  final screenHeight = MediaQuery.sizeOf(context).height;
-  messenger.showSnackBar(
-    SnackBar(
-      content: Text(l10n.expenseDeleted),
-      behavior: SnackBarBehavior.floating,
-      margin: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        bottom: screenHeight - 140,
-      ),
-      duration: const Duration(seconds: 2),
-    ),
-  );
+  showAppToast(context, l10n.expenseDeleted);
 }

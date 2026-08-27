@@ -15,7 +15,6 @@ class ExpensesListingCard extends StatelessWidget {
   final ExpenseListGroup group;
   final ExpenseChartBreakdown chartBreakdown;
   final String? displayCurrency;
-  final String? exportMessage;
   final VoidCallback onDisplayIn;
   final ValueChanged<int> onPageSizeChanged;
   final ValueChanged<int> onPageChanged;
@@ -37,7 +36,6 @@ class ExpensesListingCard extends StatelessWidget {
     required this.group,
     required this.chartBreakdown,
     required this.displayCurrency,
-    required this.exportMessage,
     required this.onDisplayIn,
     required this.onPageSizeChanged,
     required this.onPageChanged,
@@ -296,11 +294,6 @@ class ExpensesListingCard extends StatelessWidget {
                     ),
                 ],
               ),
-            ),
-          if (exportMessage != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-              child: Text(exportMessage!),
             ),
           const Divider(height: 1),
           child,

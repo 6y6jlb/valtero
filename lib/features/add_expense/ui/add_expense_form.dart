@@ -12,6 +12,7 @@ import 'package:valtero/shared/database/database_provider.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/money.dart';
+import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/currency_picker.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/set_manual_rate_sheet.dart';
@@ -168,10 +169,17 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
       _noteController.clear();
       setState(() => _error = null);
       final messenger = ScaffoldMessenger.of(context);
+      final theme = Theme.of(context);
+      final height = MediaQuery.sizeOf(context).height;
       if (Navigator.of(context).canPop()) {
         Navigator.of(context).pop();
       }
-      messenger.showSnackBar(SnackBar(content: Text(l10n.save)));
+      showAppToastOn(
+        messenger: messenger,
+        theme: theme,
+        screenHeight: height,
+        message: l10n.save,
+      );
     } catch (_) {
       if (!mounted) return;
       setState(() => _error = l10n.rateUnavailable);

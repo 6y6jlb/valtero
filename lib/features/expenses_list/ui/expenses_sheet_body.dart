@@ -28,6 +28,7 @@ import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/date_period.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
+import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/period_picker.dart';
 
 class ExpensesSheetBody extends ConsumerStatefulWidget {
@@ -51,7 +52,6 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
   ExpenseChartBreakdown _chartBreakdown = ExpenseChartBreakdown.currency;
   int _pageSize = 25;
   int _page = 0;
-  String? _exportMessage;
   String? _displayCurrency;
   Map<String, double>? _displayRates;
   String? _displayRatesSourcesKey;
@@ -237,11 +237,10 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
         displayRates: _displayRates,
         displayCurrency: _displayCurrency,
       );
-      if (!mounted) return;
-      setState(() => _exportMessage = message);
+      if (!mounted || message == null) return;
+      showAppToast(context, message);
     } catch (_) {
-      if (!mounted) return;
-      setState(() => _exportMessage = null);
+      // Keep silent on cancel/failure; avoid shifting layout.
     }
   }
 
@@ -471,7 +470,6 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                           : _applied.group,
                       chartBreakdown: _chartBreakdown,
                       displayCurrency: _displayCurrency,
-                      exportMessage: _exportMessage,
                       onDisplayIn: () => _pickDisplayCurrency(sourceCurrencies),
                       onPageSizeChanged: (v) {
                         setState(() {
