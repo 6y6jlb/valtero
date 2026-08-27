@@ -37,7 +37,7 @@ class ExpensesSummaryRow extends StatelessWidget {
               builder: (context, snap) {
                 if (!snap.hasData) {
                   return const SizedBox(
-                    height: 28,
+                    height: 48,
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: SizedBox(
@@ -50,8 +50,11 @@ class ExpensesSummaryRow extends StatelessWidget {
                 }
                 final data = snap.data!;
                 final theme = Theme.of(context);
+                final showPartial =
+                    count > 0 && data.convertibleCount < count;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     MoneyText(
                       amountMinor: data.totalMinor,
@@ -60,16 +63,20 @@ class ExpensesSummaryRow extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    if (count > 0 && data.convertibleCount < count)
-                      Text(
-                        l10n.summaryPartialTotal(
-                          data.convertibleCount,
-                          count,
-                        ),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.error,
-                        ),
-                      ),
+                    SizedBox(
+                      height: 18,
+                      child: showPartial
+                          ? Text(
+                              l10n.summaryPartialTotal(
+                                data.convertibleCount,
+                                count,
+                              ),
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.error,
+                              ),
+                            )
+                          : null,
+                    ),
                   ],
                 );
               },
@@ -77,13 +84,16 @@ class ExpensesSummaryRow extends StatelessWidget {
           ),
         ];
         if (wide) {
-          return Row(
-            children: [
-              for (var i = 0; i < cards.length; i++) ...[
-                if (i > 0) const SizedBox(width: 8),
-                Expanded(child: cards[i]),
+          return IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = 0; i < cards.length; i++) ...[
+                  if (i > 0) const SizedBox(width: 8),
+                  Expanded(child: cards[i]),
+                ],
               ],
-            ],
+            ),
           );
         }
         return Column(
@@ -114,6 +124,7 @@ class ExpensesSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
         child: Column(

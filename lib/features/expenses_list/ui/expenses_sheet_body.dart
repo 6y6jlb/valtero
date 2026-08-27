@@ -23,6 +23,7 @@ import 'package:valtero/features/expenses_list/ui/expenses_listing_card.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_summary_row.dart';
 import 'package:valtero/features/expenses_list/ui/grouped_expense_table.dart';
 import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
+import 'package:valtero/features/export_expenses/model/export_destination.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
@@ -220,23 +221,19 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
       initialSelection: _draft.tagIds,
     );
     if (result == null) return;
-    setState(() {
-      _draft = _draft.copyWith(tagIds: result);
-      _applied = _applied.copyWith(tagIds: result);
-      _page = 0;
-    });
+    setState(() => _draft = _draft.copyWith(tagIds: result));
   }
 
   Future<void> _export(
     ExportFormat format, {
-    required ExpenseExportAction action,
+    required ExportDestination destination,
   }) async {
     try {
       final message = await exportFilteredExpenses(
         ref,
         context,
         format: format,
-        action: action,
+        destination: destination,
         query: _applied,
         displayRates: _displayRates,
         displayCurrency: _displayCurrency,
@@ -244,7 +241,13 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
       if (!mounted || message == null) return;
       showAppToast(context, message);
     } catch (_) {
-      // Keep silent on cancel/failure; avoid shifting layout.
+      if (!mounted) return;
+      if (destination == ExportDestination.telegram) {
+        showAppToast(
+          context,
+          AppLocalizations.of(context)!.telegramFailed,
+        );
+      }
     }
   }
 
@@ -261,13 +264,6 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
         clearFrom: picked.from == null,
         clearTo: picked.to == null,
       );
-      _applied = _applied.copyWith(
-        from: picked.from,
-        to: picked.to,
-        clearFrom: picked.from == null,
-        clearTo: picked.to == null,
-      );
-      _page = 0;
     });
   }
 
@@ -409,10 +405,6 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                           _draft = v == null
                               ? _draft.copyWith(clearCurrencyCode: true)
                               : _draft.copyWith(currencyCode: v);
-                          _applied = v == null
-                              ? _applied.copyWith(clearCurrencyCode: true)
-                              : _applied.copyWith(currencyCode: v);
-                          _page = 0;
                         });
                       },
                       onPickTags: () => _pickTags(tags),

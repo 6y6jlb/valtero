@@ -7,16 +7,15 @@ import 'package:valtero/features/expenses_list/model/expense_list_filtering.dart
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
 import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
 import 'package:valtero/features/export_expenses/model/export_controller.dart';
+import 'package:valtero/features/export_expenses/model/export_destination.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
-
-enum ExpenseExportAction { save, share, copy }
 
 Future<String?> exportFilteredExpenses(
   WidgetRef ref,
   BuildContext context, {
   required ExportFormat format,
-  required ExpenseExportAction action,
+  required ExportDestination destination,
   required ExpenseListQuery query,
   Map<String, double>? displayRates,
   String? displayCurrency,
@@ -43,8 +42,8 @@ Future<String?> exportFilteredExpenses(
   final controller = ref.read(exportControllerProvider);
   final l10n = AppLocalizations.of(context)!;
 
-  switch (action) {
-    case ExpenseExportAction.share:
+  switch (destination) {
+    case ExportDestination.share:
       await controller.shareFor(
         format,
         expenses: filtered,
@@ -52,7 +51,7 @@ Future<String?> exportFilteredExpenses(
         tagsByExpense: tagsByExpense,
       );
       return l10n.exportDone;
-    case ExpenseExportAction.copy:
+    case ExportDestination.copy:
       await controller.copyFor(
         format,
         expenses: filtered,
@@ -60,7 +59,15 @@ Future<String?> exportFilteredExpenses(
         tagsByExpense: tagsByExpense,
       );
       return l10n.copiedToClipboard;
-    case ExpenseExportAction.save:
+    case ExportDestination.telegram:
+      await controller.sendTelegramFor(
+        format,
+        expenses: filtered,
+        tagNames: tagLabels,
+        tagsByExpense: tagsByExpense,
+      );
+      return l10n.telegramSent;
+    case ExportDestination.save:
       final path = await controller.saveFileFor(
         format,
         expenses: filtered,

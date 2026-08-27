@@ -170,14 +170,15 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
       setState(() => _error = null);
       final messenger = ScaffoldMessenger.of(context);
       final theme = Theme.of(context);
-      final height = MediaQuery.sizeOf(context).height;
+      final media = MediaQuery.of(context);
       if (Navigator.of(context).canPop()) {
         Navigator.of(context).pop();
       }
       showAppToastOn(
         messenger: messenger,
         theme: theme,
-        screenHeight: height,
+        screenHeight: media.size.height,
+        topInset: media.padding.top,
         message: l10n.save,
       );
     } catch (_) {

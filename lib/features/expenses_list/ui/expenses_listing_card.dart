@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:valtero/features/expenses_list/model/expense_list_export.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
+import 'package:valtero/features/export_expenses/model/export_destination.dart';
+import 'package:valtero/features/export_expenses/ui/export_menu.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 
 const expensesPageSizeOptions = [10, 25, 50, 100];
@@ -27,7 +28,7 @@ class ExpensesListingCard extends StatelessWidget {
       onSortChanged;
   final Future<void> Function(
     ExportFormat format, {
-    required ExpenseExportAction action,
+    required ExportDestination destination,
   }) onExport;
   final Widget child;
 
@@ -125,73 +126,14 @@ class ExpensesListingCard extends StatelessWidget {
                       tooltip: l10n.export,
                       padding: EdgeInsets.zero,
                       onSelected: (key) {
-                        switch (key) {
-                          case 'csv_save':
-                            onExport(
-                              ExportFormat.csv,
-                              action: ExpenseExportAction.save,
-                            );
-                          case 'csv_share':
-                            onExport(
-                              ExportFormat.csv,
-                              action: ExpenseExportAction.share,
-                            );
-                          case 'csv_copy':
-                            onExport(
-                              ExportFormat.csv,
-                              action: ExpenseExportAction.copy,
-                            );
-                          case 'json_save':
-                            onExport(
-                              ExportFormat.json,
-                              action: ExpenseExportAction.save,
-                            );
-                          case 'json_share':
-                            onExport(
-                              ExportFormat.json,
-                              action: ExpenseExportAction.share,
-                            );
-                          case 'json_copy':
-                            onExport(
-                              ExportFormat.json,
-                              action: ExpenseExportAction.copy,
-                            );
-                        }
+                        final selected = parseExportMenuValue(key);
+                        if (selected == null) return;
+                        onExport(
+                          selected.format,
+                          destination: selected.destination,
+                        );
                       },
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: 'csv_save',
-                          child: Text(
-                            '${l10n.exportCsv} · ${l10n.saveFile}',
-                          ),
-                        ),
-                        PopupMenuItem(
-                          value: 'csv_share',
-                          child: Text('${l10n.exportCsv} · ${l10n.share}'),
-                        ),
-                        PopupMenuItem(
-                          value: 'csv_copy',
-                          child: Text(
-                            '${l10n.copyAs} ${l10n.exportCsv}',
-                          ),
-                        ),
-                        PopupMenuItem(
-                          value: 'json_save',
-                          child: Text(
-                            '${l10n.exportJson} · ${l10n.saveFile}',
-                          ),
-                        ),
-                        PopupMenuItem(
-                          value: 'json_share',
-                          child: Text('${l10n.exportJson} · ${l10n.share}'),
-                        ),
-                        PopupMenuItem(
-                          value: 'json_copy',
-                          child: Text(
-                            '${l10n.copyAs} ${l10n.exportJson}',
-                          ),
-                        ),
-                      ],
+                      itemBuilder: (context) => buildExportMenuItems(l10n),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 6,

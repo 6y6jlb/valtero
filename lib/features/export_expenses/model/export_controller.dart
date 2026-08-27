@@ -98,6 +98,11 @@ class ExportController {
     await ref.read(expenseExporterProvider).shareFile(file);
   }
 
+  Future<void> copy(ExportFormat format) async {
+    final content = await buildContent(format);
+    await Clipboard.setData(ClipboardData(text: content));
+  }
+
   Future<void> copyFor(
     ExportFormat format, {
     required List<Expense> expenses,
@@ -114,9 +119,31 @@ class ExportController {
   }
 
   Future<void> sendTelegram(ExportFormat format) async {
+    final content = await buildContent(format);
+    await _sendTelegramContent(content: content, format: format);
+  }
+
+  Future<void> sendTelegramFor(
+    ExportFormat format, {
+    required List<Expense> expenses,
+    required Map<int, String> tagNames,
+    required Map<int, List<int>> tagsByExpense,
+  }) async {
+    final content = buildContentFor(
+      format,
+      expenses: expenses,
+      tagNames: tagNames,
+      tagsByExpense: tagsByExpense,
+    );
+    await _sendTelegramContent(content: content, format: format);
+  }
+
+  Future<void> _sendTelegramContent({
+    required String content,
+    required ExportFormat format,
+  }) async {
     final settings = ref.read(appSettingsProvider).value;
     if (settings == null) throw StateError('no_settings');
-    final content = await buildContent(format);
     final file = await ref.read(expenseExporterProvider).writeTempFile(
           content: content,
           format: format,
