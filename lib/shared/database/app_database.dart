@@ -8,6 +8,9 @@ import 'package:valtero/entities/exchange_rate/data/exchange_rates_table.dart';
 import 'package:valtero/entities/expense/data/expense_tags_table.dart';
 import 'package:valtero/entities/expense/data/expenses_table.dart';
 import 'package:valtero/entities/tag/data/tags_table.dart';
+import 'package:valtero/shared/database/migrations/migrate_to_v2.dart';
+import 'package:valtero/shared/database/migrations/migrate_to_v3.dart';
+import 'package:valtero/shared/database/schema_version.dart';
 
 part 'app_database.g.dart';
 
@@ -16,7 +19,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => kAppSchemaVersion;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -24,39 +27,8 @@ class AppDatabase extends _$AppDatabase {
           await m.createAll();
         },
         onUpgrade: (Migrator m, int from, int to) async {
-          if (from < 2) {
-            await m.addColumn(tags, tags.kind);
-            await m.addColumn(tags, tags.countryCode);
-            await m.createTable(expenseTags);
-            await customStatement('''
-              INSERT OR IGNORE INTO expense_tags (expense_id, tag_id)
-              SELECT id, tag_id FROM expenses WHERE tag_id IS NOT NULL
-            ''');
-          }
-          if (from < 3) {
-            await m.addColumn(tags, tags.stableKey);
-            const legacy = {
-              'Groceries': 'groceries',
-              'Transport': 'transport',
-              'Housing': 'housing',
-              'Dining': 'dining',
-              'Health': 'health',
-              'Entertainment': 'entertainment',
-              'Shopping': 'shopping',
-              'Travel': 'travel',
-              'Продукты': 'groceries',
-              'Транспорт': 'transport',
-            };
-            for (final entry in legacy.entries) {
-              await customStatement(
-                'UPDATE tags SET stable_key = ? WHERE name = ? AND (stable_key IS NULL OR stable_key = \'\')',
-                [entry.value, entry.key],
-              );
-            }
-            await customStatement(
-              "UPDATE tags SET stable_key = 'country_' || country_code WHERE kind = 'country' AND country_code IS NOT NULL AND (stable_key IS NULL OR stable_key = '')",
-            );
-          }
+          if (from < 2) await migrateToV2(m, this);
+          if (from < 3) await migrateToV3(m, this);
         },
       );
 

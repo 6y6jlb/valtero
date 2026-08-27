@@ -33,6 +33,7 @@ Details: [docs/agent-rules/fsd-layers.md](docs/agent-rules/fsd-layers.md)
 
 - **Riverpod** for state (`AsyncNotifier` for Hive/Drift-backed state)
 - **Drift (SQLite)** for expenses, tags, exchange-rate cache/overrides (`sqlite3` ≥3.x bundles native SQLite via build hooks on Linux/Android/Windows)
+- **Schema version** SSOT: `kAppSchemaVersion` + `migrations/migrate_to_vN.dart` on upgrade; same int goes into strict exchange envelopes as `schemaVersion`
 - **Hive CE** for `AppSettings` only (reporting currencies, API key, detection cache, theme/locale/timezone)
 
 Details: [docs/agent-rules/riverpod-conventions.md](docs/agent-rules/riverpod-conventions.md), [docs/agent-rules/drift-conventions.md](docs/agent-rules/drift-conventions.md)
@@ -58,7 +59,7 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 2. **Dashboard** → charts/summary + recent expenses list; entry points for add / tags / export sheets; convert stored amounts to display currency via `RateResolver` in Dart
 3. **Rates** → on launch if last refresh >24h, refresh in background; Settings → Currency sheet can force refresh / bind API key / set manual rates / view all rates
 4. **Tag suggestions** → detect country/currency (ip-api.com, locale fallback) → suggest tags by country + trip tags by foreign currency (Tags sheet)
-5. **Export** → CSV/JSON → save file / OS share / Telegram `sendDocument` (sheet from Dashboard or Settings)
+5. **Export** → CSV/JSON (human) → save / share / Telegram; future strict/encrypted interchange must embed `formatVersion` + `schemaVersion` (`kAppSchemaVersion`) for import adapters
 
 ## Navigation
 
@@ -111,7 +112,7 @@ Details: [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md)
 | --- | --- |
 | [docs/agent-rules/fsd-layers.md](docs/agent-rules/fsd-layers.md) | Layer import direction with ✅/❌ examples |
 | [docs/agent-rules/money-and-currency.md](docs/agent-rules/money-and-currency.md) | Minor units + rate resolution order |
-| [docs/agent-rules/drift-conventions.md](docs/agent-rules/drift-conventions.md) | Where tables/DAOs live + migration checklist |
+| [docs/agent-rules/drift-conventions.md](docs/agent-rules/drift-conventions.md) | Tables/DAOs, `kAppSchemaVersion`, migrate_to_vN, exchange envelope versions |
 | [docs/agent-rules/riverpod-conventions.md](docs/agent-rules/riverpod-conventions.md) | Provider placement and `AsyncNotifier` pattern |
 | [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md) | No hardcoded UI strings; en/ru ARB |
 | [docs/agent-rules/ui-component-size.md](docs/agent-rules/ui-component-size.md) | ≤ 500 lines per UI component; when/how to split |
