@@ -75,6 +75,9 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 - Comments only for non-obvious logic
 - Names explain intent: `getRateForPair()` not `get()`, `changeStoredCurrency()` not `set()`
 - PascalCase classes, camelCase members, `_` prefix for private
+- UI component files: **≤ 500 lines** (one screen/sheet/widget per file); split private sub-widgets into sibling `ui/` files and pure logic into `model/`
+
+Details: [docs/agent-rules/ui-component-size.md](docs/agent-rules/ui-component-size.md)
 
 ## When making changes
 
@@ -94,6 +97,7 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 | [docs/agent-rules/drift-conventions.md](docs/agent-rules/drift-conventions.md) | Where tables/DAOs live + migration checklist |
 | [docs/agent-rules/riverpod-conventions.md](docs/agent-rules/riverpod-conventions.md) | Provider placement and `AsyncNotifier` pattern |
 | [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md) | No hardcoded UI strings; en/ru ARB |
+| [docs/agent-rules/ui-component-size.md](docs/agent-rules/ui-component-size.md) | ≤ 500 lines per UI component; when/how to split |
 
 ## Tool-specific rule files (gitignored)
 
@@ -111,5 +115,6 @@ To generate Cursor mirrors once locally:
 | `drift-conventions` | `globs: lib/**/data/**,lib/shared/database/**` |
 | `riverpod-conventions` | `globs: lib/**/model/**,lib/shared/settings/**` |
 | `l10n-strings` | `globs: lib/**/*.dart,lib/shared/l10n/**` |
+| `ui-component-size` | `globs: lib/**/ui/**,lib/pages/**,lib/widgets/**` |
 
 Ask an agent: “Mirror `docs/agent-rules/*.md` into `.cursor/rules/*.mdc` with the frontmatter from AGENTS.md.”

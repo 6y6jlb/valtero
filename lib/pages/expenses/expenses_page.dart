@@ -34,7 +34,7 @@ class ExpensesPage extends StatelessWidget {
         child: const Icon(Icons.add, size: 32),
       ),
       body: ExpensesSheetBody(
-        initial: initial ?? const ExpenseListQuery(),
+        initial: initial ?? ExpenseListQuery.sessionDefaults(),
         showTitleBar: false,
       ),
     );

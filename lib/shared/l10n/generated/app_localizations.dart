@@ -1106,6 +1106,18 @@ abstract class AppLocalizations {
   /// **'Date'**
   String get columnDate;
 
+  /// No description provided for @columnGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Group'**
+  String get columnGroup;
+
+  /// No description provided for @columnCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Count'**
+  String get columnCount;
+
   /// No description provided for @columnAmount.
   ///
   /// In en, this message translates to:

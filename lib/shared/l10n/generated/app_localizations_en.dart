@@ -529,6 +529,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get columnDate => 'Date';
 
   @override
+  String get columnGroup => 'Group';
+
+  @override
+  String get columnCount => 'Count';
+
+  @override
   String get columnAmount => 'Amount';
 
   @override

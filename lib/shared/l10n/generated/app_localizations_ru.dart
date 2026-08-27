@@ -529,6 +529,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get columnDate => 'Дата';
 
   @override
+  String get columnGroup => 'Группа';
+
+  @override
+  String get columnCount => 'Кол-во';
+
+  @override
   String get columnAmount => 'Сумма';
 
   @override

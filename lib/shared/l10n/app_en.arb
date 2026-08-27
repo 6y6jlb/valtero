@@ -212,6 +212,8 @@
   "viewGrouping": "Grouping",
   "viewChart": "Chart",
   "columnDate": "Date",
+  "columnGroup": "Group",
+  "columnCount": "Count",
   "columnAmount": "Amount",
   "columnCurrency": "Currency",
   "columnTags": "Tags",

@@ -1,3 +1,5 @@
+import 'package:valtero/shared/utils/date_period.dart';
+
 enum ExpenseListSortField { date, amount, currency }
 
 enum ExpenseListGroup { none, currency, date, tag }
@@ -21,6 +23,12 @@ class ExpenseListQuery {
     this.ascending = false,
     this.group = ExpenseListGroup.none,
   });
+
+  /// Fresh session defaults: last calendar month, no other filters.
+  factory ExpenseListQuery.sessionDefaults() {
+    final period = periodForPreset(PeriodPreset.lastMonth);
+    return ExpenseListQuery(from: period.from, to: period.to);
+  }
 
   ExpenseListQuery copyWith({
     Set<int>? tagIds,

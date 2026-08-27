@@ -165,6 +165,20 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       await _save(current.copyWith(defaultTagId: id));
     }
   }
+
+  Future<void> setExpensesListDisplay({
+    String? view,
+    String? group,
+    String? chartBreakdown,
+  }) async {
+    final current = state.value;
+    if (current == null) return;
+    await _save(current.copyWith(
+      expensesListView: view,
+      expensesListGroup: group,
+      expensesChartBreakdown: chartBreakdown,
+    ));
+  }
 }
 
 final appSettingsProvider =

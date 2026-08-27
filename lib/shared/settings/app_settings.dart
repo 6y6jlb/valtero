@@ -18,6 +18,12 @@ class AppSettings {
   final String telegramBotToken;
   final String telegramChatId;
   final List<String> dismissedTagSuggestions;
+  /// Persisted expenses page listing mode: `list` | `grouping` | `chart`.
+  final String expensesListView;
+  /// Persisted group-by when view is grouping: `currency` | `date` | `tag`.
+  final String expensesListGroup;
+  /// Persisted chart breakdown: `currency` | `tags` | `month` | `year`.
+  final String expensesChartBreakdown;
 
   const AppSettings({
     required this.reportingCurrencies,
@@ -37,6 +43,9 @@ class AppSettings {
     this.telegramBotToken = '',
     this.telegramChatId = '',
     this.dismissedTagSuggestions = const [],
+    this.expensesListView = 'list',
+    this.expensesListGroup = 'currency',
+    this.expensesChartBreakdown = 'currency',
   });
 
   factory AppSettings.initial() {
@@ -67,6 +76,9 @@ class AppSettings {
     String? telegramBotToken,
     String? telegramChatId,
     List<String>? dismissedTagSuggestions,
+    String? expensesListView,
+    String? expensesListGroup,
+    String? expensesChartBreakdown,
   }) {
     return AppSettings(
       reportingCurrencies: reportingCurrencies ?? this.reportingCurrencies,
@@ -90,6 +102,10 @@ class AppSettings {
       telegramChatId: telegramChatId ?? this.telegramChatId,
       dismissedTagSuggestions:
           dismissedTagSuggestions ?? this.dismissedTagSuggestions,
+      expensesListView: expensesListView ?? this.expensesListView,
+      expensesListGroup: expensesListGroup ?? this.expensesListGroup,
+      expensesChartBreakdown:
+          expensesChartBreakdown ?? this.expensesChartBreakdown,
     );
   }
 
@@ -111,6 +127,9 @@ class AppSettings {
         'telegramBotToken': telegramBotToken,
         'telegramChatId': telegramChatId,
         'dismissedTagSuggestions': dismissedTagSuggestions,
+        'expensesListView': expensesListView,
+        'expensesListGroup': expensesListGroup,
+        'expensesChartBreakdown': expensesChartBreakdown,
       };
 
   factory AppSettings.fromJson(Map<dynamic, dynamic> json) {
@@ -145,6 +164,10 @@ class AppSettings {
               ?.map((e) => e.toString())
               .toList() ??
           const [],
+      expensesListView: json['expensesListView'] as String? ?? 'list',
+      expensesListGroup: json['expensesListGroup'] as String? ?? 'currency',
+      expensesChartBreakdown:
+          json['expensesChartBreakdown'] as String? ?? 'currency',
     );
   }
 }

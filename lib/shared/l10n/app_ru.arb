@@ -212,6 +212,8 @@
   "viewGrouping": "Группировка",
   "viewChart": "График",
   "columnDate": "Дата",
+  "columnGroup": "Группа",
+  "columnCount": "Кол-во",
   "columnAmount": "Сумма",
   "columnCurrency": "Валюта",
   "columnTags": "Теги",
