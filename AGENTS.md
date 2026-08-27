@@ -76,7 +76,7 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 - **Tooling**: `scripts/app_version.sh` / `.ps1` — `sync` writes `pubspec.yaml`; `flutter-args` emits `--build-name` / `--build-number` / `--dart-define=APP_VERSION=…`; `bump major|minor|patch` changes semver only, `bump build` increments `+N` (Android `versionCode`)
 - **Make**: `version-major` / `version-minor` / `version-patch` / `version-build`, or `version VERSION=x.y.z+n`; also `codegen` for Drift (`build_runner`) after clone / schema changes
 - **Make / release**: `run-*`, `build-*`, `release-*` sync + pass those flags so Linux / Windows / Android binaries and the in-app label match
-- **UI**: `appVersionLabelProvider` prefers `APP_VERSION` dart-define, else `PackageInfo` (pubspec-backed); shown in Settings
+- **UI**: `appVersionLabelProvider` reads compile-time `APP_VERSION` (shown in Settings when set via Make/release)
 
 ## Code style
 
