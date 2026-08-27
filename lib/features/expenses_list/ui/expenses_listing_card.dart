@@ -8,7 +8,6 @@ import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 const expensesPageSizeOptions = [10, 25, 50, 100];
 
 class ExpensesListingCard extends StatelessWidget {
-  final int totalCount;
   final int pageSize;
   final int page;
   final int pageCount;
@@ -31,7 +30,6 @@ class ExpensesListingCard extends StatelessWidget {
 
   const ExpensesListingCard({
     super.key,
-    required this.totalCount,
     required this.pageSize,
     required this.page,
     required this.pageCount,
@@ -53,7 +51,6 @@ class ExpensesListingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
 
     return Card(
       margin: EdgeInsets.zero,
@@ -67,155 +64,143 @@ class ExpensesListingCard extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               crossAxisAlignment: WrapCrossAlignment.center,
-              alignment: WrapAlignment.spaceBetween,
               children: [
-                Text(
-                  l10n.totalRecords(totalCount),
-                  style: theme.textTheme.titleSmall,
+                OutlinedButton.icon(
+                  onPressed: onDisplayIn,
+                  icon: const Icon(Icons.currency_exchange, size: 18),
+                  label: Text(
+                    displayCurrency == null
+                        ? l10n.displayIn
+                        : '${l10n.displayIn}: $displayCurrency',
+                  ),
                 ),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  crossAxisAlignment: WrapCrossAlignment.center,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    OutlinedButton.icon(
-                      onPressed: onDisplayIn,
-                      icon: const Icon(Icons.currency_exchange, size: 18),
-                      label: Text(
-                        displayCurrency == null
-                            ? l10n.displayIn
-                            : '${l10n.displayIn}: $displayCurrency',
-                      ),
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('${l10n.perPage}: '),
-                        DropdownButton<int>(
-                          value: pageSize,
-                          underline: const SizedBox.shrink(),
-                          items: [
-                            for (final n in expensesPageSizeOptions)
-                              DropdownMenuItem(value: n, child: Text('$n')),
-                          ],
-                          onChanged: (v) {
-                            if (v != null) onPageSizeChanged(v);
-                          },
-                        ),
+                    Text('${l10n.perPage}: '),
+                    DropdownButton<int>(
+                      value: pageSize,
+                      underline: const SizedBox.shrink(),
+                      items: [
+                        for (final n in expensesPageSizeOptions)
+                          DropdownMenuItem(value: n, child: Text('$n')),
                       ],
-                    ),
-                    PopupMenuButton<String>(
-                      tooltip: l10n.export,
-                      onSelected: (key) {
-                        switch (key) {
-                          case 'csv_save':
-                            onExport(
-                              ExportFormat.csv,
-                              action: ExpenseExportAction.save,
-                            );
-                          case 'csv_share':
-                            onExport(
-                              ExportFormat.csv,
-                              action: ExpenseExportAction.share,
-                            );
-                          case 'csv_copy':
-                            onExport(
-                              ExportFormat.csv,
-                              action: ExpenseExportAction.copy,
-                            );
-                          case 'json_save':
-                            onExport(
-                              ExportFormat.json,
-                              action: ExpenseExportAction.save,
-                            );
-                          case 'json_share':
-                            onExport(
-                              ExportFormat.json,
-                              action: ExpenseExportAction.share,
-                            );
-                          case 'json_copy':
-                            onExport(
-                              ExportFormat.json,
-                              action: ExpenseExportAction.copy,
-                            );
-                        }
+                      onChanged: (v) {
+                        if (v != null) onPageSizeChanged(v);
                       },
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: 'csv_save',
-                          child: Text(
-                            '${l10n.exportCsv} · ${l10n.saveFile}',
-                          ),
-                        ),
-                        PopupMenuItem(
-                          value: 'csv_share',
-                          child: Text('${l10n.exportCsv} · ${l10n.share}'),
-                        ),
-                        PopupMenuItem(
-                          value: 'csv_copy',
-                          child: Text(
-                            '${l10n.copyAs} ${l10n.exportCsv}',
-                          ),
-                        ),
-                        PopupMenuItem(
-                          value: 'json_save',
-                          child: Text(
-                            '${l10n.exportJson} · ${l10n.saveFile}',
-                          ),
-                        ),
-                        PopupMenuItem(
-                          value: 'json_share',
-                          child: Text('${l10n.exportJson} · ${l10n.share}'),
-                        ),
-                        PopupMenuItem(
-                          value: 'json_copy',
-                          child: Text(
-                            '${l10n.copyAs} ${l10n.exportJson}',
-                          ),
-                        ),
-                      ],
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 8,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.download_outlined, size: 18),
-                            const SizedBox(width: 6),
-                            Text(l10n.export),
-                            const Icon(Icons.arrow_drop_down, size: 18),
-                          ],
-                        ),
+                    ),
+                  ],
+                ),
+                PopupMenuButton<String>(
+                  tooltip: l10n.export,
+                  onSelected: (key) {
+                    switch (key) {
+                      case 'csv_save':
+                        onExport(
+                          ExportFormat.csv,
+                          action: ExpenseExportAction.save,
+                        );
+                      case 'csv_share':
+                        onExport(
+                          ExportFormat.csv,
+                          action: ExpenseExportAction.share,
+                        );
+                      case 'csv_copy':
+                        onExport(
+                          ExportFormat.csv,
+                          action: ExpenseExportAction.copy,
+                        );
+                      case 'json_save':
+                        onExport(
+                          ExportFormat.json,
+                          action: ExpenseExportAction.save,
+                        );
+                      case 'json_share':
+                        onExport(
+                          ExportFormat.json,
+                          action: ExpenseExportAction.share,
+                        );
+                      case 'json_copy':
+                        onExport(
+                          ExportFormat.json,
+                          action: ExpenseExportAction.copy,
+                        );
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'csv_save',
+                      child: Text(
+                        '${l10n.exportCsv} · ${l10n.saveFile}',
                       ),
                     ),
-                    Row(
+                    PopupMenuItem(
+                      value: 'csv_share',
+                      child: Text('${l10n.exportCsv} · ${l10n.share}'),
+                    ),
+                    PopupMenuItem(
+                      value: 'csv_copy',
+                      child: Text(
+                        '${l10n.copyAs} ${l10n.exportCsv}',
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'json_save',
+                      child: Text(
+                        '${l10n.exportJson} · ${l10n.saveFile}',
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'json_share',
+                      child: Text('${l10n.exportJson} · ${l10n.share}'),
+                    ),
+                    PopupMenuItem(
+                      value: 'json_copy',
+                      child: Text(
+                        '${l10n.copyAs} ${l10n.exportJson}',
+                      ),
+                    ),
+                  ],
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('${l10n.listingView}: '),
-                        DropdownButton<ExpenseListViewMode>(
-                          value: view,
-                          underline: const SizedBox.shrink(),
-                          items: [
-                            DropdownMenuItem(
-                              value: ExpenseListViewMode.list,
-                              child: Text(l10n.viewList),
-                            ),
-                            DropdownMenuItem(
-                              value: ExpenseListViewMode.grouping,
-                              child: Text(l10n.viewGrouping),
-                            ),
-                            DropdownMenuItem(
-                              value: ExpenseListViewMode.chart,
-                              child: Text(l10n.viewChart),
-                            ),
-                          ],
-                          onChanged: (v) {
-                            if (v != null) onViewChanged(v);
-                          },
+                        const Icon(Icons.download_outlined, size: 18),
+                        const SizedBox(width: 6),
+                        Text(l10n.export),
+                        const Icon(Icons.arrow_drop_down, size: 18),
+                      ],
+                    ),
+                  ),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('${l10n.listingView}: '),
+                    DropdownButton<ExpenseListViewMode>(
+                      value: view,
+                      underline: const SizedBox.shrink(),
+                      items: [
+                        DropdownMenuItem(
+                          value: ExpenseListViewMode.list,
+                          child: Text(l10n.viewList),
+                        ),
+                        DropdownMenuItem(
+                          value: ExpenseListViewMode.grouping,
+                          child: Text(l10n.viewGrouping),
+                        ),
+                        DropdownMenuItem(
+                          value: ExpenseListViewMode.chart,
+                          child: Text(l10n.viewChart),
                         ),
                       ],
+                      onChanged: (v) {
+                        if (v != null) onViewChanged(v);
+                      },
                     ),
                   ],
                 ),

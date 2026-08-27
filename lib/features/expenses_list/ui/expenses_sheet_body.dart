@@ -454,7 +454,6 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                     ExpensesSummaryRow(
                       count: filtered.length,
                       primaryCurrency: summaryCurrency,
-                      currencyCount: sourceCurrencies.length,
                       totalFuture: sumExpensesInCurrency(
                         expenses: filtered,
                         targetCurrency: summaryCurrency,
@@ -463,7 +462,6 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                     ),
                     const SizedBox(height: 12),
                     ExpensesListingCard(
-                      totalCount: filtered.length,
                       pageSize: _pageSize,
                       page: safePage,
                       pageCount: pageCount,

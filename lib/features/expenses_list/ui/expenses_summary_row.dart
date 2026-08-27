@@ -4,14 +4,12 @@ import 'package:valtero/widgets/money_text.dart';
 
 class ExpensesSummaryRow extends StatelessWidget {
   final int count;
-  final int currencyCount;
   final String primaryCurrency;
   final Future<({int totalMinor, int convertibleCount})> totalFuture;
 
   const ExpensesSummaryRow({
     super.key,
     required this.count,
-    required this.currencyCount,
     required this.primaryCurrency,
     required this.totalFuture,
   });
@@ -75,15 +73,6 @@ class ExpensesSummaryRow extends StatelessWidget {
                   ],
                 );
               },
-            ),
-          ),
-          ExpensesSummaryCard(
-            title: l10n.summaryCurrencies,
-            child: Text(
-              '$currencyCount',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
             ),
           ),
         ];
