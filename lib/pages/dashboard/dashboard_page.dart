@@ -5,9 +5,8 @@ import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
 import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
 import 'package:valtero/features/currency_settings/ui/rates_sheet.dart';
-import 'package:valtero/features/export_expenses/model/export_destination.dart';
+import 'package:valtero/features/export_expenses/ui/export_flow.dart';
 import 'package:valtero/features/export_expenses/ui/export_menu.dart';
-import 'package:valtero/features/export_expenses/ui/export_panel.dart';
 import 'package:valtero/pages/expenses/expenses_page.dart';
 import 'package:valtero/pages/settings/settings_page.dart';
 import 'package:valtero/pages/tags/tags_sheet.dart';
@@ -20,7 +19,6 @@ import 'package:valtero/shared/utils/money.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
 import 'package:valtero/widgets/header_clock.dart';
 import 'package:valtero/widgets/money_text.dart';
-import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/period_picker.dart';
 import 'package:valtero/shared/utils/date_period.dart';
 import 'package:valtero/entities/expense/model/expenses_provider.dart';
@@ -97,21 +95,12 @@ class DashboardPage extends ConsumerWidget {
             onSelected: (key) async {
               final selected = parseExportMenuValue(key);
               if (selected == null) return;
-              try {
-                final message = await runExportDestination(
-                  ref,
-                  context,
-                  format: selected.format,
-                  destination: selected.destination,
-                );
-                if (!context.mounted || message == null) return;
-                showAppToast(context, message);
-              } catch (_) {
-                if (!context.mounted) return;
-                if (selected.destination == ExportDestination.telegram) {
-                  showAppToast(context, l10n.telegramFailed);
-                }
-              }
+              await performExport(
+                context,
+                ref,
+                format: selected.format,
+                destination: selected.destination,
+              );
             },
             itemBuilder: (context) => buildExportMenuItems(l10n),
             icon: const Icon(Icons.ios_share_outlined),

@@ -98,6 +98,9 @@
   "exportDone": "Export ready",
   "telegramSent": "Sent to Telegram",
   "telegramFailed": "Telegram send failed",
+  "telegramSetupNeeded": "Turn on Telegram and enter bot token and chat id to send exports.",
+  "shareUnsupported": "Sharing files is not available on this platform.",
+  "shareFailed": "Could not share the export file.",
   "untagged": "Untagged",
   "periodDay": "Day",
   "periodWeek": "Week",
@@ -185,6 +188,8 @@
   "currencyCode": "Currency code",
   "applyFilters": "Apply",
   "clearFilters": "Clear",
+  "filtersApplied": "Filters applied",
+  "filtersCleared": "Filters cleared",
   "selectTags": "Tags",
   "tagsSelected": "{count} tags",
   "@tagsSelected": {

@@ -11,7 +11,6 @@ const _filterColumns = 3;
 
 class ExpensesFilterCard extends StatelessWidget {
   final ExpenseListQuery draft;
-  final ExpenseListQuery applied;
   final List<String> currencyOptions;
   final VoidCallback onPickPeriod;
   final ValueChanged<String?> onCurrencyChanged;
@@ -26,7 +25,6 @@ class ExpensesFilterCard extends StatelessWidget {
   const ExpensesFilterCard({
     super.key,
     required this.draft,
-    required this.applied,
     required this.currencyOptions,
     required this.onPickPeriod,
     required this.onCurrencyChanged,
@@ -60,9 +58,9 @@ class ExpensesFilterCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final hasPeriod = applied.from != null || applied.to != null;
-    final hasCurrency = applied.currencyCode != null;
-    final hasTags = applied.tagIds.isNotEmpty;
+    final hasPeriod = draft.from != null || draft.to != null;
+    final hasCurrency = draft.currencyCode != null;
+    final hasTags = draft.tagIds.isNotEmpty;
     final hasActive = hasPeriod || hasCurrency || hasTags;
 
     final periodLabel = formatPeriodLabel(
@@ -171,24 +169,21 @@ class ExpensesFilterCard extends StatelessWidget {
                   if (hasPeriod)
                     InputChip(
                       label: Text(
-                        '${l10n.periodRange}: ${formatPeriodLabel(
-                          l10n,
-                          DatePeriod(from: applied.from, to: applied.to),
-                        )}',
+                        '${l10n.periodRange}: $periodLabel',
                       ),
                       onDeleted: onClearPeriod,
                     ),
                   if (hasCurrency)
                     InputChip(
                       label: Text(
-                        '${l10n.filterCurrency}: ${applied.currencyCode}',
+                        '${l10n.filterCurrency}: ${draft.currencyCode}',
                       ),
                       onDeleted: onClearCurrency,
                     ),
                   if (hasTags)
                     InputChip(
                       label: Text(
-                        '${l10n.selectTags}: ${applied.tagIds.map((id) => tagLabels[id] ?? '?').join(', ')}',
+                        '${l10n.selectTags}: ${draft.tagIds.map((id) => tagLabels[id] ?? '?').join(', ')}',
                       ),
                       onDeleted: onClearTags,
                     ),

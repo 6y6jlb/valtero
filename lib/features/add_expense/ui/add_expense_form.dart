@@ -168,17 +168,14 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
       _amountController.clear();
       _noteController.clear();
       setState(() => _error = null);
-      final messenger = ScaffoldMessenger.of(context);
+      final overlay = Overlay.of(context);
       final theme = Theme.of(context);
-      final media = MediaQuery.of(context);
       if (Navigator.of(context).canPop()) {
         Navigator.of(context).pop();
       }
       showAppToastOn(
-        messenger: messenger,
+        overlay: overlay,
         theme: theme,
-        screenHeight: media.size.height,
-        topInset: media.padding.top,
         message: l10n.save,
       );
     } catch (_) {

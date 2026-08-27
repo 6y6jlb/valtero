@@ -261,6 +261,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get telegramFailed => 'Telegram send failed';
 
   @override
+  String get telegramSetupNeeded =>
+      'Turn on Telegram and enter bot token and chat id to send exports.';
+
+  @override
+  String get shareUnsupported =>
+      'Sharing files is not available on this platform.';
+
+  @override
+  String get shareFailed => 'Could not share the export file.';
+
+  @override
   String get untagged => 'Untagged';
 
   @override
@@ -491,6 +502,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get clearFilters => 'Clear';
+
+  @override
+  String get filtersApplied => 'Filters applied';
+
+  @override
+  String get filtersCleared => 'Filters cleared';
 
   @override
   String get selectTags => 'Tags';

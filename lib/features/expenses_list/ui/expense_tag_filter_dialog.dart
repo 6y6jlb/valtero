@@ -53,7 +53,7 @@ Future<Set<int>?> showExpenseTagFilterDialog(
               ),
               FilledButton(
                 onPressed: () => Navigator.pop(ctx, Set<int>.from(selected)),
-                child: Text(l10n.applyFilters),
+                child: Text(MaterialLocalizations.of(ctx).okButtonLabel),
               ),
             ],
           );

@@ -98,6 +98,9 @@
   "exportDone": "Экспорт готов",
   "telegramSent": "Отправлено в Telegram",
   "telegramFailed": "Не удалось отправить в Telegram",
+  "telegramSetupNeeded": "Включите Telegram и укажите токен бота и chat id, чтобы отправлять экспорт.",
+  "shareUnsupported": "Поделиться файлом на этой платформе нельзя.",
+  "shareFailed": "Не удалось поделиться файлом экспорта.",
   "untagged": "Без тега",
   "periodDay": "День",
   "periodWeek": "Неделя",
@@ -185,6 +188,8 @@
   "currencyCode": "Код валюты",
   "applyFilters": "Применить",
   "clearFilters": "Сбросить",
+  "filtersApplied": "Применено",
+  "filtersCleared": "Сброшено",
   "selectTags": "Теги",
   "tagsSelected": "{count} тегов",
   "@tagsSelected": {

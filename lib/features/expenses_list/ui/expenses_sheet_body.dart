@@ -24,6 +24,7 @@ import 'package:valtero/features/expenses_list/ui/expenses_summary_row.dart';
 import 'package:valtero/features/expenses_list/ui/grouped_expense_table.dart';
 import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
 import 'package:valtero/features/export_expenses/model/export_destination.dart';
+import 'package:valtero/features/export_expenses/ui/export_flow.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
@@ -228,8 +229,12 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
     ExportFormat format, {
     required ExportDestination destination,
   }) async {
-    try {
-      final message = await exportFilteredExpenses(
+    await performExport(
+      context,
+      ref,
+      format: format,
+      destination: destination,
+      run: () => exportFilteredExpenses(
         ref,
         context,
         format: format,
@@ -237,18 +242,8 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
         query: _applied,
         displayRates: _displayRates,
         displayCurrency: _displayCurrency,
-      );
-      if (!mounted || message == null) return;
-      showAppToast(context, message);
-    } catch (_) {
-      if (!mounted) return;
-      if (destination == ExportDestination.telegram) {
-        showAppToast(
-          context,
-          AppLocalizations.of(context)!.telegramFailed,
-        );
-      }
-    }
+      ),
+    );
   }
 
   Future<void> _pickDraftDateRange() async {
@@ -280,6 +275,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
       );
       _page = 0;
     });
+    showAppToast(context, AppLocalizations.of(context)!.filtersApplied);
   }
 
   void _clearFilters() {
@@ -303,6 +299,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
       );
       _page = 0;
     });
+    showAppToast(context, AppLocalizations.of(context)!.filtersCleared);
   }
 
   @override
@@ -397,7 +394,6 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                     ],
                     ExpensesFilterCard(
                       draft: _draft,
-                      applied: _applied,
                       currencyOptions: currencyOptions,
                       onPickPeriod: _pickDraftDateRange,
                       onCurrencyChanged: (v) {
@@ -414,8 +410,6 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                       onClearCurrency: () {
                         setState(() {
                           _draft = _draft.copyWith(clearCurrencyCode: true);
-                          _applied = _applied.copyWith(clearCurrencyCode: true);
-                          _page = 0;
                         });
                       },
                       onClearPeriod: () {
@@ -424,18 +418,11 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                             clearFrom: true,
                             clearTo: true,
                           );
-                          _applied = _applied.copyWith(
-                            clearFrom: true,
-                            clearTo: true,
-                          );
-                          _page = 0;
                         });
                       },
                       onClearTags: () {
                         setState(() {
                           _draft = _draft.copyWith(tagIds: {});
-                          _applied = _applied.copyWith(tagIds: {});
-                          _page = 0;
                         });
                       },
                     ),

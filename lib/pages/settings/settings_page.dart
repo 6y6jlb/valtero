@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/currency_settings/ui/currency_settings_panel.dart';
-import 'package:valtero/features/export_expenses/ui/export_panel.dart';
+import 'package:valtero/features/export_expenses/ui/export_flow.dart';
 import 'package:valtero/pages/tags/tags_sheet.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';

@@ -109,42 +109,31 @@ class _PeriodPickerDialogState extends State<PeriodPickerDialog> {
 
   void _selectPreset(PeriodPreset preset) {
     final period = periodForPreset(preset);
-    setState(() {
-      _preset = preset;
-      _from = period.from;
-      _to = period.to;
-      _awaitingEnd = false;
-      if (_from != null) {
-        _leftMonth = PeriodMonthCalendar.monthStart(_from!);
-      }
-    });
+    Navigator.pop(context, period);
   }
 
   void _onDaySelected(DateTime day) {
     final selected = dateOnly(day);
-    setState(() {
-      _preset = PeriodPreset.custom;
-      if (!_awaitingEnd || _from == null) {
+    if (!_awaitingEnd || _from == null) {
+      setState(() {
+        _preset = PeriodPreset.custom;
         _from = selected;
         _to = selected;
         _awaitingEnd = true;
-      } else {
-        if (selected.isBefore(_from!)) {
-          _to = _from;
-          _from = selected;
-        } else {
-          _to = selected;
-        }
-        _awaitingEnd = false;
-      }
-    });
-  }
-
-  DatePeriod get _result {
-    if (_preset != PeriodPreset.custom) {
-      return periodForPreset(_preset);
+      });
+      return;
     }
-    return DatePeriod(from: _from, to: _to).normalized();
+
+    DateTime from = _from!;
+    DateTime to = selected;
+    if (selected.isBefore(from)) {
+      to = from;
+      from = selected;
+    }
+    Navigator.pop(
+      context,
+      DatePeriod(from: from, to: to).normalized(),
+    );
   }
 
   Widget _calendar(DateTime month) {
@@ -267,21 +256,11 @@ class _PeriodPickerDialogState extends State<PeriodPickerDialog> {
                     ),
                   ),
                 ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 8, 0, 4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(l10n.cancel),
-                    ),
-                    const SizedBox(width: 8),
-                    FilledButton(
-                      onPressed: () => Navigator.pop(context, _result),
-                      child: Text(l10n.applyFilters),
-                    ),
-                  ],
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(l10n.cancel),
                 ),
               ),
             ],

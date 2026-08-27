@@ -261,6 +261,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get telegramFailed => 'Не удалось отправить в Telegram';
 
   @override
+  String get telegramSetupNeeded =>
+      'Включите Telegram и укажите токен бота и chat id, чтобы отправлять экспорт.';
+
+  @override
+  String get shareUnsupported => 'Поделиться файлом на этой платформе нельзя.';
+
+  @override
+  String get shareFailed => 'Не удалось поделиться файлом экспорта.';
+
+  @override
   String get untagged => 'Без тега';
 
   @override
@@ -491,6 +501,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get clearFilters => 'Сбросить';
+
+  @override
+  String get filtersApplied => 'Применено';
+
+  @override
+  String get filtersCleared => 'Сброшено';
 
   @override
   String get selectTags => 'Теги';

@@ -1,55 +1,92 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+
+OverlayEntry? _activeToast;
 
 /// Top pill toast that auto-dismisses after 2s and can be closed manually.
 void showAppToast(BuildContext context, String message) {
-  final messenger = ScaffoldMessenger.maybeOf(context);
-  if (messenger == null) return;
-  final media = MediaQuery.of(context);
+  final overlay = Overlay.maybeOf(context);
+  if (overlay == null) return;
   showAppToastOn(
-    messenger: messenger,
+    overlay: overlay,
     theme: Theme.of(context),
-    screenHeight: media.size.height,
-    topInset: media.padding.top,
     message: message,
   );
 }
 
 /// Use when [BuildContext] may be disposed after an async gap / route pop.
 void showAppToastOn({
-  required ScaffoldMessengerState messenger,
+  required OverlayState overlay,
   required ThemeData theme,
-  required double screenHeight,
-  required double topInset,
   required String message,
 }) {
-  messenger.clearSnackBars();
-  final scheme = theme.colorScheme;
-  const topGap = 12.0;
-  const estimatedHeight = 52.0;
+  _activeToast?.remove();
+  _activeToast = null;
 
-  messenger.showSnackBar(
-    SnackBar(
-      content: Text(
-        message,
-        style: theme.textTheme.bodyMedium?.copyWith(
-          color: scheme.onSurface,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      showCloseIcon: true,
-      closeIconColor: scheme.onSurfaceVariant,
-      behavior: SnackBarBehavior.floating,
-      duration: const Duration(seconds: 2),
-      dismissDirection: DismissDirection.up,
-      elevation: 3,
-      backgroundColor: scheme.surfaceContainerHighest,
-      shape: const StadiumBorder(),
-      margin: EdgeInsets.only(
+  final scheme = theme.colorScheme;
+  late OverlayEntry entry;
+  entry = OverlayEntry(
+    builder: (context) {
+      final topInset = MediaQuery.paddingOf(context).top;
+      return Positioned(
+        top: topInset + 12,
         left: 16,
         right: 16,
-        bottom: screenHeight - topInset - topGap - estimatedHeight,
-      ),
-      padding: const EdgeInsets.fromLTRB(20, 10, 8, 10),
-    ),
+        child: Material(
+          color: Colors.transparent,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 560),
+              child: Material(
+                elevation: 3,
+                color: scheme.surfaceContainerHighest,
+                shape: const StadiumBorder(),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 6, 4, 6),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          message,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: scheme.onSurface,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                        visualDensity: VisualDensity.compact,
+                        onPressed: () => _dismissToast(entry),
+                        icon: Icon(
+                          Icons.close,
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    },
   );
+
+  _activeToast = entry;
+  overlay.insert(entry);
+  unawaited(
+    Future<void>.delayed(const Duration(seconds: 2), () {
+      _dismissToast(entry);
+    }),
+  );
+}
+
+void _dismissToast(OverlayEntry entry) {
+  if (_activeToast != entry) return;
+  entry.remove();
+  _activeToast = null;
 }

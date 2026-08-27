@@ -590,6 +590,24 @@ abstract class AppLocalizations {
   /// **'Telegram send failed'**
   String get telegramFailed;
 
+  /// No description provided for @telegramSetupNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on Telegram and enter bot token and chat id to send exports.'**
+  String get telegramSetupNeeded;
+
+  /// No description provided for @shareUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing files is not available on this platform.'**
+  String get shareUnsupported;
+
+  /// No description provided for @shareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not share the export file.'**
+  String get shareFailed;
+
   /// No description provided for @untagged.
   ///
   /// In en, this message translates to:
@@ -1045,6 +1063,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear'**
   String get clearFilters;
+
+  /// No description provided for @filtersApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters applied'**
+  String get filtersApplied;
+
+  /// No description provided for @filtersCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters cleared'**
+  String get filtersCleared;
 
   /// No description provided for @selectTags.
   ///
