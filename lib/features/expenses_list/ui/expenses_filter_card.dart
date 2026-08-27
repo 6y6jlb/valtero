@@ -9,7 +9,7 @@ const _filterHeight = 56.0;
 const _filterGap = 8.0;
 const _filterColumns = 3;
 
-class ExpensesFilterCard extends StatelessWidget {
+class ExpensesFilterCard extends StatefulWidget {
   final ExpenseListQuery draft;
   final List<String> currencyOptions;
   final VoidCallback onPickPeriod;
@@ -21,6 +21,7 @@ class ExpensesFilterCard extends StatelessWidget {
   final VoidCallback onClearCurrency;
   final VoidCallback onClearPeriod;
   final VoidCallback onClearTags;
+  final bool initiallyExpanded;
 
   const ExpensesFilterCard({
     super.key,
@@ -35,7 +36,15 @@ class ExpensesFilterCard extends StatelessWidget {
     required this.onClearCurrency,
     required this.onClearPeriod,
     required this.onClearTags,
+    this.initiallyExpanded = true,
   });
+
+  @override
+  State<ExpensesFilterCard> createState() => _ExpensesFilterCardState();
+}
+
+class _ExpensesFilterCardState extends State<ExpensesFilterCard> {
+  late bool _expanded = widget.initiallyExpanded;
 
   InputDecoration _decoration(ThemeData theme, String label) {
     final border = OutlineInputBorder(
@@ -54,10 +63,24 @@ class ExpensesFilterCard extends StatelessWidget {
     );
   }
 
+  String _collapsedSummary(AppLocalizations l10n) {
+    final draft = widget.draft;
+    final period = formatPeriodLabel(
+      l10n,
+      DatePeriod(from: draft.from, to: draft.to),
+    );
+    final currency = draft.currencyCode ?? l10n.all;
+    final tags = draft.tagIds.isEmpty
+        ? l10n.all
+        : l10n.tagsSelected(draft.tagIds.length);
+    return '$period · $currency · $tags';
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final draft = widget.draft;
 
     final periodLabel = formatPeriodLabel(
       l10n,
@@ -66,121 +89,192 @@ class ExpensesFilterCard extends StatelessWidget {
     final currencyLabel = draft.currencyCode ?? l10n.all;
     final tagsLabel = draft.tagIds.isEmpty
         ? l10n.all
-        : draft.tagIds.map((id) => tagLabels[id] ?? '?').join(', ');
+        : draft.tagIds.map((id) => widget.tagLabels[id] ?? '?').join(', ');
 
     return Card(
       margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final cellWidth = (constraints.maxWidth -
-                        _filterGap * (_filterColumns - 1)) /
-                    _filterColumns;
-
-                Widget cell(Widget child) => SizedBox(
-                      width: cellWidth,
-                      height: _filterHeight,
-                      child: child,
-                    );
-
-                return Wrap(
-                  spacing: _filterGap,
-                  runSpacing: _filterGap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => setState(() => _expanded = !_expanded),
+              borderRadius: _expanded
+                  ? const BorderRadius.vertical(top: Radius.circular(12))
+                  : BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+                child: Row(
                   children: [
-                    cell(
-                      ExpensesFilterOutlineButton(
-                        value: periodLabel,
-                        icon: Icons.date_range,
-                        decoration: _decoration(theme, l10n.periodRange),
-                        onTap: onPickPeriod,
-                      ),
+                    Icon(
+                      Icons.filter_list,
+                      size: 20,
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
-                    cell(
-                      DropdownButtonFormField<String?>(
-                        // ignore: deprecated_member_use
-                        value: draft.currencyCode,
-                        isExpanded: true,
-                        isDense: true,
-                        iconSize: 20,
-                        style: theme.textTheme.bodyMedium,
-                        decoration: _decoration(theme, l10n.filterCurrency),
-                        selectedItemBuilder: (context) => [
-                          Text(l10n.all, overflow: TextOverflow.ellipsis),
-                          for (final code in currencyOptions)
-                            Text(code, overflow: TextOverflow.ellipsis),
-                        ],
-                        items: [
-                          DropdownMenuItem<String?>(
-                            value: null,
-                            child: Text(l10n.all),
-                          ),
-                          for (final code in currencyOptions)
-                            DropdownMenuItem<String?>(
-                              value: code,
-                              child: CurrencyCodeLabel(code, compact: true),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.filtersTitle,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
                             ),
+                          ),
+                          if (!_expanded) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              _collapsedSummary(l10n),
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ],
-                        onChanged: onCurrencyChanged,
                       ),
                     ),
-                    cell(
-                      ExpensesFilterOutlineButton(
-                        value: draft.tagIds.isEmpty
-                            ? l10n.all
-                            : l10n.tagsSelected(draft.tagIds.length),
-                        icon: Icons.label_outline,
-                        decoration: _decoration(theme, l10n.selectTags),
-                        onTap: onPickTags,
+                    IconButton(
+                      tooltip: _expanded
+                          ? l10n.collapseFilters
+                          : l10n.expandFilters,
+                      onPressed: () =>
+                          setState(() => _expanded = !_expanded),
+                      icon: Icon(
+                        _expanded
+                            ? Icons.expand_less
+                            : Icons.expand_more,
                       ),
                     ),
                   ],
-                );
-              },
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                FilledButton(
-                  onPressed: onApply,
-                  child: Text(l10n.applyFilters),
                 ),
-                const SizedBox(width: 8),
-                OutlinedButton.icon(
-                  onPressed: onClear,
-                  icon: Icon(
-                    Icons.close,
-                    size: 18,
-                    color: theme.colorScheme.error,
+              ),
+            ),
+          ),
+          if (_expanded)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final cellWidth = (constraints.maxWidth -
+                              _filterGap * (_filterColumns - 1)) /
+                          _filterColumns;
+
+                      Widget cell(Widget child) => SizedBox(
+                            width: cellWidth,
+                            height: _filterHeight,
+                            child: child,
+                          );
+
+                      return Wrap(
+                        spacing: _filterGap,
+                        runSpacing: _filterGap,
+                        children: [
+                          cell(
+                            ExpensesFilterOutlineButton(
+                              value: periodLabel,
+                              icon: Icons.date_range,
+                              decoration:
+                                  _decoration(theme, l10n.periodRange),
+                              onTap: widget.onPickPeriod,
+                            ),
+                          ),
+                          cell(
+                            DropdownButtonFormField<String?>(
+                              // ignore: deprecated_member_use
+                              value: draft.currencyCode,
+                              isExpanded: true,
+                              isDense: true,
+                              iconSize: 20,
+                              style: theme.textTheme.bodyMedium,
+                              decoration:
+                                  _decoration(theme, l10n.filterCurrency),
+                              selectedItemBuilder: (context) => [
+                                Text(l10n.all,
+                                    overflow: TextOverflow.ellipsis),
+                                for (final code in widget.currencyOptions)
+                                  Text(code,
+                                      overflow: TextOverflow.ellipsis),
+                              ],
+                              items: [
+                                DropdownMenuItem<String?>(
+                                  value: null,
+                                  child: Text(l10n.all),
+                                ),
+                                for (final code in widget.currencyOptions)
+                                  DropdownMenuItem<String?>(
+                                    value: code,
+                                    child: CurrencyCodeLabel(code,
+                                        compact: true),
+                                  ),
+                              ],
+                              onChanged: widget.onCurrencyChanged,
+                            ),
+                          ),
+                          cell(
+                            ExpensesFilterOutlineButton(
+                              value: draft.tagIds.isEmpty
+                                  ? l10n.all
+                                  : l10n.tagsSelected(draft.tagIds.length),
+                              icon: Icons.label_outline,
+                              decoration:
+                                  _decoration(theme, l10n.selectTags),
+                              onTap: widget.onPickTags,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
-                  label: Text(l10n.clearFilters),
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      FilledButton(
+                        onPressed: widget.onApply,
+                        child: Text(l10n.applyFilters),
+                      ),
+                      const SizedBox(width: 8),
+                      OutlinedButton.icon(
+                        onPressed: widget.onClear,
+                        icon: Icon(
+                          Icons.close,
+                          size: 18,
+                          color: theme.colorScheme.error,
+                        ),
+                        label: Text(l10n.clearFilters),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: [
+                      InputChip(
+                        label: Text('${l10n.periodRange}: $periodLabel'),
+                        onDeleted: widget.onClearPeriod,
+                      ),
+                      InputChip(
+                        label:
+                            Text('${l10n.filterCurrency}: $currencyLabel'),
+                        onDeleted: widget.onClearCurrency,
+                      ),
+                      InputChip(
+                        label: Text('${l10n.selectTags}: $tagsLabel'),
+                        onDeleted: widget.onClearTags,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: [
-                InputChip(
-                  label: Text('${l10n.periodRange}: $periodLabel'),
-                  onDeleted: onClearPeriod,
-                ),
-                InputChip(
-                  label: Text('${l10n.filterCurrency}: $currencyLabel'),
-                  onDeleted: onClearCurrency,
-                ),
-                InputChip(
-                  label: Text('${l10n.selectTags}: $tagsLabel'),
-                  onDeleted: onClearTags,
-                ),
-              ],
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }

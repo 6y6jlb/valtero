@@ -497,6 +497,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get currencyCode => 'Код валюты';
 
   @override
+  String get filtersTitle => 'Фильтры';
+
+  @override
+  String get expandFilters => 'Показать фильтры';
+
+  @override
+  String get collapseFilters => 'Скрыть фильтры';
+
+  @override
   String get applyFilters => 'Применить';
 
   @override

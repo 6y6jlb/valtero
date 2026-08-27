@@ -1052,6 +1052,24 @@ abstract class AppLocalizations {
   /// **'Currency code'**
   String get currencyCode;
 
+  /// No description provided for @filtersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get filtersTitle;
+
+  /// No description provided for @expandFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Show filters'**
+  String get expandFilters;
+
+  /// No description provided for @collapseFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide filters'**
+  String get collapseFilters;
+
   /// No description provided for @applyFilters.
   ///
   /// In en, this message translates to:

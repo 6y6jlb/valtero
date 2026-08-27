@@ -498,6 +498,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get currencyCode => 'Currency code';
 
   @override
+  String get filtersTitle => 'Filters';
+
+  @override
+  String get expandFilters => 'Show filters';
+
+  @override
+  String get collapseFilters => 'Hide filters';
+
+  @override
   String get applyFilters => 'Apply';
 
   @override

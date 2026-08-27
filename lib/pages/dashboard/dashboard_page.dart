@@ -3,9 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
+import 'package:valtero/entities/expense/model/expense_tags_provider.dart';
+import 'package:valtero/entities/expense/model/expenses_provider.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
 import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
 import 'package:valtero/features/currency_settings/ui/rates_sheet.dart';
+import 'package:valtero/features/expenses_list/model/expense_list_filtering.dart';
+import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
+import 'package:valtero/features/expenses_list/ui/expense_tag_filter_dialog.dart';
+import 'package:valtero/features/expenses_list/ui/expenses_filter_card.dart';
 import 'package:valtero/features/export_expenses/ui/export_flow.dart';
 import 'package:valtero/features/export_expenses/ui/export_menu.dart';
 import 'package:valtero/pages/expenses/expenses_page.dart';
@@ -13,25 +19,20 @@ import 'package:valtero/pages/settings/settings_page.dart';
 import 'package:valtero/pages/tags/tags_sheet.dart';
 import 'package:valtero/shared/consts/palette.dart';
 import 'package:valtero/shared/database/app_database.dart';
-import 'package:valtero/shared/database/database_provider.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
+import 'package:valtero/shared/utils/date_period.dart';
 import 'package:valtero/shared/utils/money.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
+import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/header_clock.dart';
 import 'package:valtero/widgets/money_text.dart';
 import 'package:valtero/widgets/period_picker.dart';
-import 'package:valtero/shared/utils/date_period.dart';
-import 'package:valtero/entities/expense/model/expenses_provider.dart';
 
 enum DonutBreakdown { tags, month, currency }
 
 final donutBreakdownProvider =
     StateProvider<DonutBreakdown>((ref) => DonutBreakdown.tags);
-final dashboardExcludedTagIdsProvider =
-    StateProvider<Set<int>>((ref) => <int>{});
-final dashboardFromProvider = StateProvider<DateTime?>((ref) => null);
-final dashboardToProvider = StateProvider<DateTime?>((ref) => null);
 
 class _Slice {
   final String key;
@@ -47,8 +48,16 @@ class _Slice {
   });
 }
 
-class DashboardPage extends ConsumerWidget {
+class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
+
+  @override
+  ConsumerState<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends ConsumerState<DashboardPage> {
+  late ExpenseListQuery _draft = ExpenseListQuery.sessionDefaults();
+  late ExpenseListQuery _applied = ExpenseListQuery.sessionDefaults();
 
   void _openSettings(BuildContext context) {
     Navigator.of(context).push(
@@ -56,26 +65,93 @@ class DashboardPage extends ConsumerWidget {
     );
   }
 
-  DateTime _dayStart(DateTime d) => DateTime(d.year, d.month, d.day);
+  Future<void> _pickDraftDateRange() async {
+    final picked = await showPeriodPicker(
+      context,
+      initial: DatePeriod(from: _draft.from, to: _draft.to),
+    );
+    if (picked == null) return;
+    setState(() {
+      _draft = _draft.copyWith(
+        from: picked.from,
+        to: picked.to,
+        clearFrom: picked.from == null,
+        clearTo: picked.to == null,
+      );
+    });
+  }
 
-  DateTime _dayEnd(DateTime d) =>
-      DateTime(d.year, d.month, d.day, 23, 59, 59, 999);
+  Future<void> _pickTags(List<Tag> tags) async {
+    final result = await showExpenseTagFilterDialog(
+      context,
+      tags: tags,
+      initialSelection: _draft.tagIds,
+    );
+    if (result == null) return;
+    setState(() => _draft = _draft.copyWith(tagIds: result));
+  }
+
+  void _applyFilters() {
+    setState(() {
+      _applied = _applied.copyWith(
+        tagIds: _draft.tagIds,
+        currencyCode: _draft.currencyCode,
+        clearCurrencyCode: _draft.currencyCode == null,
+        from: _draft.from,
+        clearFrom: _draft.from == null,
+        to: _draft.to,
+        clearTo: _draft.to == null,
+      );
+    });
+    showAppToast(context, AppLocalizations.of(context)!.filtersApplied);
+  }
+
+  void _clearFilters() {
+    final defaults = ExpenseListQuery.sessionDefaults();
+    setState(() {
+      _draft = _draft.copyWith(
+        tagIds: {},
+        clearCurrencyCode: true,
+        from: defaults.from,
+        to: defaults.to,
+        clearFrom: defaults.from == null,
+        clearTo: defaults.to == null,
+      );
+      _applied = _applied.copyWith(
+        tagIds: {},
+        clearCurrencyCode: true,
+        from: defaults.from,
+        to: defaults.to,
+        clearFrom: defaults.from == null,
+        clearTo: defaults.to == null,
+      );
+    });
+    showAppToast(context, AppLocalizations.of(context)!.filtersCleared);
+  }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final settings = ref.watch(appSettingsProvider).value;
     final expenses = ref.watch(allExpensesProvider).value ?? const [];
     final tags = ref.watch(tagsStreamProvider).value ?? const [];
+    final expenseTags = ref.watch(expenseTagIdsProvider).value ?? const {};
     final breakdown = ref.watch(donutBreakdownProvider);
-    final excluded = ref.watch(dashboardExcludedTagIdsProvider);
-    final from = ref.watch(dashboardFromProvider);
-    final to = ref.watch(dashboardToProvider);
     final displayCurrency = settings?.primaryCurrency ?? 'RUB';
     final tagById = {for (final t in tags) t.id: t};
     final tagLabels = {
       for (final t in tags) t.id: localizedTagLabel(context, t),
     };
+    final currencyOptions = <String>{
+      for (final e in expenses) e.storedCurrencyCode,
+    }.toList()
+      ..sort();
+
+    final filtered = filterExpenses(
+      all: expenses,
+      query: _applied,
+      expenseTags: expenseTags,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -131,35 +207,56 @@ class DashboardPage extends ConsumerWidget {
           ),
         ],
       ),
-      body: FutureBuilder<({int total, List<_Slice> slices})>(
+      body: FutureBuilder<List<_Slice>>(
         future: _aggregate(
           ref: ref,
-          expenses: expenses,
+          expenses: filtered,
+          expenseTags: expenseTags,
           tagById: tagById,
           tagLabels: tagLabels,
           displayCurrency: displayCurrency,
           breakdown: breakdown,
-          excludedTagIds: excluded,
-          from: from,
-          to: to,
           untaggedLabel: l10n.untagged,
         ),
         builder: (context, snapshot) {
-          final total = snapshot.data?.total ?? 0;
-          final slices = snapshot.data?.slices ?? const <_Slice>[];
+          final slices = snapshot.data ?? const <_Slice>[];
 
           return ListView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
             children: [
-              Card(
-                child: ListTile(
-                  title: Text(l10n.summaryTotal),
-                  trailing: MoneyText(
-                    amountMinor: total,
-                    currencyCode: displayCurrency,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ),
+              ExpensesFilterCard(
+                draft: _draft,
+                currencyOptions: currencyOptions,
+                onPickPeriod: _pickDraftDateRange,
+                onCurrencyChanged: (v) {
+                  setState(() {
+                    _draft = v == null
+                        ? _draft.copyWith(clearCurrencyCode: true)
+                        : _draft.copyWith(currencyCode: v);
+                  });
+                },
+                onPickTags: () => _pickTags(tags),
+                onApply: _applyFilters,
+                onClear: _clearFilters,
+                tagLabels: tagLabels,
+                onClearCurrency: () {
+                  setState(() {
+                    _draft = _draft.copyWith(clearCurrencyCode: true);
+                  });
+                },
+                onClearPeriod: () {
+                  setState(() {
+                    _draft = _draft.copyWith(
+                      clearFrom: true,
+                      clearTo: true,
+                    );
+                  });
+                },
+                onClearTags: () {
+                  setState(() {
+                    _draft = _draft.copyWith(tagIds: {});
+                  });
+                },
               ),
               const SizedBox(height: 12),
               Text(l10n.chartBy, style: Theme.of(context).textTheme.titleSmall),
@@ -184,70 +281,6 @@ class DashboardPage extends ConsumerWidget {
                   ref.read(donutBreakdownProvider.notifier).state = s.first;
                 },
               ),
-              const SizedBox(height: 12),
-              Text(l10n.periodRange,
-                  style: Theme.of(context).textTheme.titleSmall),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: ActionChip(
-                  avatar: const Icon(Icons.date_range, size: 18),
-                  label: Text(
-                    formatPeriodLabel(
-                      l10n,
-                      DatePeriod(from: from, to: to),
-                    ),
-                  ),
-                  onPressed: () async {
-                    final picked = await showPeriodPicker(
-                      context,
-                      initial: DatePeriod(from: from, to: to),
-                    );
-                    if (picked == null) return;
-                    ref.read(dashboardFromProvider.notifier).state = picked.from;
-                    ref.read(dashboardToProvider.notifier).state = picked.to;
-                  },
-                ),
-              ),
-              if (tags.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Text(l10n.filterTags,
-                    style: Theme.of(context).textTheme.titleSmall),
-                const SizedBox(height: 4),
-                Text(
-                  l10n.excludeTag,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    for (final tag in tags)
-                      FilterChip(
-                        avatar: tag.colorValue == null
-                            ? null
-                            : CircleAvatar(
-                                backgroundColor: Color(tag.colorValue!),
-                                radius: 8,
-                              ),
-                        label: Text(tagLabels[tag.id] ?? tag.name),
-                        selected: excluded.contains(tag.id),
-                        onSelected: (selected) {
-                          final next = {...excluded};
-                          if (selected) {
-                            next.add(tag.id);
-                          } else {
-                            next.remove(tag.id);
-                          }
-                          ref
-                              .read(dashboardExcludedTagIdsProvider.notifier)
-                              .state = next;
-                        },
-                      ),
-                  ],
-                ),
-              ],
               const SizedBox(height: 16),
               SizedBox(
                 height: 260,
@@ -302,63 +335,38 @@ class DashboardPage extends ConsumerWidget {
     );
   }
 
-  Future<({int total, List<_Slice> slices})> _aggregate({
+  Future<List<_Slice>> _aggregate({
     required WidgetRef ref,
-    required List expenses,
+    required List<Expense> expenses,
+    required Map<int, List<int>> expenseTags,
     required Map<int, Tag> tagById,
     required Map<int, String> tagLabels,
     required String displayCurrency,
     required DonutBreakdown breakdown,
-    required Set<int> excludedTagIds,
-    required DateTime? from,
-    required DateTime? to,
     required String untaggedLabel,
   }) async {
     final resolver = ref.read(rateResolverProvider);
-    final db = ref.read(appDatabaseProvider);
-    final filtered = <dynamic>[];
-    for (final expense in expenses) {
-      final occurredAt = expense.occurredAt as DateTime;
-      if (from != null && occurredAt.isBefore(_dayStart(from))) continue;
-      if (to != null && occurredAt.isAfter(_dayEnd(to))) continue;
-      filtered.add(expense);
-    }
 
-    final expenseIds = filtered.map((e) => e.id as int).toList();
-    final tagIdsByExpense = await db.getTagIdsByExpenseIds(expenseIds);
-
-    var total = 0;
     final amounts = <String, int>{};
     final colors = <String, Color>{};
     final labels = <String, String>{};
 
-    for (final expense in filtered) {
-      final tagIds = List<int>.from(
-        tagIdsByExpense[expense.id as int] ?? const <int>[],
-      )..removeWhere(excludedTagIds.contains);
-
-      // If all tags excluded and expense had tags, skip it for tag breakdown;
-      // for other breakdowns still include the amount.
-      if (breakdown == DonutBreakdown.tags &&
-          (tagIdsByExpense[expense.id as int] ?? const <int>[])
-              .isNotEmpty &&
-          tagIds.isEmpty) {
-        continue;
-      }
+    for (final expense in expenses) {
+      final tagIds =
+          List<int>.from(expenseTags[expense.id] ?? const <int>[]);
 
       final rate = await resolver.getRate(
-        expense.storedCurrencyCode as String,
+        expense.storedCurrencyCode,
         displayCurrency,
       );
       final amount = rate == null
           ? (expense.storedCurrencyCode == displayCurrency
-              ? expense.storedAmountMinor as int
+              ? expense.storedAmountMinor
               : 0)
           : Money.convertMinor(
-              originalMinor: expense.storedAmountMinor as int,
+              originalMinor: expense.storedAmountMinor,
               rate: rate,
             );
-      total += amount;
 
       switch (breakdown) {
         case DonutBreakdown.tags:
@@ -382,14 +390,14 @@ class DashboardPage extends ConsumerWidget {
             }
           }
         case DonutBreakdown.month:
-          final occurredAt = expense.occurredAt as DateTime;
+          final occurredAt = expense.occurredAt;
           final key =
               '${occurredAt.year}-${occurredAt.month.toString().padLeft(2, '0')}';
           amounts[key] = (amounts[key] ?? 0) + amount;
           labels[key] = key;
           colors[key] ??= chartColorAt(amounts.length);
         case DonutBreakdown.currency:
-          final key = expense.storedCurrencyCode as String;
+          final key = expense.storedCurrencyCode;
           amounts[key] = (amounts[key] ?? 0) + amount;
           labels[key] = key;
           colors[key] ??= chartColorAt(key.hashCode);
@@ -399,7 +407,7 @@ class DashboardPage extends ConsumerWidget {
     final entries = amounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     var i = 0;
-    final slices = [
+    return [
       for (final e in entries)
         _Slice(
           key: e.key,
@@ -408,6 +416,5 @@ class DashboardPage extends ConsumerWidget {
           color: colors[e.key] ?? chartColorAt(i++),
         ),
     ];
-    return (total: total, slices: slices);
   }
 }
