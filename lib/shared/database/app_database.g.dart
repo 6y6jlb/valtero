@@ -1922,7 +1922,7 @@ final class $$TagsTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.expenses,
-    aliasName: $_aliasNameGenerator(db.tags.id, db.expenses.tagId),
+    aliasName: 'tags__id__expenses__tag_id',
   );
 
   $$ExpensesTableProcessedTableManager get expensesRefs {
@@ -1940,7 +1940,7 @@ final class $$TagsTableReferences
   static MultiTypedResultKey<$ExpenseTagsTable, List<ExpenseTag>>
   _expenseTagsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.expenseTags,
-    aliasName: $_aliasNameGenerator(db.tags.id, db.expenseTags.tagId),
+    aliasName: 'tags__id__expense_tags__tag_id',
   );
 
   $$ExpenseTagsTableProcessedTableManager get expenseTagsRefs {
@@ -2360,7 +2360,7 @@ final class $$ExpensesTableReferences
   $$ExpensesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $TagsTable _tagIdTable(_$AppDatabase db) =>
-      db.tags.createAlias($_aliasNameGenerator(db.expenses.tagId, db.tags.id));
+      db.tags.createAlias('expenses__tag_id__tags__id');
 
   $$TagsTableProcessedTableManager? get tagId {
     final $_column = $_itemColumn<int>('tag_id');
@@ -2379,7 +2379,7 @@ final class $$ExpensesTableReferences
   static MultiTypedResultKey<$ExpenseTagsTable, List<ExpenseTag>>
   _expenseTagsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.expenseTags,
-    aliasName: $_aliasNameGenerator(db.expenses.id, db.expenseTags.expenseId),
+    aliasName: 'expenses__id__expense_tags__expense_id',
   );
 
   $$ExpenseTagsTableProcessedTableManager get expenseTagsRefs {
@@ -2868,9 +2868,7 @@ final class $$ExpenseTagsTableReferences
   $$ExpenseTagsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $ExpensesTable _expenseIdTable(_$AppDatabase db) =>
-      db.expenses.createAlias(
-        $_aliasNameGenerator(db.expenseTags.expenseId, db.expenses.id),
-      );
+      db.expenses.createAlias('expense_tags__expense_id__expenses__id');
 
   $$ExpensesTableProcessedTableManager get expenseId {
     final $_column = $_itemColumn<int>('expense_id')!;
@@ -2886,9 +2884,8 @@ final class $$ExpenseTagsTableReferences
     );
   }
 
-  static $TagsTable _tagIdTable(_$AppDatabase db) => db.tags.createAlias(
-    $_aliasNameGenerator(db.expenseTags.tagId, db.tags.id),
-  );
+  static $TagsTable _tagIdTable(_$AppDatabase db) =>
+      db.tags.createAlias('expense_tags__tag_id__tags__id');
 
   $$TagsTableProcessedTableManager get tagId {
     final $_column = $_itemColumn<int>('tag_id')!;

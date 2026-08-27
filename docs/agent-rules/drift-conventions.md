@@ -2,9 +2,9 @@
 
 ## Native SQLite
 
-- Keep `sqlite3_flutter_libs` in `pubspec.yaml` while on Drift/`sqlite3` 2.x — it bundles `libsqlite3.so` for Android/Linux/Windows.
-- Without it, Linux debug runs fail with `Failed to load dynamic library 'libsqlite3.so'`.
-- After upgrading to Drift ≥2.32 / `sqlite3` ≥3.x (build hooks), revisit whether `sqlite3_flutter_libs` can be removed.
+- Prefer Drift ≥2.32 with `sqlite3` ≥3.x — SQLite is bundled via build hooks; do **not** add `sqlite3_flutter_libs` (EOL).
+- Explicit `sqlite3` in `pubspec.yaml` is optional once Drift pulls 3.x; pin only if you need a floor for hooks.
+- If Linux fails to load SQLite after an upgrade, check Dart/Flutter native assets / build hooks before reintroducing discontinued flutter_libs packages.
 
 ## Placement
 

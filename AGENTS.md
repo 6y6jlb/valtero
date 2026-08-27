@@ -32,7 +32,7 @@ Details: [docs/agent-rules/fsd-layers.md](docs/agent-rules/fsd-layers.md)
 ## State & storage
 
 - **Riverpod** for state (`AsyncNotifier` for Hive/Drift-backed state)
-- **Drift (SQLite)** for expenses, tags, exchange-rate cache/overrides (`sqlite3_flutter_libs` bundles native SQLite on Linux/Android/Windows while on Drift/`sqlite3` 2.x)
+- **Drift (SQLite)** for expenses, tags, exchange-rate cache/overrides (`sqlite3` ≥3.x bundles native SQLite via build hooks on Linux/Android/Windows)
 - **Hive CE** for `AppSettings` only (reporting currencies, API key, detection cache, theme/locale/timezone)
 
 Details: [docs/agent-rules/riverpod-conventions.md](docs/agent-rules/riverpod-conventions.md), [docs/agent-rules/drift-conventions.md](docs/agent-rules/drift-conventions.md)
