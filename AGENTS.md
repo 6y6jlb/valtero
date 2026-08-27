@@ -70,6 +70,14 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 - AppBar shows live date/time in the selected timezone (default: auto-detected system zone)
 - Desktop default window size: **853×720** (≈⅔ of the previous 1280 width)
 
+## App version
+
+- **SSOT**: repo-root `VERSION` (`semver+build`, e.g. `1.0.0+1`)
+- **Tooling**: `scripts/app_version.sh` / `.ps1` — `sync` writes `pubspec.yaml`; `flutter-args` emits `--build-name` / `--build-number` / `--dart-define=APP_VERSION=…`; `bump major|minor|patch` changes semver only, `bump build` increments `+N` (Android `versionCode`)
+- **Make**: `version-major` / `version-minor` / `version-patch` / `version-build`, or `version VERSION=x.y.z+n`; also `codegen` for Drift (`build_runner`) after clone / schema changes
+- **Make / release**: `run-*`, `build-*`, `release-*` sync + pass those flags so Linux / Windows / Android binaries and the in-app label match
+- **UI**: `appVersionLabelProvider` prefers `APP_VERSION` dart-define, else `PackageInfo` (pubspec-backed); shown in Settings
+
 ## Code style
 
 - Comments only for non-obvious logic
@@ -79,6 +87,14 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 
 Details: [docs/agent-rules/ui-component-size.md](docs/agent-rules/ui-component-size.md)
 
+## New dependencies
+
+Do **not** add a package to `pubspec.yaml` without an **explicit user approve**.
+
+Before proposing one: check need (existing code enough?), overlap with current deps/features, why this package is better, and that it is still maintained / actively developed. Present that to the user and wait for approve of the **specific package** before `pub add` / editing `pubspec.yaml`.
+
+Details: [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md)
+
 ## When making changes
 
 1. Read existing code in the relevant FSD slice first
@@ -86,7 +102,8 @@ Details: [docs/agent-rules/ui-component-size.md](docs/agent-rules/ui-component-s
 3. Prefer extending an entity/feature over adding cross-cutting spaghetti
 4. Test on Linux Ubuntu
 5. If core flow or architecture changes, update this `AGENTS.md`
-6. **If editing an agent rule**: update `docs/agent-rules/<topic>.md` first (source of truth). If a local `.cursor/rules/<topic>.mdc` mirror exists, update its body in the same pass. Never edit only the `.mdc`.
+6. If platform run/build/release flow changes, update `README.md` and the **App version** section here
+7. **If editing an agent rule**: update `docs/agent-rules/<topic>.md` first (source of truth). If a local `.cursor/rules/<topic>.mdc` mirror exists, update its body in the same pass. Never edit only the `.mdc`.
 
 ## Topic rules (tool-agnostic)
 
@@ -98,6 +115,7 @@ Details: [docs/agent-rules/ui-component-size.md](docs/agent-rules/ui-component-s
 | [docs/agent-rules/riverpod-conventions.md](docs/agent-rules/riverpod-conventions.md) | Provider placement and `AsyncNotifier` pattern |
 | [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md) | No hardcoded UI strings; en/ru ARB |
 | [docs/agent-rules/ui-component-size.md](docs/agent-rules/ui-component-size.md) | ≤ 500 lines per UI component; when/how to split |
+| [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md) | New packages: need / overlap / health + explicit user approve |
 
 ## Tool-specific rule files (gitignored)
 
@@ -116,5 +134,6 @@ To generate Cursor mirrors once locally:
 | `riverpod-conventions` | `globs: lib/**/model/**,lib/shared/settings/**` |
 | `l10n-strings` | `globs: lib/**/*.dart,lib/shared/l10n/**` |
 | `ui-component-size` | `globs: lib/**/ui/**,lib/pages/**,lib/widgets/**` |
+| `dependencies` | `alwaysApply: true` |
 
 Ask an agent: “Mirror `docs/agent-rules/*.md` into `.cursor/rules/*.mdc` with the frontmatter from AGENTS.md.”

@@ -1,10 +1,13 @@
 name: valtero
 description: "Multi-currency expense tracker"
 publish_to: 'none'
+# Synced from ./VERSION by scripts/app_version.sh (make sync-version / build / release).
+# Edit VERSION, not this line. Format: <semver>+<build> e.g. 1.1.0+2
 version: 1.0.0+1
 
 environment:
   sdk: ^3.11.4
+  flutter: '>=3.41.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -30,6 +33,8 @@ dependencies:
   timezone: ^0.11.1
   flutter_timezone: ^5.1.0
   sealed_currencies: ^3.3.0
+  package_info_plus: ^9.0.1
+
 
 dev_dependencies:
   flutter_test:

@@ -6,6 +6,7 @@ import 'package:valtero/pages/tags/tags_sheet.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/app_timezone.dart';
+import 'package:valtero/shared/utils/app_version_provider.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
 
 class SettingsPage extends ConsumerWidget {
@@ -96,6 +97,8 @@ class SettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final versionAsync = ref.watch(appVersionLabelProvider);
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -131,6 +134,19 @@ class SettingsPage extends ConsumerWidget {
             title: Text(l10n.settingsExport),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => showExportSheet(context),
+          ),
+          const SizedBox(height: 24),
+          Center(
+            child: versionAsync.when(
+              data: (label) => Text(
+                label,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              loading: () => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
+            ),
           ),
         ],
       ),
