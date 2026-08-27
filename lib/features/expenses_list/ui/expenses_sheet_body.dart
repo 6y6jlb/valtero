@@ -223,13 +223,16 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
     setState(() => _draft = _draft.copyWith(tagIds: result));
   }
 
-  Future<void> _export(ExportFormat format, {required bool share}) async {
+  Future<void> _export(
+    ExportFormat format, {
+    required ExpenseExportAction action,
+  }) async {
     try {
       final message = await exportFilteredExpenses(
         ref,
         context,
         format: format,
-        share: share,
+        action: action,
         query: _applied,
         displayRates: _displayRates,
         displayCurrency: _displayCurrency,
@@ -255,6 +258,13 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
         clearFrom: picked.from == null,
         clearTo: picked.to == null,
       );
+      _applied = _applied.copyWith(
+        from: picked.from,
+        to: picked.to,
+        clearFrom: picked.from == null,
+        clearTo: picked.to == null,
+      );
+      _page = 0;
     });
   }
 
@@ -412,14 +422,6 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                       onApply: _applyFilters,
                       onClear: _clearFilters,
                       tagLabels: tagLabels,
-                      onRemoveTag: (id) {
-                        setState(() {
-                          final next = {..._applied.tagIds}..remove(id);
-                          _draft = _draft.copyWith(tagIds: next);
-                          _applied = _applied.copyWith(tagIds: next);
-                          _page = 0;
-                        });
-                      },
                       onClearCurrency: () {
                         setState(() {
                           _draft = _draft.copyWith(clearCurrencyCode: true);
@@ -437,6 +439,13 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                             clearFrom: true,
                             clearTo: true,
                           );
+                          _page = 0;
+                        });
+                      },
+                      onClearTags: () {
+                        setState(() {
+                          _draft = _draft.copyWith(tagIds: {});
+                          _applied = _applied.copyWith(tagIds: {});
                           _page = 0;
                         });
                       },

@@ -147,57 +147,95 @@ class _PeriodPickerDialogState extends State<PeriodPickerDialog> {
     return DatePeriod(from: _from, to: _to).normalized();
   }
 
+  Widget _calendar(DateTime month) {
+    return PeriodMonthCalendar(
+      month: month,
+      rangeStart: _from,
+      rangeEnd: _to,
+      onDaySelected: _onDaySelected,
+      onPrevMonth: () => _shiftMonths(-1),
+      onNextMonth: () => _shiftMonths(1),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final wide = MediaQuery.sizeOf(context).width >= 720;
+    final screen = MediaQuery.sizeOf(context);
+    // Sidebar + two months needs ~720+; otherwise stack for mobile.
+    final sideBySide = screen.width >= 720;
+    final dualMonths = screen.width >= 520;
 
-    final calendars = Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final presets = ListView(
+      shrinkWrap: true,
       children: [
-        PeriodMonthCalendar(
-          month: _leftMonth,
-          rangeStart: _from,
-          rangeEnd: _to,
-          onDaySelected: _onDaySelected,
-          onPrevMonth: () => _shiftMonths(-1),
-          onNextMonth: () => _shiftMonths(1),
-        ),
-        const SizedBox(width: 12),
-        PeriodMonthCalendar(
-          month: _rightMonth,
-          rangeStart: _from,
-          rangeEnd: _to,
-          onDaySelected: _onDaySelected,
-          onPrevMonth: () => _shiftMonths(-1),
-          onNextMonth: () => _shiftMonths(1),
-        ),
+        for (final preset in _sidebarPresets)
+          _PresetTile(
+            label: localizedPeriodPreset(l10n, preset),
+            selected: _preset == preset,
+            onTap: () => _selectPreset(preset),
+          ),
       ],
     );
 
-    final presets = SizedBox(
-      width: wide ? 168 : double.infinity,
-      child: ListView(
-        shrinkWrap: true,
-        children: [
-          for (final preset in _sidebarPresets)
-            _PresetTile(
-              label: localizedPeriodPreset(l10n, preset),
-              selected: _preset == preset,
-              onTap: () => _selectPreset(preset),
+    final calendars = dualMonths
+        ? Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: _calendar(_leftMonth)),
+              const SizedBox(width: 8),
+              Expanded(child: _calendar(_rightMonth)),
+            ],
+          )
+        : Column(
+            children: [
+              _calendar(_leftMonth),
+              const SizedBox(height: 12),
+              _calendar(_rightMonth),
+            ],
+          );
+
+    final body = sideBySide
+        ? Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 160,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 420),
+                  child: presets,
+                ),
+              ),
+              VerticalDivider(
+                width: 16,
+                color: theme.colorScheme.outlineVariant,
+              ),
+              Expanded(
+                child: SingleChildScrollView(child: calendars),
+              ),
+            ],
+          )
+        : SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 200),
+                  child: presets,
+                ),
+                Divider(color: theme.colorScheme.outlineVariant),
+                calendars,
+              ],
             ),
-        ],
-      ),
-    );
+          );
 
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: wide ? 780 : 360,
-          maxHeight: MediaQuery.sizeOf(context).height * 0.9,
+          maxWidth: sideBySide ? 720 : 400,
+          maxHeight: screen.height * 0.9,
         ),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
@@ -206,7 +244,7 @@ class _PeriodPickerDialogState extends State<PeriodPickerDialog> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+                padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
                 child: Text(
                   l10n.periodRange,
                   style: theme.textTheme.titleMedium?.copyWith(
@@ -214,39 +252,11 @@ class _PeriodPickerDialogState extends State<PeriodPickerDialog> {
                   ),
                 ),
               ),
-              Flexible(
-                child: wide
-                    ? Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          presets,
-                          VerticalDivider(
-                            width: 24,
-                            color: theme.colorScheme.outlineVariant,
-                          ),
-                          Flexible(
-                            child: SingleChildScrollView(
-                              child: calendars,
-                            ),
-                          ),
-                        ],
-                      )
-                    : SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            SizedBox(height: 220, child: presets),
-                            const Divider(),
-                            calendars,
-                          ],
-                        ),
-                      ),
-              ),
+              Flexible(child: body),
               const SizedBox(height: 8),
-              if (_preset == PeriodPreset.custom &&
-                  (_from != null || _to != null))
+              if (_from != null || _to != null)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Text(
                     formatPeriodLabel(
                       l10n,
@@ -258,7 +268,7 @@ class _PeriodPickerDialogState extends State<PeriodPickerDialog> {
                   ),
                 ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(4, 8, 4, 4),
+                padding: const EdgeInsets.fromLTRB(0, 8, 0, 4),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -308,6 +318,8 @@ class _PresetTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Text(
             label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
               color: selected

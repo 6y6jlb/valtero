@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:valtero/features/expenses_list/model/expense_list_export.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
@@ -22,8 +23,10 @@ class ExpensesListingCard extends StatelessWidget {
   final ValueChanged<ExpenseListViewMode> onViewChanged;
   final ValueChanged<ExpenseListGroup> onGroupChanged;
   final ValueChanged<ExpenseChartBreakdown> onChartBreakdownChanged;
-  final Future<void> Function(ExportFormat format, {required bool share})
-      onExport;
+  final Future<void> Function(
+    ExportFormat format, {
+    required ExpenseExportAction action,
+  }) onExport;
   final Widget child;
 
   const ExpensesListingCard({
@@ -106,13 +109,35 @@ class ExpensesListingCard extends StatelessWidget {
                       onSelected: (key) {
                         switch (key) {
                           case 'csv_save':
-                            onExport(ExportFormat.csv, share: false);
+                            onExport(
+                              ExportFormat.csv,
+                              action: ExpenseExportAction.save,
+                            );
                           case 'csv_share':
-                            onExport(ExportFormat.csv, share: true);
+                            onExport(
+                              ExportFormat.csv,
+                              action: ExpenseExportAction.share,
+                            );
+                          case 'csv_copy':
+                            onExport(
+                              ExportFormat.csv,
+                              action: ExpenseExportAction.copy,
+                            );
                           case 'json_save':
-                            onExport(ExportFormat.json, share: false);
+                            onExport(
+                              ExportFormat.json,
+                              action: ExpenseExportAction.save,
+                            );
                           case 'json_share':
-                            onExport(ExportFormat.json, share: true);
+                            onExport(
+                              ExportFormat.json,
+                              action: ExpenseExportAction.share,
+                            );
+                          case 'json_copy':
+                            onExport(
+                              ExportFormat.json,
+                              action: ExpenseExportAction.copy,
+                            );
                         }
                       },
                       itemBuilder: (context) => [
@@ -127,6 +152,12 @@ class ExpensesListingCard extends StatelessWidget {
                           child: Text('${l10n.exportCsv} · ${l10n.share}'),
                         ),
                         PopupMenuItem(
+                          value: 'csv_copy',
+                          child: Text(
+                            '${l10n.copyAs} ${l10n.exportCsv}',
+                          ),
+                        ),
+                        PopupMenuItem(
                           value: 'json_save',
                           child: Text(
                             '${l10n.exportJson} · ${l10n.saveFile}',
@@ -135,6 +166,12 @@ class ExpensesListingCard extends StatelessWidget {
                         PopupMenuItem(
                           value: 'json_share',
                           child: Text('${l10n.exportJson} · ${l10n.share}'),
+                        ),
+                        PopupMenuItem(
+                          value: 'json_copy',
+                          child: Text(
+                            '${l10n.copyAs} ${l10n.exportJson}',
+                          ),
                         ),
                       ],
                       child: Padding(

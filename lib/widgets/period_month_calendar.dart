@@ -56,76 +56,79 @@ class PeriodMonthCalendar extends StatelessWidget {
 
     final monthTitle = material.formatMonthYear(first).toLowerCase();
 
-    return SizedBox(
-      width: 280,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              IconButton(
-                visualDensity: VisualDensity.compact,
-                onPressed: onPrevMonth,
-                icon: const Icon(Icons.chevron_left),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+              onPressed: onPrevMonth,
+              icon: const Icon(Icons.chevron_left),
+            ),
+            Expanded(
+              child: Text(
+                monthTitle,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
+            ),
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+              onPressed: onNextMonth,
+              icon: const Icon(Icons.chevron_right),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            for (final label in weekdayLabels)
               Expanded(
                 child: Text(
-                  monthTitle,
+                  label.toLowerCase(),
                   textAlign: TextAlign.center,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),
-              IconButton(
-                visualDensity: VisualDensity.compact,
-                onPressed: onNextMonth,
-                icon: const Icon(Icons.chevron_right),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
+          ],
+        ),
+        const SizedBox(height: 4),
+        for (var row = 0; row < cells.length ~/ 7; row++)
           Row(
             children: [
-              for (final label in weekdayLabels)
+              for (var col = 0; col < 7; col++)
                 Expanded(
-                  child: Text(
-                    label.toLowerCase(),
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+                  child: _DayCell(
+                    day: cells[row * 7 + col]!,
+                    inMonth: cells[row * 7 + col]!.month == first.month,
+                    isToday: sameDay(cells[row * 7 + col], today),
+                    isSelected: _isEndpoint(
+                      cells[row * 7 + col]!,
+                      rangeLo,
+                      rangeHi,
                     ),
+                    inRange: _inRange(
+                      cells[row * 7 + col]!,
+                      rangeLo,
+                      rangeHi,
+                    ),
+                    onTap: () => onDaySelected(cells[row * 7 + col]!),
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: 4),
-          for (var row = 0; row < cells.length ~/ 7; row++)
-            Row(
-              children: [
-                for (var col = 0; col < 7; col++)
-                  Expanded(
-                    child: _DayCell(
-                      day: cells[row * 7 + col]!,
-                      inMonth: cells[row * 7 + col]!.month == first.month,
-                      isToday: sameDay(cells[row * 7 + col], today),
-                      isSelected: _isEndpoint(
-                        cells[row * 7 + col]!,
-                        rangeLo,
-                        rangeHi,
-                      ),
-                      inRange: _inRange(
-                        cells[row * 7 + col]!,
-                        rangeLo,
-                        rangeHi,
-                      ),
-                      onTap: () => onDaySelected(cells[row * 7 + col]!),
-                    ),
-                  ),
-              ],
-            ),
-        ],
-      ),
+      ],
     );
   }
 
@@ -176,19 +179,19 @@ class _DayCell extends StatelessWidget {
             : scheme.onSurfaceVariant.withValues(alpha: 0.55);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.symmetric(vertical: 1),
       child: Material(
         color: bg ?? Colors.transparent,
-        borderRadius: BorderRadius.circular(isSelected ? 20 : 4),
+        borderRadius: BorderRadius.circular(isSelected ? 18 : 4),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(isSelected ? 20 : 4),
+          borderRadius: BorderRadius.circular(isSelected ? 18 : 4),
           child: SizedBox(
-            height: 36,
+            height: 32,
             child: Center(
               child: Text(
                 '${day.day}',
-                style: theme.textTheme.bodyMedium?.copyWith(
+                style: theme.textTheme.bodySmall?.copyWith(
                   color: textColor,
                   fontWeight: isToday || isSelected
                       ? FontWeight.w700

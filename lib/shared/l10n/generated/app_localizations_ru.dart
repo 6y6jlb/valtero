@@ -178,6 +178,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get share => 'Поделиться';
 
   @override
+  String get copyAs => 'Скопировать как';
+
+  @override
+  String get copiedToClipboard => 'Скопировано в буфер';
+
+  @override
   String get sendTelegram => 'Отправить в Telegram';
 
   @override

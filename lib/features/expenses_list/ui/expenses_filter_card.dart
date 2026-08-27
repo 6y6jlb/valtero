@@ -23,9 +23,9 @@ class ExpensesFilterCard extends StatelessWidget {
   final VoidCallback onApply;
   final VoidCallback onClear;
   final Map<int, String> tagLabels;
-  final ValueChanged<int> onRemoveTag;
   final VoidCallback onClearCurrency;
   final VoidCallback onClearPeriod;
+  final VoidCallback onClearTags;
 
   const ExpensesFilterCard({
     super.key,
@@ -41,9 +41,9 @@ class ExpensesFilterCard extends StatelessWidget {
     required this.onApply,
     required this.onClear,
     required this.tagLabels,
-    required this.onRemoveTag,
     required this.onClearCurrency,
     required this.onClearPeriod,
+    required this.onClearTags,
   });
 
   String get _sortKey => '${sort.name}:${ascending ? 'asc' : 'desc'}';
@@ -217,10 +217,10 @@ class ExpensesFilterCard extends StatelessWidget {
                   if (hasPeriod)
                     InputChip(
                       label: Text(
-                        formatPeriodLabel(
+                        '${l10n.periodRange}: ${formatPeriodLabel(
                           l10n,
                           DatePeriod(from: applied.from, to: applied.to),
-                        ),
+                        )}',
                       ),
                       onDeleted: onClearPeriod,
                     ),
@@ -231,10 +231,12 @@ class ExpensesFilterCard extends StatelessWidget {
                       ),
                       onDeleted: onClearCurrency,
                     ),
-                  for (final id in applied.tagIds)
+                  if (applied.tagIds.isNotEmpty)
                     InputChip(
-                      label: Text(tagLabels[id] ?? '?'),
-                      onDeleted: () => onRemoveTag(id),
+                      label: Text(
+                        '${l10n.selectTags}: ${applied.tagIds.map((id) => tagLabels[id] ?? '?').join(', ')}',
+                      ),
+                      onDeleted: onClearTags,
                     ),
                 ],
               ),

@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/expense/model/expenses_provider.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
@@ -95,6 +96,21 @@ class ExportController {
           format: format,
         );
     await ref.read(expenseExporterProvider).shareFile(file);
+  }
+
+  Future<void> copyFor(
+    ExportFormat format, {
+    required List<Expense> expenses,
+    required Map<int, String> tagNames,
+    required Map<int, List<int>> tagsByExpense,
+  }) async {
+    final content = buildContentFor(
+      format,
+      expenses: expenses,
+      tagNames: tagNames,
+      tagsByExpense: tagsByExpense,
+    );
+    await Clipboard.setData(ClipboardData(text: content));
   }
 
   Future<void> sendTelegram(ExportFormat format) async {

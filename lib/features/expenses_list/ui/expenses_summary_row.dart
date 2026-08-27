@@ -98,6 +98,7 @@ class ExpensesSummaryRow extends StatelessWidget {
           );
         }
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             for (var i = 0; i < cards.length; i++) ...[
               if (i > 0) const SizedBox(height: 8),

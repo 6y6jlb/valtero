@@ -66,6 +66,8 @@
   "exportJson": "JSON",
   "saveFile": "Сохранить файл",
   "share": "Поделиться",
+  "copyAs": "Скопировать как",
+  "copiedToClipboard": "Скопировано в буфер",
   "sendTelegram": "Отправить в Telegram",
   "telegramBotToken": "Токен Telegram-бота",
   "telegramChatId": "Chat id Telegram",

@@ -428,6 +428,18 @@ abstract class AppLocalizations {
   /// **'Share'**
   String get share;
 
+  /// No description provided for @copyAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy as'**
+  String get copyAs;
+
+  /// No description provided for @copiedToClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied to clipboard'**
+  String get copiedToClipboard;
+
   /// No description provided for @sendTelegram.
   ///
   /// In en, this message translates to:

@@ -24,9 +24,9 @@ class ExpenseListQuery {
     this.group = ExpenseListGroup.none,
   });
 
-  /// Fresh session defaults: last calendar month, no other filters.
+  /// Fresh session defaults: last 30 days, no other filters.
   factory ExpenseListQuery.sessionDefaults() {
-    final period = periodForPreset(PeriodPreset.lastMonth);
+    final period = periodForPreset(PeriodPreset.last30Days);
     return ExpenseListQuery(from: period.from, to: period.to);
   }
 

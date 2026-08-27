@@ -178,6 +178,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get share => 'Share';
 
   @override
+  String get copyAs => 'Copy as';
+
+  @override
+  String get copiedToClipboard => 'Copied to clipboard';
+
+  @override
   String get sendTelegram => 'Send to Telegram';
 
   @override
