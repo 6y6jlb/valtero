@@ -6,6 +6,7 @@ import 'package:valtero/entities/payment_method/model/payment_methods_provider.d
 import 'package:valtero/entities/expense/model/expense_tags_provider.dart';
 import 'package:valtero/entities/expense/model/expenses_provider.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
+import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
 import 'package:valtero/features/currency_settings/ui/rates_sheet.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/model/expense_chart_aggregator.dart';
@@ -19,12 +20,14 @@ import 'package:valtero/features/expenses_list/ui/expense_payment_filter_dialog.
 import 'package:valtero/features/expenses_list/ui/expense_tag_filter_dialog.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_filter_sheet.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_filter_summary_bar.dart';
+import 'package:valtero/features/expenses_list/ui/recent_expense_tile.dart';
 import 'package:valtero/features/export_expenses/ui/export_flow.dart';
 import 'package:valtero/features/export_expenses/ui/export_menu.dart';
 import 'package:valtero/pages/expenses/expenses_page.dart';
 import 'package:valtero/pages/platform_guide/platform_guide_page.dart';
 import 'package:valtero/pages/settings/settings_page.dart';
 import 'package:valtero/pages/tags/tags_sheet.dart';
+import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/consts/palette.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
@@ -38,7 +41,7 @@ import 'package:valtero/widgets/header_clock.dart';
 import 'package:valtero/widgets/period_picker.dart';
 
 final donutBreakdownProvider = StateProvider<ExpenseChartBreakdown>(
-  (ref) => ExpenseChartBreakdown.tagCountry,
+  (ref) => ExpenseChartBreakdown.country,
 );
 
 class DashboardPage extends ConsumerStatefulWidget {
@@ -131,7 +134,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   ) {
     final now = DateTime.now();
     switch (breakdown) {
-      case ExpenseChartBreakdown.tagCountry:
+      case ExpenseChartBreakdown.country:
         return [
           DonutChartSlice(
             key: 'sample_ru',
@@ -170,27 +173,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             key: 'sample_crypto',
             label: l10n.tagCrypto,
             amountMinor: 120000,
-            color: chartColorAt(2),
-          ),
-        ];
-      case ExpenseChartBreakdown.tagTrip:
-        return [
-          DonutChartSlice(
-            key: 'sample_trip_usd',
-            label: l10n.tripTag('USD'),
-            amountMinor: 410000,
-            color: chartColorAt(0),
-          ),
-          DonutChartSlice(
-            key: 'sample_trip_eur',
-            label: l10n.tripTag('EUR'),
-            amountMinor: 260000,
-            color: chartColorAt(1),
-          ),
-          DonutChartSlice(
-            key: 'sample_trip_gel',
-            label: l10n.tripTag('GEL'),
-            amountMinor: 180000,
             color: chartColorAt(2),
           ),
         ];
@@ -314,6 +296,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       expenseTags: expenseTags,
     );
     final isSample = expenses.isEmpty;
+    final lang = Localizations.localeOf(context).languageCode;
 
     return AppPageScaffold(
       appBar: AppBar(
@@ -372,6 +355,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               paymentLabels: paymentLabels,
               tags: tags,
               paymentMethods: paymentMethods,
+              recentExpenses: const [],
+              expenseTags: expenseTags,
               isSample: true,
               loading: false,
             )
@@ -390,6 +375,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   l10n,
                   breakdown,
                 ),
+                countryLabel: (code) =>
+                    countryDisplayName(code, languageCode: lang),
               ),
               builder: (context, snapshot) {
                 final slices = snapshot.data ?? const <DonutChartSlice>[];
@@ -404,6 +391,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   paymentLabels: paymentLabels,
                   tags: tags,
                   paymentMethods: paymentMethods,
+                  recentExpenses: filtered,
+                  expenseTags: expenseTags,
                   isSample: false,
                   loading:
                       snapshot.connectionState == ConnectionState.waiting,
@@ -424,10 +413,16 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     required Map<int, String> paymentLabels,
     required List<Tag> tags,
     required List<PaymentMethod> paymentMethods,
+    required List<Expense> recentExpenses,
+    required Map<int, List<int>> expenseTags,
     required bool isSample,
     required bool loading,
   }) {
     final theme = Theme.of(context);
+    final lang = Localizations.localeOf(context).languageCode;
+    final recent = [...recentExpenses]
+      ..sort((a, b) => b.occurredAt.compareTo(a.occurredAt));
+    final recentTop = recent.take(10).toList();
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, kFabBottomPadding),
@@ -508,6 +503,38 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           ),
         ),
         if (loading) const LinearProgressIndicator(),
+        if (!isSample && recentTop.isNotEmpty) ...[
+          const SizedBox(height: 20),
+          Text(
+            l10n.navExpenses,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 4),
+          for (final e in recentTop)
+            RecentExpenseTile(
+              expense: e,
+              paymentLabel: e.paymentMethodId == null
+                  ? null
+                  : paymentLabels[e.paymentMethodId!],
+              countryLabel: e.countryCode == null || e.countryCode!.isEmpty
+                  ? null
+                  : countryDisplayName(
+                      e.countryCode!,
+                      languageCode: lang,
+                    ),
+              tagsLabel: recentExpenseTagsLabel(e.id, expenseTags, tagLabels),
+              onTap: () => showAddExpenseSheet(context, expense: e),
+            ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton(
+              onPressed: () => ExpensesPage.open(context, initial: _applied),
+              child: Text(l10n.showExpenses),
+            ),
+          ),
+        ],
       ],
     );
   }

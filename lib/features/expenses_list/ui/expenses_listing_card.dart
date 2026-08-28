@@ -199,7 +199,7 @@ class ExpensesListingCard extends StatelessWidget {
                             ),
                           ),
                           DropdownMenuItem(
-                            value: ExpenseListGroup.tagCountry,
+                            value: ExpenseListGroup.country,
                             child: Text(
                               '${l10n.groupBy}: ${l10n.groupTagCountry}',
                             ),
@@ -208,12 +208,6 @@ class ExpensesListingCard extends StatelessWidget {
                             value: ExpenseListGroup.payment,
                             child: Text(
                               '${l10n.groupBy}: ${l10n.groupPayment}',
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: ExpenseListGroup.tagTrip,
-                            child: Text(
-                              '${l10n.groupBy}: ${l10n.groupTagTrip}',
                             ),
                           ),
                           DropdownMenuItem(

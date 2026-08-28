@@ -101,6 +101,7 @@ class _ExpensesFilterSheetBodyState extends State<_ExpensesFilterSheetBody> {
               _draft = _draft.copyWith(
                 tagIds: {},
                 paymentMethodIds: {},
+                countryCodes: {},
                 clearCurrencyCode: true,
                 from: defaults.from,
                 to: defaults.to,

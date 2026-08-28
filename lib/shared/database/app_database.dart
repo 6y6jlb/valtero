@@ -9,9 +9,6 @@ import 'package:valtero/entities/expense/data/expense_tags_table.dart';
 import 'package:valtero/entities/expense/data/expenses_table.dart';
 import 'package:valtero/entities/payment_method/data/payment_methods_table.dart';
 import 'package:valtero/entities/tag/data/tags_table.dart';
-import 'package:valtero/shared/database/migrations/migrate_to_v2.dart';
-import 'package:valtero/shared/database/migrations/migrate_to_v3.dart';
-import 'package:valtero/shared/database/migrations/migrate_to_v4.dart';
 import 'package:valtero/shared/database/schema_version.dart';
 
 part 'app_database.g.dart';
@@ -31,9 +28,11 @@ class AppDatabase extends _$AppDatabase {
           await m.createAll();
         },
         onUpgrade: (Migrator m, int from, int to) async {
-          if (from < 2) await migrateToV2(m, this);
-          if (from < 3) await migrateToV3(m, this);
-          if (from < 4) await migrateToV4(m, this);
+          // MVP: destructive baseline — no stepwise migrations.
+          for (final table in allTables) {
+            await m.deleteTable(table.actualTableName);
+          }
+          await m.createAll();
         },
       );
 
@@ -48,16 +47,6 @@ class AppDatabase extends _$AppDatabase {
   Future<bool> updateTagRow(Tag row) => update(tags).replace(row);
 
   Future<int> deleteTagById(int id) => (delete(tags)..where((t) => t.id.equals(id))).go();
-
-  Future<Tag?> findCountryTag(String countryCode) {
-    return (select(tags)
-          ..where(
-            (t) =>
-                t.kind.equals('country') &
-                t.countryCode.equals(countryCode.toUpperCase()),
-          ))
-        .getSingleOrNull();
-  }
 
   Future<Tag?> findByStableKey(String key) {
     return (select(tags)..where((t) => t.stableKey.equals(key))).getSingleOrNull();
@@ -94,33 +83,6 @@ class AppDatabase extends _$AppDatabase {
         colorValue: Value(colorValue),
         stableKey: Value(stableKey),
         isDefault: Value(isDefault),
-        sortOrder: Value(nextOrder),
-      ),
-    );
-  }
-
-  Future<int> ensureCountryTag({
-    required String countryCode,
-    required String displayName,
-  }) async {
-    final code = countryCode.toUpperCase();
-    final existing = await findCountryTag(code);
-    if (existing != null) {
-      if (existing.name != displayName) {
-        await updateTagRow(existing.copyWith(name: displayName));
-      }
-      return existing.id;
-    }
-    final all = await watchTagsList();
-    final nextOrder =
-        all.isEmpty ? 0 : all.map((t) => t.sortOrder).reduce((a, b) => a > b ? a : b) + 1;
-    return insertTag(
-      TagsCompanion.insert(
-        name: displayName,
-        kind: const Value('country'),
-        countryCode: Value(code),
-        stableKey: Value('country_$code'),
-        isDefault: const Value(true),
         sortOrder: Value(nextOrder),
       ),
     );

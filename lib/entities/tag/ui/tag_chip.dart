@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/shared/database/app_database.dart';
-import 'package:valtero/shared/consts/tag_suggestions.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
-import 'package:valtero/widgets/flag_icon.dart';
 
 class TagChip extends StatelessWidget {
   final Tag tag;
@@ -19,13 +17,6 @@ class TagChip extends StatelessWidget {
   });
 
   Widget? _avatar() {
-    if (tag.kind == 'country' && tag.countryCode != null) {
-      return FlagIcon.country(tag.countryCode!, size: 18);
-    }
-    final tripCurrency = currencyFromTripKey(tag.stableKey ?? '');
-    if (tripCurrency != null) {
-      return FlagIcon.currency(tripCurrency, size: 18);
-    }
     final resourceIcon = switch (tag.stableKey) {
       'cash' => Icons.payments_outlined,
       'card' => Icons.credit_card,

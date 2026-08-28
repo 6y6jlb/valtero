@@ -21,7 +21,8 @@ import 'package:valtero/features/expenses_list/ui/expense_delete_flow.dart';
 import 'package:valtero/features/expenses_list/ui/expense_table.dart';
 import 'package:valtero/features/expenses_list/ui/expense_payment_filter_dialog.dart';
 import 'package:valtero/features/expenses_list/ui/expense_tag_filter_dialog.dart';
-import 'package:valtero/features/expenses_list/ui/expenses_filter_card.dart';
+import 'package:valtero/features/expenses_list/ui/expenses_filter_sheet.dart';
+import 'package:valtero/features/expenses_list/ui/expenses_filter_summary_bar.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_listing_card.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_summary_row.dart';
 import 'package:valtero/features/expenses_list/ui/grouped_expense_table.dart';
@@ -29,6 +30,7 @@ import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
 import 'package:valtero/features/export_expenses/model/export_destination.dart';
 import 'package:valtero/features/export_expenses/ui/export_flow.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
+import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
@@ -220,24 +222,62 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
     setState(() => _displayRates = rates);
   }
 
-  Future<void> _pickTags(List<Tag> tags) async {
-    final result = await showExpenseTagFilterDialog(
-      context,
-      tags: tags,
-      initialSelection: _draft.tagIds,
+  Future<void> _openFilters({
+    required List<String> currencyOptions,
+    required Map<int, String> tagLabels,
+    required Map<int, String> paymentLabels,
+    required List<Tag> tags,
+    required List<PaymentMethod> paymentMethods,
+  }) async {
+    final result = await showExpensesFilterSheet(
+      context: context,
+      initial: _draft,
+      currencyOptions: currencyOptions,
+      tagLabels: tagLabels,
+      paymentLabels: paymentLabels,
+      onPickPeriod: (draft) async {
+        final picked = await showPeriodPicker(
+          context,
+          initial: DatePeriod(from: draft.from, to: draft.to),
+        );
+        if (picked == null) return null;
+        return draft.copyWith(
+          from: picked.from,
+          to: picked.to,
+          clearFrom: picked.from == null,
+          clearTo: picked.to == null,
+        );
+      },
+      onPickTags: (draft) async {
+        final selected = await showExpenseTagFilterDialog(
+          context,
+          tags: tags,
+          initialSelection: draft.tagIds,
+        );
+        if (selected == null) return null;
+        return draft.copyWith(tagIds: selected);
+      },
+      onPickPayment: (draft) async {
+        final selected = await showExpensePaymentFilterDialog(
+          context,
+          methods: paymentMethods,
+          initialSelection: draft.paymentMethodIds,
+        );
+        if (selected == null) return null;
+        return draft.copyWith(paymentMethodIds: selected);
+      },
     );
-    if (result == null) return;
-    setState(() => _draft = _draft.copyWith(tagIds: result));
-  }
-
-  Future<void> _pickPayment(List<PaymentMethod> methods) async {
-    final result = await showExpensePaymentFilterDialog(
-      context,
-      methods: methods,
-      initialSelection: _draft.paymentMethodIds,
-    );
-    if (result == null) return;
-    setState(() => _draft = _draft.copyWith(paymentMethodIds: result));
+    if (result == null || !mounted) return;
+    setState(() {
+      _draft = result;
+      _applied = result.copyWith(
+        group: _applied.group,
+        sort: _applied.sort,
+        ascending: _applied.ascending,
+      );
+      _page = 0;
+    });
+    showAppToast(context, AppLocalizations.of(context)!.filtersApplied);
   }
 
   Future<void> _export(
@@ -261,38 +301,6 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
     );
   }
 
-  Future<void> _pickDraftDateRange() async {
-    final picked = await showPeriodPicker(
-      context,
-      initial: DatePeriod(from: _draft.from, to: _draft.to),
-    );
-    if (picked == null) return;
-    setState(() {
-      _draft = _draft.copyWith(
-        from: picked.from,
-        to: picked.to,
-        clearFrom: picked.from == null,
-        clearTo: picked.to == null,
-      );
-    });
-  }
-
-  void _applyFilters() {
-    setState(() {
-      _applied = _applied.copyWith(
-        tagIds: _draft.tagIds,
-        currencyCode: _draft.currencyCode,
-        clearCurrencyCode: _draft.currencyCode == null,
-        from: _draft.from,
-        clearFrom: _draft.from == null,
-        to: _draft.to,
-        clearTo: _draft.to == null,
-      );
-      _page = 0;
-    });
-    showAppToast(context, AppLocalizations.of(context)!.filtersApplied);
-  }
-
   void _applyChartSegmentFilter(DonutChartSlice slice) {
     final next = expenseChartDrillDownQuery(
       base: _applied,
@@ -308,32 +316,6 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
     });
     _persistDisplayPrefs(view: ExpenseListViewMode.list);
     showAppToast(context, AppLocalizations.of(context)!.filtersApplied);
-  }
-
-  void _clearFilters() {
-    final defaults = ExpenseListQuery.sessionDefaults();
-    setState(() {
-      _draft = _draft.copyWith(
-        tagIds: {},
-        paymentMethodIds: {},
-        clearCurrencyCode: true,
-        from: defaults.from,
-        to: defaults.to,
-        clearFrom: defaults.from == null,
-        clearTo: defaults.to == null,
-      );
-      _applied = _applied.copyWith(
-        tagIds: {},
-        paymentMethodIds: {},
-        clearCurrencyCode: true,
-        from: defaults.from,
-        to: defaults.to,
-        clearFrom: defaults.from == null,
-        clearTo: defaults.to == null,
-      );
-      _page = 0;
-    });
-    showAppToast(context, AppLocalizations.of(context)!.filtersCleared);
   }
 
   @override
@@ -400,7 +382,6 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                   tagById: {for (final t in tags) t.id: t},
                   paymentMethodLabels: paymentLabels,
                   unspecifiedCountryLabel: l10n.tagKindUnspecifiedCountry,
-                  unspecifiedTripLabel: l10n.tagKindUnspecifiedTrip,
                   unspecifiedCustomLabel: l10n.tagKindUnspecifiedCustom,
                   unspecifiedPaymentLabel: l10n.paymentMethodUnspecified,
                   ascending: _applied.ascending,
@@ -437,46 +418,15 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                       ),
                       const SizedBox(height: 12),
                     ],
-                    ExpensesFilterCard(
-                      draft: _draft,
-                      currencyOptions: currencyOptions,
-                      onPickPeriod: _pickDraftDateRange,
-                      onCurrencyChanged: (v) {
-                        setState(() {
-                          _draft = v == null
-                              ? _draft.copyWith(clearCurrencyCode: true)
-                              : _draft.copyWith(currencyCode: v);
-                        });
-                      },
-                      onPickTags: () => _pickTags(tags),
-                      onPickPayment: () => _pickPayment(paymentMethods),
-                      onApply: _applyFilters,
-                      onClear: _clearFilters,
-                      tagLabels: tagLabels,
-                      paymentLabels: paymentLabels,
-                      onClearCurrency: () {
-                        setState(() {
-                          _draft = _draft.copyWith(clearCurrencyCode: true);
-                        });
-                      },
-                      onClearPeriod: () {
-                        setState(() {
-                          _draft = _draft.copyWith(
-                            clearFrom: true,
-                            clearTo: true,
-                          );
-                        });
-                      },
-                      onClearTags: () {
-                        setState(() {
-                          _draft = _draft.copyWith(tagIds: {});
-                        });
-                      },
-                      onClearPayment: () {
-                        setState(() {
-                          _draft = _draft.copyWith(paymentMethodIds: {});
-                        });
-                      },
+                    ExpensesFilterSummaryBar(
+                      draft: _applied,
+                      onTap: () => _openFilters(
+                        currencyOptions: currencyOptions,
+                        tagLabels: tagLabels,
+                        paymentLabels: paymentLabels,
+                        tags: tags,
+                        paymentMethods: paymentMethods,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     ExpensesSummaryRow(
@@ -556,11 +506,16 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                                   items: pageItems,
                                   expenseTags: expenseTags,
                                   tagLabels: tagLabels,
+                                  paymentLabels: paymentLabels,
                                   untaggedLabel: l10n.untagged,
                                   displayCurrency: _displayCurrency,
                                   convertedMinor: _convertedMinor,
                                   onDelete: (id) =>
                                       confirmAndDeleteExpense(context, ref, id),
+                                  onEdit: (expense) => showAddExpenseSheet(
+                                    context,
+                                    expense: expense,
+                                  ),
                                 ),
                               ExpenseListViewMode.grouping =>
                                 GroupedExpenseTable(rows: groupRows!),
@@ -582,6 +537,12 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                                     untaggedLabel: unspecifiedLabelForChartBreakdown(
                                       l10n,
                                       _chartBreakdown,
+                                    ),
+                                    countryLabel: (code) => countryDisplayName(
+                                      code,
+                                      languageCode:
+                                          Localizations.localeOf(context)
+                                              .languageCode,
                                     ),
                                   ),
                                   primaryCurrency: summaryCurrency,

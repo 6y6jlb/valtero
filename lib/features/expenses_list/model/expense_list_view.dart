@@ -5,9 +5,9 @@ import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 enum ExpenseListViewMode { list, grouping, chart }
 
 enum ExpenseChartBreakdown {
-  tagCountry,
+  /// Group by [Expense.countryCode] (ISO).
+  country,
   payment,
-  tagTrip,
   tagCustom,
   month,
   year,
@@ -16,8 +16,6 @@ enum ExpenseChartBreakdown {
 
 TagKind? tagKindFromChartBreakdown(ExpenseChartBreakdown breakdown) {
   return switch (breakdown) {
-    ExpenseChartBreakdown.tagCountry => TagKind.country,
-    ExpenseChartBreakdown.tagTrip => TagKind.trip,
     ExpenseChartBreakdown.tagCustom => TagKind.custom,
     _ => null,
   };
@@ -36,17 +34,22 @@ String unspecifiedLabelForChartBreakdown(
 ) {
   return switch (breakdown) {
     ExpenseChartBreakdown.payment => l10n.paymentMethodUnspecified,
+    ExpenseChartBreakdown.country => l10n.tagKindUnspecifiedCountry,
     final b when tagKindFromChartBreakdown(b) != null =>
       tagKindUnspecifiedLabel(l10n, tagKindFromChartBreakdown(b)!),
     _ => l10n.untagged,
   };
 }
 
-/// Maps persisted settings value (incl. legacy `tags` / `tagResource`) to enum.
+/// Maps persisted settings value (incl. legacy names) to enum.
 ExpenseChartBreakdown expenseChartBreakdownFromName(String? name) {
   if (name == null || name.isEmpty) return ExpenseChartBreakdown.currency;
-  if (name == 'tags') return ExpenseChartBreakdown.tagCustom;
+  if (name == 'tags' || name == 'tagCustom') {
+    return ExpenseChartBreakdown.tagCustom;
+  }
   if (name == 'tagResource') return ExpenseChartBreakdown.payment;
+  if (name == 'tagCountry') return ExpenseChartBreakdown.country;
+  if (name == 'tagTrip') return ExpenseChartBreakdown.currency;
   return ExpenseChartBreakdown.values.firstWhere(
     (b) => b.name == name,
     orElse: () => ExpenseChartBreakdown.currency,

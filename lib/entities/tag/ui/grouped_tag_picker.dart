@@ -4,7 +4,7 @@ import 'package:valtero/entities/tag/ui/tag_chip.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 
-/// Tag chips grouped by kind (country / trip / category).
+/// Category tag chips (country is a field on the expense, not a tag).
 class GroupedTagPicker extends StatelessWidget {
   final List<Tag> tags;
   final Set<int> selectedIds;
@@ -48,7 +48,6 @@ class GroupedTagPicker extends StatelessWidget {
                 ),
             ],
           ),
-          if (kind != TagKind.custom) const SizedBox(height: 4),
         ],
         if (singleSelectPerKind)
           Padding(
@@ -74,16 +73,7 @@ class TagKindSectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final accent = switch (kind) {
-      TagKind.country => theme.colorScheme.primary,
-      TagKind.trip => theme.colorScheme.tertiary,
-      TagKind.custom => theme.colorScheme.onSurfaceVariant,
-    };
-    final icon = switch (kind) {
-      TagKind.country => Icons.public,
-      TagKind.trip => Icons.luggage_outlined,
-      TagKind.custom => Icons.label_outline,
-    };
+    final accent = theme.colorScheme.onSurfaceVariant;
 
     return Padding(
       padding: const EdgeInsets.only(top: 12, bottom: 8),
@@ -98,7 +88,7 @@ class TagKindSectionHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Icon(icon, size: 18, color: accent),
+          Icon(Icons.label_outline, size: 18, color: accent),
           const SizedBox(width: 6),
           Text(
             tagKindSectionTitle(l10n, kind),

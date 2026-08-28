@@ -1,4 +1,4 @@
-/// ISO country codes → display names by language (`en` / `ru`).
+/// ISO country codes → display names by language (`en` / `ru` / `es` / `sr`).
 const Map<String, Map<String, String>> _countryNames = {
   'en': {
     'RU': 'Russia',
@@ -94,11 +94,109 @@ const Map<String, Map<String, String>> _countryNames = {
     'MX': 'Мексика',
     'AR': 'Аргентина',
   },
+  'es': {
+    'RU': 'Rusia',
+    'US': 'Estados Unidos',
+    'GB': 'Reino Unido',
+    'DE': 'Alemania',
+    'FR': 'Francia',
+    'IT': 'Italia',
+    'ES': 'España',
+    'PL': 'Polonia',
+    'TR': 'Turquía',
+    'KZ': 'Kazajistán',
+    'UA': 'Ucrania',
+    'BY': 'Bielorrusia',
+    'CN': 'China',
+    'JP': 'Japón',
+    'KR': 'Corea del Sur',
+    'IN': 'India',
+    'BR': 'Brasil',
+    'CA': 'Canadá',
+    'AU': 'Australia',
+    'CH': 'Suiza',
+    'SE': 'Suecia',
+    'NO': 'Noruega',
+    'FI': 'Finlandia',
+    'CZ': 'Chequia',
+    'HU': 'Hungría',
+    'AT': 'Austria',
+    'NL': 'Países Bajos',
+    'BE': 'Bélgica',
+    'PT': 'Portugal',
+    'GR': 'Grecia',
+    'IE': 'Irlanda',
+    'AE': 'Emiratos Árabes Unidos',
+    'TH': 'Tailandia',
+    'VN': 'Vietnam',
+    'ID': 'Indonesia',
+    'MY': 'Malasia',
+    'SG': 'Singapur',
+    'GE': 'Georgia',
+    'AM': 'Armenia',
+    'AZ': 'Azerbaiyán',
+    'UZ': 'Uzbekistán',
+    'EG': 'Egipto',
+    'IL': 'Israel',
+    'MX': 'México',
+    'AR': 'Argentina',
+  },
+  'sr': {
+    'RU': 'Rusija',
+    'US': 'Sjedinjene Države',
+    'GB': 'Ujedinjeno Kraljevstvo',
+    'DE': 'Nemačka',
+    'FR': 'Francuska',
+    'IT': 'Italija',
+    'ES': 'Španija',
+    'PL': 'Poljska',
+    'TR': 'Turska',
+    'KZ': 'Kazahstan',
+    'UA': 'Ukrajina',
+    'BY': 'Belorusija',
+    'CN': 'Kina',
+    'JP': 'Japan',
+    'KR': 'Južna Koreja',
+    'IN': 'Indija',
+    'BR': 'Brazil',
+    'CA': 'Kanada',
+    'AU': 'Australija',
+    'CH': 'Švajcarska',
+    'SE': 'Švedska',
+    'NO': 'Norveška',
+    'FI': 'Finska',
+    'CZ': 'Češka',
+    'HU': 'Mađarska',
+    'AT': 'Austrija',
+    'NL': 'Holandija',
+    'BE': 'Belgija',
+    'PT': 'Portugalija',
+    'GR': 'Grčka',
+    'IE': 'Irska',
+    'AE': 'Ujedinjeni Arapski Emirati',
+    'TH': 'Tajland',
+    'VN': 'Vijetnam',
+    'ID': 'Indonezija',
+    'MY': 'Malezija',
+    'SG': 'Singapur',
+    'GE': 'Gruzija',
+    'AM': 'Jermenija',
+    'AZ': 'Azerbejdžan',
+    'UZ': 'Uzbekistan',
+    'EG': 'Egipat',
+    'IL': 'Izrael',
+    'MX': 'Meksiko',
+    'AR': 'Argentina',
+  },
 };
 
 String _lang(String? languageCode) {
-  if (languageCode == 'ru') return 'ru';
-  return 'en';
+  return switch (languageCode) {
+    'ru' => 'ru',
+    'es' => 'es',
+    'sr' => 'sr',
+    _ => 'en',
+  };
 }
 
 String countryDisplayName(String code, {String? languageCode}) {
@@ -117,7 +215,7 @@ List<MapEntry<String, String>> sortedCountries({String? languageCode}) {
   return entries;
 }
 
-/// Currency → country/region code used for trip-tag labeling.
+/// Currency → country/region code for region labels.
 const Map<String, String> currencyRegionCode = {
   'RUB': 'RU',
   'USD': 'US',
@@ -145,7 +243,12 @@ String regionLabelForCurrency(String currencyCode, {String? languageCode}) {
   final code = currencyRegionCode[currencyCode.toUpperCase()];
   if (code == null) return currencyCode.toUpperCase();
   if (code == 'EU') {
-    return languageCode == 'ru' ? 'Еврозона' : 'Eurozone';
+    return switch (languageCode) {
+      'ru' => 'Еврозона',
+      'es' => 'Eurozona',
+      'sr' => 'Evrozona',
+      _ => 'Eurozone',
+    };
   }
   return countryDisplayName(code, languageCode: languageCode);
 }

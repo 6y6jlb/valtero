@@ -132,6 +132,29 @@ void _aggregateExpenseByPayment({
   colors[key] ??= colorFromValue(method.colorValue) ?? chartColorAt(id);
 }
 
+void _aggregateExpenseByCountry({
+  required int amount,
+  required Expense expense,
+  required Map<String, int> amounts,
+  required Map<String, String> labels,
+  required Map<String, Color> colors,
+  required String untaggedLabel,
+  required String Function(String code) countryLabel,
+}) {
+  final code = expense.countryCode?.toUpperCase();
+  if (code == null || code.isEmpty) {
+    const key = '__untagged__';
+    amounts[key] = (amounts[key] ?? 0) + amount;
+    labels[key] = untaggedLabel;
+    colors[key] ??= chartColorAt(0);
+    return;
+  }
+  final key = 'country_$code';
+  amounts[key] = (amounts[key] ?? 0) + amount;
+  labels[key] = countryLabel(code);
+  colors[key] ??= chartColorAt(code.hashCode);
+}
+
 Future<List<DonutChartSlice>> aggregateExpensesForChart({
   required List<Expense> expenses,
   required String primaryCurrency,
@@ -143,10 +166,12 @@ Future<List<DonutChartSlice>> aggregateExpensesForChart({
   required String untaggedLabel,
   Map<int, PaymentMethod> paymentById = const {},
   Map<int, String> paymentLabels = const {},
+  String Function(String code)? countryLabel,
 }) async {
   final amounts = <String, int>{};
   final labels = <String, String>{};
   final colors = <String, Color>{};
+  final resolveCountry = countryLabel ?? (code) => code;
 
   for (final expense in expenses) {
     final rate = await resolver.getRate(
@@ -193,8 +218,16 @@ Future<List<DonutChartSlice>> aggregateExpensesForChart({
           colors: colors,
           untaggedLabel: untaggedLabel,
         );
-      case ExpenseChartBreakdown.tagCountry:
-      case ExpenseChartBreakdown.tagTrip:
+      case ExpenseChartBreakdown.country:
+        _aggregateExpenseByCountry(
+          amount: amount,
+          expense: expense,
+          amounts: amounts,
+          labels: labels,
+          colors: colors,
+          untaggedLabel: untaggedLabel,
+          countryLabel: resolveCountry,
+        );
       case ExpenseChartBreakdown.tagCustom:
         _aggregateExpenseByTagKind(
           amount: amount,

@@ -785,28 +785,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideSectionGettingStartedBody =>
-      'Tap the + button at the bottom of the screen to open the add-expense form. Enter an amount and currency, optionally convert into a reporting currency, pick tags, and save. Until then, the dashboard shows a sample chart with a link to this guide.';
+      'Tap the + button at the bottom of the screen to open the add-expense form. Enter an amount and currency, optionally convert into a reporting currency, pick a country and category tags, and save. Tap an existing expense to edit it in the same form. Until then, the dashboard shows a sample chart with a link to this guide.';
 
   @override
   String get guideSectionExpenseTrackingTitle => 'Expense tracking';
 
   @override
   String get guideSectionExpenseTrackingBody =>
-      'Each expense stores amount, currency, date, and an optional note. The original amount and currency are always kept, even if you convert into a reporting currency for storage.';
+      'Each expense stores amount, currency, date, optional country (ISO), payment method, category tags, and note. The original amount and currency are always kept, even if you convert into a reporting currency for storage.';
 
   @override
   String get guideSectionTagsTitle => 'Tags';
 
   @override
   String get guideSectionTagsBody =>
-      'Tag expenses with country (auto-detected or picked), trip, and category labels. One tag per group; groups are optional. Payment is a separate field (cash, card, crypto, or your own). Manage tags and payment methods in Settings.';
+      'Category tags label what you spent on (groceries, transport, …). Country is a separate field on the expense, not a tag. Payment is also separate (cash, card, crypto, or your own). Manage tags and payment methods in Settings.';
 
   @override
   String get guideSectionChartsTitle => 'Spending charts';
 
   @override
   String get guideSectionChartsBody =>
-      'The dashboard donut chart breaks down spending by country, payment method, trip, category, months, or currency. Switch the breakdown with the icons under the chart. Within a tag kind, each expense is counted once. Missing payment or tags for that kind appear as not set. Tap a segment to open matching expenses. Tap a legend chip to show or hide that slice. Open Show expenses for list, grouping, and chart views with sort and pagination.';
+      'The dashboard donut chart breaks down spending by country, payment method, category, months, or currency. Switch the breakdown with the icons under the chart. Missing country, payment, or category appear as not set. Tap a segment to open matching expenses. Tap a legend chip to show or hide that slice. Below the chart, the last 10 expenses are listed with a link to the full list. Open Show expenses for list, grouping, and chart views with sort and pagination.';
 
   @override
   String get guideSectionExchangeRatesTitle => 'Exchange rates';
@@ -834,5 +834,5 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideSectionFiltersBody =>
-      'Filter by period, currency, and tags on the dashboard and expenses page. Apply or clear filters anytime; the dashboard keeps a compact summary and opens filters in a full-screen sheet.';
+      'Filter by period, currency, tags, and payment on the dashboard and expenses page. Both use a compact summary bar that opens filters in a full-screen sheet. Apply or clear filters anytime.';
 }

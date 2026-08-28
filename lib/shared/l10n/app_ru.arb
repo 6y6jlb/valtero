@@ -21,7 +21,9 @@
   "exchangeRate": "Курс: {rate}",
   "@exchangeRate": {
     "placeholders": {
-      "rate": {"type": "String"}
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "rateUnavailable": "Нет курса для этой пары",
@@ -30,8 +32,12 @@
   "setManualRateHint": "Сколько {target} за 1 {base}",
   "@setManualRateHint": {
     "placeholders": {
-      "base": {"type": "String"},
-      "target": {"type": "String"}
+      "base": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
     }
   },
   "tag": "Тег",
@@ -72,7 +78,7 @@
   "telegramBotToken": "Токен Telegram-бота",
   "telegramChatId": "Chat id Telegram",
   "telegramEnabled": "Включить Telegram",
-  "summaryTotal": "Итого",
+  "summaryTotal": "Сумма",
   "byTag": "По тегам",
   "byPeriod": "По периоду",
   "displayCurrency": "Валюта отображения",
@@ -91,7 +97,9 @@
   "timeZoneSystem": "Системный ({id})",
   "@timeZoneSystem": {
     "placeholders": {
-      "id": {"type": "String"}
+      "id": {
+        "type": "String"
+      }
     }
   },
   "system": "Системная",
@@ -129,7 +137,9 @@
   "tripTag": "Поездка: {region}",
   "@tripTag": {
     "placeholders": {
-      "region": {"type": "String"}
+      "region": {
+        "type": "String"
+      }
     }
   },
   "tagColor": "Цвет",
@@ -163,7 +173,9 @@
   "paymentSelected": "{count} выбрано",
   "@paymentSelected": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "chartByMonth": "Месяцы",
@@ -178,8 +190,12 @@
   "periodFromTo": "{from} — {to}",
   "@periodFromTo": {
     "placeholders": {
-      "from": { "type": "String" },
-      "to": { "type": "String" }
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
     }
   },
   "periodToday": "Сегодня",
@@ -236,23 +252,30 @@
   "tagsSelected": "{count} тегов",
   "@tagsSelected": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "summaryCount": "Трат",
-  "summaryTotal": "Сумма",
   "summaryCurrencies": "Валют",
   "summaryPartialTotal": "Сконвертировано {converted} из {total}",
   "@summaryPartialTotal": {
     "placeholders": {
-      "converted": { "type": "int" },
-      "total": { "type": "int" }
+      "converted": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "totalRecords": "Всего: {count}",
   "@totalRecords": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "perPage": "На странице",
@@ -275,7 +298,9 @@
   "ratesMissingCount": "Нет курсов: {count}",
   "@ratesMissingCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "pickOtherCurrency": "Другая валюта…",
@@ -283,15 +308,21 @@
   "missingRatesBody": "Нет курсов для {count} пар в {target}. Укажите их, чтобы продолжить.",
   "@missingRatesBody": {
     "placeholders": {
-      "count": { "type": "int" },
-      "target": { "type": "String" }
+      "count": {
+        "type": "int"
+      },
+      "target": {
+        "type": "String"
+      }
     }
   },
   "retryConversion": "Проверить снова",
   "missingRatesStill": "Всё ещё нет курсов: {count}",
   "@missingRatesStill": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "saveAsIsDescription": "Сумма сохраняется в указанной валюте. Конвертация не выполняется.",
@@ -299,7 +330,9 @@
   "tagsSelectedCount": "Выбрано: {count}",
   "@tagsSelectedCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "guideTitle": "Что умеет Valtero",
@@ -311,8 +344,12 @@
   "chartLegendSummary": "Показано {visible} из {total}",
   "@chartLegendSummary": {
     "placeholders": {
-      "visible": { "type": "int" },
-      "total": { "type": "int" }
+      "visible": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "guideSampleGroceries": "Продукты",
@@ -322,13 +359,13 @@
   "guideSampleCountryGe": "Грузия",
   "guideSampleCountryTr": "Турция",
   "guideSectionGettingStartedTitle": "С чего начать",
-  "guideSectionGettingStartedBody": "Нажмите кнопку + внизу экрана, чтобы открыть форму добавления траты. Укажите сумму и валюту, при желании сконвертируйте в базовую валюту, выберите теги и сохраните. Пока трат нет, на сводке показывается пример графика со ссылкой на этот гайд.",
+  "guideSectionGettingStartedBody": "Нажмите + внизу экрана, чтобы открыть форму траты. Укажите сумму и валюту, при необходимости конвертируйте в отчётную валюту, выберите страну и категории, сохраните. Нажмите на существующую трату, чтобы изменить её в той же форме. Пока трат нет, на дашборде — пример графика со ссылкой на это руководство.",
   "guideSectionExpenseTrackingTitle": "Отслеживание расходов",
-  "guideSectionExpenseTrackingBody": "У каждой траты хранятся сумма, валюта, дата и необязательная заметка. Оригинальные сумма и валюта всегда сохраняются — даже если вы конвертируете в базовую валюту для хранения.",
+  "guideSectionExpenseTrackingBody": "У каждой траты хранятся сумма, валюта, дата, необязательная страна (ISO), способ оплаты, категории и заметка. Исходные сумма и валюта всегда сохраняются, даже если вы конвертируете в отчётную валюту.",
   "guideSectionTagsTitle": "Теги",
-  "guideSectionTagsBody": "Отмечайте траты страной (авто или вручную), поездкой и категорией. Один тег из группы; группы необязательны. Способ оплаты — отдельное поле (нал, карта, крипта или свой). Теги и способы оплаты — в Настройках.",
+  "guideSectionTagsBody": "Категории описывают, на что ушла трата (продукты, транспорт…). Страна — отдельное поле траты, не тег. Способ оплаты тоже отдельный (наличные, карта, крипто или свой). Теги и способы оплаты — в Настройках.",
   "guideSectionChartsTitle": "Графики трат",
-  "guideSectionChartsBody": "Круговая диаграмма на сводке показывает разбивку по странам, способу оплаты, поездкам, категориям, месяцам или валюте. Переключайте вид иконками под графиком. Внутри типа тегов каждая трата учитывается один раз. Без оплаты или тега этого типа — «не указано». Нажмите сектор, чтобы открыть траты. Метки легенды скрывают/показывают сектора. «Показать траты» — список, группировка и график.",
+  "guideSectionChartsBody": "Круговая диаграмма на дашборде разбивает траты по стране, способу оплаты, категории, месяцам или валюте. Иконки под графиком переключают разбивку. Без страны, оплаты или категории — «не задано». Нажатие на сегмент открывает подходящие траты. Чип легенды скрывает/показывает долю. Под графиком — последние 10 трат и ссылка на полный список. «Показать траты» — список, группировка и график с сортировкой и страницами.",
   "guideSectionExchangeRatesTitle": "Обменные курсы",
   "guideSectionExchangeRatesBody": "Курсы обновляются в фоне, если устарели (примерно раз в сутки). Привяжите ключ ExchangeRate-API, обновите вручную, задайте свои курсы и просмотрите все пары в Настройки → Валюта и курсы.",
   "guideSectionExportTitle": "Экспорт",
@@ -336,5 +373,5 @@
   "guideSectionTelegramTitle": "Шаринг через Telegram",
   "guideSectionTelegramBody": "Включите Telegram в настройках экспорта, укажите токен бота и chat id — и отправляйте файл экспорта прямо в Telegram.",
   "guideSectionFiltersTitle": "Фильтры",
-  "guideSectionFiltersBody": "Фильтруйте по периоду, валюте и тегам на сводке и на странице трат. Применяйте или сбрасывайте фильтры в любой момент; на сводке остаётся краткая строка, а полный набор открывается в модалке на весь экран."
+  "guideSectionFiltersBody": "Фильтруйте по периоду, валюте, тегам и оплате на дашборде и в списке трат. Оба экрана показывают компактную полосу сводки, которая открывает фильтры в полноэкранном листе. Применяйте или сбрасывайте фильтры в любой момент."
 }

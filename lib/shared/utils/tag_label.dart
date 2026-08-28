@@ -1,16 +1,8 @@
 import 'package:flutter/widgets.dart';
-import 'package:valtero/shared/consts/countries.dart';
-import 'package:valtero/shared/consts/tag_suggestions.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 
 String tagLabelForKey(AppLocalizations l10n, String key, {String? languageCode}) {
-  final tripCurrency = currencyFromTripKey(key);
-  if (tripCurrency != null) {
-    return l10n.tripTag(
-      regionLabelForCurrency(tripCurrency, languageCode: languageCode),
-    );
-  }
   return switch (key) {
     'groceries' => l10n.tagGroceries,
     'transport' => l10n.tagTransport,
@@ -33,9 +25,6 @@ String tagLabelForKey(AppLocalizations l10n, String key, {String? languageCode})
 String localizedTagLabel(BuildContext context, Tag tag) {
   final l10n = AppLocalizations.of(context)!;
   final lang = Localizations.localeOf(context).languageCode;
-  if (tag.kind == 'country' && tag.countryCode != null) {
-    return countryDisplayName(tag.countryCode!, languageCode: lang);
-  }
   final key = tag.stableKey;
   if (key != null && key.isNotEmpty) {
     return tagLabelForKey(l10n, key, languageCode: lang);

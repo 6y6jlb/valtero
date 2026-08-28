@@ -47,7 +47,7 @@ class ChartBreakdownIcons extends StatelessWidget {
       runSpacing: 0,
       children: [
         iconBtn(
-          value: ExpenseChartBreakdown.tagCountry,
+          value: ExpenseChartBreakdown.country,
           icon: Icons.public,
           tooltip: l10n.chartByTagCountry,
         ),
@@ -55,11 +55,6 @@ class ChartBreakdownIcons extends StatelessWidget {
           value: ExpenseChartBreakdown.payment,
           icon: Icons.payments_outlined,
           tooltip: l10n.chartByPayment,
-        ),
-        iconBtn(
-          value: ExpenseChartBreakdown.tagTrip,
-          icon: Icons.luggage_outlined,
-          tooltip: l10n.chartByTagTrip,
         ),
         iconBtn(
           value: ExpenseChartBreakdown.tagCustom,

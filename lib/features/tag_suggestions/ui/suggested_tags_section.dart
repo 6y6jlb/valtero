@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:valtero/entities/tag/model/tag_kind.dart';
 import 'package:valtero/features/manage_tags/model/manage_tags_controller.dart';
 import 'package:valtero/features/tag_suggestions/model/suggested_tags_provider.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
@@ -32,13 +31,10 @@ class SuggestedTagsSection extends ConsumerWidget {
               InputChip(
                 label: Text(tagLabelForKey(l10n, key, languageCode: lang)),
                 onPressed: () async {
-                  final inferred = tagKindFromStableKey(key);
                   await ref.read(manageTagsControllerProvider).addTag(
                         tagLabelForKey(l10n, key, languageCode: lang),
                         stableKey: key,
-                        kind: inferred == null
-                            ? 'normal'
-                            : tagKindDbValue(inferred),
+                        kind: 'normal',
                       );
                 },
                 onDeleted: () {

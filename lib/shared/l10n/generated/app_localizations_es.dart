@@ -1,0 +1,839 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for Spanish Castilian (`es`).
+class AppLocalizationsEs extends AppLocalizations {
+  AppLocalizationsEs([String locale = 'es']) : super(locale);
+
+  @override
+  String get appTitle => 'Valtero';
+
+  @override
+  String get navDashboard => 'Panel';
+
+  @override
+  String get navExpenses => 'Gastos';
+
+  @override
+  String get navAdd => 'Añadir';
+
+  @override
+  String get navTags => 'Etiquetas';
+
+  @override
+  String get navCurrency => 'Moneda';
+
+  @override
+  String get navExport => 'Exportar';
+
+  @override
+  String get navSettings => 'Ajustes';
+
+  @override
+  String get settingsAppearance => 'Apariencia';
+
+  @override
+  String get settingsCurrency => 'Moneda y tipos de cambio';
+
+  @override
+  String get settingsExport => 'Exportar y Telegram';
+
+  @override
+  String get selectCountry => 'Seleccionar país';
+
+  @override
+  String get addExpense => 'Añadir gasto';
+
+  @override
+  String get editExpense => 'Editar gasto';
+
+  @override
+  String get amount => 'Importe';
+
+  @override
+  String get currency => 'Moneda';
+
+  @override
+  String get saveAsIs => 'Guardar tal cual';
+
+  @override
+  String get convertTo => 'Convertir a';
+
+  @override
+  String exchangeRate(String rate) {
+    return 'Tipo: $rate';
+  }
+
+  @override
+  String get rateUnavailable => 'No hay tipo de cambio para este par';
+
+  @override
+  String get setRateNow => 'Establecer tipo';
+
+  @override
+  String get setManualRateTitle => 'Establecer tipo de cambio';
+
+  @override
+  String setManualRateHint(String base, String target) {
+    return 'Cuántos $target por 1 $base';
+  }
+
+  @override
+  String get tag => 'Etiqueta';
+
+  @override
+  String get note => 'Nota';
+
+  @override
+  String get date => 'Fecha';
+
+  @override
+  String get save => 'Guardar';
+
+  @override
+  String get delete => 'Eliminar';
+
+  @override
+  String get cancel => 'Cancelar';
+
+  @override
+  String get yes => 'Sí';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get confirmDeleteExpense => '¿Eliminar este gasto?';
+
+  @override
+  String get expenseDeleted => 'Gasto eliminado';
+
+  @override
+  String get add => 'Añadir';
+
+  @override
+  String get settings => 'Ajustes';
+
+  @override
+  String get reportingCurrencies => 'Monedas de informe';
+
+  @override
+  String get primaryCurrency => 'Moneda principal';
+
+  @override
+  String get apiKey => 'Clave de ExchangeRate-API';
+
+  @override
+  String get validateKey => 'Validar y vincular';
+
+  @override
+  String get refreshRates => 'Actualizar tipos ahora';
+
+  @override
+  String get manualRates => 'Tipos manuales';
+
+  @override
+  String get baseCurrency => 'De';
+
+  @override
+  String get targetCurrency => 'A';
+
+  @override
+  String get rate => 'Tipo';
+
+  @override
+  String get tagsTitle => 'Etiquetas';
+
+  @override
+  String get suggestedTags => 'Etiquetas sugeridas';
+
+  @override
+  String get detectCountry => 'Detectar país de nuevo';
+
+  @override
+  String get country => 'País';
+
+  @override
+  String get defaultTags => 'Etiquetas predeterminadas';
+
+  @override
+  String get dismiss => 'Descartar';
+
+  @override
+  String get exportTitle => 'Exportar';
+
+  @override
+  String get exportCsv => 'CSV';
+
+  @override
+  String get exportJson => 'JSON';
+
+  @override
+  String get saveFile => 'Guardar archivo';
+
+  @override
+  String get share => 'Compartir';
+
+  @override
+  String get copyAs => 'Copiar como';
+
+  @override
+  String get copiedToClipboard => 'Copiado al portapapeles';
+
+  @override
+  String get sendTelegram => 'Enviar a Telegram';
+
+  @override
+  String get telegramBotToken => 'Token del bot de Telegram';
+
+  @override
+  String get telegramChatId => 'Id del chat de Telegram';
+
+  @override
+  String get telegramEnabled => 'Activar Telegram';
+
+  @override
+  String get summaryTotal => 'Total';
+
+  @override
+  String get byTag => 'Por etiqueta';
+
+  @override
+  String get byPeriod => 'Por periodo';
+
+  @override
+  String get displayCurrency => 'Moneda de visualización';
+
+  @override
+  String get noExpenses => 'Aún no hay gastos';
+
+  @override
+  String get filterTag => 'Filtro de etiqueta';
+
+  @override
+  String get filterCurrency => 'Filtro de moneda';
+
+  @override
+  String get all => 'Todo';
+
+  @override
+  String get theme => 'Tema';
+
+  @override
+  String get locale => 'Idioma';
+
+  @override
+  String get moneyFormat => 'Visualización del dinero';
+
+  @override
+  String get moneyFormatPreview => 'Vista previa';
+
+  @override
+  String get moneyFormatLocaleSymbol => 'Local con símbolo';
+
+  @override
+  String get moneyFormatLocaleCode => 'Local con código de moneda';
+
+  @override
+  String get moneyFormatPlain => 'Simple (1234.56 CODE)';
+
+  @override
+  String get timeZone => 'Zona horaria';
+
+  @override
+  String timeZoneSystem(String id) {
+    return 'Sistema ($id)';
+  }
+
+  @override
+  String get system => 'Sistema';
+
+  @override
+  String get light => 'Claro';
+
+  @override
+  String get dark => 'Oscuro';
+
+  @override
+  String get keyValid => 'La clave API es válida';
+
+  @override
+  String get keyInvalid => 'La clave API no es válida';
+
+  @override
+  String get ratesRefreshed => 'Tipos actualizados';
+
+  @override
+  String get exportDone => 'Exportación lista';
+
+  @override
+  String get telegramSent => 'Enviado a Telegram';
+
+  @override
+  String get telegramFailed => 'Error al enviar a Telegram';
+
+  @override
+  String get telegramSetupNeeded =>
+      'Activa Telegram e introduce el token del bot y el id del chat para enviar exportaciones.';
+
+  @override
+  String get shareUnsupported =>
+      'Compartir archivos no está disponible en esta plataforma.';
+
+  @override
+  String get shareFailed => 'No se pudo compartir el archivo de exportación.';
+
+  @override
+  String get untagged => 'Sin etiqueta';
+
+  @override
+  String get periodDay => 'Día';
+
+  @override
+  String get periodWeek => 'Semana';
+
+  @override
+  String get periodMonth => 'Mes';
+
+  @override
+  String get newTag => 'Nueva etiqueta';
+
+  @override
+  String get addTag => 'Añadir etiqueta';
+
+  @override
+  String get tagGroceries => 'Comestibles';
+
+  @override
+  String get tagTransport => 'Transporte';
+
+  @override
+  String get tagHousing => 'Vivienda';
+
+  @override
+  String get tagDining => 'Restaurantes';
+
+  @override
+  String get tagHealth => 'Salud';
+
+  @override
+  String get tagEntertainment => 'Ocio';
+
+  @override
+  String get tagShopping => 'Compras';
+
+  @override
+  String get tagTravel => 'Viajes';
+
+  @override
+  String get tagUtilities => 'Suministros';
+
+  @override
+  String get tagCash => 'Efectivo';
+
+  @override
+  String get tagCard => 'Tarjeta';
+
+  @override
+  String get tagCrypto => 'Cripto';
+
+  @override
+  String get tagTransfer => 'Transferencia bancaria';
+
+  @override
+  String get tagEwallet => 'Monedero electrónico';
+
+  @override
+  String tripTag(String region) {
+    return 'Viaje: $region';
+  }
+
+  @override
+  String get tagColor => 'Color';
+
+  @override
+  String get tagColorNone => 'Ninguno';
+
+  @override
+  String get chartBy => 'Gráfico por';
+
+  @override
+  String get chartByTags => 'Etiquetas';
+
+  @override
+  String get chartByTagCountry => 'Etiquetas de país';
+
+  @override
+  String get chartByPayment => 'Método de pago';
+
+  @override
+  String get chartByTagTrip => 'Etiquetas de viaje';
+
+  @override
+  String get chartByTagCustom => 'Etiquetas personalizadas';
+
+  @override
+  String get chartTagKindHint =>
+      'Cada gasto cuenta una vez dentro de este tipo de etiqueta; las faltantes aparecen como no definidas';
+
+  @override
+  String get chartPaymentHint =>
+      'Cada gasto tiene como máximo un método de pago; si falta, aparece como no definido';
+
+  @override
+  String get tagKindSectionCountry => 'País';
+
+  @override
+  String get tagKindSectionTrip => 'Viaje';
+
+  @override
+  String get tagKindSectionCustom => 'Categoría';
+
+  @override
+  String get tagKindUnspecifiedCountry => 'País no definido';
+
+  @override
+  String get tagKindUnspecifiedTrip => 'Viaje no definido';
+
+  @override
+  String get tagKindUnspecifiedCustom => 'Categoría no definida';
+
+  @override
+  String get tagKindSingleSelectHint =>
+      'Una etiqueta por grupo; los grupos son opcionales';
+
+  @override
+  String get paymentMethod => 'Pago';
+
+  @override
+  String get paymentMethodNone => 'No definido';
+
+  @override
+  String get paymentMethodUnspecified => 'Pago no definido';
+
+  @override
+  String get paymentMethodsTitle => 'Métodos de pago';
+
+  @override
+  String get paymentMethodsHint =>
+      'Elige uno predeterminado para nuevos gastos. Los métodos integrados no se pueden eliminar.';
+
+  @override
+  String get paymentMethodNew => 'Nuevo método de pago';
+
+  @override
+  String get paymentMethodAdd => 'Añadir método de pago';
+
+  @override
+  String get paymentMethodEdit => 'Editar método de pago';
+
+  @override
+  String get paymentMethodBuiltIn => 'Integrado';
+
+  @override
+  String get paymentMethodClearDefault => 'Quitar pago predeterminado';
+
+  @override
+  String get filterPayment => 'Pago';
+
+  @override
+  String paymentSelected(int count) {
+    return '$count seleccionados';
+  }
+
+  @override
+  String get chartByMonth => 'Meses';
+
+  @override
+  String get chartByCurrency => 'Moneda';
+
+  @override
+  String get chartByYear => 'Años';
+
+  @override
+  String get filterTags => 'Filtrar etiquetas';
+
+  @override
+  String get excludeTag => 'Excluir';
+
+  @override
+  String get periodRange => 'Periodo';
+
+  @override
+  String get periodAll => 'Todo el tiempo';
+
+  @override
+  String get periodFrom => 'Desde';
+
+  @override
+  String get periodTo => 'Hasta';
+
+  @override
+  String periodFromTo(String from, String to) {
+    return '$from — $to';
+  }
+
+  @override
+  String get periodToday => 'Hoy';
+
+  @override
+  String get periodYesterday => 'Ayer';
+
+  @override
+  String get periodLast7Days => 'Últimos 7 días';
+
+  @override
+  String get periodLast30Days => 'Últimos 30 días';
+
+  @override
+  String get periodThisMonth => 'Este mes';
+
+  @override
+  String get periodLastMonth => 'Mes pasado';
+
+  @override
+  String get periodThisQuarter => 'Este trimestre';
+
+  @override
+  String get periodThisYear => 'Este año';
+
+  @override
+  String get periodPreviousYear => 'Año anterior';
+
+  @override
+  String get periodLast12Months => 'Últimos 12 meses';
+
+  @override
+  String get periodCustom => 'Rango personalizado';
+
+  @override
+  String get periodCustomHint => 'Elige fechas de inicio y fin';
+
+  @override
+  String get periodPickRange => 'Elegir fechas';
+
+  @override
+  String get showExpenses => 'Ver gastos';
+
+  @override
+  String get sortBy => 'Ordenar por';
+
+  @override
+  String get sortDate => 'Fecha';
+
+  @override
+  String get sortAmount => 'Importe';
+
+  @override
+  String get sortCurrency => 'Moneda';
+
+  @override
+  String get groupBy => 'Agrupar por';
+
+  @override
+  String get groupNone => 'Ninguno';
+
+  @override
+  String get groupDate => 'Fecha';
+
+  @override
+  String get groupCurrency => 'Moneda';
+
+  @override
+  String get groupTag => 'Etiqueta';
+
+  @override
+  String get groupTagCountry => 'País';
+
+  @override
+  String get groupPayment => 'Pago';
+
+  @override
+  String get groupTagTrip => 'Viaje';
+
+  @override
+  String get groupTagCustom => 'Categoría';
+
+  @override
+  String get groupTags => 'Etiquetas';
+
+  @override
+  String get excludeTags => 'Excluir etiquetas';
+
+  @override
+  String get ascending => 'Ascendente';
+
+  @override
+  String get descending => 'Descendente';
+
+  @override
+  String get viewRates => 'Ver tipos';
+
+  @override
+  String get allRates => 'Todos los tipos';
+
+  @override
+  String get addRate => 'Añadir tipo';
+
+  @override
+  String get noRatesYet =>
+      'Aún no hay tipos guardados — actualiza o añade uno manual';
+
+  @override
+  String get rateSourceApi => 'ExchangeRate-API';
+
+  @override
+  String get rateSourceFrankfurter => 'Frankfurter';
+
+  @override
+  String get rateSourceManual => 'Manual';
+
+  @override
+  String get currencyFiat => 'Fiat';
+
+  @override
+  String get currencyCrypto => 'Cripto';
+
+  @override
+  String get currencyCustom => 'Personalizada';
+
+  @override
+  String get addCustomCurrency => 'Añadir moneda';
+
+  @override
+  String get currencyCode => 'Código de moneda';
+
+  @override
+  String get filtersTitle => 'Filtros';
+
+  @override
+  String get expandFilters => 'Mostrar filtros';
+
+  @override
+  String get collapseFilters => 'Ocultar filtros';
+
+  @override
+  String get applyFilters => 'Aplicar';
+
+  @override
+  String get clearFilters => 'Limpiar';
+
+  @override
+  String get filtersApplied => 'Filtros aplicados';
+
+  @override
+  String get filtersCleared => 'Filtros limpiados';
+
+  @override
+  String get selectTags => 'Etiquetas';
+
+  @override
+  String tagsSelected(int count) {
+    return '$count etiquetas';
+  }
+
+  @override
+  String get summaryCount => 'Gastos';
+
+  @override
+  String get summaryCurrencies => 'Monedas';
+
+  @override
+  String summaryPartialTotal(int converted, int total) {
+    return 'Convertidos $converted de $total';
+  }
+
+  @override
+  String totalRecords(int count) {
+    return 'Total: $count';
+  }
+
+  @override
+  String get perPage => 'Por página';
+
+  @override
+  String get export => 'Exportar';
+
+  @override
+  String get listingView => 'Vista';
+
+  @override
+  String get viewList => 'Lista';
+
+  @override
+  String get viewGrouping => 'Agrupación';
+
+  @override
+  String get viewChart => 'Gráfico';
+
+  @override
+  String get columnDate => 'Fecha';
+
+  @override
+  String get columnGroup => 'Grupo';
+
+  @override
+  String get columnCount => 'Cantidad';
+
+  @override
+  String get columnAmount => 'Importe';
+
+  @override
+  String get columnCurrency => 'Moneda';
+
+  @override
+  String get columnTags => 'Etiquetas';
+
+  @override
+  String get noMatchingExpenses => 'Ningún gasto coincide con los filtros';
+
+  @override
+  String get displayIn => 'Mostrar en';
+
+  @override
+  String get displayOriginal => 'Monedas originales';
+
+  @override
+  String get displayOriginalHint => 'Mostrar importes guardados sin conversión';
+
+  @override
+  String get ratesReady => 'Todos los tipos disponibles';
+
+  @override
+  String ratesMissingCount(int count) {
+    return 'Faltan $count tipos';
+  }
+
+  @override
+  String get pickOtherCurrency => 'Otra moneda…';
+
+  @override
+  String get missingRatesTitle => 'Conversión no posible';
+
+  @override
+  String missingRatesBody(int count, String target) {
+    return 'Faltan tipos para $count pares hacia $target. Establécelos para continuar.';
+  }
+
+  @override
+  String get retryConversion => 'Comprobar de nuevo';
+
+  @override
+  String missingRatesStill(int count) {
+    return 'Aún faltan $count tipos';
+  }
+
+  @override
+  String get saveAsIsDescription =>
+      'El importe se guarda en la moneda que introdujiste. No se aplica conversión.';
+
+  @override
+  String get tagsNoneSelected => 'Ninguna seleccionada';
+
+  @override
+  String tagsSelectedCount(int count) {
+    return '$count seleccionadas';
+  }
+
+  @override
+  String get guideTitle => 'Qué puede hacer Valtero';
+
+  @override
+  String get guideSubtitle =>
+      'Un breve recorrido por las funciones principales. Toca una sección para expandirla.';
+
+  @override
+  String get guideOpenFromSettings => 'Guía de la plataforma';
+
+  @override
+  String get dashboardSampleChartLabel =>
+      'Ejemplo — así se verá tu gráfico cuando añadas gastos';
+
+  @override
+  String get dashboardOpenGuide => 'Qué puede hacer la app';
+
+  @override
+  String get chartLegendTitle => 'Segmentos';
+
+  @override
+  String chartLegendSummary(int visible, int total) {
+    return '$visible de $total mostrados';
+  }
+
+  @override
+  String get guideSampleGroceries => 'Comestibles';
+
+  @override
+  String get guideSampleTransport => 'Transporte';
+
+  @override
+  String get guideSampleDining => 'Restaurantes';
+
+  @override
+  String get guideSampleCountryRu => 'Rusia';
+
+  @override
+  String get guideSampleCountryGe => 'Georgia';
+
+  @override
+  String get guideSampleCountryTr => 'Turquía';
+
+  @override
+  String get guideSectionGettingStartedTitle => 'Primeros pasos';
+
+  @override
+  String get guideSectionGettingStartedBody =>
+      'Toca el botón + en la parte inferior para abrir el formulario de gasto. Introduce importe y moneda, opcionalmente convierte a una moneda de informe, elige país y categorías, y guarda. Toca un gasto existente para editarlo en el mismo formulario. Hasta entonces, el panel muestra un gráfico de ejemplo con enlace a esta guía.';
+
+  @override
+  String get guideSectionExpenseTrackingTitle => 'Seguimiento de gastos';
+
+  @override
+  String get guideSectionExpenseTrackingBody =>
+      'Cada gasto guarda importe, moneda, fecha, país opcional (ISO), método de pago, etiquetas de categoría y nota. El importe y la moneda originales siempre se conservan, aunque conviertas a una moneda de informe.';
+
+  @override
+  String get guideSectionTagsTitle => 'Etiquetas';
+
+  @override
+  String get guideSectionTagsBody =>
+      'Las categorías indican en qué gastaste (comida, transporte…). El país es un campo aparte del gasto, no una etiqueta. El pago también es aparte (efectivo, tarjeta, cripto o el tuyo). Gestiona etiquetas y métodos de pago en Ajustes.';
+
+  @override
+  String get guideSectionChartsTitle => 'Gráficos de gasto';
+
+  @override
+  String get guideSectionChartsBody =>
+      'El gráfico de dona del panel desglosa el gasto por país, método de pago, categoría, meses o moneda. Cambia el desglose con los iconos bajo el gráfico. País, pago o categoría ausentes aparecen como no definidos. Toca un segmento para abrir gastos coincidentes. Toca un chip de la leyenda para mostrar u ocultar esa porción. Bajo el gráfico, los últimos 10 gastos y un enlace a la lista completa. «Ver gastos» ofrece lista, agrupación y gráfico con orden y paginación.';
+
+  @override
+  String get guideSectionExchangeRatesTitle => 'Tipos de cambio';
+
+  @override
+  String get guideSectionExchangeRatesBody =>
+      'Los tipos se actualizan en segundo plano cuando están desactualizados (unas cada 24 horas). Vincula una clave de ExchangeRate-API, actualiza manualmente, define anulaciones y consulta todos los tipos en Ajustes → Moneda y tipos de cambio.';
+
+  @override
+  String get guideSectionExportTitle => 'Exportar';
+
+  @override
+  String get guideSectionExportBody =>
+      'Exporta gastos como CSV o JSON. Guarda un archivo, compártelo o cópialo al portapapeles desde el menú de exportación o Ajustes → Exportar y Telegram.';
+
+  @override
+  String get guideSectionTelegramTitle => 'Compartir por Telegram';
+
+  @override
+  String get guideSectionTelegramBody =>
+      'Activa Telegram en los ajustes de exportación, introduce el token del bot y el id del chat, y envía un documento de exportación directamente a Telegram.';
+
+  @override
+  String get guideSectionFiltersTitle => 'Filtros';
+
+  @override
+  String get guideSectionFiltersBody =>
+      'Filtra por periodo, moneda, etiquetas y pago en el panel y en la página de gastos. Ambos usan una barra resumen compacta que abre los filtros en una hoja a pantalla completa. Aplica o limpia filtros en cualquier momento.';
+}

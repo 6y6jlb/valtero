@@ -30,6 +30,7 @@ class ExpenseExporter {
         'storedCurrency',
         'rateUsed',
         'paymentMethod',
+        'countryCode',
         'tags',
         'note',
       ],
@@ -45,6 +46,7 @@ class ExpenseExporter {
           e.paymentMethodId == null
               ? ''
               : (paymentNames[e.paymentMethodId!] ?? ''),
+          e.countryCode ?? '',
           (tagsByExpense[e.id] ?? const [])
               .map((id) => tagNames[id] ?? '')
               .where((n) => n.isNotEmpty)
@@ -74,6 +76,7 @@ class ExpenseExporter {
             'paymentMethod': e.paymentMethodId == null
                 ? null
                 : paymentNames[e.paymentMethodId!],
+            'countryCode': e.countryCode,
             'tags': (tagsByExpense[e.id] ?? const [])
                 .map((id) => tagNames[id])
                 .whereType<String>()

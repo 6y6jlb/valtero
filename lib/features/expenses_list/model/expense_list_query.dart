@@ -7,9 +7,8 @@ enum ExpenseListGroup {
   currency,
   date,
   tag,
-  tagCountry,
+  country,
   payment,
-  tagTrip,
   tagCustom,
 }
 
@@ -17,6 +16,7 @@ enum ExpenseListGroup {
 class ExpenseListQuery {
   final Set<int> tagIds;
   final Set<int> paymentMethodIds;
+  final Set<String> countryCodes;
   final String? currencyCode;
   final DateTime? from;
   final DateTime? to;
@@ -27,6 +27,7 @@ class ExpenseListQuery {
   const ExpenseListQuery({
     this.tagIds = const {},
     this.paymentMethodIds = const {},
+    this.countryCodes = const {},
     this.currencyCode,
     this.from,
     this.to,
@@ -44,6 +45,7 @@ class ExpenseListQuery {
   ExpenseListQuery copyWith({
     Set<int>? tagIds,
     Set<int>? paymentMethodIds,
+    Set<String>? countryCodes,
     String? currencyCode,
     bool clearCurrencyCode = false,
     DateTime? from,
@@ -57,6 +59,7 @@ class ExpenseListQuery {
     return ExpenseListQuery(
       tagIds: tagIds ?? this.tagIds,
       paymentMethodIds: paymentMethodIds ?? this.paymentMethodIds,
+      countryCodes: countryCodes ?? this.countryCodes,
       currencyCode:
           clearCurrencyCode ? null : (currencyCode ?? this.currencyCode),
       from: clearFrom ? null : (from ?? this.from),

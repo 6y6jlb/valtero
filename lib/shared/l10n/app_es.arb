@@ -1,0 +1,377 @@
+{
+  "@@locale": "es",
+  "appTitle": "Valtero",
+  "navDashboard": "Panel",
+  "navExpenses": "Gastos",
+  "navAdd": "Añadir",
+  "navTags": "Etiquetas",
+  "navCurrency": "Moneda",
+  "navExport": "Exportar",
+  "navSettings": "Ajustes",
+  "settingsAppearance": "Apariencia",
+  "settingsCurrency": "Moneda y tipos de cambio",
+  "settingsExport": "Exportar y Telegram",
+  "selectCountry": "Seleccionar país",
+  "addExpense": "Añadir gasto",
+  "editExpense": "Editar gasto",
+  "amount": "Importe",
+  "currency": "Moneda",
+  "saveAsIs": "Guardar tal cual",
+  "convertTo": "Convertir a",
+  "exchangeRate": "Tipo: {rate}",
+  "@exchangeRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "rateUnavailable": "No hay tipo de cambio para este par",
+  "setRateNow": "Establecer tipo",
+  "setManualRateTitle": "Establecer tipo de cambio",
+  "setManualRateHint": "Cuántos {target} por 1 {base}",
+  "@setManualRateHint": {
+    "placeholders": {
+      "base": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "tag": "Etiqueta",
+  "note": "Nota",
+  "date": "Fecha",
+  "save": "Guardar",
+  "delete": "Eliminar",
+  "cancel": "Cancelar",
+  "yes": "Sí",
+  "no": "No",
+  "confirmDeleteExpense": "¿Eliminar este gasto?",
+  "expenseDeleted": "Gasto eliminado",
+  "add": "Añadir",
+  "settings": "Ajustes",
+  "reportingCurrencies": "Monedas de informe",
+  "primaryCurrency": "Moneda principal",
+  "apiKey": "Clave de ExchangeRate-API",
+  "validateKey": "Validar y vincular",
+  "refreshRates": "Actualizar tipos ahora",
+  "manualRates": "Tipos manuales",
+  "baseCurrency": "De",
+  "targetCurrency": "A",
+  "rate": "Tipo",
+  "tagsTitle": "Etiquetas",
+  "suggestedTags": "Etiquetas sugeridas",
+  "detectCountry": "Detectar país de nuevo",
+  "country": "País",
+  "defaultTags": "Etiquetas predeterminadas",
+  "dismiss": "Descartar",
+  "exportTitle": "Exportar",
+  "exportCsv": "CSV",
+  "exportJson": "JSON",
+  "saveFile": "Guardar archivo",
+  "share": "Compartir",
+  "copyAs": "Copiar como",
+  "copiedToClipboard": "Copiado al portapapeles",
+  "sendTelegram": "Enviar a Telegram",
+  "telegramBotToken": "Token del bot de Telegram",
+  "telegramChatId": "Id del chat de Telegram",
+  "telegramEnabled": "Activar Telegram",
+  "summaryTotal": "Total",
+  "byTag": "Por etiqueta",
+  "byPeriod": "Por periodo",
+  "displayCurrency": "Moneda de visualización",
+  "noExpenses": "Aún no hay gastos",
+  "filterTag": "Filtro de etiqueta",
+  "filterCurrency": "Filtro de moneda",
+  "all": "Todo",
+  "theme": "Tema",
+  "locale": "Idioma",
+  "moneyFormat": "Visualización del dinero",
+  "moneyFormatPreview": "Vista previa",
+  "moneyFormatLocaleSymbol": "Local con símbolo",
+  "moneyFormatLocaleCode": "Local con código de moneda",
+  "moneyFormatPlain": "Simple (1234.56 CODE)",
+  "timeZone": "Zona horaria",
+  "timeZoneSystem": "Sistema ({id})",
+  "@timeZoneSystem": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "system": "Sistema",
+  "light": "Claro",
+  "dark": "Oscuro",
+  "keyValid": "La clave API es válida",
+  "keyInvalid": "La clave API no es válida",
+  "ratesRefreshed": "Tipos actualizados",
+  "exportDone": "Exportación lista",
+  "telegramSent": "Enviado a Telegram",
+  "telegramFailed": "Error al enviar a Telegram",
+  "telegramSetupNeeded": "Activa Telegram e introduce el token del bot y el id del chat para enviar exportaciones.",
+  "shareUnsupported": "Compartir archivos no está disponible en esta plataforma.",
+  "shareFailed": "No se pudo compartir el archivo de exportación.",
+  "untagged": "Sin etiqueta",
+  "periodDay": "Día",
+  "periodWeek": "Semana",
+  "periodMonth": "Mes",
+  "newTag": "Nueva etiqueta",
+  "addTag": "Añadir etiqueta",
+  "tagGroceries": "Comestibles",
+  "tagTransport": "Transporte",
+  "tagHousing": "Vivienda",
+  "tagDining": "Restaurantes",
+  "tagHealth": "Salud",
+  "tagEntertainment": "Ocio",
+  "tagShopping": "Compras",
+  "tagTravel": "Viajes",
+  "tagUtilities": "Suministros",
+  "tagCash": "Efectivo",
+  "tagCard": "Tarjeta",
+  "tagCrypto": "Cripto",
+  "tagTransfer": "Transferencia bancaria",
+  "tagEwallet": "Monedero electrónico",
+  "tripTag": "Viaje: {region}",
+  "@tripTag": {
+    "placeholders": {
+      "region": {
+        "type": "String"
+      }
+    }
+  },
+  "tagColor": "Color",
+  "tagColorNone": "Ninguno",
+  "chartBy": "Gráfico por",
+  "chartByTags": "Etiquetas",
+  "chartByTagCountry": "Etiquetas de país",
+  "chartByPayment": "Método de pago",
+  "chartByTagTrip": "Etiquetas de viaje",
+  "chartByTagCustom": "Etiquetas personalizadas",
+  "chartTagKindHint": "Cada gasto cuenta una vez dentro de este tipo de etiqueta; las faltantes aparecen como no definidas",
+  "chartPaymentHint": "Cada gasto tiene como máximo un método de pago; si falta, aparece como no definido",
+  "tagKindSectionCountry": "País",
+  "tagKindSectionTrip": "Viaje",
+  "tagKindSectionCustom": "Categoría",
+  "tagKindUnspecifiedCountry": "País no definido",
+  "tagKindUnspecifiedTrip": "Viaje no definido",
+  "tagKindUnspecifiedCustom": "Categoría no definida",
+  "tagKindSingleSelectHint": "Una etiqueta por grupo; los grupos son opcionales",
+  "paymentMethod": "Pago",
+  "paymentMethodNone": "No definido",
+  "paymentMethodUnspecified": "Pago no definido",
+  "paymentMethodsTitle": "Métodos de pago",
+  "paymentMethodsHint": "Elige uno predeterminado para nuevos gastos. Los métodos integrados no se pueden eliminar.",
+  "paymentMethodNew": "Nuevo método de pago",
+  "paymentMethodAdd": "Añadir método de pago",
+  "paymentMethodEdit": "Editar método de pago",
+  "paymentMethodBuiltIn": "Integrado",
+  "paymentMethodClearDefault": "Quitar pago predeterminado",
+  "filterPayment": "Pago",
+  "paymentSelected": "{count} seleccionados",
+  "@paymentSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chartByMonth": "Meses",
+  "chartByCurrency": "Moneda",
+  "chartByYear": "Años",
+  "filterTags": "Filtrar etiquetas",
+  "excludeTag": "Excluir",
+  "periodRange": "Periodo",
+  "periodAll": "Todo el tiempo",
+  "periodFrom": "Desde",
+  "periodTo": "Hasta",
+  "periodFromTo": "{from} — {to}",
+  "@periodFromTo": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "periodToday": "Hoy",
+  "periodYesterday": "Ayer",
+  "periodLast7Days": "Últimos 7 días",
+  "periodLast30Days": "Últimos 30 días",
+  "periodThisMonth": "Este mes",
+  "periodLastMonth": "Mes pasado",
+  "periodThisQuarter": "Este trimestre",
+  "periodThisYear": "Este año",
+  "periodPreviousYear": "Año anterior",
+  "periodLast12Months": "Últimos 12 meses",
+  "periodCustom": "Rango personalizado",
+  "periodCustomHint": "Elige fechas de inicio y fin",
+  "periodPickRange": "Elegir fechas",
+  "showExpenses": "Ver gastos",
+  "sortBy": "Ordenar por",
+  "sortDate": "Fecha",
+  "sortAmount": "Importe",
+  "sortCurrency": "Moneda",
+  "groupBy": "Agrupar por",
+  "groupNone": "Ninguno",
+  "groupDate": "Fecha",
+  "groupCurrency": "Moneda",
+  "groupTag": "Etiqueta",
+  "groupTagCountry": "País",
+  "groupPayment": "Pago",
+  "groupTagTrip": "Viaje",
+  "groupTagCustom": "Categoría",
+  "groupTags": "Etiquetas",
+  "excludeTags": "Excluir etiquetas",
+  "ascending": "Ascendente",
+  "descending": "Descendente",
+  "viewRates": "Ver tipos",
+  "allRates": "Todos los tipos",
+  "addRate": "Añadir tipo",
+  "noRatesYet": "Aún no hay tipos guardados — actualiza o añade uno manual",
+  "rateSourceApi": "ExchangeRate-API",
+  "rateSourceFrankfurter": "Frankfurter",
+  "rateSourceManual": "Manual",
+  "currencyFiat": "Fiat",
+  "currencyCrypto": "Cripto",
+  "currencyCustom": "Personalizada",
+  "addCustomCurrency": "Añadir moneda",
+  "currencyCode": "Código de moneda",
+  "filtersTitle": "Filtros",
+  "expandFilters": "Mostrar filtros",
+  "collapseFilters": "Ocultar filtros",
+  "applyFilters": "Aplicar",
+  "clearFilters": "Limpiar",
+  "filtersApplied": "Filtros aplicados",
+  "filtersCleared": "Filtros limpiados",
+  "selectTags": "Etiquetas",
+  "tagsSelected": "{count} etiquetas",
+  "@tagsSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryCount": "Gastos",
+  "summaryCurrencies": "Monedas",
+  "summaryPartialTotal": "Convertidos {converted} de {total}",
+  "@summaryPartialTotal": {
+    "placeholders": {
+      "converted": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "totalRecords": "Total: {count}",
+  "@totalRecords": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "perPage": "Por página",
+  "export": "Exportar",
+  "listingView": "Vista",
+  "viewList": "Lista",
+  "viewGrouping": "Agrupación",
+  "viewChart": "Gráfico",
+  "columnDate": "Fecha",
+  "columnGroup": "Grupo",
+  "columnCount": "Cantidad",
+  "columnAmount": "Importe",
+  "columnCurrency": "Moneda",
+  "columnTags": "Etiquetas",
+  "noMatchingExpenses": "Ningún gasto coincide con los filtros",
+  "displayIn": "Mostrar en",
+  "displayOriginal": "Monedas originales",
+  "displayOriginalHint": "Mostrar importes guardados sin conversión",
+  "ratesReady": "Todos los tipos disponibles",
+  "ratesMissingCount": "Faltan {count} tipos",
+  "@ratesMissingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pickOtherCurrency": "Otra moneda…",
+  "missingRatesTitle": "Conversión no posible",
+  "missingRatesBody": "Faltan tipos para {count} pares hacia {target}. Establécelos para continuar.",
+  "@missingRatesBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "retryConversion": "Comprobar de nuevo",
+  "missingRatesStill": "Aún faltan {count} tipos",
+  "@missingRatesStill": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "saveAsIsDescription": "El importe se guarda en la moneda que introdujiste. No se aplica conversión.",
+  "tagsNoneSelected": "Ninguna seleccionada",
+  "tagsSelectedCount": "{count} seleccionadas",
+  "@tagsSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "guideTitle": "Qué puede hacer Valtero",
+  "guideSubtitle": "Un breve recorrido por las funciones principales. Toca una sección para expandirla.",
+  "guideOpenFromSettings": "Guía de la plataforma",
+  "dashboardSampleChartLabel": "Ejemplo — así se verá tu gráfico cuando añadas gastos",
+  "dashboardOpenGuide": "Qué puede hacer la app",
+  "chartLegendTitle": "Segmentos",
+  "chartLegendSummary": "{visible} de {total} mostrados",
+  "@chartLegendSummary": {
+    "placeholders": {
+      "visible": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "guideSampleGroceries": "Comestibles",
+  "guideSampleTransport": "Transporte",
+  "guideSampleDining": "Restaurantes",
+  "guideSampleCountryRu": "Rusia",
+  "guideSampleCountryGe": "Georgia",
+  "guideSampleCountryTr": "Turquía",
+  "guideSectionGettingStartedTitle": "Primeros pasos",
+  "guideSectionGettingStartedBody": "Toca el botón + en la parte inferior para abrir el formulario de gasto. Introduce importe y moneda, opcionalmente convierte a una moneda de informe, elige país y categorías, y guarda. Toca un gasto existente para editarlo en el mismo formulario. Hasta entonces, el panel muestra un gráfico de ejemplo con enlace a esta guía.",
+  "guideSectionExpenseTrackingTitle": "Seguimiento de gastos",
+  "guideSectionExpenseTrackingBody": "Cada gasto guarda importe, moneda, fecha, país opcional (ISO), método de pago, etiquetas de categoría y nota. El importe y la moneda originales siempre se conservan, aunque conviertas a una moneda de informe.",
+  "guideSectionTagsTitle": "Etiquetas",
+  "guideSectionTagsBody": "Las categorías indican en qué gastaste (comida, transporte…). El país es un campo aparte del gasto, no una etiqueta. El pago también es aparte (efectivo, tarjeta, cripto o el tuyo). Gestiona etiquetas y métodos de pago en Ajustes.",
+  "guideSectionChartsTitle": "Gráficos de gasto",
+  "guideSectionChartsBody": "El gráfico de dona del panel desglosa el gasto por país, método de pago, categoría, meses o moneda. Cambia el desglose con los iconos bajo el gráfico. País, pago o categoría ausentes aparecen como no definidos. Toca un segmento para abrir gastos coincidentes. Toca un chip de la leyenda para mostrar u ocultar esa porción. Bajo el gráfico, los últimos 10 gastos y un enlace a la lista completa. «Ver gastos» ofrece lista, agrupación y gráfico con orden y paginación.",
+  "guideSectionExchangeRatesTitle": "Tipos de cambio",
+  "guideSectionExchangeRatesBody": "Los tipos se actualizan en segundo plano cuando están desactualizados (unas cada 24 horas). Vincula una clave de ExchangeRate-API, actualiza manualmente, define anulaciones y consulta todos los tipos en Ajustes → Moneda y tipos de cambio.",
+  "guideSectionExportTitle": "Exportar",
+  "guideSectionExportBody": "Exporta gastos como CSV o JSON. Guarda un archivo, compártelo o cópialo al portapapeles desde el menú de exportación o Ajustes → Exportar y Telegram.",
+  "guideSectionTelegramTitle": "Compartir por Telegram",
+  "guideSectionTelegramBody": "Activa Telegram en los ajustes de exportación, introduce el token del bot y el id del chat, y envía un documento de exportación directamente a Telegram.",
+  "guideSectionFiltersTitle": "Filtros",
+  "guideSectionFiltersBody": "Filtra por periodo, moneda, etiquetas y pago en el panel y en la página de gastos. Ambos usan una barra resumen compacta que abre los filtros en una hoja a pantalla completa. Aplica o limpia filtros en cualquier momento."
+}

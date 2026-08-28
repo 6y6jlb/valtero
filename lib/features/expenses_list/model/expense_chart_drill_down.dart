@@ -8,13 +8,16 @@ ExpenseListQuery? expenseChartDrillDownQuery({
   required String sliceKey,
 }) {
   switch (breakdown) {
-    case ExpenseChartBreakdown.tagCountry:
-    case ExpenseChartBreakdown.tagTrip:
     case ExpenseChartBreakdown.tagCustom:
       if (sliceKey == '__untagged__') return null;
       final id = int.tryParse(sliceKey.replaceFirst('tag_', ''));
       if (id == null) return null;
       return base.copyWith(tagIds: {id});
+    case ExpenseChartBreakdown.country:
+      if (sliceKey == '__untagged__') return null;
+      final code = sliceKey.replaceFirst('country_', '');
+      if (code.isEmpty) return null;
+      return base.copyWith(countryCodes: {code.toUpperCase()});
     case ExpenseChartBreakdown.payment:
       if (sliceKey == '__untagged__') return null;
       final id = int.tryParse(sliceKey.replaceFirst('pay_', ''));
@@ -42,15 +45,13 @@ ExpenseListQuery? expenseChartDrillDownQuery({
 }
 
 bool expenseChartBreakdownUsesTagKind(ExpenseChartBreakdown breakdown) {
-  return switch (breakdown) {
-    ExpenseChartBreakdown.tagCountry ||
-    ExpenseChartBreakdown.tagTrip ||
-    ExpenseChartBreakdown.tagCustom =>
-      true,
-    _ => false,
-  };
+  return breakdown == ExpenseChartBreakdown.tagCustom;
 }
 
 bool expenseChartBreakdownUsesPayment(ExpenseChartBreakdown breakdown) {
   return breakdown == ExpenseChartBreakdown.payment;
+}
+
+bool expenseChartBreakdownUsesCountry(ExpenseChartBreakdown breakdown) {
+  return breakdown == ExpenseChartBreakdown.country;
 }

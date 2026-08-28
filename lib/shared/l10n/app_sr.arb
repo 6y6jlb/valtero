@@ -1,0 +1,377 @@
+{
+  "@@locale": "sr",
+  "appTitle": "Valtero",
+  "navDashboard": "Pregled",
+  "navExpenses": "Troškovi",
+  "navAdd": "Dodaj",
+  "navTags": "Oznake",
+  "navCurrency": "Valuta",
+  "navExport": "Izvoz",
+  "navSettings": "Podešavanja",
+  "settingsAppearance": "Izgled",
+  "settingsCurrency": "Valuta i kursevi",
+  "settingsExport": "Izvoz i Telegram",
+  "selectCountry": "Izaberi zemlju",
+  "addExpense": "Dodaj trošak",
+  "editExpense": "Izmeni trošak",
+  "amount": "Iznos",
+  "currency": "Valuta",
+  "saveAsIs": "Sačuvaj kako jeste",
+  "convertTo": "Konvertuj u",
+  "exchangeRate": "Kurs: {rate}",
+  "@exchangeRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "rateUnavailable": "Nema kursa za ovaj par",
+  "setRateNow": "Postavi kurs",
+  "setManualRateTitle": "Postavi kurs",
+  "setManualRateHint": "Koliko {target} za 1 {base}",
+  "@setManualRateHint": {
+    "placeholders": {
+      "base": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "tag": "Oznaka",
+  "note": "Beleška",
+  "date": "Datum",
+  "save": "Sačuvaj",
+  "delete": "Obriši",
+  "cancel": "Otkaži",
+  "yes": "Da",
+  "no": "Ne",
+  "confirmDeleteExpense": "Obrisati ovaj trošak?",
+  "expenseDeleted": "Trošak obrisan",
+  "add": "Dodaj",
+  "settings": "Podešavanja",
+  "reportingCurrencies": "Valute izveštaja",
+  "primaryCurrency": "Glavna valuta",
+  "apiKey": "Ključ ExchangeRate-API",
+  "validateKey": "Proveri i poveži",
+  "refreshRates": "Osveži kurseve sada",
+  "manualRates": "Ručni kursevi",
+  "baseCurrency": "Iz",
+  "targetCurrency": "U",
+  "rate": "Kurs",
+  "tagsTitle": "Oznake",
+  "suggestedTags": "Predložene oznake",
+  "detectCountry": "Ponovo otkrij zemlju",
+  "country": "Zemlja",
+  "defaultTags": "Podrazumevane oznake",
+  "dismiss": "Odbaci",
+  "exportTitle": "Izvoz",
+  "exportCsv": "CSV",
+  "exportJson": "JSON",
+  "saveFile": "Sačuvaj fajl",
+  "share": "Podeli",
+  "copyAs": "Kopiraj kao",
+  "copiedToClipboard": "Kopirano u clipboard",
+  "sendTelegram": "Pošalji na Telegram",
+  "telegramBotToken": "Token Telegram bota",
+  "telegramChatId": "Telegram chat id",
+  "telegramEnabled": "Omogući Telegram",
+  "summaryTotal": "Ukupno",
+  "byTag": "Po oznaci",
+  "byPeriod": "Po periodu",
+  "displayCurrency": "Valuta prikaza",
+  "noExpenses": "Još nema troškova",
+  "filterTag": "Filter oznaka",
+  "filterCurrency": "Filter valuta",
+  "all": "Sve",
+  "theme": "Tema",
+  "locale": "Jezik",
+  "moneyFormat": "Prikaz novca",
+  "moneyFormatPreview": "Pregled",
+  "moneyFormatLocaleSymbol": "Lokalno sa simbolom",
+  "moneyFormatLocaleCode": "Lokalno sa kodom valute",
+  "moneyFormatPlain": "Jednostavan (1234.56 CODE)",
+  "timeZone": "Vremenska zona",
+  "timeZoneSystem": "Sistemska ({id})",
+  "@timeZoneSystem": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "system": "Sistem",
+  "light": "Svetla",
+  "dark": "Tamna",
+  "keyValid": "API ključ je ispravan",
+  "keyInvalid": "API ključ nije ispravan",
+  "ratesRefreshed": "Kursevi osveženi",
+  "exportDone": "Izvoz spreman",
+  "telegramSent": "Poslato na Telegram",
+  "telegramFailed": "Slanje na Telegram nije uspelo",
+  "telegramSetupNeeded": "Uključi Telegram i unesi token bota i chat id da bi slao izvoze.",
+  "shareUnsupported": "Deljenje fajlova nije dostupno na ovoj platformi.",
+  "shareFailed": "Nije moguće podeliti fajl izvoza.",
+  "untagged": "Bez oznake",
+  "periodDay": "Dan",
+  "periodWeek": "Nedelja",
+  "periodMonth": "Mesec",
+  "newTag": "Nova oznaka",
+  "addTag": "Dodaj oznaku",
+  "tagGroceries": "Namirnice",
+  "tagTransport": "Prevoz",
+  "tagHousing": "Stanovanje",
+  "tagDining": "Hrana napolju",
+  "tagHealth": "Zdravlje",
+  "tagEntertainment": "Zabava",
+  "tagShopping": "Kupovina",
+  "tagTravel": "Putovanja",
+  "tagUtilities": "Režije",
+  "tagCash": "Gotovina",
+  "tagCard": "Kartica",
+  "tagCrypto": "Kripto",
+  "tagTransfer": "Bankovni transfer",
+  "tagEwallet": "E-novčanik",
+  "tripTag": "Putovanje: {region}",
+  "@tripTag": {
+    "placeholders": {
+      "region": {
+        "type": "String"
+      }
+    }
+  },
+  "tagColor": "Boja",
+  "tagColorNone": "Nijedna",
+  "chartBy": "Grafikon po",
+  "chartByTags": "Oznake",
+  "chartByTagCountry": "Oznake zemlje",
+  "chartByPayment": "Način plaćanja",
+  "chartByTagTrip": "Oznake putovanja",
+  "chartByTagCustom": "Prilagođene oznake",
+  "chartTagKindHint": "Svaki trošak se računa jednom unutar ove vrste oznake; nedostajuće oznake se prikazuju kao nije postavljeno",
+  "chartPaymentHint": "Svaki trošak ima najviše jedan način plaćanja; ako nije izabran, prikazuje se kao nije postavljeno",
+  "tagKindSectionCountry": "Zemlja",
+  "tagKindSectionTrip": "Putovanje",
+  "tagKindSectionCustom": "Kategorija",
+  "tagKindUnspecifiedCountry": "Zemlja nije postavljena",
+  "tagKindUnspecifiedTrip": "Putovanje nije postavljeno",
+  "tagKindUnspecifiedCustom": "Kategorija nije postavljena",
+  "tagKindSingleSelectHint": "Jedna oznaka po grupi; grupe su opcione",
+  "paymentMethod": "Plaćanje",
+  "paymentMethodNone": "Nije postavljeno",
+  "paymentMethodUnspecified": "Plaćanje nije postavljeno",
+  "paymentMethodsTitle": "Načini plaćanja",
+  "paymentMethodsHint": "Izaberi podrazumevani za nove troškove. Ugrađene metode se ne mogu obrisati.",
+  "paymentMethodNew": "Novi način plaćanja",
+  "paymentMethodAdd": "Dodaj način plaćanja",
+  "paymentMethodEdit": "Izmeni način plaćanja",
+  "paymentMethodBuiltIn": "Ugrađeno",
+  "paymentMethodClearDefault": "Ukloni podrazumevano plaćanje",
+  "filterPayment": "Plaćanje",
+  "paymentSelected": "{count} izabrano",
+  "@paymentSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chartByMonth": "Meseci",
+  "chartByCurrency": "Valuta",
+  "chartByYear": "Godine",
+  "filterTags": "Filter oznaka",
+  "excludeTag": "Isključi",
+  "periodRange": "Period",
+  "periodAll": "Sve vreme",
+  "periodFrom": "Od",
+  "periodTo": "Do",
+  "periodFromTo": "{from} — {to}",
+  "@periodFromTo": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "periodToday": "Danas",
+  "periodYesterday": "Juče",
+  "periodLast7Days": "Poslednjih 7 dana",
+  "periodLast30Days": "Poslednjih 30 dana",
+  "periodThisMonth": "Ovaj mesec",
+  "periodLastMonth": "Prošli mesec",
+  "periodThisQuarter": "Ovaj kvartal",
+  "periodThisYear": "Ova godina",
+  "periodPreviousYear": "Prethodna godina",
+  "periodLast12Months": "Poslednjih 12 meseci",
+  "periodCustom": "Prilagođeni opseg",
+  "periodCustomHint": "Izaberi datume od i do",
+  "periodPickRange": "Izaberi datume",
+  "showExpenses": "Prikaži troškove",
+  "sortBy": "Sortiraj po",
+  "sortDate": "Datum",
+  "sortAmount": "Iznos",
+  "sortCurrency": "Valuta",
+  "groupBy": "Grupiši po",
+  "groupNone": "Nijedna",
+  "groupDate": "Datum",
+  "groupCurrency": "Valuta",
+  "groupTag": "Oznaka",
+  "groupTagCountry": "Zemlja",
+  "groupPayment": "Plaćanje",
+  "groupTagTrip": "Putovanje",
+  "groupTagCustom": "Kategorija",
+  "groupTags": "Oznake",
+  "excludeTags": "Isključi oznake",
+  "ascending": "Rastuće",
+  "descending": "Opadajuće",
+  "viewRates": "Prikaži kurseve",
+  "allRates": "Svi kursevi",
+  "addRate": "Dodaj kurs",
+  "noRatesYet": "Još nema sačuvanih kurseva — osveži ili dodaj ručni kurs",
+  "rateSourceApi": "ExchangeRate-API",
+  "rateSourceFrankfurter": "Frankfurter",
+  "rateSourceManual": "Ručno",
+  "currencyFiat": "Fiat",
+  "currencyCrypto": "Kripto",
+  "currencyCustom": "Prilagođena",
+  "addCustomCurrency": "Dodaj valutu",
+  "currencyCode": "Kod valute",
+  "filtersTitle": "Filteri",
+  "expandFilters": "Prikaži filtere",
+  "collapseFilters": "Sakrij filtere",
+  "applyFilters": "Primeni",
+  "clearFilters": "Obriši",
+  "filtersApplied": "Filteri primenjeni",
+  "filtersCleared": "Filteri obrisani",
+  "selectTags": "Oznake",
+  "tagsSelected": "{count} oznaka",
+  "@tagsSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryCount": "Troškovi",
+  "summaryCurrencies": "Valute",
+  "summaryPartialTotal": "Konvertovano {converted} od {total}",
+  "@summaryPartialTotal": {
+    "placeholders": {
+      "converted": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "totalRecords": "Ukupno: {count}",
+  "@totalRecords": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "perPage": "Po stranici",
+  "export": "Izvoz",
+  "listingView": "Prikaz",
+  "viewList": "Lista",
+  "viewGrouping": "Grupisanje",
+  "viewChart": "Grafikon",
+  "columnDate": "Datum",
+  "columnGroup": "Grupa",
+  "columnCount": "Broj",
+  "columnAmount": "Iznos",
+  "columnCurrency": "Valuta",
+  "columnTags": "Oznake",
+  "noMatchingExpenses": "Nema troškova koji odgovaraju filterima",
+  "displayIn": "Prikaži u",
+  "displayOriginal": "Originalne valute",
+  "displayOriginalHint": "Prikaži sačuvane iznose bez konverzije",
+  "ratesReady": "Svi kursevi dostupni",
+  "ratesMissingCount": "Nedostaje {count} kurseva",
+  "@ratesMissingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pickOtherCurrency": "Druga valuta…",
+  "missingRatesTitle": "Konverzija nije moguća",
+  "missingRatesBody": "Nedostaju kursevi za {count} parova ka {target}. Postavi ih da nastaviš.",
+  "@missingRatesBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "retryConversion": "Proveri ponovo",
+  "missingRatesStill": "Još uvek nedostaje {count} kurseva",
+  "@missingRatesStill": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "saveAsIsDescription": "Iznos se čuva u valuti koju si uneo. Konverzija se ne primenjuje.",
+  "tagsNoneSelected": "Nijedna izabrana",
+  "tagsSelectedCount": "{count} izabrano",
+  "@tagsSelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "guideTitle": "Šta Valtero može",
+  "guideSubtitle": "Kratak pregled glavnih funkcija. Dodirni odeljak da ga proširiš.",
+  "guideOpenFromSettings": "Vodič platforme",
+  "dashboardSampleChartLabel": "Primer — ovako će izgledati tvoj grafikon kada dodaš troškove",
+  "dashboardOpenGuide": "Šta aplikacija može",
+  "chartLegendTitle": "Segmenti",
+  "chartLegendSummary": "Prikazano {visible} od {total}",
+  "@chartLegendSummary": {
+    "placeholders": {
+      "visible": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "guideSampleGroceries": "Namirnice",
+  "guideSampleTransport": "Prevoz",
+  "guideSampleDining": "Hrana napolju",
+  "guideSampleCountryRu": "Rusija",
+  "guideSampleCountryGe": "Gruzija",
+  "guideSampleCountryTr": "Turska",
+  "guideSectionGettingStartedTitle": "Početak",
+  "guideSectionGettingStartedBody": "Dodirnite + na dnu ekrana da otvorite formular troška. Unesite iznos i valutu, po želji konvertujte u izveštajnu valutu, izaberite zemlju i kategorije, pa sačuvajte. Dodirnite postojeći trošak da ga izmenite u istom formularu. Do tada kontrolna tabla pokazuje primer grafikona sa linkom na ovaj vodič.",
+  "guideSectionExpenseTrackingTitle": "Praćenje troškova",
+  "guideSectionExpenseTrackingBody": "Svaki trošak čuva iznos, valutu, datum, opcionu zemlju (ISO), način plaćanja, kategorije i belešku. Originalni iznos i valuta se uvek čuvaju, čak i ako konvertujete u izveštajnu valutu.",
+  "guideSectionTagsTitle": "Oznake",
+  "guideSectionTagsBody": "Kategorije označavaju na šta ste potrošili (namirnice, prevoz…). Zemlja je posebno polje troška, ne oznaka. Plaćanje je takođe posebno (gotovina, kartica, kripto ili sopstveno). Oznakama i načinima plaćanja upravljate u Podešavanjima.",
+  "guideSectionChartsTitle": "Grafikoni potrošnje",
+  "guideSectionChartsBody": "Krofna na kontrolnoj tabli razlaže potrošnju po zemlji, načinu plaćanja, kategoriji, mesecima ili valuti. Ikone ispod grafikona menjaju razlaganje. Nedostajuća zemlja, plaćanje ili kategorija prikazuju se kao nije navedeno. Dodirnite segment da otvorite odgovarajuće troškove. Čip legende prikazuje ili skriva isečak. Ispod grafikona su poslednjih 10 troškova i link na punu listu. „Prikaži troškove“ nudi listu, grupisanje i grafikon sa sortiranjem i paginacijom.",
+  "guideSectionExchangeRatesTitle": "Kursevi",
+  "guideSectionExchangeRatesBody": "Kursevi se osvežavaju u pozadini kada zastare (oko svaka 24 sata). Poveži ključ ExchangeRate-API, osveži ručno, postavi izmene i pregledaj sve kurseve u Podešavanja → Valuta i kursevi.",
+  "guideSectionExportTitle": "Izvoz",
+  "guideSectionExportBody": "Izvezi troškove kao CSV ili JSON. Sačuvaj fajl, podeli ga ili kopiraj u clipboard iz menija izvoza ili Podešavanja → Izvoz i Telegram.",
+  "guideSectionTelegramTitle": "Deljenje preko Telegrama",
+  "guideSectionTelegramBody": "Omogući Telegram u podešavanjima izvoza, unesi token bota i chat id, zatim pošalji dokument izvoza direktno na Telegram.",
+  "guideSectionFiltersTitle": "Filteri",
+  "guideSectionFiltersBody": "Filtrirajte po periodu, valuti, oznakama i plaćanju na kontrolnoj tabli i stranici troškova. Oba koriste kompaktnu traku sažetka koja otvara filtere u celoekranskom listu. Primetite ili obrišite filtere u bilo kom trenutku."
+}

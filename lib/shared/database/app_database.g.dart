@@ -1043,6 +1043,17 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
       'REFERENCES payment_methods (id)',
     ),
   );
+  static const VerificationMeta _countryCodeMeta = const VerificationMeta(
+    'countryCode',
+  );
+  @override
+  late final GeneratedColumn<String> countryCode = GeneratedColumn<String>(
+    'country_code',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _noteMeta = const VerificationMeta('note');
   @override
   late final GeneratedColumn<String> note = GeneratedColumn<String>(
@@ -1075,6 +1086,7 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
     rateTimestamp,
     tagId,
     paymentMethodId,
+    countryCode,
     note,
     createdAt,
   ];
@@ -1175,6 +1187,15 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
         ),
       );
     }
+    if (data.containsKey('country_code')) {
+      context.handle(
+        _countryCodeMeta,
+        countryCode.isAcceptableOrUnknown(
+          data['country_code']!,
+          _countryCodeMeta,
+        ),
+      );
+    }
     if (data.containsKey('note')) {
       context.handle(
         _noteMeta,
@@ -1238,6 +1259,10 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
         DriftSqlType.int,
         data['${effectivePrefix}payment_method_id'],
       ),
+      countryCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}country_code'],
+      ),
       note: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}note'],
@@ -1265,9 +1290,12 @@ class Expense extends DataClass implements Insertable<Expense> {
   final double? rateUsed;
   final DateTime? rateTimestamp;
 
-  /// Legacy single-tag column (schema v1). Prefer [ExpenseTags]. Kept for migration.
+  /// Legacy single-tag column. Prefer [ExpenseTags].
   final int? tagId;
   final int? paymentMethodId;
+
+  /// ISO 3166-1 alpha-2 country code (e.g. `RU`), not a tag.
+  final String? countryCode;
   final String? note;
   final DateTime createdAt;
   const Expense({
@@ -1281,6 +1309,7 @@ class Expense extends DataClass implements Insertable<Expense> {
     this.rateTimestamp,
     this.tagId,
     this.paymentMethodId,
+    this.countryCode,
     this.note,
     required this.createdAt,
   });
@@ -1304,6 +1333,9 @@ class Expense extends DataClass implements Insertable<Expense> {
     }
     if (!nullToAbsent || paymentMethodId != null) {
       map['payment_method_id'] = Variable<int>(paymentMethodId);
+    }
+    if (!nullToAbsent || countryCode != null) {
+      map['country_code'] = Variable<String>(countryCode);
     }
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
@@ -1332,6 +1364,9 @@ class Expense extends DataClass implements Insertable<Expense> {
       paymentMethodId: paymentMethodId == null && nullToAbsent
           ? const Value.absent()
           : Value(paymentMethodId),
+      countryCode: countryCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(countryCode),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
       createdAt: Value(createdAt),
     );
@@ -1359,6 +1394,7 @@ class Expense extends DataClass implements Insertable<Expense> {
       rateTimestamp: serializer.fromJson<DateTime?>(json['rateTimestamp']),
       tagId: serializer.fromJson<int?>(json['tagId']),
       paymentMethodId: serializer.fromJson<int?>(json['paymentMethodId']),
+      countryCode: serializer.fromJson<String?>(json['countryCode']),
       note: serializer.fromJson<String?>(json['note']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
@@ -1377,6 +1413,7 @@ class Expense extends DataClass implements Insertable<Expense> {
       'rateTimestamp': serializer.toJson<DateTime?>(rateTimestamp),
       'tagId': serializer.toJson<int?>(tagId),
       'paymentMethodId': serializer.toJson<int?>(paymentMethodId),
+      'countryCode': serializer.toJson<String?>(countryCode),
       'note': serializer.toJson<String?>(note),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
@@ -1393,6 +1430,7 @@ class Expense extends DataClass implements Insertable<Expense> {
     Value<DateTime?> rateTimestamp = const Value.absent(),
     Value<int?> tagId = const Value.absent(),
     Value<int?> paymentMethodId = const Value.absent(),
+    Value<String?> countryCode = const Value.absent(),
     Value<String?> note = const Value.absent(),
     DateTime? createdAt,
   }) => Expense(
@@ -1410,6 +1448,7 @@ class Expense extends DataClass implements Insertable<Expense> {
     paymentMethodId: paymentMethodId.present
         ? paymentMethodId.value
         : this.paymentMethodId,
+    countryCode: countryCode.present ? countryCode.value : this.countryCode,
     note: note.present ? note.value : this.note,
     createdAt: createdAt ?? this.createdAt,
   );
@@ -1439,6 +1478,9 @@ class Expense extends DataClass implements Insertable<Expense> {
       paymentMethodId: data.paymentMethodId.present
           ? data.paymentMethodId.value
           : this.paymentMethodId,
+      countryCode: data.countryCode.present
+          ? data.countryCode.value
+          : this.countryCode,
       note: data.note.present ? data.note.value : this.note,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
@@ -1457,6 +1499,7 @@ class Expense extends DataClass implements Insertable<Expense> {
           ..write('rateTimestamp: $rateTimestamp, ')
           ..write('tagId: $tagId, ')
           ..write('paymentMethodId: $paymentMethodId, ')
+          ..write('countryCode: $countryCode, ')
           ..write('note: $note, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -1475,6 +1518,7 @@ class Expense extends DataClass implements Insertable<Expense> {
     rateTimestamp,
     tagId,
     paymentMethodId,
+    countryCode,
     note,
     createdAt,
   );
@@ -1492,6 +1536,7 @@ class Expense extends DataClass implements Insertable<Expense> {
           other.rateTimestamp == this.rateTimestamp &&
           other.tagId == this.tagId &&
           other.paymentMethodId == this.paymentMethodId &&
+          other.countryCode == this.countryCode &&
           other.note == this.note &&
           other.createdAt == this.createdAt);
 }
@@ -1507,6 +1552,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
   final Value<DateTime?> rateTimestamp;
   final Value<int?> tagId;
   final Value<int?> paymentMethodId;
+  final Value<String?> countryCode;
   final Value<String?> note;
   final Value<DateTime> createdAt;
   const ExpensesCompanion({
@@ -1520,6 +1566,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     this.rateTimestamp = const Value.absent(),
     this.tagId = const Value.absent(),
     this.paymentMethodId = const Value.absent(),
+    this.countryCode = const Value.absent(),
     this.note = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
@@ -1534,6 +1581,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     this.rateTimestamp = const Value.absent(),
     this.tagId = const Value.absent(),
     this.paymentMethodId = const Value.absent(),
+    this.countryCode = const Value.absent(),
     this.note = const Value.absent(),
     required DateTime createdAt,
   }) : occurredAt = Value(occurredAt),
@@ -1553,6 +1601,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     Expression<DateTime>? rateTimestamp,
     Expression<int>? tagId,
     Expression<int>? paymentMethodId,
+    Expression<String>? countryCode,
     Expression<String>? note,
     Expression<DateTime>? createdAt,
   }) {
@@ -1570,6 +1619,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
       if (rateTimestamp != null) 'rate_timestamp': rateTimestamp,
       if (tagId != null) 'tag_id': tagId,
       if (paymentMethodId != null) 'payment_method_id': paymentMethodId,
+      if (countryCode != null) 'country_code': countryCode,
       if (note != null) 'note': note,
       if (createdAt != null) 'created_at': createdAt,
     });
@@ -1586,6 +1636,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     Value<DateTime?>? rateTimestamp,
     Value<int?>? tagId,
     Value<int?>? paymentMethodId,
+    Value<String?>? countryCode,
     Value<String?>? note,
     Value<DateTime>? createdAt,
   }) {
@@ -1600,6 +1651,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
       rateTimestamp: rateTimestamp ?? this.rateTimestamp,
       tagId: tagId ?? this.tagId,
       paymentMethodId: paymentMethodId ?? this.paymentMethodId,
+      countryCode: countryCode ?? this.countryCode,
       note: note ?? this.note,
       createdAt: createdAt ?? this.createdAt,
     );
@@ -1640,6 +1692,9 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     if (paymentMethodId.present) {
       map['payment_method_id'] = Variable<int>(paymentMethodId.value);
     }
+    if (countryCode.present) {
+      map['country_code'] = Variable<String>(countryCode.value);
+    }
     if (note.present) {
       map['note'] = Variable<String>(note.value);
     }
@@ -1662,6 +1717,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
           ..write('rateTimestamp: $rateTimestamp, ')
           ..write('tagId: $tagId, ')
           ..write('paymentMethodId: $paymentMethodId, ')
+          ..write('countryCode: $countryCode, ')
           ..write('note: $note, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -3127,6 +3183,7 @@ typedef $$ExpensesTableCreateCompanionBuilder =
       Value<DateTime?> rateTimestamp,
       Value<int?> tagId,
       Value<int?> paymentMethodId,
+      Value<String?> countryCode,
       Value<String?> note,
       required DateTime createdAt,
     });
@@ -3142,6 +3199,7 @@ typedef $$ExpensesTableUpdateCompanionBuilder =
       Value<DateTime?> rateTimestamp,
       Value<int?> tagId,
       Value<int?> paymentMethodId,
+      Value<String?> countryCode,
       Value<String?> note,
       Value<DateTime> createdAt,
     });
@@ -3250,6 +3308,11 @@ class $$ExpensesTableFilterComposer
 
   ColumnFilters<DateTime> get rateTimestamp => $composableBuilder(
     column: $table.rateTimestamp,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get countryCode => $composableBuilder(
+    column: $table.countryCode,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3384,6 +3447,11 @@ class $$ExpensesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get countryCode => $composableBuilder(
+    column: $table.countryCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get note => $composableBuilder(
     column: $table.note,
     builder: (column) => ColumnOrderings(column),
@@ -3483,6 +3551,11 @@ class $$ExpensesTableAnnotationComposer
 
   GeneratedColumn<DateTime> get rateTimestamp => $composableBuilder(
     column: $table.rateTimestamp,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get countryCode => $composableBuilder(
+    column: $table.countryCode,
     builder: (column) => column,
   );
 
@@ -3606,6 +3679,7 @@ class $$ExpensesTableTableManager
                 Value<DateTime?> rateTimestamp = const Value.absent(),
                 Value<int?> tagId = const Value.absent(),
                 Value<int?> paymentMethodId = const Value.absent(),
+                Value<String?> countryCode = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => ExpensesCompanion(
@@ -3619,6 +3693,7 @@ class $$ExpensesTableTableManager
                 rateTimestamp: rateTimestamp,
                 tagId: tagId,
                 paymentMethodId: paymentMethodId,
+                countryCode: countryCode,
                 note: note,
                 createdAt: createdAt,
               ),
@@ -3634,6 +3709,7 @@ class $$ExpensesTableTableManager
                 Value<DateTime?> rateTimestamp = const Value.absent(),
                 Value<int?> tagId = const Value.absent(),
                 Value<int?> paymentMethodId = const Value.absent(),
+                Value<String?> countryCode = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 required DateTime createdAt,
               }) => ExpensesCompanion.insert(
@@ -3647,6 +3723,7 @@ class $$ExpensesTableTableManager
                 rateTimestamp: rateTimestamp,
                 tagId: tagId,
                 paymentMethodId: paymentMethodId,
+                countryCode: countryCode,
                 note: note,
                 createdAt: createdAt,
               ),

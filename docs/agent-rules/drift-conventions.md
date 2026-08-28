@@ -12,13 +12,21 @@
 - `lib/shared/database/app_database.dart` composes all tables/DAOs into one `AppDatabase`
 - Do not open a second SQLite database for entity data
 - Schema version SSOT: `lib/shared/database/schema_version.dart` (`kAppSchemaVersion`)
-- Local upgrade steps: `lib/shared/database/migrations/migrate_to_vN.dart`
+- Local upgrade steps: `lib/shared/database/migrations/migrate_to_vN.dart` (**after MVP** — see below)
+
+## MVP baseline (current)
+
+Until production user data matters:
+
+- Prefer a **single baseline** table definition (e.g. `expenses.countryCode` in the table class).
+- `onUpgrade` may **wipe + `createAll`** when bumping `kAppSchemaVersion` so local installs pick up the new shape without stepwise `migrate_to_vN` files.
+- Do **not** rely on this for production — before shipping durable data, restore the checklist below (one bump → one migrate file, no wipe).
 
 ## Local schema migrations (Drift)
 
 Drift already stores an integer `user_version` in SQLite. On open it compares that to `AppDatabase.schemaVersion` (= `kAppSchemaVersion`) and runs `MigrationStrategy.onUpgrade`. **Do not invent a parallel hash-based migrator** — use the monotonic int.
 
-### Checklist (same PR as the table change)
+### Checklist (same PR as the table change) — post-MVP / production
 
 1. Update the table class in the entity’s `data/` segment
 2. Bump `kAppSchemaVersion` by **exactly 1** (no skipping versions in a single release chain)
@@ -33,7 +41,7 @@ Drift already stores an integer `user_version` in SQLite. On open it compares th
 - Prefer Drift `Migrator` helpers (`addColumn`, `createTable`, …); use `customStatement` when SQLite needs recreate/copy for rename/drop
 - New columns: nullable **or** default **or** explicit backfill in the same step — never leave existing rows unreadable
 - Steps should be safe if re-entered only after a failed mid-upgrade where possible (`INSERT OR IGNORE`, guarded `UPDATE`)
-- Never wipe user DB on upgrade in production paths
+- Never wipe user DB on upgrade in **production** paths (MVP wipe baseline is the temporary exception above)
 - Hive (`AppSettings`) is **not** Drift: version/default new fields there separately; do not fold Hive into `kAppSchemaVersion`
 
 ### Schema vs data

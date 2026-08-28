@@ -1,46 +1,28 @@
-import 'package:valtero/shared/consts/tag_suggestions.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 
-enum TagKind { country, trip, custom }
+/// Category tags only. Country lives on [Expense.countryCode]; trip kind removed.
+enum TagKind { custom }
 
 /// Stored `tags.kind` value for [kind].
 String tagKindDbValue(TagKind kind) {
   return switch (kind) {
-    TagKind.country => 'country',
-    TagKind.trip => 'trip',
     TagKind.custom => 'normal',
   };
 }
 
-TagKind? tagKindFromStableKey(String? key) {
-  if (isTripStableKey(key)) return TagKind.trip;
-  return null;
-}
-
-TagKind tagKindOf(Tag tag) {
-  return switch (tag.kind) {
-    'country' => TagKind.country,
-    'trip' => TagKind.trip,
-    // Legacy resource tags (pre payment_methods) fold into custom if any remain.
-    _ => tagKindFromStableKey(tag.stableKey) ?? TagKind.custom,
-  };
-}
+TagKind tagKindOf(Tag tag) => TagKind.custom;
 
 bool tagMatchesKind(Tag tag, TagKind kind) => tagKindOf(tag) == kind;
 
 String tagKindSectionTitle(AppLocalizations l10n, TagKind kind) {
   return switch (kind) {
-    TagKind.country => l10n.tagKindSectionCountry,
-    TagKind.trip => l10n.tagKindSectionTrip,
     TagKind.custom => l10n.tagKindSectionCustom,
   };
 }
 
 String tagKindUnspecifiedLabel(AppLocalizations l10n, TagKind kind) {
   return switch (kind) {
-    TagKind.country => l10n.tagKindUnspecifiedCountry,
-    TagKind.trip => l10n.tagKindUnspecifiedTrip,
     TagKind.custom => l10n.tagKindUnspecifiedCustom,
   };
 }

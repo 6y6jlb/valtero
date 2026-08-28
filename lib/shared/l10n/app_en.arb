@@ -21,7 +21,9 @@
   "exchangeRate": "Rate: {rate}",
   "@exchangeRate": {
     "placeholders": {
-      "rate": {"type": "String"}
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "rateUnavailable": "No rate for this pair",
@@ -30,8 +32,12 @@
   "setManualRateHint": "How many {target} for 1 {base}",
   "@setManualRateHint": {
     "placeholders": {
-      "base": {"type": "String"},
-      "target": {"type": "String"}
+      "base": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
     }
   },
   "tag": "Tag",
@@ -91,7 +97,9 @@
   "timeZoneSystem": "System ({id})",
   "@timeZoneSystem": {
     "placeholders": {
-      "id": {"type": "String"}
+      "id": {
+        "type": "String"
+      }
     }
   },
   "system": "System",
@@ -129,7 +137,9 @@
   "tripTag": "Trip: {region}",
   "@tripTag": {
     "placeholders": {
-      "region": {"type": "String"}
+      "region": {
+        "type": "String"
+      }
     }
   },
   "tagColor": "Color",
@@ -163,7 +173,9 @@
   "paymentSelected": "{count} selected",
   "@paymentSelected": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "chartByMonth": "Months",
@@ -178,8 +190,12 @@
   "periodFromTo": "{from} — {to}",
   "@periodFromTo": {
     "placeholders": {
-      "from": { "type": "String" },
-      "to": { "type": "String" }
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
     }
   },
   "periodToday": "Today",
@@ -236,23 +252,30 @@
   "tagsSelected": "{count} tags",
   "@tagsSelected": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "summaryCount": "Expenses",
-  "summaryTotal": "Total",
   "summaryCurrencies": "Currencies",
   "summaryPartialTotal": "Converted {converted} of {total}",
   "@summaryPartialTotal": {
     "placeholders": {
-      "converted": { "type": "int" },
-      "total": { "type": "int" }
+      "converted": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "totalRecords": "Total: {count}",
   "@totalRecords": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "perPage": "Per page",
@@ -275,7 +298,9 @@
   "ratesMissingCount": "{count} rates missing",
   "@ratesMissingCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "pickOtherCurrency": "Other currency…",
@@ -283,15 +308,21 @@
   "missingRatesBody": "Missing rates for {count} pairs to {target}. Set them to continue.",
   "@missingRatesBody": {
     "placeholders": {
-      "count": { "type": "int" },
-      "target": { "type": "String" }
+      "count": {
+        "type": "int"
+      },
+      "target": {
+        "type": "String"
+      }
     }
   },
   "retryConversion": "Check again",
   "missingRatesStill": "Still missing {count} rates",
   "@missingRatesStill": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "saveAsIsDescription": "The amount is saved in the currency you entered. No conversion is applied.",
@@ -299,7 +330,9 @@
   "tagsSelectedCount": "{count} selected",
   "@tagsSelectedCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "guideTitle": "What Valtero can do",
@@ -311,8 +344,12 @@
   "chartLegendSummary": "{visible} of {total} shown",
   "@chartLegendSummary": {
     "placeholders": {
-      "visible": { "type": "int" },
-      "total": { "type": "int" }
+      "visible": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "guideSampleGroceries": "Groceries",
@@ -322,13 +359,13 @@
   "guideSampleCountryGe": "Georgia",
   "guideSampleCountryTr": "Turkey",
   "guideSectionGettingStartedTitle": "Getting started",
-  "guideSectionGettingStartedBody": "Tap the + button at the bottom of the screen to open the add-expense form. Enter an amount and currency, optionally convert into a reporting currency, pick tags, and save. Until then, the dashboard shows a sample chart with a link to this guide.",
+  "guideSectionGettingStartedBody": "Tap the + button at the bottom of the screen to open the add-expense form. Enter an amount and currency, optionally convert into a reporting currency, pick a country and category tags, and save. Tap an existing expense to edit it in the same form. Until then, the dashboard shows a sample chart with a link to this guide.",
   "guideSectionExpenseTrackingTitle": "Expense tracking",
-  "guideSectionExpenseTrackingBody": "Each expense stores amount, currency, date, and an optional note. The original amount and currency are always kept, even if you convert into a reporting currency for storage.",
+  "guideSectionExpenseTrackingBody": "Each expense stores amount, currency, date, optional country (ISO), payment method, category tags, and note. The original amount and currency are always kept, even if you convert into a reporting currency for storage.",
   "guideSectionTagsTitle": "Tags",
-  "guideSectionTagsBody": "Tag expenses with country (auto-detected or picked), trip, and category labels. One tag per group; groups are optional. Payment is a separate field (cash, card, crypto, or your own). Manage tags and payment methods in Settings.",
+  "guideSectionTagsBody": "Category tags label what you spent on (groceries, transport, …). Country is a separate field on the expense, not a tag. Payment is also separate (cash, card, crypto, or your own). Manage tags and payment methods in Settings.",
   "guideSectionChartsTitle": "Spending charts",
-  "guideSectionChartsBody": "The dashboard donut chart breaks down spending by country, payment method, trip, category, months, or currency. Switch the breakdown with the icons under the chart. Within a tag kind, each expense is counted once. Missing payment or tags for that kind appear as not set. Tap a segment to open matching expenses. Tap a legend chip to show or hide that slice. Open Show expenses for list, grouping, and chart views with sort and pagination.",
+  "guideSectionChartsBody": "The dashboard donut chart breaks down spending by country, payment method, category, months, or currency. Switch the breakdown with the icons under the chart. Missing country, payment, or category appear as not set. Tap a segment to open matching expenses. Tap a legend chip to show or hide that slice. Below the chart, the last 10 expenses are listed with a link to the full list. Open Show expenses for list, grouping, and chart views with sort and pagination.",
   "guideSectionExchangeRatesTitle": "Exchange rates",
   "guideSectionExchangeRatesBody": "Rates refresh in the background when stale (about every 24 hours). Bind an ExchangeRate-API key, refresh manually, set overrides, and browse all rates in Settings → Currency & rates.",
   "guideSectionExportTitle": "Export",
@@ -336,5 +373,5 @@
   "guideSectionTelegramTitle": "Telegram sharing",
   "guideSectionTelegramBody": "Enable Telegram in Export settings, enter a bot token and chat id, then send an export document straight to Telegram.",
   "guideSectionFiltersTitle": "Filters",
-  "guideSectionFiltersBody": "Filter by period, currency, and tags on the dashboard and expenses page. Apply or clear filters anytime; the dashboard keeps a compact summary and opens filters in a full-screen sheet."
+  "guideSectionFiltersBody": "Filter by period, currency, tags, and payment on the dashboard and expenses page. Both use a compact summary bar that opens filters in a full-screen sheet. Apply or clear filters anytime."
 }

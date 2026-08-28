@@ -33,7 +33,7 @@ Details: [docs/agent-rules/fsd-layers.md](docs/agent-rules/fsd-layers.md)
 
 - **Riverpod** for state (`AsyncNotifier` for Hive/Drift-backed state)
 - **Drift (SQLite)** for expenses, tags, exchange-rate cache/overrides (`sqlite3` ≥3.x bundles native SQLite via build hooks on Linux/Android/Windows)
-- **Schema version** SSOT: `kAppSchemaVersion` + `migrations/migrate_to_vN.dart` on upgrade; same int goes into strict exchange envelopes as `schemaVersion`
+- **Schema version** SSOT: `kAppSchemaVersion`. **MVP**: single baseline schema — `onUpgrade` may wipe + recreate (no stepwise `migrate_to_vN` yet). Before production data, restore monotonic migrate steps — see [drift-conventions.md](docs/agent-rules/drift-conventions.md). Same int goes into strict exchange envelopes as `schemaVersion`.
 - **Hive CE** for `AppSettings` only (reporting currencies, API key, detection cache, theme/locale/timezone)
 
 Details: [docs/agent-rules/riverpod-conventions.md](docs/agent-rules/riverpod-conventions.md), [docs/agent-rules/drift-conventions.md](docs/agent-rules/drift-conventions.md)
@@ -41,7 +41,7 @@ Details: [docs/agent-rules/riverpod-conventions.md](docs/agent-rules/riverpod-co
 ## Money & currency
 
 - Amounts are always **integer minor units** (never `double` for money)
-- UI amounts via `MoneyText` / `formatMoneyDisplay` (`intl` + Settings → Appearance → money display); export keeps `Money.formatMinor`
+- UI amounts via `MoneyText` / `formatMoneyDisplay` (`intl` + Settings → Appearance → money display: `localeSymbol` | `localeCode` | `isoBefore` | `plain` | `compactSymbol`); export keeps `Money.formatMinor`
 - Rate resolution order: keyed ExchangeRate-API → Frankfurter → manual override → `null`
 - On expense entry: save as-is **or** convert into a reporting currency; always keep original amount/currency
 
@@ -49,27 +49,27 @@ Details: [docs/agent-rules/money-and-currency.md](docs/agent-rules/money-and-cur
 
 ## Localization
 
-- No hardcoded user-facing strings; use `AppLocalizations` (en/ru)
+- No hardcoded user-facing strings; use `AppLocalizations` (en / ru / es / sr)
 - ARB files live in `lib/shared/l10n/`
 
 Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 
 ## Key domain flows
 
-1. **Add expense** (bottom sheet from Dashboard) → amount + currency → as-is or convert-to reporting currency (show live rate) → **payment method** (cash/card/crypto/… or custom; optional default in Settings) → **tags by kind** (country, trip, category; one tag per kind, kinds optional) → persist original + stored amounts
-2. **Dashboard** → charts/summary + recent expenses list; entry points for add / tags / export sheets; convert stored amounts to display currency via `RateResolver` in Dart
+1. **Add / edit expense** (same bottom sheet) → amount + currency → as-is or convert-to reporting currency (show live rate) → **payment method** → **country** (ISO on the expense, not a tag) → **category tags** → note/date → persist. Tap a row in lists/dashboard recent to edit.
+2. **Dashboard** → donut chart + filter bar → **last 10 expenses** + link to full list; entry points for add / tags / export; convert stored amounts to display currency via `RateResolver` in Dart
 3. **Rates** → on launch if last refresh >24h, refresh in background; Settings → Currency sheet can force refresh / bind API key / set manual rates / view all rates
-4. **Tag suggestions** → detect country/currency (ip-api.com, locale fallback) → suggest tags by country + trip tags by foreign currency (Tags sheet)
-5. **Export** → CSV/JSON (human) → save / share / Telegram; future strict/encrypted interchange must embed `formatVersion` + `schemaVersion` (`kAppSchemaVersion`) for import adapters
+4. **Tag suggestions** → detect country/currency (ip-api.com, locale fallback) → suggest **category** tags (Tags sheet). Detected country primes the expense country field on create.
+5. **Export** → CSV/JSON (includes `countryCode` + payment) → save / share / Telegram; future strict/encrypted interchange must embed `formatVersion` + `schemaVersion` (`kAppSchemaVersion`) for import adapters
 
 ## Navigation
 
 - Home: **Dashboard** (no bottom nav). If there are **no expenses yet**, Dashboard shows a **sample chart** labeled as an example, with a link to the **platform guide**; after the first expense, real chart data appears. The guide is also opened from Settings → Platform guide.
-- **Expenses**: full page via FAB “Show expenses” (back arrow); add expense stays a sheet (`+` FAB sticky bottom on Dashboard, Expenses, and Platform guide — **not** on Settings)
+- **Expenses**: full page via FAB / “Show expenses” (back arrow); filters via summary bar → modal sheet (same as dashboard); add/edit stays a sheet (`+` FAB sticky bottom on Dashboard, Expenses, and Platform guide — **not** on Settings)
 - Settings via gear in the AppBar → full page with back arrow
-- Sheets (full window width): add expense, tags, export, currency, appearance, rates list, dashboard filters
-- Dashboard: one donut (shared [DonutBreakdownChart](lib/features/expenses_list/ui/donut_breakdown_chart.dart): amounts on segments, legend chips toggle visibility; tap segment → Expenses with filter); breakdown by country / payment method / trip / category / month / currency via shared [ChartBreakdownIcons](lib/features/expenses_list/ui/chart_breakdown_icons.dart); filter summary bar → full-screen sheet; FABs “Show expenses” + add
-- Expenses chart view uses the same donut widget; tap a segment applies that filter and switches to list
+- Sheets (full window width): add/edit expense, tags, export, currency, appearance, rates list, filters
+- Dashboard: one donut (shared [DonutBreakdownChart](lib/features/expenses_list/ui/donut_breakdown_chart.dart): amounts on segments, legend chips toggle visibility; tap segment → Expenses with filter); breakdown by **country** / payment / category / month / currency via shared [ChartBreakdownIcons](lib/features/expenses_list/ui/chart_breakdown_icons.dart); filter summary bar → full-screen sheet; recent 10 + “Show expenses”; FABs
+- Expenses list columns: date, amount, payment, country, tags; chart view uses the same donut; tap a segment applies that filter and switches to list
 - AppBar shows live date/time in the selected timezone (default: auto-detected system zone)
 - Desktop default window size: **853×720** (≈⅔ of the previous 1280 width)
 
@@ -117,11 +117,12 @@ Details: [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md)
 | [docs/agent-rules/money-and-currency.md](docs/agent-rules/money-and-currency.md) | Minor units + rate resolution order |
 | [docs/agent-rules/drift-conventions.md](docs/agent-rules/drift-conventions.md) | Tables/DAOs, `kAppSchemaVersion`, migrate_to_vN, exchange envelope versions |
 | [docs/agent-rules/riverpod-conventions.md](docs/agent-rules/riverpod-conventions.md) | Provider placement and `AsyncNotifier` pattern |
-| [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md) | No hardcoded UI strings; en/ru ARB |
+| [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md) | No hardcoded UI strings; en/ru/es/sr ARB |
 | [docs/agent-rules/naming.md](docs/agent-rules/naming.md) | No product name in file/class identifiers; intent-based names |
 | [docs/agent-rules/ui-component-size.md](docs/agent-rules/ui-component-size.md) | ≤ 500 lines per UI component; when/how to split |
 | [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md) | New packages: need / overlap / health + explicit user approve |
 | [docs/agent-rules/platform-guide.md](docs/agent-rules/platform-guide.md) | Keep in-app platform guide in sync with new capabilities |
+| [docs/agent-rules/testing.md](docs/agent-rules/testing.md) | Unit/feature tests with `flutter_test` + fakes |
 
 ## Tool-specific rule files (gitignored)
 
@@ -143,5 +144,6 @@ To generate Cursor mirrors once locally:
 | `ui-component-size` | `globs: lib/**/ui/**,lib/pages/**,lib/widgets/**` |
 | `dependencies` | `alwaysApply: true` |
 | `platform-guide` | `globs: lib/features/platform_guide/**,lib/pages/platform_guide/**` |
+| `testing` | `globs: test/**` |
 
 Ask an agent: “Mirror `docs/agent-rules/*.md` into `.cursor/rules/*.mdc` with the frontmatter from AGENTS.md.”

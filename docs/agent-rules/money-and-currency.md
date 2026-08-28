@@ -5,7 +5,9 @@
 - Store and compute money as **integer minor units** (e.g. cents / kopecks).
 - Never use `double` as the source of truth for an amount.
 - **UI display** goes through [formatMoneyDisplay] / [MoneyText] (`intl` + user
-  setting `moneyDisplayFormat`: `localeSymbol` | `localeCode` | `plain`).
+  setting `moneyDisplayFormat`: `localeSymbol` | `localeCode` | `isoBefore` |
+  `plain` | `compactSymbol`). Appearance dropdown shows **live examples** of each
+  format (not long labels).
 - **Export / interchange** keeps [Money.formatMinor] (dot decimals, no grouping)
   so files stay locale-stable.
 
@@ -36,3 +38,4 @@ Always persist:
 - `originalAmountMinor` + `originalCurrencyCode`
 - `storedAmountMinor` + `storedCurrencyCode`
 - `rateUsed` (`null` when saved as-is / same currency)
+- optional `countryCode` (ISO 3166-1 alpha-2) and `paymentMethodId`

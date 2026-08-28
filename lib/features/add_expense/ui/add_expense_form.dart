@@ -24,7 +24,9 @@ import 'package:valtero/widgets/set_manual_rate_sheet.dart';
 import 'package:valtero/widgets/tag_color_picker.dart';
 
 class AddExpenseForm extends ConsumerStatefulWidget {
-  const AddExpenseForm({super.key});
+  final Expense? expense;
+
+  const AddExpenseForm({super.key, this.expense});
 
   @override
   ConsumerState<AddExpenseForm> createState() => _AddExpenseFormState();
@@ -40,11 +42,14 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
   String? _targetCurrency;
   final Set<int> _tagIds = {};
   int? _paymentMethodId;
+  String? _countryCode;
   DateTime _occurredAt = DateTime.now();
   double? _rate;
   bool _loadingRate = false;
   String? _error;
-  bool _countryPrimed = false;
+  bool _primed = false;
+
+  bool get _isEdit => widget.expense != null;
 
   @override
   void initState() {
@@ -53,6 +58,14 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
   }
 
   Future<void> _primeDefaults() async {
+    if (_primed) return;
+    _primed = true;
+
+    if (_isEdit) {
+      await _primeFromExpense(widget.expense!);
+      return;
+    }
+
     final settings = ref.read(appSettingsProvider).value;
     if (settings != null) {
       setState(() {
@@ -62,64 +75,53 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
           _tagIds.add(settings.defaultTagId!);
         }
         _paymentMethodId = settings.defaultPaymentMethodId;
+        final detected = settings.detectedCountryCode;
+        if (detected != null && detected.isNotEmpty) {
+          _countryCode = detected.toUpperCase();
+        }
       });
     }
-    await _ensureDetectedCountrySelected();
   }
 
-  Future<void> _ensureDetectedCountrySelected() async {
-    if (_countryPrimed) return;
-    _countryPrimed = true;
+  Future<void> _primeFromExpense(Expense expense) async {
     final settings = ref.read(appSettingsProvider).value;
-    final code = settings?.detectedCountryCode;
-    if (code == null || code.isEmpty) return;
-    final lang = settings?.locale == 'ru'
-        ? 'ru'
-        : settings?.locale == 'en'
-            ? 'en'
-            : WidgetsBinding.instance.platformDispatcher.locale.languageCode;
-    final id = await ref.read(appDatabaseProvider).ensureCountryTag(
-          countryCode: code,
-          displayName: countryDisplayName(code, languageCode: lang),
-        );
+    final tagIds =
+        await ref.read(appDatabaseProvider).getTagIdsForExpense(expense.id);
     if (!mounted) return;
-    final tagById = {
-      for (final t in ref.read(tagsStreamProvider).value ?? const <Tag>[]) t.id: t,
-    };
+    final converted =
+        expense.originalCurrencyCode != expense.storedCurrencyCode;
     setState(() {
-      replaceTagSelectionOfKind(
-        selected: _tagIds,
-        tagId: id,
-        kind: TagKind.country,
-        tagById: tagById,
-      );
+      _amountController.text = Money.formatMinor(expense.originalAmountMinor);
+      _currency = expense.originalCurrencyCode;
+      _convert = converted;
+      _targetCurrency = converted
+          ? expense.storedCurrencyCode
+          : (settings?.primaryCurrency ?? expense.storedCurrencyCode);
+      _tagIds
+        ..clear()
+        ..addAll(tagIds);
+      _paymentMethodId = expense.paymentMethodId;
+      _countryCode = expense.countryCode;
+      _noteController.text = expense.note ?? '';
+      _occurredAt = expense.occurredAt;
+      _rate = expense.rateUsed;
     });
+    if (_convert) await _refreshRate();
   }
 
   Future<void> _pickCountry() async {
     final code = await showCountryPicker(context);
     if (code == null || !mounted) return;
-    final lang = Localizations.localeOf(context).languageCode;
-    final id = await ref.read(appDatabaseProvider).ensureCountryTag(
-          countryCode: code,
-          displayName: countryDisplayName(code, languageCode: lang),
-        );
     await ref.read(appSettingsProvider.notifier).setDetectedLocation(
           countryCode: code,
           currency: ref.read(appSettingsProvider).value?.detectedCurrency,
         );
     if (!mounted) return;
-    final tagById = {
-      for (final t in ref.read(tagsStreamProvider).value ?? const <Tag>[]) t.id: t,
-    };
-    setState(() {
-      replaceTagSelectionOfKind(
-        selected: _tagIds,
-        tagId: id,
-        kind: TagKind.country,
-        tagById: tagById,
-      );
-    });
+    setState(() => _countryCode = code.toUpperCase());
+  }
+
+  void _clearCountry() {
+    setState(() => _countryCode = null);
   }
 
   void _toggleTag(Tag tag, Map<int, Tag> tagById) {
@@ -189,23 +191,30 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
         return;
       }
     }
+    final input = AddExpenseInput(
+      originalAmountMinor: amount,
+      originalCurrencyCode: _currency,
+      convert: _convert,
+      targetCurrencyCode: _targetCurrency,
+      tagIds: _tagIds.toList(),
+      paymentMethodId: _paymentMethodId,
+      countryCode: _countryCode,
+      note: _noteController.text,
+      occurredAt: _occurredAt,
+    );
     try {
-      await ref.read(addExpenseControllerProvider).save(
-            AddExpenseInput(
-              originalAmountMinor: amount,
-              originalCurrencyCode: _currency,
-              convert: _convert,
-              targetCurrencyCode: _targetCurrency,
-              tagIds: _tagIds.toList(),
-              paymentMethodId: _paymentMethodId,
-              note: _noteController.text,
-              occurredAt: _occurredAt,
-            ),
-          );
+      final controller = ref.read(addExpenseControllerProvider);
+      if (_isEdit) {
+        await controller.update(widget.expense!.id, input);
+      } else {
+        await controller.save(input);
+      }
       ref.invalidate(expenseTagIdsProvider);
       if (!mounted) return;
-      _amountController.clear();
-      _noteController.clear();
+      if (!_isEdit) {
+        _amountController.clear();
+        _noteController.clear();
+      }
       setState(() => _error = null);
       final overlay = Overlay.of(context);
       final theme = Theme.of(context);
@@ -240,6 +249,7 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
     final scrollController = PrimaryScrollController.maybeOf(context);
     final theme = Theme.of(context);
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    final lang = Localizations.localeOf(context).languageCode;
     final tagsSubtitle = _tagIds.isEmpty
         ? l10n.tagsNoneSelected
         : l10n.tagsSelectedCount(_tagIds.length);
@@ -252,6 +262,9 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
       }
       return l10n.paymentMethodNone;
     }();
+    final countrySubtitle = _countryCode == null
+        ? l10n.tagKindUnspecifiedCountry
+        : countryDisplayName(_countryCode!, languageCode: lang);
 
     return Column(
       children: [
@@ -260,7 +273,10 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
             controller: scrollController,
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             children: [
-              Text(l10n.addExpense, style: theme.textTheme.titleLarge),
+              Text(
+                _isEdit ? l10n.editExpense : l10n.addExpense,
+                style: theme.textTheme.titleLarge,
+              ),
               const SizedBox(height: 16),
               TextField(
                 controller: _amountController,
@@ -381,6 +397,48 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
               Card(
                 margin: EdgeInsets.zero,
                 child: ExpansionTile(
+                  initiallyExpanded: true,
+                  title: Text(l10n.country),
+                  subtitle: Text(
+                    countrySubtitle,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                  children: [
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        ActionChip(
+                          avatar: const Icon(Icons.public, size: 18),
+                          label: Text(l10n.selectCountry),
+                          onPressed: _pickCountry,
+                        ),
+                        if (_countryCode != null)
+                          InputChip(
+                            avatar: FlagIcon.country(_countryCode!, size: 18),
+                            label: Text(
+                              countryDisplayName(
+                                _countryCode!,
+                                languageCode: lang,
+                              ),
+                            ),
+                            selected: true,
+                            onDeleted: _clearCountry,
+                            onPressed: _pickCountry,
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Card(
+                margin: EdgeInsets.zero,
+                child: ExpansionTile(
                   initiallyExpanded: false,
                   title: Text(l10n.tag),
                   subtitle: Text(
@@ -396,13 +454,6 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
                       selectedIds: _tagIds,
                       singleSelectPerKind: true,
                       onTagTap: (tag) => _toggleTag(tag, tagById),
-                      sectionTrailing: {
-                        TagKind.country: ActionChip(
-                          avatar: const Icon(Icons.public, size: 18),
-                          label: Text(l10n.selectCountry),
-                          onPressed: _pickCountry,
-                        ),
-                      },
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -431,12 +482,9 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
                             if (id > 0) {
                               _newTagController.clear();
                               setState(() {
-                                _tagIds.removeWhere((existingId) {
-                                  final t = tagById[existingId];
-                                  return t != null &&
-                                      tagKindOf(t) == TagKind.custom;
-                                });
-                                _tagIds.add(id);
+                                _tagIds
+                                  ..clear()
+                                  ..add(id);
                               });
                             }
                           },

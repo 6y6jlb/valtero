@@ -26,7 +26,8 @@ Prefer flat or shallow folders under `lib/features/<feature>/ui/`:
 ui/
   expenses_sheet.dart          # public entry / barrel if needed
   expenses_sheet_body.dart     # orchestrator
-  expenses_filter_card.dart
+  expenses_filter_summary_bar.dart
+  expenses_filter_sheet.dart
   expenses_listing_card.dart
   expense_table.dart
   grouped_expense_table.dart
@@ -45,7 +46,7 @@ ui/
 
 // ✅ GOOD — orchestrator composes extracted widgets
 class ExpensesSheetBody extends ConsumerStatefulWidget { ... }
-// build() delegates to ExpensesFilterCard, ExpensesListingCard, ExpenseTable, ...
+// build() delegates to ExpensesFilterSummaryBar, ExpensesListingCard, ExpenseTable, ...
 ```
 
 ```dart

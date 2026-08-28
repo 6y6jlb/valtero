@@ -8,7 +8,6 @@ class ExpenseGroupingContext {
   final Map<int, Tag> tagById;
   final Map<int, String> paymentMethodLabels;
   final String unspecifiedCountryLabel;
-  final String unspecifiedTripLabel;
   final String unspecifiedCustomLabel;
   final String unspecifiedPaymentLabel;
   final bool ascending;
@@ -19,7 +18,6 @@ class ExpenseGroupingContext {
     required this.tagById,
     required this.paymentMethodLabels,
     required this.unspecifiedCountryLabel,
-    required this.unspecifiedTripLabel,
     required this.unspecifiedCustomLabel,
     required this.unspecifiedPaymentLabel,
     this.ascending = false,
@@ -27,8 +25,6 @@ class ExpenseGroupingContext {
 
   String unspecifiedLabelFor(TagKind kind) {
     return switch (kind) {
-      TagKind.country => unspecifiedCountryLabel,
-      TagKind.trip => unspecifiedTripLabel,
       TagKind.custom => unspecifiedCustomLabel,
     };
   }

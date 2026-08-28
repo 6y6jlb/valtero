@@ -5,8 +5,6 @@ import 'package:valtero/features/manage_tags/model/manage_tags_controller.dart';
 import 'package:valtero/features/manage_payment_methods/model/manage_payment_methods_controller.dart';
 import 'package:valtero/features/tag_suggestions/model/country_detection.dart';
 import 'package:valtero/pages/dashboard/dashboard_page.dart';
-import 'package:valtero/shared/consts/countries.dart';
-import 'package:valtero/shared/database/database_provider.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 
@@ -34,19 +32,6 @@ class _AppState extends ConsumerState<App> {
     var settings = ref.read(appSettingsProvider).value;
     if (settings?.detectedCountryCode == null) {
       await ref.read(detectCountryControllerProvider)();
-      settings = ref.read(appSettingsProvider).value;
-    }
-    final code = settings?.detectedCountryCode;
-    if (code != null && code.isNotEmpty) {
-      final lang = settings?.locale == 'ru'
-          ? 'ru'
-          : settings?.locale == 'en'
-              ? 'en'
-              : WidgetsBinding.instance.platformDispatcher.locale.languageCode;
-      await ref.read(appDatabaseProvider).ensureCountryTag(
-            countryCode: code,
-            displayName: countryDisplayName(code, languageCode: lang),
-          );
     }
     // ignore: unawaited_futures
     ref.read(rateResolverProvider).refreshIfStale();
@@ -68,6 +53,8 @@ class _AppState extends ConsumerState<App> {
       data: (s) => switch (s.locale) {
         'en' => const Locale('en'),
         'ru' => const Locale('ru'),
+        'es' => const Locale('es'),
+        'sr' => const Locale('sr'),
         _ => null,
       },
       loading: () => null,

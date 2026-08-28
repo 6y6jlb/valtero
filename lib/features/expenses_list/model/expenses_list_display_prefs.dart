@@ -13,6 +13,8 @@ ExpenseListGroup expensesGroupFromSettings(AppSettings settings) {
   final name = settings.expensesListGroup;
   if (name == 'tag') return ExpenseListGroup.tagCustom;
   if (name == 'tagResource') return ExpenseListGroup.payment;
+  if (name == 'tagCountry') return ExpenseListGroup.country;
+  if (name == 'tagTrip') return ExpenseListGroup.currency;
   final group = ExpenseListGroup.values.firstWhere(
     (g) => g.name == name,
     orElse: () => ExpenseListGroup.currency,

@@ -12,6 +12,7 @@ class AddExpenseInput {
   final String? targetCurrencyCode;
   final List<int> tagIds;
   final int? paymentMethodId;
+  final String? countryCode;
   final String? note;
   final DateTime occurredAt;
 
@@ -22,6 +23,7 @@ class AddExpenseInput {
     this.targetCurrencyCode,
     this.tagIds = const [],
     this.paymentMethodId,
+    this.countryCode,
     this.note,
     required this.occurredAt,
   });
@@ -36,8 +38,8 @@ class AddExpenseController {
     return ref.read(rateResolverProvider).getRate(from, to);
   }
 
-  Future<int> save(AddExpenseInput input) async {
-    final db = ref.read(appDatabaseProvider);
+  Future<({int storedMinor, String storedCurrency, double? rateUsed, DateTime? rateTimestamp})>
+      _resolveStored(AddExpenseInput input) async {
     final original = input.originalCurrencyCode.toUpperCase();
     var storedMinor = input.originalAmountMinor;
     var storedCurrency = original;
@@ -48,7 +50,8 @@ class AddExpenseController {
         input.targetCurrencyCode != null &&
         input.targetCurrencyCode!.toUpperCase() != original) {
       final target = input.targetCurrencyCode!.toUpperCase();
-      final rate = await ref.read(rateResolverProvider).getRate(original, target);
+      final rate =
+          await ref.read(rateResolverProvider).getRate(original, target);
       if (rate == null) {
         throw StateError('rate_unavailable');
       }
@@ -61,22 +64,72 @@ class AddExpenseController {
       rateTimestamp = DateTime.now();
     }
 
+    return (
+      storedMinor: storedMinor,
+      storedCurrency: storedCurrency,
+      rateUsed: rateUsed,
+      rateTimestamp: rateTimestamp,
+    );
+  }
+
+  String? _normalizedCountry(String? code) {
+    final trimmed = code?.trim();
+    if (trimmed == null || trimmed.isEmpty) return null;
+    return trimmed.toUpperCase();
+  }
+
+  Future<int> save(AddExpenseInput input) async {
+    final db = ref.read(appDatabaseProvider);
+    final resolved = await _resolveStored(input);
+    final original = input.originalCurrencyCode.toUpperCase();
+
     final id = await db.insertExpense(
       ExpensesCompanion.insert(
         occurredAt: input.occurredAt,
         originalAmountMinor: input.originalAmountMinor,
         originalCurrencyCode: original,
-        storedAmountMinor: storedMinor,
-        storedCurrencyCode: storedCurrency,
-        rateUsed: Value(rateUsed),
-        rateTimestamp: Value(rateTimestamp),
+        storedAmountMinor: resolved.storedMinor,
+        storedCurrencyCode: resolved.storedCurrency,
+        rateUsed: Value(resolved.rateUsed),
+        rateTimestamp: Value(resolved.rateTimestamp),
         paymentMethodId: Value(input.paymentMethodId),
-        note: Value(input.note?.trim().isEmpty == true ? null : input.note?.trim()),
+        countryCode: Value(_normalizedCountry(input.countryCode)),
+        note: Value(
+          input.note?.trim().isEmpty == true ? null : input.note?.trim(),
+        ),
         createdAt: DateTime.now(),
       ),
     );
     await db.setExpenseTags(id, input.tagIds);
     return id;
+  }
+
+  Future<void> update(int id, AddExpenseInput input) async {
+    final db = ref.read(appDatabaseProvider);
+    final existing = await db.getExpenseById(id);
+    if (existing == null) {
+      throw StateError('expense_not_found');
+    }
+    final resolved = await _resolveStored(input);
+    final original = input.originalCurrencyCode.toUpperCase();
+
+    await db.updateExpenseRow(
+      existing.copyWith(
+        occurredAt: input.occurredAt,
+        originalAmountMinor: input.originalAmountMinor,
+        originalCurrencyCode: original,
+        storedAmountMinor: resolved.storedMinor,
+        storedCurrencyCode: resolved.storedCurrency,
+        rateUsed: Value(resolved.rateUsed),
+        rateTimestamp: Value(resolved.rateTimestamp),
+        paymentMethodId: Value(input.paymentMethodId),
+        countryCode: Value(_normalizedCountry(input.countryCode)),
+        note: Value(
+          input.note?.trim().isEmpty == true ? null : input.note?.trim(),
+        ),
+      ),
+    );
+    await db.setExpenseTags(id, input.tagIds);
   }
 
   Future<void> delete(int id) {

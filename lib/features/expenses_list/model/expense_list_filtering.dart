@@ -34,6 +34,13 @@ List<Expense> filterExpenses({
       final id = expense.paymentMethodId;
       if (id == null || !query.paymentMethodIds.contains(id)) return false;
     }
+    if (query.countryCodes.isNotEmpty) {
+      final code = expense.countryCode?.toUpperCase();
+      if (code == null ||
+          !query.countryCodes.map((c) => c.toUpperCase()).contains(code)) {
+        return false;
+      }
+    }
     return true;
   }).toList();
 }

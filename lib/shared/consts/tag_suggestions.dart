@@ -10,21 +10,12 @@ const List<String> defaultSeedTagKeys = [
   'travel',
 ];
 
-/// Extra suggestion keys shown for any country (beyond seeds).
+/// Extra suggestion keys shown beyond seeds.
 const List<String> extraSuggestionKeys = [
   'utilities',
 ];
 
-String tripStableKey(String currencyCode) => 'trip_${currencyCode.toUpperCase()}';
-
-bool isTripStableKey(String? key) => key != null && key.startsWith('trip_');
-
-String? currencyFromTripKey(String key) {
-  if (!isTripStableKey(key)) return null;
-  return key.substring('trip_'.length);
-}
-
 List<String> suggestionKeysForCountry(String? countryCode) {
-  // Same category set for all countries; language comes from app locale, not country.
+  // Same category set for all countries; language comes from app locale.
   return [...defaultSeedTagKeys, ...extraSuggestionKeys];
 }

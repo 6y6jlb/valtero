@@ -42,29 +42,113 @@ class SettingsPage extends ConsumerWidget {
               const SizedBox(height: 16),
               Text(l10n.theme, style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(height: 8),
-              SegmentedButton<String>(
-                segments: [
-                  ButtonSegment(value: 'system', label: Text(l10n.system)),
-                  ButtonSegment(value: 'light', label: Text(l10n.light)),
-                  ButtonSegment(value: 'dark', label: Text(l10n.dark)),
+              DropdownButtonFormField<String>(
+                // ignore: deprecated_member_use
+                value: settings?.themeMode ?? 'system',
+                decoration: InputDecoration(labelText: l10n.theme),
+                isExpanded: true,
+                items: [
+                  DropdownMenuItem(
+                    value: 'system',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.brightness_auto, size: 20),
+                        const SizedBox(width: 12),
+                        Text(l10n.system),
+                      ],
+                    ),
+                  ),
+                  DropdownMenuItem(
+                    value: 'light',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.light_mode_outlined, size: 20),
+                        const SizedBox(width: 12),
+                        Text(l10n.light),
+                      ],
+                    ),
+                  ),
+                  DropdownMenuItem(
+                    value: 'dark',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.dark_mode_outlined, size: 20),
+                        const SizedBox(width: 12),
+                        Text(l10n.dark),
+                      ],
+                    ),
+                  ),
                 ],
-                selected: {settings?.themeMode ?? 'system'},
-                onSelectionChanged: (s) {
-                  ref.read(appSettingsProvider.notifier).setThemeMode(s.first);
+                onChanged: (v) {
+                  if (v != null) {
+                    ref.read(appSettingsProvider.notifier).setThemeMode(v);
+                  }
                 },
               ),
               const SizedBox(height: 16),
               Text(l10n.locale, style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(height: 8),
-              SegmentedButton<String>(
-                segments: [
-                  ButtonSegment(value: 'system', label: Text(l10n.system)),
-                  const ButtonSegment(value: 'en', label: Text('EN')),
-                  const ButtonSegment(value: 'ru', label: Text('RU')),
+              DropdownButtonFormField<String>(
+                // ignore: deprecated_member_use
+                value: settings?.locale ?? 'system',
+                decoration: InputDecoration(labelText: l10n.locale),
+                isExpanded: true,
+                items: [
+                  DropdownMenuItem(
+                    value: 'system',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.language, size: 20),
+                        const SizedBox(width: 12),
+                        Text(l10n.system),
+                      ],
+                    ),
+                  ),
+                  const DropdownMenuItem(
+                    value: 'en',
+                    child: Row(
+                      children: [
+                        Icon(Icons.translate, size: 20),
+                        SizedBox(width: 12),
+                        Text('English'),
+                      ],
+                    ),
+                  ),
+                  const DropdownMenuItem(
+                    value: 'ru',
+                    child: Row(
+                      children: [
+                        Icon(Icons.translate, size: 20),
+                        SizedBox(width: 12),
+                        Text('Русский'),
+                      ],
+                    ),
+                  ),
+                  const DropdownMenuItem(
+                    value: 'es',
+                    child: Row(
+                      children: [
+                        Icon(Icons.translate, size: 20),
+                        SizedBox(width: 12),
+                        Text('Español'),
+                      ],
+                    ),
+                  ),
+                  const DropdownMenuItem(
+                    value: 'sr',
+                    child: Row(
+                      children: [
+                        Icon(Icons.translate, size: 20),
+                        SizedBox(width: 12),
+                        Text('Srpski'),
+                      ],
+                    ),
+                  ),
                 ],
-                selected: {settings?.locale ?? 'system'},
-                onSelectionChanged: (s) {
-                  ref.read(appSettingsProvider.notifier).setLocale(s.first);
+                onChanged: (v) {
+                  if (v != null) {
+                    ref.read(appSettingsProvider.notifier).setLocale(v);
+                  }
                 },
               ),
               const SizedBox(height: 16),
@@ -81,7 +165,13 @@ class SettingsPage extends ConsumerWidget {
                     DropdownMenuItem(
                       value: format.name,
                       child: Text(
-                        _moneyFormatLabel(l10n, format),
+                        formatMoneyDisplay(
+                          amountMinor: 123456,
+                          currencyCode: settings?.primaryCurrency ?? 'USD',
+                          localeName:
+                              Localizations.localeOf(context).toString(),
+                          format: format,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -93,21 +183,6 @@ class SettingsPage extends ConsumerWidget {
                         .setMoneyDisplayFormat(v);
                   }
                 },
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '${l10n.moneyFormatPreview}: '
-                '${formatMoneyDisplay(
-                  amountMinor: 123456,
-                  currencyCode: settings?.primaryCurrency ?? 'RUB',
-                  localeName: Localizations.localeOf(context).toString(),
-                  format: moneyDisplayFormatFromName(
-                    settings?.moneyDisplayFormat,
-                  ),
-                )}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
@@ -138,14 +213,6 @@ class SettingsPage extends ConsumerWidget {
         },
       ),
     );
-  }
-
-  static String _moneyFormatLabel(AppLocalizations l10n, MoneyDisplayFormat f) {
-    return switch (f) {
-      MoneyDisplayFormat.localeSymbol => l10n.moneyFormatLocaleSymbol,
-      MoneyDisplayFormat.localeCode => l10n.moneyFormatLocaleCode,
-      MoneyDisplayFormat.plain => l10n.moneyFormatPlain,
-    };
   }
 
   @override

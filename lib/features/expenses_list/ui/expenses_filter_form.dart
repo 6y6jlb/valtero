@@ -222,7 +222,10 @@ String expensesFilterCollapsedSummary(
   final payment = draft.paymentMethodIds.isEmpty
       ? l10n.all
       : l10n.paymentSelected(draft.paymentMethodIds.length);
-  return '$period · $currency · $tags · $payment';
+  final country = draft.countryCodes.isEmpty
+      ? l10n.all
+      : draft.countryCodes.join(', ');
+  return '$period · $currency · $tags · $payment · $country';
 }
 
 class ExpensesFilterOutlineButton extends StatelessWidget {
