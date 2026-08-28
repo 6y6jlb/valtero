@@ -226,6 +226,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get locale => 'Language';
 
   @override
+  String get moneyFormat => 'Money display';
+
+  @override
+  String get moneyFormatPreview => 'Preview';
+
+  @override
+  String get moneyFormatLocaleSymbol => 'Locale with symbol';
+
+  @override
+  String get moneyFormatLocaleCode => 'Locale with currency code';
+
+  @override
+  String get moneyFormatPlain => 'Plain (1234.56 CODE)';
+
+  @override
   String get timeZone => 'Time zone';
 
   @override
@@ -349,6 +364,87 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartByTags => 'Tags';
 
   @override
+  String get chartByTagCountry => 'Country tags';
+
+  @override
+  String get chartByPayment => 'Payment method';
+
+  @override
+  String get chartByTagTrip => 'Trip tags';
+
+  @override
+  String get chartByTagCustom => 'Custom tags';
+
+  @override
+  String get chartTagKindHint =>
+      'Each expense counts once within this tag kind; missing tags appear as not set';
+
+  @override
+  String get chartPaymentHint =>
+      'Each expense has at most one payment method; unset appears as not set';
+
+  @override
+  String get tagKindSectionCountry => 'Country';
+
+  @override
+  String get tagKindSectionTrip => 'Trip';
+
+  @override
+  String get tagKindSectionCustom => 'Category';
+
+  @override
+  String get tagKindUnspecifiedCountry => 'Country not set';
+
+  @override
+  String get tagKindUnspecifiedTrip => 'Trip not set';
+
+  @override
+  String get tagKindUnspecifiedCustom => 'Category not set';
+
+  @override
+  String get tagKindSingleSelectHint =>
+      'One tag per group; groups are optional';
+
+  @override
+  String get paymentMethod => 'Payment';
+
+  @override
+  String get paymentMethodNone => 'Not set';
+
+  @override
+  String get paymentMethodUnspecified => 'Payment not set';
+
+  @override
+  String get paymentMethodsTitle => 'Payment methods';
+
+  @override
+  String get paymentMethodsHint =>
+      'Choose a default for new expenses. Built-in methods cannot be deleted.';
+
+  @override
+  String get paymentMethodNew => 'New payment method';
+
+  @override
+  String get paymentMethodAdd => 'Add payment method';
+
+  @override
+  String get paymentMethodEdit => 'Edit payment method';
+
+  @override
+  String get paymentMethodBuiltIn => 'Built-in';
+
+  @override
+  String get paymentMethodClearDefault => 'Clear default payment';
+
+  @override
+  String get filterPayment => 'Payment';
+
+  @override
+  String paymentSelected(int count) {
+    return '$count selected';
+  }
+
+  @override
   String get chartByMonth => 'Months';
 
   @override
@@ -448,6 +544,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get groupTag => 'Tag';
+
+  @override
+  String get groupTagCountry => 'Country';
+
+  @override
+  String get groupPayment => 'Payment';
+
+  @override
+  String get groupTagTrip => 'Trip';
+
+  @override
+  String get groupTagCustom => 'Category';
 
   @override
   String get groupTags => 'Tags';
@@ -664,6 +772,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get guideSampleDining => 'Dining';
 
   @override
+  String get guideSampleCountryRu => 'Russia';
+
+  @override
+  String get guideSampleCountryGe => 'Georgia';
+
+  @override
+  String get guideSampleCountryTr => 'Turkey';
+
+  @override
   String get guideSectionGettingStartedTitle => 'Getting started';
 
   @override
@@ -682,14 +799,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideSectionTagsBody =>
-      'Tag expenses with country (auto-detected or picked), payment resource (cash, card, crypto, and more), and your own labels. Manage tags from Settings or the tags icon on the dashboard.';
+      'Tag expenses with country (auto-detected or picked), trip, and category labels. One tag per group; groups are optional. Payment is a separate field (cash, card, crypto, or your own). Manage tags and payment methods in Settings.';
 
   @override
   String get guideSectionChartsTitle => 'Spending charts';
 
   @override
   String get guideSectionChartsBody =>
-      'The dashboard donut chart breaks down spending by tags, months, or currency. Switch the breakdown with the icons under the chart. Tap a segment on the chart to open matching expenses. Tap a legend chip under the chart to show or hide that slice. Open Show expenses for list, grouping, and chart views with sort and pagination.';
+      'The dashboard donut chart breaks down spending by country, payment method, trip, category, months, or currency. Switch the breakdown with the icons under the chart. Within a tag kind, each expense is counted once. Missing payment or tags for that kind appear as not set. Tap a segment to open matching expenses. Tap a legend chip to show or hide that slice. Open Show expenses for list, grouping, and chart views with sort and pagination.';
 
   @override
   String get guideSectionExchangeRatesTitle => 'Exchange rates';

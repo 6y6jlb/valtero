@@ -10,16 +10,16 @@ ExpenseListViewMode expensesViewModeFromSettings(AppSettings settings) {
 }
 
 ExpenseListGroup expensesGroupFromSettings(AppSettings settings) {
+  final name = settings.expensesListGroup;
+  if (name == 'tag') return ExpenseListGroup.tagCustom;
+  if (name == 'tagResource') return ExpenseListGroup.payment;
   final group = ExpenseListGroup.values.firstWhere(
-    (g) => g.name == settings.expensesListGroup,
+    (g) => g.name == name,
     orElse: () => ExpenseListGroup.currency,
   );
   return group == ExpenseListGroup.none ? ExpenseListGroup.currency : group;
 }
 
 ExpenseChartBreakdown expensesChartBreakdownFromSettings(AppSettings settings) {
-  return ExpenseChartBreakdown.values.firstWhere(
-    (b) => b.name == settings.expensesChartBreakdown,
-    orElse: () => ExpenseChartBreakdown.currency,
-  );
+  return expenseChartBreakdownFromName(settings.expensesChartBreakdown);
 }

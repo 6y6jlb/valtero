@@ -10,9 +10,12 @@ Future<ExpenseListQuery?> showExpensesFilterSheet({
   required ExpenseListQuery initial,
   required List<String> currencyOptions,
   required Map<int, String> tagLabels,
+  required Map<int, String> paymentLabels,
   required Future<ExpenseListQuery?> Function(ExpenseListQuery draft)
       onPickPeriod,
   required Future<ExpenseListQuery?> Function(ExpenseListQuery draft) onPickTags,
+  required Future<ExpenseListQuery?> Function(ExpenseListQuery draft)
+      onPickPayment,
 }) {
   return showAppModalSheet<ExpenseListQuery>(
     context: context,
@@ -23,8 +26,10 @@ Future<ExpenseListQuery?> showExpensesFilterSheet({
       initial: initial,
       currencyOptions: currencyOptions,
       tagLabels: tagLabels,
+      paymentLabels: paymentLabels,
       onPickPeriod: onPickPeriod,
       onPickTags: onPickTags,
+      onPickPayment: onPickPayment,
     ),
   );
 }
@@ -33,15 +38,19 @@ class _ExpensesFilterSheetBody extends StatefulWidget {
   final ExpenseListQuery initial;
   final List<String> currencyOptions;
   final Map<int, String> tagLabels;
+  final Map<int, String> paymentLabels;
   final Future<ExpenseListQuery?> Function(ExpenseListQuery draft) onPickPeriod;
   final Future<ExpenseListQuery?> Function(ExpenseListQuery draft) onPickTags;
+  final Future<ExpenseListQuery?> Function(ExpenseListQuery draft) onPickPayment;
 
   const _ExpensesFilterSheetBody({
     required this.initial,
     required this.currencyOptions,
     required this.tagLabels,
+    required this.paymentLabels,
     required this.onPickPeriod,
     required this.onPickTags,
+    required this.onPickPayment,
   });
 
   @override
@@ -81,12 +90,17 @@ class _ExpensesFilterSheetBodyState extends State<_ExpensesFilterSheetBody> {
             final next = await widget.onPickTags(_draft);
             if (next != null && mounted) setState(() => _draft = next);
           },
+          onPickPayment: () async {
+            final next = await widget.onPickPayment(_draft);
+            if (next != null && mounted) setState(() => _draft = next);
+          },
           onApply: () => Navigator.of(context).pop(_draft),
           onClear: () {
             final defaults = ExpenseListQuery.sessionDefaults();
             setState(() {
               _draft = _draft.copyWith(
                 tagIds: {},
+                paymentMethodIds: {},
                 clearCurrencyCode: true,
                 from: defaults.from,
                 to: defaults.to,
@@ -96,6 +110,7 @@ class _ExpensesFilterSheetBodyState extends State<_ExpensesFilterSheetBody> {
             });
           },
           tagLabels: widget.tagLabels,
+          paymentLabels: widget.paymentLabels,
           onClearCurrency: () {
             setState(() => _draft = _draft.copyWith(clearCurrencyCode: true));
           },
@@ -106,6 +121,9 @@ class _ExpensesFilterSheetBodyState extends State<_ExpensesFilterSheetBody> {
           },
           onClearTags: () {
             setState(() => _draft = _draft.copyWith(tagIds: {}));
+          },
+          onClearPayment: () {
+            setState(() => _draft = _draft.copyWith(paymentMethodIds: {}));
           },
         ),
       ],

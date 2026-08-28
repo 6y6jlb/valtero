@@ -230,7 +230,7 @@ class Tag extends DataClass implements Insertable<Tag> {
   final bool isDefault;
   final int sortOrder;
 
-  /// `normal` | `country`
+  /// `normal` | `country` | `trip`
   final String kind;
   final String? countryCode;
 
@@ -511,6 +511,409 @@ class TagsCompanion extends UpdateCompanion<Tag> {
   }
 }
 
+class $PaymentMethodsTable extends PaymentMethods
+    with TableInfo<$PaymentMethodsTable, PaymentMethod> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PaymentMethodsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _colorValueMeta = const VerificationMeta(
+    'colorValue',
+  );
+  @override
+  late final GeneratedColumn<int> colorValue = GeneratedColumn<int>(
+    'color_value',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isDefaultMeta = const VerificationMeta(
+    'isDefault',
+  );
+  @override
+  late final GeneratedColumn<bool> isDefault = GeneratedColumn<bool>(
+    'is_default',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_default" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _stableKeyMeta = const VerificationMeta(
+    'stableKey',
+  );
+  @override
+  late final GeneratedColumn<String> stableKey = GeneratedColumn<String>(
+    'stable_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    colorValue,
+    isDefault,
+    sortOrder,
+    stableKey,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'payment_methods';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PaymentMethod> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('color_value')) {
+      context.handle(
+        _colorValueMeta,
+        colorValue.isAcceptableOrUnknown(data['color_value']!, _colorValueMeta),
+      );
+    }
+    if (data.containsKey('is_default')) {
+      context.handle(
+        _isDefaultMeta,
+        isDefault.isAcceptableOrUnknown(data['is_default']!, _isDefaultMeta),
+      );
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    }
+    if (data.containsKey('stable_key')) {
+      context.handle(
+        _stableKeyMeta,
+        stableKey.isAcceptableOrUnknown(data['stable_key']!, _stableKeyMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PaymentMethod map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PaymentMethod(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      colorValue: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}color_value'],
+      ),
+      isDefault: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_default'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+      stableKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}stable_key'],
+      ),
+    );
+  }
+
+  @override
+  $PaymentMethodsTable createAlias(String alias) {
+    return $PaymentMethodsTable(attachedDatabase, alias);
+  }
+}
+
+class PaymentMethod extends DataClass implements Insertable<PaymentMethod> {
+  final int id;
+  final String name;
+  final int? colorValue;
+  final bool isDefault;
+  final int sortOrder;
+
+  /// Stable id for seeded methods, e.g. `cash`, `card`, `crypto`.
+  final String? stableKey;
+  const PaymentMethod({
+    required this.id,
+    required this.name,
+    this.colorValue,
+    required this.isDefault,
+    required this.sortOrder,
+    this.stableKey,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || colorValue != null) {
+      map['color_value'] = Variable<int>(colorValue);
+    }
+    map['is_default'] = Variable<bool>(isDefault);
+    map['sort_order'] = Variable<int>(sortOrder);
+    if (!nullToAbsent || stableKey != null) {
+      map['stable_key'] = Variable<String>(stableKey);
+    }
+    return map;
+  }
+
+  PaymentMethodsCompanion toCompanion(bool nullToAbsent) {
+    return PaymentMethodsCompanion(
+      id: Value(id),
+      name: Value(name),
+      colorValue: colorValue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(colorValue),
+      isDefault: Value(isDefault),
+      sortOrder: Value(sortOrder),
+      stableKey: stableKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(stableKey),
+    );
+  }
+
+  factory PaymentMethod.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PaymentMethod(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      colorValue: serializer.fromJson<int?>(json['colorValue']),
+      isDefault: serializer.fromJson<bool>(json['isDefault']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      stableKey: serializer.fromJson<String?>(json['stableKey']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'colorValue': serializer.toJson<int?>(colorValue),
+      'isDefault': serializer.toJson<bool>(isDefault),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'stableKey': serializer.toJson<String?>(stableKey),
+    };
+  }
+
+  PaymentMethod copyWith({
+    int? id,
+    String? name,
+    Value<int?> colorValue = const Value.absent(),
+    bool? isDefault,
+    int? sortOrder,
+    Value<String?> stableKey = const Value.absent(),
+  }) => PaymentMethod(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    colorValue: colorValue.present ? colorValue.value : this.colorValue,
+    isDefault: isDefault ?? this.isDefault,
+    sortOrder: sortOrder ?? this.sortOrder,
+    stableKey: stableKey.present ? stableKey.value : this.stableKey,
+  );
+  PaymentMethod copyWithCompanion(PaymentMethodsCompanion data) {
+    return PaymentMethod(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      colorValue: data.colorValue.present
+          ? data.colorValue.value
+          : this.colorValue,
+      isDefault: data.isDefault.present ? data.isDefault.value : this.isDefault,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      stableKey: data.stableKey.present ? data.stableKey.value : this.stableKey,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PaymentMethod(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('colorValue: $colorValue, ')
+          ..write('isDefault: $isDefault, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('stableKey: $stableKey')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, name, colorValue, isDefault, sortOrder, stableKey);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PaymentMethod &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.colorValue == this.colorValue &&
+          other.isDefault == this.isDefault &&
+          other.sortOrder == this.sortOrder &&
+          other.stableKey == this.stableKey);
+}
+
+class PaymentMethodsCompanion extends UpdateCompanion<PaymentMethod> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<int?> colorValue;
+  final Value<bool> isDefault;
+  final Value<int> sortOrder;
+  final Value<String?> stableKey;
+  const PaymentMethodsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.colorValue = const Value.absent(),
+    this.isDefault = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.stableKey = const Value.absent(),
+  });
+  PaymentMethodsCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    this.colorValue = const Value.absent(),
+    this.isDefault = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.stableKey = const Value.absent(),
+  }) : name = Value(name);
+  static Insertable<PaymentMethod> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<int>? colorValue,
+    Expression<bool>? isDefault,
+    Expression<int>? sortOrder,
+    Expression<String>? stableKey,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (colorValue != null) 'color_value': colorValue,
+      if (isDefault != null) 'is_default': isDefault,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (stableKey != null) 'stable_key': stableKey,
+    });
+  }
+
+  PaymentMethodsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? name,
+    Value<int?>? colorValue,
+    Value<bool>? isDefault,
+    Value<int>? sortOrder,
+    Value<String?>? stableKey,
+  }) {
+    return PaymentMethodsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      colorValue: colorValue ?? this.colorValue,
+      isDefault: isDefault ?? this.isDefault,
+      sortOrder: sortOrder ?? this.sortOrder,
+      stableKey: stableKey ?? this.stableKey,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (colorValue.present) {
+      map['color_value'] = Variable<int>(colorValue.value);
+    }
+    if (isDefault.present) {
+      map['is_default'] = Variable<bool>(isDefault.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (stableKey.present) {
+      map['stable_key'] = Variable<String>(stableKey.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PaymentMethodsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('colorValue: $colorValue, ')
+          ..write('isDefault: $isDefault, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('stableKey: $stableKey')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -626,6 +1029,20 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
       'REFERENCES tags (id)',
     ),
   );
+  static const VerificationMeta _paymentMethodIdMeta = const VerificationMeta(
+    'paymentMethodId',
+  );
+  @override
+  late final GeneratedColumn<int> paymentMethodId = GeneratedColumn<int>(
+    'payment_method_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES payment_methods (id)',
+    ),
+  );
   static const VerificationMeta _noteMeta = const VerificationMeta('note');
   @override
   late final GeneratedColumn<String> note = GeneratedColumn<String>(
@@ -657,6 +1074,7 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
     rateUsed,
     rateTimestamp,
     tagId,
+    paymentMethodId,
     note,
     createdAt,
   ];
@@ -748,6 +1166,15 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
         tagId.isAcceptableOrUnknown(data['tag_id']!, _tagIdMeta),
       );
     }
+    if (data.containsKey('payment_method_id')) {
+      context.handle(
+        _paymentMethodIdMeta,
+        paymentMethodId.isAcceptableOrUnknown(
+          data['payment_method_id']!,
+          _paymentMethodIdMeta,
+        ),
+      );
+    }
     if (data.containsKey('note')) {
       context.handle(
         _noteMeta,
@@ -807,6 +1234,10 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
         DriftSqlType.int,
         data['${effectivePrefix}tag_id'],
       ),
+      paymentMethodId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}payment_method_id'],
+      ),
       note: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}note'],
@@ -836,6 +1267,7 @@ class Expense extends DataClass implements Insertable<Expense> {
 
   /// Legacy single-tag column (schema v1). Prefer [ExpenseTags]. Kept for migration.
   final int? tagId;
+  final int? paymentMethodId;
   final String? note;
   final DateTime createdAt;
   const Expense({
@@ -848,6 +1280,7 @@ class Expense extends DataClass implements Insertable<Expense> {
     this.rateUsed,
     this.rateTimestamp,
     this.tagId,
+    this.paymentMethodId,
     this.note,
     required this.createdAt,
   });
@@ -868,6 +1301,9 @@ class Expense extends DataClass implements Insertable<Expense> {
     }
     if (!nullToAbsent || tagId != null) {
       map['tag_id'] = Variable<int>(tagId);
+    }
+    if (!nullToAbsent || paymentMethodId != null) {
+      map['payment_method_id'] = Variable<int>(paymentMethodId);
     }
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
@@ -893,6 +1329,9 @@ class Expense extends DataClass implements Insertable<Expense> {
       tagId: tagId == null && nullToAbsent
           ? const Value.absent()
           : Value(tagId),
+      paymentMethodId: paymentMethodId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(paymentMethodId),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
       createdAt: Value(createdAt),
     );
@@ -919,6 +1358,7 @@ class Expense extends DataClass implements Insertable<Expense> {
       rateUsed: serializer.fromJson<double?>(json['rateUsed']),
       rateTimestamp: serializer.fromJson<DateTime?>(json['rateTimestamp']),
       tagId: serializer.fromJson<int?>(json['tagId']),
+      paymentMethodId: serializer.fromJson<int?>(json['paymentMethodId']),
       note: serializer.fromJson<String?>(json['note']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
@@ -936,6 +1376,7 @@ class Expense extends DataClass implements Insertable<Expense> {
       'rateUsed': serializer.toJson<double?>(rateUsed),
       'rateTimestamp': serializer.toJson<DateTime?>(rateTimestamp),
       'tagId': serializer.toJson<int?>(tagId),
+      'paymentMethodId': serializer.toJson<int?>(paymentMethodId),
       'note': serializer.toJson<String?>(note),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
@@ -951,6 +1392,7 @@ class Expense extends DataClass implements Insertable<Expense> {
     Value<double?> rateUsed = const Value.absent(),
     Value<DateTime?> rateTimestamp = const Value.absent(),
     Value<int?> tagId = const Value.absent(),
+    Value<int?> paymentMethodId = const Value.absent(),
     Value<String?> note = const Value.absent(),
     DateTime? createdAt,
   }) => Expense(
@@ -965,6 +1407,9 @@ class Expense extends DataClass implements Insertable<Expense> {
         ? rateTimestamp.value
         : this.rateTimestamp,
     tagId: tagId.present ? tagId.value : this.tagId,
+    paymentMethodId: paymentMethodId.present
+        ? paymentMethodId.value
+        : this.paymentMethodId,
     note: note.present ? note.value : this.note,
     createdAt: createdAt ?? this.createdAt,
   );
@@ -991,6 +1436,9 @@ class Expense extends DataClass implements Insertable<Expense> {
           ? data.rateTimestamp.value
           : this.rateTimestamp,
       tagId: data.tagId.present ? data.tagId.value : this.tagId,
+      paymentMethodId: data.paymentMethodId.present
+          ? data.paymentMethodId.value
+          : this.paymentMethodId,
       note: data.note.present ? data.note.value : this.note,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
@@ -1008,6 +1456,7 @@ class Expense extends DataClass implements Insertable<Expense> {
           ..write('rateUsed: $rateUsed, ')
           ..write('rateTimestamp: $rateTimestamp, ')
           ..write('tagId: $tagId, ')
+          ..write('paymentMethodId: $paymentMethodId, ')
           ..write('note: $note, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -1025,6 +1474,7 @@ class Expense extends DataClass implements Insertable<Expense> {
     rateUsed,
     rateTimestamp,
     tagId,
+    paymentMethodId,
     note,
     createdAt,
   );
@@ -1041,6 +1491,7 @@ class Expense extends DataClass implements Insertable<Expense> {
           other.rateUsed == this.rateUsed &&
           other.rateTimestamp == this.rateTimestamp &&
           other.tagId == this.tagId &&
+          other.paymentMethodId == this.paymentMethodId &&
           other.note == this.note &&
           other.createdAt == this.createdAt);
 }
@@ -1055,6 +1506,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
   final Value<double?> rateUsed;
   final Value<DateTime?> rateTimestamp;
   final Value<int?> tagId;
+  final Value<int?> paymentMethodId;
   final Value<String?> note;
   final Value<DateTime> createdAt;
   const ExpensesCompanion({
@@ -1067,6 +1519,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     this.rateUsed = const Value.absent(),
     this.rateTimestamp = const Value.absent(),
     this.tagId = const Value.absent(),
+    this.paymentMethodId = const Value.absent(),
     this.note = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
@@ -1080,6 +1533,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     this.rateUsed = const Value.absent(),
     this.rateTimestamp = const Value.absent(),
     this.tagId = const Value.absent(),
+    this.paymentMethodId = const Value.absent(),
     this.note = const Value.absent(),
     required DateTime createdAt,
   }) : occurredAt = Value(occurredAt),
@@ -1098,6 +1552,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     Expression<double>? rateUsed,
     Expression<DateTime>? rateTimestamp,
     Expression<int>? tagId,
+    Expression<int>? paymentMethodId,
     Expression<String>? note,
     Expression<DateTime>? createdAt,
   }) {
@@ -1114,6 +1569,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
       if (rateUsed != null) 'rate_used': rateUsed,
       if (rateTimestamp != null) 'rate_timestamp': rateTimestamp,
       if (tagId != null) 'tag_id': tagId,
+      if (paymentMethodId != null) 'payment_method_id': paymentMethodId,
       if (note != null) 'note': note,
       if (createdAt != null) 'created_at': createdAt,
     });
@@ -1129,6 +1585,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     Value<double?>? rateUsed,
     Value<DateTime?>? rateTimestamp,
     Value<int?>? tagId,
+    Value<int?>? paymentMethodId,
     Value<String?>? note,
     Value<DateTime>? createdAt,
   }) {
@@ -1142,6 +1599,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
       rateUsed: rateUsed ?? this.rateUsed,
       rateTimestamp: rateTimestamp ?? this.rateTimestamp,
       tagId: tagId ?? this.tagId,
+      paymentMethodId: paymentMethodId ?? this.paymentMethodId,
       note: note ?? this.note,
       createdAt: createdAt ?? this.createdAt,
     );
@@ -1179,6 +1637,9 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     if (tagId.present) {
       map['tag_id'] = Variable<int>(tagId.value);
     }
+    if (paymentMethodId.present) {
+      map['payment_method_id'] = Variable<int>(paymentMethodId.value);
+    }
     if (note.present) {
       map['note'] = Variable<String>(note.value);
     }
@@ -1200,6 +1661,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
           ..write('rateUsed: $rateUsed, ')
           ..write('rateTimestamp: $rateTimestamp, ')
           ..write('tagId: $tagId, ')
+          ..write('paymentMethodId: $paymentMethodId, ')
           ..write('note: $note, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -1859,6 +2321,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $TagsTable tags = $TagsTable(this);
+  late final $PaymentMethodsTable paymentMethods = $PaymentMethodsTable(this);
   late final $ExpensesTable expenses = $ExpensesTable(this);
   late final $ExpenseTagsTable expenseTags = $ExpenseTagsTable(this);
   late final $ExchangeRatesTable exchangeRates = $ExchangeRatesTable(this);
@@ -1868,6 +2331,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     tags,
+    paymentMethods,
     expenses,
     expenseTags,
     exchangeRates,
@@ -2326,6 +2790,331 @@ typedef $$TagsTableProcessedTableManager =
       Tag,
       PrefetchHooks Function({bool expensesRefs, bool expenseTagsRefs})
     >;
+typedef $$PaymentMethodsTableCreateCompanionBuilder =
+    PaymentMethodsCompanion Function({
+      Value<int> id,
+      required String name,
+      Value<int?> colorValue,
+      Value<bool> isDefault,
+      Value<int> sortOrder,
+      Value<String?> stableKey,
+    });
+typedef $$PaymentMethodsTableUpdateCompanionBuilder =
+    PaymentMethodsCompanion Function({
+      Value<int> id,
+      Value<String> name,
+      Value<int?> colorValue,
+      Value<bool> isDefault,
+      Value<int> sortOrder,
+      Value<String?> stableKey,
+    });
+
+final class $$PaymentMethodsTableReferences
+    extends BaseReferences<_$AppDatabase, $PaymentMethodsTable, PaymentMethod> {
+  $$PaymentMethodsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static MultiTypedResultKey<$ExpensesTable, List<Expense>> _expensesRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.expenses,
+    aliasName: 'payment_methods__id__expenses__payment_method_id',
+  );
+
+  $$ExpensesTableProcessedTableManager get expensesRefs {
+    final manager = $$ExpensesTableTableManager(
+      $_db,
+      $_db.expenses,
+    ).filter((f) => f.paymentMethodId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_expensesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$PaymentMethodsTableFilterComposer
+    extends Composer<_$AppDatabase, $PaymentMethodsTable> {
+  $$PaymentMethodsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get colorValue => $composableBuilder(
+    column: $table.colorValue,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDefault => $composableBuilder(
+    column: $table.isDefault,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get stableKey => $composableBuilder(
+    column: $table.stableKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> expensesRefs(
+    Expression<bool> Function($$ExpensesTableFilterComposer f) f,
+  ) {
+    final $$ExpensesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.expenses,
+      getReferencedColumn: (t) => t.paymentMethodId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ExpensesTableFilterComposer(
+            $db: $db,
+            $table: $db.expenses,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$PaymentMethodsTableOrderingComposer
+    extends Composer<_$AppDatabase, $PaymentMethodsTable> {
+  $$PaymentMethodsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get colorValue => $composableBuilder(
+    column: $table.colorValue,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDefault => $composableBuilder(
+    column: $table.isDefault,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get stableKey => $composableBuilder(
+    column: $table.stableKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PaymentMethodsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PaymentMethodsTable> {
+  $$PaymentMethodsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<int> get colorValue => $composableBuilder(
+    column: $table.colorValue,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isDefault =>
+      $composableBuilder(column: $table.isDefault, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<String> get stableKey =>
+      $composableBuilder(column: $table.stableKey, builder: (column) => column);
+
+  Expression<T> expensesRefs<T extends Object>(
+    Expression<T> Function($$ExpensesTableAnnotationComposer a) f,
+  ) {
+    final $$ExpensesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.expenses,
+      getReferencedColumn: (t) => t.paymentMethodId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ExpensesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.expenses,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$PaymentMethodsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PaymentMethodsTable,
+          PaymentMethod,
+          $$PaymentMethodsTableFilterComposer,
+          $$PaymentMethodsTableOrderingComposer,
+          $$PaymentMethodsTableAnnotationComposer,
+          $$PaymentMethodsTableCreateCompanionBuilder,
+          $$PaymentMethodsTableUpdateCompanionBuilder,
+          (PaymentMethod, $$PaymentMethodsTableReferences),
+          PaymentMethod,
+          PrefetchHooks Function({bool expensesRefs})
+        > {
+  $$PaymentMethodsTableTableManager(
+    _$AppDatabase db,
+    $PaymentMethodsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PaymentMethodsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PaymentMethodsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PaymentMethodsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<int?> colorValue = const Value.absent(),
+                Value<bool> isDefault = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<String?> stableKey = const Value.absent(),
+              }) => PaymentMethodsCompanion(
+                id: id,
+                name: name,
+                colorValue: colorValue,
+                isDefault: isDefault,
+                sortOrder: sortOrder,
+                stableKey: stableKey,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String name,
+                Value<int?> colorValue = const Value.absent(),
+                Value<bool> isDefault = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<String?> stableKey = const Value.absent(),
+              }) => PaymentMethodsCompanion.insert(
+                id: id,
+                name: name,
+                colorValue: colorValue,
+                isDefault: isDefault,
+                sortOrder: sortOrder,
+                stableKey: stableKey,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$PaymentMethodsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({expensesRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (expensesRefs) db.expenses],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (expensesRefs)
+                    await $_getPrefetchedData<
+                      PaymentMethod,
+                      $PaymentMethodsTable,
+                      Expense
+                    >(
+                      currentTable: table,
+                      referencedTable: $$PaymentMethodsTableReferences
+                          ._expensesRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$PaymentMethodsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).expensesRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where(
+                            (e) => e.paymentMethodId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PaymentMethodsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PaymentMethodsTable,
+      PaymentMethod,
+      $$PaymentMethodsTableFilterComposer,
+      $$PaymentMethodsTableOrderingComposer,
+      $$PaymentMethodsTableAnnotationComposer,
+      $$PaymentMethodsTableCreateCompanionBuilder,
+      $$PaymentMethodsTableUpdateCompanionBuilder,
+      (PaymentMethod, $$PaymentMethodsTableReferences),
+      PaymentMethod,
+      PrefetchHooks Function({bool expensesRefs})
+    >;
 typedef $$ExpensesTableCreateCompanionBuilder =
     ExpensesCompanion Function({
       Value<int> id,
@@ -2337,6 +3126,7 @@ typedef $$ExpensesTableCreateCompanionBuilder =
       Value<double?> rateUsed,
       Value<DateTime?> rateTimestamp,
       Value<int?> tagId,
+      Value<int?> paymentMethodId,
       Value<String?> note,
       required DateTime createdAt,
     });
@@ -2351,6 +3141,7 @@ typedef $$ExpensesTableUpdateCompanionBuilder =
       Value<double?> rateUsed,
       Value<DateTime?> rateTimestamp,
       Value<int?> tagId,
+      Value<int?> paymentMethodId,
       Value<String?> note,
       Value<DateTime> createdAt,
     });
@@ -2370,6 +3161,24 @@ final class $$ExpensesTableReferences
       $_db.tags,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_tagIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $PaymentMethodsTable _paymentMethodIdTable(_$AppDatabase db) => db
+      .paymentMethods
+      .createAlias('expenses__payment_method_id__payment_methods__id');
+
+  $$PaymentMethodsTableProcessedTableManager? get paymentMethodId {
+    final $_column = $_itemColumn<int>('payment_method_id');
+    if ($_column == null) return null;
+    final manager = $$PaymentMethodsTableTableManager(
+      $_db,
+      $_db.paymentMethods,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_paymentMethodIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -2468,6 +3277,29 @@ class $$ExpensesTableFilterComposer
           }) => $$TagsTableFilterComposer(
             $db: $db,
             $table: $db.tags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$PaymentMethodsTableFilterComposer get paymentMethodId {
+    final $$PaymentMethodsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.paymentMethodId,
+      referencedTable: $db.paymentMethods,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PaymentMethodsTableFilterComposer(
+            $db: $db,
+            $table: $db.paymentMethods,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2584,6 +3416,29 @@ class $$ExpensesTableOrderingComposer
     );
     return composer;
   }
+
+  $$PaymentMethodsTableOrderingComposer get paymentMethodId {
+    final $$PaymentMethodsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.paymentMethodId,
+      referencedTable: $db.paymentMethods,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PaymentMethodsTableOrderingComposer(
+            $db: $db,
+            $table: $db.paymentMethods,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$ExpensesTableAnnotationComposer
@@ -2660,6 +3515,29 @@ class $$ExpensesTableAnnotationComposer
     return composer;
   }
 
+  $$PaymentMethodsTableAnnotationComposer get paymentMethodId {
+    final $$PaymentMethodsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.paymentMethodId,
+      referencedTable: $db.paymentMethods,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PaymentMethodsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.paymentMethods,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   Expression<T> expenseTagsRefs<T extends Object>(
     Expression<T> Function($$ExpenseTagsTableAnnotationComposer a) f,
   ) {
@@ -2699,7 +3577,11 @@ class $$ExpensesTableTableManager
           $$ExpensesTableUpdateCompanionBuilder,
           (Expense, $$ExpensesTableReferences),
           Expense,
-          PrefetchHooks Function({bool tagId, bool expenseTagsRefs})
+          PrefetchHooks Function({
+            bool tagId,
+            bool paymentMethodId,
+            bool expenseTagsRefs,
+          })
         > {
   $$ExpensesTableTableManager(_$AppDatabase db, $ExpensesTable table)
     : super(
@@ -2723,6 +3605,7 @@ class $$ExpensesTableTableManager
                 Value<double?> rateUsed = const Value.absent(),
                 Value<DateTime?> rateTimestamp = const Value.absent(),
                 Value<int?> tagId = const Value.absent(),
+                Value<int?> paymentMethodId = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => ExpensesCompanion(
@@ -2735,6 +3618,7 @@ class $$ExpensesTableTableManager
                 rateUsed: rateUsed,
                 rateTimestamp: rateTimestamp,
                 tagId: tagId,
+                paymentMethodId: paymentMethodId,
                 note: note,
                 createdAt: createdAt,
               ),
@@ -2749,6 +3633,7 @@ class $$ExpensesTableTableManager
                 Value<double?> rateUsed = const Value.absent(),
                 Value<DateTime?> rateTimestamp = const Value.absent(),
                 Value<int?> tagId = const Value.absent(),
+                Value<int?> paymentMethodId = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 required DateTime createdAt,
               }) => ExpensesCompanion.insert(
@@ -2761,6 +3646,7 @@ class $$ExpensesTableTableManager
                 rateUsed: rateUsed,
                 rateTimestamp: rateTimestamp,
                 tagId: tagId,
+                paymentMethodId: paymentMethodId,
                 note: note,
                 createdAt: createdAt,
               ),
@@ -2772,66 +3658,89 @@ class $$ExpensesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({tagId = false, expenseTagsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (expenseTagsRefs) db.expenseTags],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (tagId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.tagId,
-                                referencedTable: $$ExpensesTableReferences
-                                    ._tagIdTable(db),
-                                referencedColumn: $$ExpensesTableReferences
-                                    ._tagIdTable(db)
-                                    .id,
-                              )
-                              as T;
-                    }
+          prefetchHooksCallback:
+              ({
+                tagId = false,
+                paymentMethodId = false,
+                expenseTagsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (expenseTagsRefs) db.expenseTags,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (tagId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.tagId,
+                                    referencedTable: $$ExpensesTableReferences
+                                        ._tagIdTable(db),
+                                    referencedColumn: $$ExpensesTableReferences
+                                        ._tagIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+                        if (paymentMethodId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.paymentMethodId,
+                                    referencedTable: $$ExpensesTableReferences
+                                        ._paymentMethodIdTable(db),
+                                    referencedColumn: $$ExpensesTableReferences
+                                        ._paymentMethodIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
 
-                    return state;
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (expenseTagsRefs)
+                        await $_getPrefetchedData<
+                          Expense,
+                          $ExpensesTable,
+                          ExpenseTag
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ExpensesTableReferences
+                              ._expenseTagsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ExpensesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).expenseTagsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.expenseId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
                   },
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (expenseTagsRefs)
-                    await $_getPrefetchedData<
-                      Expense,
-                      $ExpensesTable,
-                      ExpenseTag
-                    >(
-                      currentTable: table,
-                      referencedTable: $$ExpensesTableReferences
-                          ._expenseTagsRefsTable(db),
-                      managerFromTypedResult: (p0) => $$ExpensesTableReferences(
-                        db,
-                        table,
-                        p0,
-                      ).expenseTagsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.expenseId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -2848,7 +3757,11 @@ typedef $$ExpensesTableProcessedTableManager =
       $$ExpensesTableUpdateCompanionBuilder,
       (Expense, $$ExpensesTableReferences),
       Expense,
-      PrefetchHooks Function({bool tagId, bool expenseTagsRefs})
+      PrefetchHooks Function({
+        bool tagId,
+        bool paymentMethodId,
+        bool expenseTagsRefs,
+      })
     >;
 typedef $$ExpenseTagsTableCreateCompanionBuilder =
     ExpenseTagsCompanion Function({
@@ -3418,6 +4331,8 @@ class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
   $$TagsTableTableManager get tags => $$TagsTableTableManager(_db, _db.tags);
+  $$PaymentMethodsTableTableManager get paymentMethods =>
+      $$PaymentMethodsTableTableManager(_db, _db.paymentMethods);
   $$ExpensesTableTableManager get expenses =>
       $$ExpensesTableTableManager(_db, _db.expenses);
   $$ExpenseTagsTableTableManager get expenseTags =>

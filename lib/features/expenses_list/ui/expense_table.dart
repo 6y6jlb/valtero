@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
-import 'package:valtero/shared/utils/money.dart';
 import 'package:valtero/widgets/money_text.dart';
 
 class ExpenseTable extends StatelessWidget {
@@ -85,7 +85,7 @@ class ExpenseTable extends StatelessWidget {
   }
 }
 
-class ExpenseTableRow extends StatelessWidget {
+class ExpenseTableRow extends ConsumerWidget {
   final Expense expense;
   final String tagLabel;
   final String? displayCurrency;
@@ -102,7 +102,7 @@ class ExpenseTableRow extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final date =
         '${expense.occurredAt.year}-'
@@ -140,9 +140,9 @@ class ExpenseTableRow extends StatelessWidget {
                       if (showConverted &&
                           expense.storedCurrencyCode.toUpperCase() !=
                               displayCurrency!.toUpperCase())
-                        Text(
-                          '${Money.formatMinor(expense.storedAmountMinor)} '
-                          '${expense.storedCurrencyCode}',
+                        MoneyText(
+                          amountMinor: expense.storedAmountMinor,
+                          currencyCode: expense.storedCurrencyCode,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                           ),

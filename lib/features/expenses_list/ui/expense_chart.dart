@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
+import 'package:valtero/features/expenses_list/model/expense_chart_drill_down.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/expenses_list/ui/chart_breakdown_icons.dart';
 import 'package:valtero/features/expenses_list/ui/donut_breakdown_chart.dart';
@@ -53,6 +54,21 @@ class ExpenseChart extends StatelessWidget {
                 selected: chartBreakdown,
                 onChanged: onChartBreakdownChanged,
               ),
+              if (expenseChartBreakdownUsesTagKind(chartBreakdown) ||
+                  expenseChartBreakdownUsesPayment(chartBreakdown)) ...[
+                const SizedBox(height: 4),
+                Text(
+                  expenseChartBreakdownUsesPayment(chartBreakdown)
+                      ? l10n.chartPaymentHint
+                      : l10n.chartTagKindHint,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurfaceVariant,
+                      ),
+                ),
+              ],
             ],
           ),
         );

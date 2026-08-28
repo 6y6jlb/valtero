@@ -13,7 +13,7 @@ class ManageTagsController {
 
   AppDatabase get _db => ref.read(appDatabaseProvider);
 
-  /// Seeds category tags on first launch and always ensures resource tags exist.
+  /// Seeds category tags on first launch.
   Future<void> seedDefaultsIfEmpty() async {
     final existing = await _db.watchTagsList();
     if (existing.isEmpty) {
@@ -38,15 +38,6 @@ class ManageTagsController {
           await _db.updateTagRow(tag.copyWith(colorValue: Value(color)));
         }
       }
-    }
-    for (final key in resourceSeedTagKeys) {
-      await _db.ensureTagByStableKey(
-        stableKey: key,
-        fallbackName: key,
-        isDefault: true,
-        kind: 'resource',
-        colorValue: defaultTagColorValues[key],
-      );
     }
   }
 

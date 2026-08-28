@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:valtero/entities/payment_method/data/payment_methods_table.dart';
 import 'package:valtero/entities/tag/data/tags_table.dart';
 
 class Expenses extends Table {
@@ -12,6 +13,8 @@ class Expenses extends Table {
   DateTimeColumn get rateTimestamp => dateTime().nullable()();
   /// Legacy single-tag column (schema v1). Prefer [ExpenseTags]. Kept for migration.
   IntColumn get tagId => integer().nullable().references(Tags, #id)();
+  IntColumn get paymentMethodId =>
+      integer().nullable().references(PaymentMethods, #id)();
   TextColumn get note => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
 }

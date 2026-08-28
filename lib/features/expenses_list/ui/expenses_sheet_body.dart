@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:valtero/entities/payment_method/model/payment_methods_provider.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
 import 'package:valtero/entities/expense/model/expense_tags_provider.dart';
 import 'package:valtero/entities/expense/model/expenses_provider.dart';
@@ -18,6 +19,7 @@ import 'package:valtero/features/expenses_list/ui/display_currency_flow.dart';
 import 'package:valtero/features/expenses_list/ui/expense_chart.dart';
 import 'package:valtero/features/expenses_list/ui/expense_delete_flow.dart';
 import 'package:valtero/features/expenses_list/ui/expense_table.dart';
+import 'package:valtero/features/expenses_list/ui/expense_payment_filter_dialog.dart';
 import 'package:valtero/features/expenses_list/ui/expense_tag_filter_dialog.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_filter_card.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_listing_card.dart';
@@ -31,6 +33,7 @@ import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/date_period.dart';
+import 'package:valtero/shared/utils/payment_method_label.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
 import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/period_picker.dart';
@@ -227,6 +230,16 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
     setState(() => _draft = _draft.copyWith(tagIds: result));
   }
 
+  Future<void> _pickPayment(List<PaymentMethod> methods) async {
+    final result = await showExpensePaymentFilterDialog(
+      context,
+      methods: methods,
+      initialSelection: _draft.paymentMethodIds,
+    );
+    if (result == null) return;
+    setState(() => _draft = _draft.copyWith(paymentMethodIds: result));
+  }
+
   Future<void> _export(
     ExportFormat format, {
     required ExportDestination destination,
@@ -302,6 +315,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
     setState(() {
       _draft = _draft.copyWith(
         tagIds: {},
+        paymentMethodIds: {},
         clearCurrencyCode: true,
         from: defaults.from,
         to: defaults.to,
@@ -310,6 +324,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
       );
       _applied = _applied.copyWith(
         tagIds: {},
+        paymentMethodIds: {},
         clearCurrencyCode: true,
         from: defaults.from,
         to: defaults.to,
@@ -329,11 +344,17 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
     _scheduleDisplayPrefsLoad();
     final expensesAsync = ref.watch(allExpensesProvider);
     final tags = ref.watch(tagsStreamProvider).value ?? const [];
+    final paymentMethods =
+        ref.watch(paymentMethodsStreamProvider).value ?? const [];
     final expenseTags = ref.watch(expenseTagIdsProvider).value ?? const {};
     final settings = ref.watch(appSettingsProvider).value;
     final primary = settings?.primaryCurrency ?? 'RUB';
     final tagLabels = {
       for (final t in tags) t.id: localizedTagLabel(context, t),
+    };
+    final paymentLabels = {
+      for (final m in paymentMethods)
+        m.id: localizedPaymentMethodLabel(context, m),
     };
     final scrollController = PrimaryScrollController.maybeOf(context);
     final resolver = ref.watch(rateResolverProvider);
@@ -376,7 +397,12 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                 ExpenseGroupingContext(
                   expenseTags: expenseTags,
                   tagLabels: tagLabels,
-                  untaggedLabel: l10n.untagged,
+                  tagById: {for (final t in tags) t.id: t},
+                  paymentMethodLabels: paymentLabels,
+                  unspecifiedCountryLabel: l10n.tagKindUnspecifiedCountry,
+                  unspecifiedTripLabel: l10n.tagKindUnspecifiedTrip,
+                  unspecifiedCustomLabel: l10n.tagKindUnspecifiedCustom,
+                  unspecifiedPaymentLabel: l10n.paymentMethodUnspecified,
                   ascending: _applied.ascending,
                 ),
               )
@@ -423,9 +449,11 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                         });
                       },
                       onPickTags: () => _pickTags(tags),
+                      onPickPayment: () => _pickPayment(paymentMethods),
                       onApply: _applyFilters,
                       onClear: _clearFilters,
                       tagLabels: tagLabels,
+                      paymentLabels: paymentLabels,
                       onClearCurrency: () {
                         setState(() {
                           _draft = _draft.copyWith(clearCurrencyCode: true);
@@ -442,6 +470,11 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                       onClearTags: () {
                         setState(() {
                           _draft = _draft.copyWith(tagIds: {});
+                        });
+                      },
+                      onClearPayment: () {
+                        setState(() {
+                          _draft = _draft.copyWith(paymentMethodIds: {});
                         });
                       },
                     ),
@@ -542,7 +575,14 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                                     tagById: {
                                       for (final t in tags) t.id: t,
                                     },
-                                    untaggedLabel: l10n.untagged,
+                                    paymentById: {
+                                      for (final m in paymentMethods) m.id: m,
+                                    },
+                                    paymentLabels: paymentLabels,
+                                    untaggedLabel: unspecifiedLabelForChartBreakdown(
+                                      l10n,
+                                      _chartBreakdown,
+                                    ),
                                   ),
                                   primaryCurrency: summaryCurrency,
                                   chartBreakdown: _chartBreakdown,

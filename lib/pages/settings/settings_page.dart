@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/currency_settings/ui/currency_settings_panel.dart';
 import 'package:valtero/features/export_expenses/ui/export_flow.dart';
+import 'package:valtero/features/manage_payment_methods/ui/payment_methods_sheet.dart';
 import 'package:valtero/pages/platform_guide/platform_guide_page.dart';
 import 'package:valtero/pages/tags/tags_sheet.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/app_timezone.dart';
 import 'package:valtero/shared/utils/app_version_provider.dart';
+import 'package:valtero/shared/utils/money_display.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
 import 'package:valtero/widgets/app_page_scaffold.dart';
 
@@ -18,8 +20,8 @@ class SettingsPage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     return showAppModalSheet(
       context: context,
-      initialChildSize: 0.65,
-      minChildSize: 0.4,
+      initialChildSize: 0.75,
+      minChildSize: 0.45,
       child: Consumer(
         builder: (context, ref, _) {
           final settings = ref.watch(appSettingsProvider).value;
@@ -66,6 +68,48 @@ class SettingsPage extends ConsumerWidget {
                 },
               ),
               const SizedBox(height: 16),
+              Text(l10n.moneyFormat, style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                // ignore: deprecated_member_use
+                value: moneyDisplayFormatFromName(settings?.moneyDisplayFormat)
+                    .name,
+                decoration: InputDecoration(labelText: l10n.moneyFormat),
+                isExpanded: true,
+                items: [
+                  for (final format in MoneyDisplayFormat.values)
+                    DropdownMenuItem(
+                      value: format.name,
+                      child: Text(
+                        _moneyFormatLabel(l10n, format),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                ],
+                onChanged: (v) {
+                  if (v != null) {
+                    ref
+                        .read(appSettingsProvider.notifier)
+                        .setMoneyDisplayFormat(v);
+                  }
+                },
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '${l10n.moneyFormatPreview}: '
+                '${formatMoneyDisplay(
+                  amountMinor: 123456,
+                  currencyCode: settings?.primaryCurrency ?? 'RUB',
+                  localeName: Localizations.localeOf(context).toString(),
+                  format: moneyDisplayFormatFromName(
+                    settings?.moneyDisplayFormat,
+                  ),
+                )}',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 // ignore: deprecated_member_use
                 value: tzValue,
@@ -94,6 +138,14 @@ class SettingsPage extends ConsumerWidget {
         },
       ),
     );
+  }
+
+  static String _moneyFormatLabel(AppLocalizations l10n, MoneyDisplayFormat f) {
+    return switch (f) {
+      MoneyDisplayFormat.localeSymbol => l10n.moneyFormatLocaleSymbol,
+      MoneyDisplayFormat.localeCode => l10n.moneyFormatLocaleCode,
+      MoneyDisplayFormat.plain => l10n.moneyFormatPlain,
+    };
   }
 
   @override
@@ -131,6 +183,12 @@ class SettingsPage extends ConsumerWidget {
             title: Text(l10n.tagsTitle),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => showTagsSheet(context),
+          ),
+          ListTile(
+            leading: const Icon(Icons.payments_outlined),
+            title: Text(l10n.paymentMethodsTitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => showPaymentMethodsSheet(context),
           ),
           ListTile(
             leading: const Icon(Icons.ios_share),

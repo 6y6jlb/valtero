@@ -1,14 +1,35 @@
+import 'package:valtero/entities/tag/model/tag_kind.dart';
+import 'package:valtero/shared/database/app_database.dart';
+
 /// Tag maps and sort hints passed into expense groupers.
 class ExpenseGroupingContext {
   final Map<int, List<int>> expenseTags;
   final Map<int, String> tagLabels;
-  final String untaggedLabel;
+  final Map<int, Tag> tagById;
+  final Map<int, String> paymentMethodLabels;
+  final String unspecifiedCountryLabel;
+  final String unspecifiedTripLabel;
+  final String unspecifiedCustomLabel;
+  final String unspecifiedPaymentLabel;
   final bool ascending;
 
   const ExpenseGroupingContext({
     required this.expenseTags,
     required this.tagLabels,
-    required this.untaggedLabel,
+    required this.tagById,
+    required this.paymentMethodLabels,
+    required this.unspecifiedCountryLabel,
+    required this.unspecifiedTripLabel,
+    required this.unspecifiedCustomLabel,
+    required this.unspecifiedPaymentLabel,
     this.ascending = false,
   });
+
+  String unspecifiedLabelFor(TagKind kind) {
+    return switch (kind) {
+      TagKind.country => unspecifiedCountryLabel,
+      TagKind.trip => unspecifiedTripLabel,
+      TagKind.custom => unspecifiedCustomLabel,
+    };
+  }
 }

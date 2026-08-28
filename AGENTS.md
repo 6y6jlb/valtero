@@ -41,6 +41,7 @@ Details: [docs/agent-rules/riverpod-conventions.md](docs/agent-rules/riverpod-co
 ## Money & currency
 
 - Amounts are always **integer minor units** (never `double` for money)
+- UI amounts via `MoneyText` / `formatMoneyDisplay` (`intl` + Settings → Appearance → money display); export keeps `Money.formatMinor`
 - Rate resolution order: keyed ExchangeRate-API → Frankfurter → manual override → `null`
 - On expense entry: save as-is **or** convert into a reporting currency; always keep original amount/currency
 
@@ -55,7 +56,7 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 
 ## Key domain flows
 
-1. **Add expense** (bottom sheet from Dashboard) → amount + currency → as-is or convert-to reporting currency (show live rate) → **multiple tags** (incl. auto country tag + “Select country” + payment **resource** tags: cash/card/crypto/…) → persist original + stored amounts
+1. **Add expense** (bottom sheet from Dashboard) → amount + currency → as-is or convert-to reporting currency (show live rate) → **payment method** (cash/card/crypto/… or custom; optional default in Settings) → **tags by kind** (country, trip, category; one tag per kind, kinds optional) → persist original + stored amounts
 2. **Dashboard** → charts/summary + recent expenses list; entry points for add / tags / export sheets; convert stored amounts to display currency via `RateResolver` in Dart
 3. **Rates** → on launch if last refresh >24h, refresh in background; Settings → Currency sheet can force refresh / bind API key / set manual rates / view all rates
 4. **Tag suggestions** → detect country/currency (ip-api.com, locale fallback) → suggest tags by country + trip tags by foreign currency (Tags sheet)
@@ -67,7 +68,7 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 - **Expenses**: full page via FAB “Show expenses” (back arrow); add expense stays a sheet (`+` FAB sticky bottom on Dashboard, Expenses, and Platform guide — **not** on Settings)
 - Settings via gear in the AppBar → full page with back arrow
 - Sheets (full window width): add expense, tags, export, currency, appearance, rates list, dashboard filters
-- Dashboard: one donut (shared [DonutBreakdownChart](lib/features/expenses_list/ui/donut_breakdown_chart.dart): amounts on segments, legend chips toggle visibility; tap segment → Expenses with filter); compact breakdown icons; filter summary bar → full-screen sheet; FABs “Show expenses” + add
+- Dashboard: one donut (shared [DonutBreakdownChart](lib/features/expenses_list/ui/donut_breakdown_chart.dart): amounts on segments, legend chips toggle visibility; tap segment → Expenses with filter); breakdown by country / payment method / trip / category / month / currency via shared [ChartBreakdownIcons](lib/features/expenses_list/ui/chart_breakdown_icons.dart); filter summary bar → full-screen sheet; FABs “Show expenses” + add
 - Expenses chart view uses the same donut widget; tap a segment applies that filter and switches to list
 - AppBar shows live date/time in the selected timezone (default: auto-detected system zone)
 - Desktop default window size: **853×720** (≈⅔ of the previous 1280 width)

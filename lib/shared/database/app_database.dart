@@ -7,14 +7,18 @@ import 'package:path_provider/path_provider.dart';
 import 'package:valtero/entities/exchange_rate/data/exchange_rates_table.dart';
 import 'package:valtero/entities/expense/data/expense_tags_table.dart';
 import 'package:valtero/entities/expense/data/expenses_table.dart';
+import 'package:valtero/entities/payment_method/data/payment_methods_table.dart';
 import 'package:valtero/entities/tag/data/tags_table.dart';
 import 'package:valtero/shared/database/migrations/migrate_to_v2.dart';
 import 'package:valtero/shared/database/migrations/migrate_to_v3.dart';
+import 'package:valtero/shared/database/migrations/migrate_to_v4.dart';
 import 'package:valtero/shared/database/schema_version.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [Tags, Expenses, ExpenseTags, ExchangeRates])
+@DriftDatabase(
+  tables: [Tags, Expenses, ExpenseTags, ExchangeRates, PaymentMethods],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
@@ -29,6 +33,7 @@ class AppDatabase extends _$AppDatabase {
         onUpgrade: (Migrator m, int from, int to) async {
           if (from < 2) await migrateToV2(m, this);
           if (from < 3) await migrateToV3(m, this);
+          if (from < 4) await migrateToV4(m, this);
         },
       );
 
@@ -166,6 +171,67 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<int> insertExpense(ExpensesCompanion entry) => into(expenses).insert(entry);
+
+  Stream<List<PaymentMethod>> watchAllPaymentMethods() {
+    return (select(paymentMethods)
+          ..orderBy([(p) => OrderingTerm.asc(p.sortOrder)]))
+        .watch();
+  }
+
+  Future<List<PaymentMethod>> getAllPaymentMethods() {
+    return (select(paymentMethods)
+          ..orderBy([(p) => OrderingTerm.asc(p.sortOrder)]))
+        .get();
+  }
+
+  Future<PaymentMethod?> findPaymentMethodByStableKey(String key) {
+    return (select(paymentMethods)..where((p) => p.stableKey.equals(key)))
+        .getSingleOrNull();
+  }
+
+  Future<int> insertPaymentMethod(PaymentMethodsCompanion entry) =>
+      into(paymentMethods).insert(entry);
+
+  Future<bool> updatePaymentMethodRow(PaymentMethod row) =>
+      update(paymentMethods).replace(row);
+
+  Future<int> deletePaymentMethodById(int id) async {
+    await (update(expenses)..where((e) => e.paymentMethodId.equals(id))).write(
+      const ExpensesCompanion(paymentMethodId: Value(null)),
+    );
+    return (delete(paymentMethods)..where((p) => p.id.equals(id))).go();
+  }
+
+  Future<int> ensurePaymentMethodByStableKey({
+    required String stableKey,
+    required String fallbackName,
+    bool isDefault = false,
+    int? colorValue,
+  }) async {
+    final existing = await findPaymentMethodByStableKey(stableKey);
+    if (existing != null) {
+      var updated = existing;
+      if (existing.colorValue == null && colorValue != null) {
+        updated = updated.copyWith(colorValue: Value(colorValue));
+      }
+      if (updated != existing) {
+        await updatePaymentMethodRow(updated);
+      }
+      return existing.id;
+    }
+    final all = await getAllPaymentMethods();
+    final nextOrder =
+        all.isEmpty ? 0 : all.map((p) => p.sortOrder).reduce((a, b) => a > b ? a : b) + 1;
+    return insertPaymentMethod(
+      PaymentMethodsCompanion.insert(
+        name: fallbackName,
+        colorValue: Value(colorValue),
+        stableKey: Value(stableKey),
+        isDefault: Value(isDefault),
+        sortOrder: Value(nextOrder),
+      ),
+    );
+  }
 
   Future<void> setExpenseTags(int expenseId, List<int> tagIds) async {
     await (delete(expenseTags)..where((et) => et.expenseId.equals(expenseId))).go();

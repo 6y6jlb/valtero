@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:valtero/entities/payment_method/model/payment_methods_provider.dart';
+import 'package:valtero/entities/payment_method/ui/payment_method_chip.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
-import 'package:valtero/entities/tag/ui/tag_chip.dart';
+import 'package:valtero/entities/tag/model/tag_kind.dart';
+import 'package:valtero/entities/tag/ui/grouped_tag_picker.dart';
 import 'package:valtero/entities/expense/model/expense_tags_provider.dart';
 import 'package:valtero/features/add_expense/model/add_expense_controller.dart';
 import 'package:valtero/features/add_expense/ui/country_picker_dialog.dart';
 import 'package:valtero/features/manage_tags/model/manage_tags_controller.dart';
 import 'package:valtero/shared/consts/countries.dart';
+import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/database/database_provider.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/money.dart';
+import 'package:valtero/shared/utils/payment_method_label.dart';
 import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/currency_picker.dart';
 import 'package:valtero/widgets/flag_icon.dart';
@@ -34,6 +39,7 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
   bool _convert = false;
   String? _targetCurrency;
   final Set<int> _tagIds = {};
+  int? _paymentMethodId;
   DateTime _occurredAt = DateTime.now();
   double? _rate;
   bool _loadingRate = false;
@@ -55,6 +61,7 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
         if (settings.defaultTagId != null) {
           _tagIds.add(settings.defaultTagId!);
         }
+        _paymentMethodId = settings.defaultPaymentMethodId;
       });
     }
     await _ensureDetectedCountrySelected();
@@ -76,7 +83,17 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
           displayName: countryDisplayName(code, languageCode: lang),
         );
     if (!mounted) return;
-    setState(() => _tagIds.add(id));
+    final tagById = {
+      for (final t in ref.read(tagsStreamProvider).value ?? const <Tag>[]) t.id: t,
+    };
+    setState(() {
+      replaceTagSelectionOfKind(
+        selected: _tagIds,
+        tagId: id,
+        kind: TagKind.country,
+        tagById: tagById,
+      );
+    });
   }
 
   Future<void> _pickCountry() async {
@@ -92,7 +109,28 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
           currency: ref.read(appSettingsProvider).value?.detectedCurrency,
         );
     if (!mounted) return;
-    setState(() => _tagIds.add(id));
+    final tagById = {
+      for (final t in ref.read(tagsStreamProvider).value ?? const <Tag>[]) t.id: t,
+    };
+    setState(() {
+      replaceTagSelectionOfKind(
+        selected: _tagIds,
+        tagId: id,
+        kind: TagKind.country,
+        tagById: tagById,
+      );
+    });
+  }
+
+  void _toggleTag(Tag tag, Map<int, Tag> tagById) {
+    setState(() {
+      toggleTagSelection(
+        selected: _tagIds,
+        tag: tag,
+        tagById: tagById,
+        singleSelectPerKind: true,
+      );
+    });
   }
 
   @override
@@ -159,6 +197,7 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
               convert: _convert,
               targetCurrencyCode: _targetCurrency,
               tagIds: _tagIds.toList(),
+              paymentMethodId: _paymentMethodId,
               note: _noteController.text,
               occurredAt: _occurredAt,
             ),
@@ -194,16 +233,25 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
     final l10n = AppLocalizations.of(context)!;
     final settings = ref.watch(appSettingsProvider).value;
     final tags = ref.watch(tagsStreamProvider).value ?? const [];
+    final paymentMethods =
+        ref.watch(paymentMethodsStreamProvider).value ?? const [];
+    final tagById = {for (final t in tags) t.id: t};
     final reporting = settings?.reportingCurrencies ?? const ['RUB'];
-    final normalTags = tags.where((t) => t.kind != 'country' && t.kind != 'resource').toList();
-    final countryTags = tags.where((t) => t.kind == 'country').toList();
-    final resourceTags = tags.where((t) => t.kind == 'resource').toList();
     final scrollController = PrimaryScrollController.maybeOf(context);
     final theme = Theme.of(context);
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
     final tagsSubtitle = _tagIds.isEmpty
         ? l10n.tagsNoneSelected
         : l10n.tagsSelectedCount(_tagIds.length);
+    final paymentSubtitle = () {
+      if (_paymentMethodId == null) return l10n.paymentMethodNone;
+      for (final m in paymentMethods) {
+        if (m.id == _paymentMethodId) {
+          return localizedPaymentMethodLabel(context, m);
+        }
+      }
+      return l10n.paymentMethodNone;
+    }();
 
     return Column(
       children: [
@@ -298,9 +346,9 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
                 margin: EdgeInsets.zero,
                 child: ExpansionTile(
                   initiallyExpanded: false,
-                  title: Text(l10n.tag),
+                  title: Text(l10n.paymentMethod),
                   subtitle: Text(
-                    tagsSubtitle,
+                    paymentSubtitle,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -311,54 +359,50 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
                       spacing: 8,
                       runSpacing: 8,
                       children: [
-                        for (final tag in countryTags)
-                          TagChip(
-                            tag: tag,
-                            selected: _tagIds.contains(tag.id),
+                        for (final method in paymentMethods)
+                          PaymentMethodChip(
+                            method: method,
+                            selected: _paymentMethodId == method.id,
                             onTap: () {
                               setState(() {
-                                if (_tagIds.contains(tag.id)) {
-                                  _tagIds.remove(tag.id);
-                                } else {
-                                  _tagIds.add(tag.id);
-                                }
-                              });
-                            },
-                          ),
-                        ActionChip(
-                          avatar: const Icon(Icons.public, size: 18),
-                          label: Text(l10n.selectCountry),
-                          onPressed: _pickCountry,
-                        ),
-                        for (final tag in resourceTags)
-                          TagChip(
-                            tag: tag,
-                            selected: _tagIds.contains(tag.id),
-                            onTap: () {
-                              setState(() {
-                                if (_tagIds.contains(tag.id)) {
-                                  _tagIds.remove(tag.id);
-                                } else {
-                                  _tagIds.add(tag.id);
-                                }
-                              });
-                            },
-                          ),
-                        for (final tag in normalTags)
-                          TagChip(
-                            tag: tag,
-                            selected: _tagIds.contains(tag.id),
-                            onTap: () {
-                              setState(() {
-                                if (_tagIds.contains(tag.id)) {
-                                  _tagIds.remove(tag.id);
-                                } else {
-                                  _tagIds.add(tag.id);
-                                }
+                                _paymentMethodId =
+                                    _paymentMethodId == method.id
+                                        ? null
+                                        : method.id;
                               });
                             },
                           ),
                       ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Card(
+                margin: EdgeInsets.zero,
+                child: ExpansionTile(
+                  initiallyExpanded: false,
+                  title: Text(l10n.tag),
+                  subtitle: Text(
+                    tagsSubtitle,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                  children: [
+                    GroupedTagPicker(
+                      tags: tags,
+                      selectedIds: _tagIds,
+                      singleSelectPerKind: true,
+                      onTagTap: (tag) => _toggleTag(tag, tagById),
+                      sectionTrailing: {
+                        TagKind.country: ActionChip(
+                          avatar: const Icon(Icons.public, size: 18),
+                          label: Text(l10n.selectCountry),
+                          onPressed: _pickCountry,
+                        ),
+                      },
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -386,7 +430,14 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
                                 );
                             if (id > 0) {
                               _newTagController.clear();
-                              setState(() => _tagIds.add(id));
+                              setState(() {
+                                _tagIds.removeWhere((existingId) {
+                                  final t = tagById[existingId];
+                                  return t != null &&
+                                      tagKindOf(t) == TagKind.custom;
+                                });
+                                _tagIds.add(id);
+                              });
                             }
                           },
                           icon: const Icon(Icons.add),

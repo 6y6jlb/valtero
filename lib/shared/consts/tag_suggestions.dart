@@ -1,4 +1,4 @@
-/// Stable suggestion keys (localized via AppLocalizations / [tagLabelForKey]).
+/// Seeded category keys (localized via AppLocalizations / [tagLabelForKey]).
 const List<String> defaultSeedTagKeys = [
   'groceries',
   'transport',
@@ -10,15 +10,6 @@ const List<String> defaultSeedTagKeys = [
   'travel',
 ];
 
-/// Payment / funding source tags seeded for every install.
-const List<String> resourceSeedTagKeys = [
-  'cash',
-  'card',
-  'crypto',
-  'transfer',
-  'ewallet',
-];
-
 /// Extra suggestion keys shown for any country (beyond seeds).
 const List<String> extraSuggestionKeys = [
   'utilities',
@@ -27,9 +18,6 @@ const List<String> extraSuggestionKeys = [
 String tripStableKey(String currencyCode) => 'trip_${currencyCode.toUpperCase()}';
 
 bool isTripStableKey(String? key) => key != null && key.startsWith('trip_');
-
-bool isResourceStableKey(String? key) =>
-    key != null && resourceSeedTagKeys.contains(key);
 
 String? currencyFromTripKey(String key) {
   if (!isTripStableKey(key)) return null;

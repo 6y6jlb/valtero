@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:valtero/entities/tag/model/tag_kind.dart';
+import 'package:valtero/entities/tag/ui/grouped_tag_picker.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
 import 'package:valtero/features/manage_tags/model/manage_tags_controller.dart';
 import 'package:valtero/features/tag_suggestions/model/country_detection.dart';
@@ -28,6 +30,7 @@ class TagsSheetBody extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final lang = Localizations.localeOf(context).languageCode;
     final tags = ref.watch(tagsStreamProvider).value ?? const [];
+    final grouped = groupTagsByKind(tags);
     final settings = ref.watch(appSettingsProvider).value;
     final scrollController = PrimaryScrollController.maybeOf(context);
     final countryLabel = settings?.detectedCountryCode == null
@@ -80,41 +83,42 @@ class TagsSheetBody extends ConsumerWidget {
         ),
         const SuggestedTagsSection(),
         const SizedBox(height: 16),
-        Text(l10n.defaultTags, style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 8),
-        for (final tag in tags)
-          ListTile(
-            leading: CircleAvatar(
-              backgroundColor: tag.colorValue != null
-                  ? Color(tag.colorValue!)
-                  : Theme.of(context).colorScheme.surfaceContainerHighest,
-              radius: 12,
-            ),
-            title: Text(localizedTagLabel(context, tag)),
-            subtitle: tag.isDefault ? Text(l10n.defaultTags) : null,
-            trailing: IconButton(
-              icon: const Icon(Icons.delete_outline),
-              onPressed: () {
-                ref.read(manageTagsControllerProvider).deleteTag(tag.id);
-              },
-            ),
-            onTap: () async {
-              final currentLabel = localizedTagLabel(context, tag);
-              final result = await showTagEditDialog(
-                context,
-                title: l10n.tag,
-                initialName: currentLabel,
-                initialColor: tag.colorValue,
-                confirmLabel: l10n.save,
-              );
-              if (result == null) return;
-              final controller = ref.read(manageTagsControllerProvider);
-              await controller.setTagColor(tag, result.colorValue);
-              if (result.name != currentLabel) {
-                await controller.renameTag(tag, result.name);
-              }
-            },
-          ),
+        for (final kind in TagKind.values) ...[
+          TagKindSectionHeader(kind: kind),
+          for (final tag in grouped[kind]!)
+            ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: tag.colorValue != null
+                      ? Color(tag.colorValue!)
+                      : Theme.of(context).colorScheme.surfaceContainerHighest,
+                  radius: 12,
+                ),
+                title: Text(localizedTagLabel(context, tag)),
+                subtitle: tag.isDefault ? Text(l10n.defaultTags) : null,
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  onPressed: () {
+                    ref.read(manageTagsControllerProvider).deleteTag(tag.id);
+                  },
+                ),
+                onTap: () async {
+                  final currentLabel = localizedTagLabel(context, tag);
+                  final result = await showTagEditDialog(
+                    context,
+                    title: l10n.tag,
+                    initialName: currentLabel,
+                    initialColor: tag.colorValue,
+                    confirmLabel: l10n.save,
+                  );
+                  if (result == null) return;
+                  final controller = ref.read(manageTagsControllerProvider);
+                  await controller.setTagColor(tag, result.colorValue);
+                  if (result.name != currentLabel) {
+                    await controller.renameTag(tag, result.name);
+                  }
+                },
+              ),
+        ],
       ],
     );
   }

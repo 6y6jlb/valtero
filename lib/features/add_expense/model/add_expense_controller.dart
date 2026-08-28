@@ -11,6 +11,7 @@ class AddExpenseInput {
   final bool convert;
   final String? targetCurrencyCode;
   final List<int> tagIds;
+  final int? paymentMethodId;
   final String? note;
   final DateTime occurredAt;
 
@@ -20,6 +21,7 @@ class AddExpenseInput {
     required this.convert,
     this.targetCurrencyCode,
     this.tagIds = const [],
+    this.paymentMethodId,
     this.note,
     required this.occurredAt,
   });
@@ -68,6 +70,7 @@ class AddExpenseController {
         storedCurrencyCode: storedCurrency,
         rateUsed: Value(rateUsed),
         rateTimestamp: Value(rateTimestamp),
+        paymentMethodId: Value(input.paymentMethodId),
         note: Value(input.note?.trim().isEmpty == true ? null : input.note?.trim()),
         createdAt: DateTime.now(),
       ),

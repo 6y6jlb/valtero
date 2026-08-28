@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/shared/database/app_database.dart';
-import 'package:valtero/shared/utils/money.dart';
 import 'package:valtero/widgets/money_text.dart';
 
-class ExpenseTile extends StatelessWidget {
+class ExpenseTile extends ConsumerWidget {
   final Expense expense;
   final String tagLabel;
   final VoidCallback? onTap;
@@ -18,7 +18,7 @@ class ExpenseTile extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final subtitle = StringBuffer()
       ..write(tagLabel)
       ..write(' · ')
@@ -28,9 +28,14 @@ class ExpenseTile extends StatelessWidget {
         '${expense.occurredAt.day.toString().padLeft(2, '0')}',
       );
     if (expense.originalCurrencyCode != expense.storedCurrencyCode) {
+      subtitle.write(' · orig ');
       subtitle.write(
-        ' · orig ${Money.formatMinor(expense.originalAmountMinor)} '
-        '${expense.originalCurrencyCode}',
+        formatMoneyOf(
+          context,
+          ref,
+          amountMinor: expense.originalAmountMinor,
+          currencyCode: expense.originalCurrencyCode,
+        ),
       );
     }
 

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:valtero/entities/tag/ui/grouped_tag_picker.dart';
+import 'package:valtero/entities/payment_method/ui/payment_method_chip.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 
-Future<Set<int>?> showExpenseTagFilterDialog(
+Future<Set<int>?> showExpensePaymentFilterDialog(
   BuildContext context, {
-  required List<Tag> tags,
+  required List<PaymentMethod> methods,
   required Set<int> initialSelection,
 }) {
   final l10n = AppLocalizations.of(context)!;
@@ -16,22 +16,29 @@ Future<Set<int>?> showExpenseTagFilterDialog(
       return StatefulBuilder(
         builder: (ctx, setLocal) {
           return AlertDialog(
-            title: Text(l10n.selectTags),
+            title: Text(l10n.filterPayment),
             content: SizedBox(
               width: 400,
               child: SingleChildScrollView(
-                child: GroupedTagPicker(
-                  tags: tags,
-                  selectedIds: selected,
-                  onTagTap: (tag) {
-                    setLocal(() {
-                      if (selected.contains(tag.id)) {
-                        selected.remove(tag.id);
-                      } else {
-                        selected.add(tag.id);
-                      }
-                    });
-                  },
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final method in methods)
+                      PaymentMethodChip(
+                        method: method,
+                        selected: selected.contains(method.id),
+                        onTap: () {
+                          setLocal(() {
+                            if (selected.contains(method.id)) {
+                              selected.remove(method.id);
+                            } else {
+                              selected.add(method.id);
+                            }
+                          });
+                        },
+                      ),
+                  ],
                 ),
               ),
             ),

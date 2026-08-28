@@ -30,6 +30,10 @@ List<Expense> filterExpenses({
       final ids = expenseTags[expense.id] ?? const <int>[];
       if (!query.tagIds.any(ids.contains)) return false;
     }
+    if (query.paymentMethodIds.isNotEmpty) {
+      final id = expense.paymentMethodId;
+      if (id == null || !query.paymentMethodIds.contains(id)) return false;
+    }
     return true;
   }).toList();
 }

@@ -226,6 +226,21 @@ class AppLocalizationsRu extends AppLocalizations {
   String get locale => 'Язык';
 
   @override
+  String get moneyFormat => 'Отображение сумм';
+
+  @override
+  String get moneyFormatPreview => 'Пример';
+
+  @override
+  String get moneyFormatLocaleSymbol => 'По локали с символом';
+
+  @override
+  String get moneyFormatLocaleCode => 'По локали с кодом валюты';
+
+  @override
+  String get moneyFormatPlain => 'Простой (1234.56 CODE)';
+
+  @override
   String get timeZone => 'Часовой пояс';
 
   @override
@@ -348,6 +363,87 @@ class AppLocalizationsRu extends AppLocalizations {
   String get chartByTags => 'Теги';
 
   @override
+  String get chartByTagCountry => 'Страны';
+
+  @override
+  String get chartByPayment => 'Способ оплаты';
+
+  @override
+  String get chartByTagTrip => 'Поездки';
+
+  @override
+  String get chartByTagCustom => 'Свои теги';
+
+  @override
+  String get chartTagKindHint =>
+      'Каждая трата учитывается один раз внутри выбранного типа; без тега попадает в «не указано»';
+
+  @override
+  String get chartPaymentHint =>
+      'У траты не больше одного способа оплаты; без выбора — «не указано»';
+
+  @override
+  String get tagKindSectionCountry => 'Страна';
+
+  @override
+  String get tagKindSectionTrip => 'Поездка';
+
+  @override
+  String get tagKindSectionCustom => 'Категория';
+
+  @override
+  String get tagKindUnspecifiedCountry => 'Страна не указана';
+
+  @override
+  String get tagKindUnspecifiedTrip => 'Поездка не указана';
+
+  @override
+  String get tagKindUnspecifiedCustom => 'Категория не указана';
+
+  @override
+  String get tagKindSingleSelectHint =>
+      'Один тег из группы; группы необязательны';
+
+  @override
+  String get paymentMethod => 'Оплата';
+
+  @override
+  String get paymentMethodNone => 'Не указано';
+
+  @override
+  String get paymentMethodUnspecified => 'Оплата не указана';
+
+  @override
+  String get paymentMethodsTitle => 'Способы оплаты';
+
+  @override
+  String get paymentMethodsHint =>
+      'Выберите значение по умолчанию для новых трат. Встроенные способы нельзя удалить.';
+
+  @override
+  String get paymentMethodNew => 'Новый способ оплаты';
+
+  @override
+  String get paymentMethodAdd => 'Добавить способ оплаты';
+
+  @override
+  String get paymentMethodEdit => 'Изменить способ оплаты';
+
+  @override
+  String get paymentMethodBuiltIn => 'Встроенный';
+
+  @override
+  String get paymentMethodClearDefault => 'Сбросить оплату по умолчанию';
+
+  @override
+  String get filterPayment => 'Оплата';
+
+  @override
+  String paymentSelected(int count) {
+    return '$count выбрано';
+  }
+
+  @override
   String get chartByMonth => 'Месяцы';
 
   @override
@@ -447,6 +543,18 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get groupTag => 'Тег';
+
+  @override
+  String get groupTagCountry => 'Страна';
+
+  @override
+  String get groupPayment => 'Оплата';
+
+  @override
+  String get groupTagTrip => 'Поездка';
+
+  @override
+  String get groupTagCustom => 'Категория';
 
   @override
   String get groupTags => 'Теги';
@@ -664,6 +772,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get guideSampleDining => 'Кафе';
 
   @override
+  String get guideSampleCountryRu => 'Россия';
+
+  @override
+  String get guideSampleCountryGe => 'Грузия';
+
+  @override
+  String get guideSampleCountryTr => 'Турция';
+
+  @override
   String get guideSectionGettingStartedTitle => 'С чего начать';
 
   @override
@@ -682,14 +799,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get guideSectionTagsBody =>
-      'Отмечайте траты страной (определяется автоматически или выбирается вручную), способом оплаты (нал, карта, крипто и др.) и своими метками. Управляйте тегами в Настройках или через иконку тегов на сводке.';
+      'Отмечайте траты страной (авто или вручную), поездкой и категорией. Один тег из группы; группы необязательны. Способ оплаты — отдельное поле (нал, карта, крипта или свой). Теги и способы оплаты — в Настройках.';
 
   @override
   String get guideSectionChartsTitle => 'Графики трат';
 
   @override
   String get guideSectionChartsBody =>
-      'Круговая диаграмма на сводке показывает разбивку по тегам, месяцам или валюте. Переключайте вид иконками под графиком. Нажмите на сектор графика, чтобы открыть соответствующие траты. Кликом по цветной метке под графиком можно скрыть или показать сектор. Кнопка «Показать траты» открывает список, группировку и график с сортировкой и постраничным просмотром.';
+      'Круговая диаграмма на сводке показывает разбивку по странам, способу оплаты, поездкам, категориям, месяцам или валюте. Переключайте вид иконками под графиком. Внутри типа тегов каждая трата учитывается один раз. Без оплаты или тега этого типа — «не указано». Нажмите сектор, чтобы открыть траты. Метки легенды скрывают/показывают сектора. «Показать траты» — список, группировка и график.';
 
   @override
   String get guideSectionExchangeRatesTitle => 'Обменные курсы';

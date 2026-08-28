@@ -6,11 +6,13 @@ import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 class ChartBreakdownIcons extends StatelessWidget {
   final ExpenseChartBreakdown selected;
   final ValueChanged<ExpenseChartBreakdown> onChanged;
+  final bool showYear;
 
   const ChartBreakdownIcons({
     super.key,
     required this.selected,
     required this.onChanged,
+    this.showYear = true,
   });
 
   @override
@@ -39,24 +41,42 @@ class ChartBreakdownIcons extends StatelessWidget {
       );
     }
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 0,
+      runSpacing: 0,
       children: [
         iconBtn(
-          value: ExpenseChartBreakdown.tags,
+          value: ExpenseChartBreakdown.tagCountry,
+          icon: Icons.public,
+          tooltip: l10n.chartByTagCountry,
+        ),
+        iconBtn(
+          value: ExpenseChartBreakdown.payment,
+          icon: Icons.payments_outlined,
+          tooltip: l10n.chartByPayment,
+        ),
+        iconBtn(
+          value: ExpenseChartBreakdown.tagTrip,
+          icon: Icons.luggage_outlined,
+          tooltip: l10n.chartByTagTrip,
+        ),
+        iconBtn(
+          value: ExpenseChartBreakdown.tagCustom,
           icon: Icons.label_outline,
-          tooltip: l10n.chartByTags,
+          tooltip: l10n.chartByTagCustom,
         ),
         iconBtn(
           value: ExpenseChartBreakdown.month,
           icon: Icons.calendar_month,
           tooltip: l10n.chartByMonth,
         ),
-        iconBtn(
-          value: ExpenseChartBreakdown.year,
-          icon: Icons.calendar_today,
-          tooltip: l10n.chartByYear,
-        ),
+        if (showYear)
+          iconBtn(
+            value: ExpenseChartBreakdown.year,
+            icon: Icons.calendar_today,
+            tooltip: l10n.chartByYear,
+          ),
         iconBtn(
           value: ExpenseChartBreakdown.currency,
           icon: Icons.currency_exchange,

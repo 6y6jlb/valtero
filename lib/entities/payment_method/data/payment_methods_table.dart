@@ -1,14 +1,13 @@
 import 'package:drift/drift.dart';
 
-class Tags extends Table {
+/// How an expense was paid (cash, card, crypto, …) — not a tag.
+class PaymentMethods extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
   IntColumn get colorValue => integer().nullable()();
   BoolColumn get isDefault => boolean().withDefault(const Constant(false))();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
-  /// `normal` | `country` | `trip`
-  TextColumn get kind => text().withDefault(const Constant('normal'))();
-  TextColumn get countryCode => text().nullable()();
-  /// Stable id for localized defaults/suggestions, e.g. `groceries`, `trip_USD`.
+
+  /// Stable id for seeded methods, e.g. `cash`, `card`, `crypto`.
   TextColumn get stableKey => text().nullable()();
 }

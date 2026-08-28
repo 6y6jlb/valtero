@@ -14,14 +14,16 @@ class Money {
     }
     final sign = whole < 0 || normalized.startsWith('-') ? -1 : 1;
     final absWhole = whole.abs();
-    return sign * (absWhole * _pow10(fractionDigits) + fraction);
+    return sign * (absWhole * pow10(fractionDigits) + fraction);
   }
 
+  /// Dot-decimal major units without grouping — for export / interchange.
+  /// Prefer [formatMoneyDisplay] for UI.
   static String formatMinor(int minor, {int fractionDigits = 2}) {
     final sign = minor < 0 ? '-' : '';
     final abs = minor.abs();
-    final whole = abs ~/ _pow10(fractionDigits);
-    final frac = (abs % _pow10(fractionDigits)).toString().padLeft(fractionDigits, '0');
+    final whole = abs ~/ pow10(fractionDigits);
+    final frac = (abs % pow10(fractionDigits)).toString().padLeft(fractionDigits, '0');
     return '$sign$whole.$frac';
   }
 
@@ -31,13 +33,13 @@ class Money {
     required double rate,
     int fractionDigits = 2,
   }) {
-    final factor = _pow10(fractionDigits);
+    final factor = pow10(fractionDigits);
     final major = originalMinor / factor;
     final convertedMajor = major * rate;
     return (convertedMajor * factor).round();
   }
 
-  static int _pow10(int n) {
+  static int pow10(int n) {
     var r = 1;
     for (var i = 0; i < n; i++) {
       r *= 10;

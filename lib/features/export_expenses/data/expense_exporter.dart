@@ -17,8 +17,9 @@ class ExpenseExporter {
   String buildCsv(
     List<Expense> expenses,
     Map<int, String> tagNames,
-    Map<int, List<int>> tagsByExpense,
-  ) {
+    Map<int, List<int>> tagsByExpense, {
+    Map<int, String> paymentNames = const {},
+  }) {
     final rows = <List<dynamic>>[
       [
         'id',
@@ -28,6 +29,7 @@ class ExpenseExporter {
         'storedAmount',
         'storedCurrency',
         'rateUsed',
+        'paymentMethod',
         'tags',
         'note',
       ],
@@ -40,6 +42,9 @@ class ExpenseExporter {
           Money.formatMinor(e.storedAmountMinor),
           e.storedCurrencyCode,
           e.rateUsed,
+          e.paymentMethodId == null
+              ? ''
+              : (paymentNames[e.paymentMethodId!] ?? ''),
           (tagsByExpense[e.id] ?? const [])
               .map((id) => tagNames[id] ?? '')
               .where((n) => n.isNotEmpty)
@@ -53,8 +58,9 @@ class ExpenseExporter {
   String buildJson(
     List<Expense> expenses,
     Map<int, String> tagNames,
-    Map<int, List<int>> tagsByExpense,
-  ) {
+    Map<int, List<int>> tagsByExpense, {
+    Map<int, String> paymentNames = const {},
+  }) {
     final list = expenses
         .map(
           (e) => {
@@ -65,6 +71,9 @@ class ExpenseExporter {
             'storedAmount': Money.formatMinor(e.storedAmountMinor),
             'storedCurrency': e.storedCurrencyCode,
             'rateUsed': e.rateUsed,
+            'paymentMethod': e.paymentMethodId == null
+                ? null
+                : paymentNames[e.paymentMethodId!],
             'tags': (tagsByExpense[e.id] ?? const [])
                 .map((id) => tagNames[id])
                 .whereType<String>()

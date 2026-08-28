@@ -1,13 +1,13 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
-import 'package:valtero/shared/utils/money.dart';
 import 'package:valtero/widgets/money_text.dart';
 
 /// Shared donut: amounts on segments, legend chips toggle visibility,
 /// optional tap on a visible segment.
-class DonutBreakdownChart extends StatefulWidget {
+class DonutBreakdownChart extends ConsumerStatefulWidget {
   final List<DonutChartSlice> slices;
   final String displayCurrency;
   final ValueChanged<DonutChartSlice>? onSegmentTap;
@@ -28,10 +28,11 @@ class DonutBreakdownChart extends StatefulWidget {
   });
 
   @override
-  State<DonutBreakdownChart> createState() => _DonutBreakdownChartState();
+  ConsumerState<DonutBreakdownChart> createState() =>
+      _DonutBreakdownChartState();
 }
 
-class _DonutBreakdownChartState extends State<DonutBreakdownChart> {
+class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
   final Set<String> _hiddenKeys = {};
 
   @override
@@ -71,8 +72,7 @@ class _DonutBreakdownChartState extends State<DonutBreakdownChart> {
 
     final visible =
         all.where((s) => !_hiddenKeys.contains(s.key)).toList(growable: false);
-    final total =
-        visible.fold<int>(0, (sum, s) => sum + s.amountMinor);
+    final total = visible.fold<int>(0, (sum, s) => sum + s.amountMinor);
 
     return Column(
       children: [
@@ -118,7 +118,12 @@ class _DonutBreakdownChartState extends State<DonutBreakdownChart> {
                               ? 1
                               : slice.amountMinor.toDouble().abs(),
                           title:
-                              '${slice.label}\n${Money.formatMinor(slice.amountMinor)} ${widget.displayCurrency}',
+                              '${slice.label}\n${formatMoneyOf(
+                            context,
+                            ref,
+                            amountMinor: slice.amountMinor,
+                            currencyCode: widget.displayCurrency,
+                          )}',
                           color: slice.color,
                           radius: widget.sectionRadius,
                           titleStyle: const TextStyle(

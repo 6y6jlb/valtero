@@ -8,11 +8,18 @@ ExpenseListQuery? expenseChartDrillDownQuery({
   required String sliceKey,
 }) {
   switch (breakdown) {
-    case ExpenseChartBreakdown.tags:
+    case ExpenseChartBreakdown.tagCountry:
+    case ExpenseChartBreakdown.tagTrip:
+    case ExpenseChartBreakdown.tagCustom:
       if (sliceKey == '__untagged__') return null;
       final id = int.tryParse(sliceKey.replaceFirst('tag_', ''));
       if (id == null) return null;
       return base.copyWith(tagIds: {id});
+    case ExpenseChartBreakdown.payment:
+      if (sliceKey == '__untagged__') return null;
+      final id = int.tryParse(sliceKey.replaceFirst('pay_', ''));
+      if (id == null) return null;
+      return base.copyWith(paymentMethodIds: {id});
     case ExpenseChartBreakdown.month:
       final parts = sliceKey.split('-');
       if (parts.length != 2) return null;
@@ -32,4 +39,18 @@ ExpenseListQuery? expenseChartDrillDownQuery({
     case ExpenseChartBreakdown.currency:
       return base.copyWith(currencyCode: sliceKey);
   }
+}
+
+bool expenseChartBreakdownUsesTagKind(ExpenseChartBreakdown breakdown) {
+  return switch (breakdown) {
+    ExpenseChartBreakdown.tagCountry ||
+    ExpenseChartBreakdown.tagTrip ||
+    ExpenseChartBreakdown.tagCustom =>
+      true,
+    _ => false,
+  };
+}
+
+bool expenseChartBreakdownUsesPayment(ExpenseChartBreakdown breakdown) {
+  return breakdown == ExpenseChartBreakdown.payment;
 }

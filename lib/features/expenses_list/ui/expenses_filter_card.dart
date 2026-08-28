@@ -12,12 +12,15 @@ class ExpensesFilterCard extends StatefulWidget {
   final VoidCallback onPickPeriod;
   final ValueChanged<String?> onCurrencyChanged;
   final VoidCallback onPickTags;
+  final VoidCallback onPickPayment;
   final VoidCallback onApply;
   final VoidCallback onClear;
   final Map<int, String> tagLabels;
+  final Map<int, String> paymentLabels;
   final VoidCallback onClearCurrency;
   final VoidCallback onClearPeriod;
   final VoidCallback onClearTags;
+  final VoidCallback onClearPayment;
   final bool initiallyExpanded;
 
   const ExpensesFilterCard({
@@ -27,12 +30,15 @@ class ExpensesFilterCard extends StatefulWidget {
     required this.onPickPeriod,
     required this.onCurrencyChanged,
     required this.onPickTags,
+    required this.onPickPayment,
     required this.onApply,
     required this.onClear,
     required this.tagLabels,
+    required this.paymentLabels,
     required this.onClearCurrency,
     required this.onClearPeriod,
     required this.onClearTags,
+    required this.onClearPayment,
     this.initiallyExpanded = true,
   });
 
@@ -120,12 +126,15 @@ class _ExpensesFilterCardState extends State<ExpensesFilterCard> {
                 onPickPeriod: widget.onPickPeriod,
                 onCurrencyChanged: widget.onCurrencyChanged,
                 onPickTags: widget.onPickTags,
+                onPickPayment: widget.onPickPayment,
                 onApply: widget.onApply,
                 onClear: widget.onClear,
                 tagLabels: widget.tagLabels,
+                paymentLabels: widget.paymentLabels,
                 onClearCurrency: widget.onClearCurrency,
                 onClearPeriod: widget.onClearPeriod,
                 onClearTags: widget.onClearTags,
+                onClearPayment: widget.onClearPayment,
               ),
             ),
         ],

@@ -32,6 +32,106 @@ Future<({int totalMinor, int convertibleCount})> sumExpensesInCurrency({
   return (totalMinor: total, convertibleCount: convertible);
 }
 
+void _addAmountToTagSlice({
+  required Map<String, int> amounts,
+  required Map<String, String> labels,
+  required Map<String, Color> colors,
+  required int tagId,
+  required int part,
+  required Map<int, String> tagLabels,
+  required Map<int, Tag> tagById,
+  required String untaggedLabel,
+}) {
+  final key = 'tag_$tagId';
+  amounts[key] = (amounts[key] ?? 0) + part;
+  labels[key] = tagLabels[tagId] ?? untaggedLabel;
+  final tag = tagById[tagId];
+  colors[key] ??= colorFromValue(tag?.colorValue) ?? chartColorAt(tagId);
+}
+
+void _aggregateExpenseByTagKind({
+  required int amount,
+  required List<int> tagIds,
+  required ExpenseChartBreakdown breakdown,
+  required Map<int, Tag> tagById,
+  required Map<String, int> amounts,
+  required Map<String, String> labels,
+  required Map<String, Color> colors,
+  required Map<int, String> tagLabels,
+  required String untaggedLabel,
+}) {
+  final matching = <int>[
+    for (final id in tagIds)
+      if (tagById[id] != null &&
+          tagMatchesChartBreakdown(tagById[id]!, breakdown))
+        id,
+  ];
+
+  if (matching.isEmpty) {
+    const key = '__untagged__';
+    amounts[key] = (amounts[key] ?? 0) + amount;
+    labels[key] = untaggedLabel;
+    colors[key] ??= chartColorAt(0);
+    return;
+  }
+
+  if (matching.length == 1) {
+    _addAmountToTagSlice(
+      amounts: amounts,
+      labels: labels,
+      colors: colors,
+      tagId: matching.first,
+      part: amount,
+      tagLabels: tagLabels,
+      tagById: tagById,
+      untaggedLabel: untaggedLabel,
+    );
+    return;
+  }
+
+  final share = amount ~/ matching.length;
+  var remainder = amount - share * matching.length;
+  for (final tagId in matching) {
+    final part = share + (remainder > 0 ? 1 : 0);
+    if (remainder > 0) remainder--;
+    _addAmountToTagSlice(
+      amounts: amounts,
+      labels: labels,
+      colors: colors,
+      tagId: tagId,
+      part: part,
+      tagLabels: tagLabels,
+      tagById: tagById,
+      untaggedLabel: untaggedLabel,
+    );
+  }
+}
+
+void _aggregateExpenseByPayment({
+  required int amount,
+  required Expense expense,
+  required Map<int, PaymentMethod> paymentById,
+  required Map<int, String> paymentLabels,
+  required Map<String, int> amounts,
+  required Map<String, String> labels,
+  required Map<String, Color> colors,
+  required String untaggedLabel,
+}) {
+  final id = expense.paymentMethodId;
+  if (id == null || paymentById[id] == null) {
+    const key = '__untagged__';
+    amounts[key] = (amounts[key] ?? 0) + amount;
+    labels[key] = untaggedLabel;
+    colors[key] ??= chartColorAt(0);
+    return;
+  }
+  final key = 'pay_$id';
+  amounts[key] = (amounts[key] ?? 0) + amount;
+  labels[key] = paymentLabels[id] ?? untaggedLabel;
+  final method = paymentById[id]!;
+  colors[key] ??= colorFromValue(method.colorValue) ?? chartColorAt(id);
+}
+
 Future<List<DonutChartSlice>> aggregateExpensesForChart({
   required List<Expense> expenses,
   required String primaryCurrency,
@@ -41,6 +141,8 @@ Future<List<DonutChartSlice>> aggregateExpensesForChart({
   required Map<int, String> tagLabels,
   required Map<int, Tag> tagById,
   required String untaggedLabel,
+  Map<int, PaymentMethod> paymentById = const {},
+  Map<int, String> paymentLabels = const {},
 }) async {
   final amounts = <String, int>{};
   final labels = <String, String>{};
@@ -80,27 +182,31 @@ Future<List<DonutChartSlice>> aggregateExpensesForChart({
         amounts[key] = (amounts[key] ?? 0) + amount;
         labels[key] = key;
         colors[key] ??= chartColorAt(key.hashCode);
-      case ExpenseChartBreakdown.tags:
-        final ids = expenseTags[expense.id] ?? const <int>[];
-        if (ids.isEmpty) {
-          const key = '__untagged__';
-          amounts[key] = (amounts[key] ?? 0) + amount;
-          labels[key] = untaggedLabel;
-          colors[key] ??= chartColorAt(0);
-        } else {
-          final share = amount ~/ ids.length;
-          var remainder = amount - share * ids.length;
-          for (final id in ids) {
-            final key = 'tag_$id';
-            final part = share + (remainder > 0 ? 1 : 0);
-            if (remainder > 0) remainder--;
-            amounts[key] = (amounts[key] ?? 0) + part;
-            labels[key] = tagLabels[id] ?? untaggedLabel;
-            final tag = tagById[id];
-            colors[key] ??=
-                colorFromValue(tag?.colorValue) ?? chartColorAt(id);
-          }
-        }
+      case ExpenseChartBreakdown.payment:
+        _aggregateExpenseByPayment(
+          amount: amount,
+          expense: expense,
+          paymentById: paymentById,
+          paymentLabels: paymentLabels,
+          amounts: amounts,
+          labels: labels,
+          colors: colors,
+          untaggedLabel: untaggedLabel,
+        );
+      case ExpenseChartBreakdown.tagCountry:
+      case ExpenseChartBreakdown.tagTrip:
+      case ExpenseChartBreakdown.tagCustom:
+        _aggregateExpenseByTagKind(
+          amount: amount,
+          tagIds: expenseTags[expense.id] ?? const <int>[],
+          breakdown: breakdown,
+          tagById: tagById,
+          amounts: amounts,
+          labels: labels,
+          colors: colors,
+          tagLabels: tagLabels,
+          untaggedLabel: untaggedLabel,
+        );
     }
   }
 

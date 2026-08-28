@@ -5,11 +5,14 @@ class AppSettings {
   final String activeRateProviderId;
   final DateTime? lastRateRefreshAt;
   final int? defaultTagId;
+  final int? defaultPaymentMethodId;
   final String? detectedCountryCode;
   final String? detectedCurrency;
   final DateTime? countryDetectedAt;
   final String themeMode;
   final String locale;
+  /// UI money layout: `localeSymbol` | `localeCode` | `plain`.
+  final String moneyDisplayFormat;
   /// IANA id, or `'system'` to follow the device timezone.
   final String timeZoneId;
   /// User-defined currency codes (e.g. niche crypto).
@@ -32,11 +35,13 @@ class AppSettings {
     this.activeRateProviderId = 'frankfurter',
     this.lastRateRefreshAt,
     this.defaultTagId,
+    this.defaultPaymentMethodId,
     this.detectedCountryCode,
     this.detectedCurrency,
     this.countryDetectedAt,
     this.themeMode = 'system',
     this.locale = 'system',
+    this.moneyDisplayFormat = 'localeCode',
     this.timeZoneId = 'system',
     this.customCurrencyCodes = const [],
     this.telegramEnabled = false,
@@ -65,11 +70,14 @@ class AppSettings {
     bool clearLastRateRefreshAt = false,
     int? defaultTagId,
     bool clearDefaultTagId = false,
+    int? defaultPaymentMethodId,
+    bool clearDefaultPaymentMethodId = false,
     String? detectedCountryCode,
     String? detectedCurrency,
     DateTime? countryDetectedAt,
     String? themeMode,
     String? locale,
+    String? moneyDisplayFormat,
     String? timeZoneId,
     List<String>? customCurrencyCodes,
     bool? telegramEnabled,
@@ -90,11 +98,15 @@ class AppSettings {
           ? null
           : (lastRateRefreshAt ?? this.lastRateRefreshAt),
       defaultTagId: clearDefaultTagId ? null : (defaultTagId ?? this.defaultTagId),
+      defaultPaymentMethodId: clearDefaultPaymentMethodId
+          ? null
+          : (defaultPaymentMethodId ?? this.defaultPaymentMethodId),
       detectedCountryCode: detectedCountryCode ?? this.detectedCountryCode,
       detectedCurrency: detectedCurrency ?? this.detectedCurrency,
       countryDetectedAt: countryDetectedAt ?? this.countryDetectedAt,
       themeMode: themeMode ?? this.themeMode,
       locale: locale ?? this.locale,
+      moneyDisplayFormat: moneyDisplayFormat ?? this.moneyDisplayFormat,
       timeZoneId: timeZoneId ?? this.timeZoneId,
       customCurrencyCodes: customCurrencyCodes ?? this.customCurrencyCodes,
       telegramEnabled: telegramEnabled ?? this.telegramEnabled,
@@ -116,11 +128,13 @@ class AppSettings {
         'activeRateProviderId': activeRateProviderId,
         'lastRateRefreshAt': lastRateRefreshAt?.toIso8601String(),
         'defaultTagId': defaultTagId,
+        'defaultPaymentMethodId': defaultPaymentMethodId,
         'detectedCountryCode': detectedCountryCode,
         'detectedCurrency': detectedCurrency,
         'countryDetectedAt': countryDetectedAt?.toIso8601String(),
         'themeMode': themeMode,
         'locale': locale,
+        'moneyDisplayFormat': moneyDisplayFormat,
         'timeZoneId': timeZoneId,
         'customCurrencyCodes': customCurrencyCodes,
         'telegramEnabled': telegramEnabled,
@@ -145,6 +159,7 @@ class AppSettings {
           ? DateTime.tryParse(json['lastRateRefreshAt'] as String)
           : null,
       defaultTagId: json['defaultTagId'] as int?,
+      defaultPaymentMethodId: json['defaultPaymentMethodId'] as int?,
       detectedCountryCode: json['detectedCountryCode'] as String?,
       detectedCurrency: json['detectedCurrency'] as String?,
       countryDetectedAt: json['countryDetectedAt'] != null
@@ -152,6 +167,7 @@ class AppSettings {
           : null,
       themeMode: json['themeMode'] as String? ?? 'system',
       locale: json['locale'] as String? ?? 'system',
+      moneyDisplayFormat: json['moneyDisplayFormat'] as String? ?? 'localeCode',
       timeZoneId: json['timeZoneId'] as String? ?? 'system',
       customCurrencyCodes: (json['customCurrencyCodes'] as List<dynamic>?)
               ?.map((e) => e.toString().toUpperCase())

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
 import 'package:valtero/features/manage_tags/model/manage_tags_controller.dart';
+import 'package:valtero/features/manage_payment_methods/model/manage_payment_methods_controller.dart';
 import 'package:valtero/features/tag_suggestions/model/country_detection.dart';
 import 'package:valtero/pages/dashboard/dashboard_page.dart';
 import 'package:valtero/shared/consts/countries.dart';
@@ -29,6 +30,7 @@ class _AppState extends ConsumerState<App> {
     if (_bootstrapped) return;
     _bootstrapped = true;
     await ref.read(manageTagsControllerProvider).seedDefaultsIfEmpty();
+    await ref.read(managePaymentMethodsControllerProvider).seedDefaults();
     var settings = ref.read(appSettingsProvider).value;
     if (settings?.detectedCountryCode == null) {
       await ref.read(detectCountryControllerProvider)();

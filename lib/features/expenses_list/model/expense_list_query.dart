@@ -2,11 +2,21 @@ import 'package:valtero/shared/utils/date_period.dart';
 
 enum ExpenseListSortField { date, amount, currency }
 
-enum ExpenseListGroup { none, currency, date, tag }
+enum ExpenseListGroup {
+  none,
+  currency,
+  date,
+  tag,
+  tagCountry,
+  payment,
+  tagTrip,
+  tagCustom,
+}
 
 /// Filter / sort / group options for the expenses browsing sheet.
 class ExpenseListQuery {
   final Set<int> tagIds;
+  final Set<int> paymentMethodIds;
   final String? currencyCode;
   final DateTime? from;
   final DateTime? to;
@@ -16,6 +26,7 @@ class ExpenseListQuery {
 
   const ExpenseListQuery({
     this.tagIds = const {},
+    this.paymentMethodIds = const {},
     this.currencyCode,
     this.from,
     this.to,
@@ -32,6 +43,7 @@ class ExpenseListQuery {
 
   ExpenseListQuery copyWith({
     Set<int>? tagIds,
+    Set<int>? paymentMethodIds,
     String? currencyCode,
     bool clearCurrencyCode = false,
     DateTime? from,
@@ -44,6 +56,7 @@ class ExpenseListQuery {
   }) {
     return ExpenseListQuery(
       tagIds: tagIds ?? this.tagIds,
+      paymentMethodIds: paymentMethodIds ?? this.paymentMethodIds,
       currencyCode:
           clearCurrencyCode ? null : (currencyCode ?? this.currencyCode),
       from: clearFrom ? null : (from ?? this.from),

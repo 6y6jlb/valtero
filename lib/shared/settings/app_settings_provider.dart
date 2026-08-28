@@ -105,6 +105,12 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     await _save(current.copyWith(locale: locale));
   }
 
+  Future<void> setMoneyDisplayFormat(String format) async {
+    final current = state.value;
+    if (current == null) return;
+    await _save(current.copyWith(moneyDisplayFormat: format));
+  }
+
   Future<void> setTimeZoneId(String timeZoneId) async {
     final current = state.value;
     if (current == null) return;
@@ -163,6 +169,16 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       await _save(current.copyWith(clearDefaultTagId: true));
     } else {
       await _save(current.copyWith(defaultTagId: id));
+    }
+  }
+
+  Future<void> setDefaultPaymentMethodId(int? id) async {
+    final current = state.value;
+    if (current == null) return;
+    if (id == null) {
+      await _save(current.copyWith(clearDefaultPaymentMethodId: true));
+    } else {
+      await _save(current.copyWith(defaultPaymentMethodId: id));
     }
   }
 

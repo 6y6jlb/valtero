@@ -7,21 +7,24 @@ import 'package:valtero/widgets/period_picker.dart';
 
 const _filterHeight = 56.0;
 const _filterGap = 8.0;
-const _filterColumns = 3;
+const _filterColumns = 2;
 
-/// Period / currency / tags filter controls (shared by card + full-screen sheet).
+/// Period / currency / tags / payment filter controls.
 class ExpensesFilterForm extends StatelessWidget {
   final ExpenseListQuery draft;
   final List<String> currencyOptions;
   final VoidCallback onPickPeriod;
   final ValueChanged<String?> onCurrencyChanged;
   final VoidCallback onPickTags;
+  final VoidCallback onPickPayment;
   final VoidCallback onApply;
   final VoidCallback onClear;
   final Map<int, String> tagLabels;
+  final Map<int, String> paymentLabels;
   final VoidCallback onClearCurrency;
   final VoidCallback onClearPeriod;
   final VoidCallback onClearTags;
+  final VoidCallback onClearPayment;
 
   const ExpensesFilterForm({
     super.key,
@@ -30,12 +33,15 @@ class ExpensesFilterForm extends StatelessWidget {
     required this.onPickPeriod,
     required this.onCurrencyChanged,
     required this.onPickTags,
+    required this.onPickPayment,
     required this.onApply,
     required this.onClear,
     required this.tagLabels,
+    required this.paymentLabels,
     required this.onClearCurrency,
     required this.onClearPeriod,
     required this.onClearTags,
+    required this.onClearPayment,
   });
 
   InputDecoration _decoration(ThemeData theme, String label) {
@@ -68,6 +74,11 @@ class ExpensesFilterForm extends StatelessWidget {
     final tagsLabel = draft.tagIds.isEmpty
         ? l10n.all
         : draft.tagIds.map((id) => tagLabels[id] ?? '?').join(', ');
+    final paymentLabel = draft.paymentMethodIds.isEmpty
+        ? l10n.all
+        : draft.paymentMethodIds
+            .map((id) => paymentLabels[id] ?? '?')
+            .join(', ');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -134,6 +145,16 @@ class ExpensesFilterForm extends StatelessWidget {
                     onTap: onPickTags,
                   ),
                 ),
+                cell(
+                  ExpensesFilterOutlineButton(
+                    value: draft.paymentMethodIds.isEmpty
+                        ? l10n.all
+                        : l10n.paymentSelected(draft.paymentMethodIds.length),
+                    icon: Icons.payments_outlined,
+                    decoration: _decoration(theme, l10n.filterPayment),
+                    onTap: onPickPayment,
+                  ),
+                ),
               ],
             );
           },
@@ -174,6 +195,10 @@ class ExpensesFilterForm extends StatelessWidget {
               label: Text('${l10n.selectTags}: $tagsLabel'),
               onDeleted: onClearTags,
             ),
+            InputChip(
+              label: Text('${l10n.filterPayment}: $paymentLabel'),
+              onDeleted: onClearPayment,
+            ),
           ],
         ),
       ],
@@ -181,7 +206,7 @@ class ExpensesFilterForm extends StatelessWidget {
   }
 }
 
-/// One-line summary of current draft filters (period · currency · tags).
+/// One-line summary of current draft filters.
 String expensesFilterCollapsedSummary(
   AppLocalizations l10n,
   ExpenseListQuery draft,
@@ -194,7 +219,10 @@ String expensesFilterCollapsedSummary(
   final tags = draft.tagIds.isEmpty
       ? l10n.all
       : l10n.tagsSelected(draft.tagIds.length);
-  return '$period · $currency · $tags';
+  final payment = draft.paymentMethodIds.isEmpty
+      ? l10n.all
+      : l10n.paymentSelected(draft.paymentMethodIds.length);
+  return '$period · $currency · $tags · $payment';
 }
 
 class ExpensesFilterOutlineButton extends StatelessWidget {

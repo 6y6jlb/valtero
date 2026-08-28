@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
+import 'package:valtero/entities/payment_method/model/payment_methods_provider.dart';
 import 'package:valtero/entities/expense/model/expense_tags_provider.dart';
 import 'package:valtero/entities/expense/model/expenses_provider.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
 import 'package:valtero/features/currency_settings/ui/rates_sheet.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
+import 'package:valtero/features/expenses_list/model/expense_chart_aggregator.dart';
 import 'package:valtero/features/expenses_list/model/expense_chart_drill_down.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_filtering.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
+import 'package:valtero/features/expenses_list/ui/chart_breakdown_icons.dart';
 import 'package:valtero/features/expenses_list/ui/donut_breakdown_chart.dart';
+import 'package:valtero/features/expenses_list/ui/expense_payment_filter_dialog.dart';
 import 'package:valtero/features/expenses_list/ui/expense_tag_filter_dialog.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_filter_sheet.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_filter_summary_bar.dart';
@@ -26,25 +30,16 @@ import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/date_period.dart';
-import 'package:valtero/shared/utils/money.dart';
+import 'package:valtero/shared/utils/payment_method_label.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
 import 'package:valtero/widgets/app_page_scaffold.dart';
 import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/header_clock.dart';
 import 'package:valtero/widgets/period_picker.dart';
 
-enum DonutBreakdown { tags, month, currency }
-
-final donutBreakdownProvider =
-    StateProvider<DonutBreakdown>((ref) => DonutBreakdown.tags);
-
-ExpenseChartBreakdown _toExpenseChartBreakdown(DonutBreakdown breakdown) {
-  return switch (breakdown) {
-    DonutBreakdown.tags => ExpenseChartBreakdown.tags,
-    DonutBreakdown.month => ExpenseChartBreakdown.month,
-    DonutBreakdown.currency => ExpenseChartBreakdown.currency,
-  };
-}
+final donutBreakdownProvider = StateProvider<ExpenseChartBreakdown>(
+  (ref) => ExpenseChartBreakdown.tagCountry,
+);
 
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
@@ -57,7 +52,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   late ExpenseListQuery _draft = ExpenseListQuery.sessionDefaults();
   late ExpenseListQuery _applied = ExpenseListQuery.sessionDefaults();
 
-  void _changeBreakdown(DonutBreakdown next) {
+  void _changeBreakdown(ExpenseChartBreakdown next) {
     ref.read(donutBreakdownProvider.notifier).state = next;
   }
 
@@ -70,13 +65,16 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   Future<void> _openFilters({
     required List<String> currencyOptions,
     required Map<int, String> tagLabels,
+    required Map<int, String> paymentLabels,
     required List<Tag> tags,
+    required List<PaymentMethod> paymentMethods,
   }) async {
     final result = await showExpensesFilterSheet(
       context: context,
       initial: _draft,
       currencyOptions: currencyOptions,
       tagLabels: tagLabels,
+      paymentLabels: paymentLabels,
       onPickPeriod: (draft) async {
         final picked = await showPeriodPicker(
           context,
@@ -99,6 +97,15 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         if (selected == null) return null;
         return draft.copyWith(tagIds: selected);
       },
+      onPickPayment: (draft) async {
+        final selected = await showExpensePaymentFilterDialog(
+          context,
+          methods: paymentMethods,
+          initialSelection: draft.paymentMethodIds,
+        );
+        if (selected == null) return null;
+        return draft.copyWith(paymentMethodIds: selected);
+      },
     );
     if (result == null || !mounted) return;
     setState(() {
@@ -108,10 +115,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     showAppToast(context, AppLocalizations.of(context)!.filtersApplied);
   }
 
-  void _openSliceExpenses(DonutChartSlice slice, DonutBreakdown breakdown) {
+  void _openSliceExpenses(DonutChartSlice slice, ExpenseChartBreakdown breakdown) {
     final query = expenseChartDrillDownQuery(
       base: _applied,
-      breakdown: _toExpenseChartBreakdown(breakdown),
+      breakdown: breakdown,
       sliceKey: slice.key,
     );
     if (query == null) return;
@@ -120,11 +127,74 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
   List<DonutChartSlice> _sampleSlices(
     AppLocalizations l10n,
-    DonutBreakdown breakdown,
+    ExpenseChartBreakdown breakdown,
   ) {
     final now = DateTime.now();
     switch (breakdown) {
-      case DonutBreakdown.tags:
+      case ExpenseChartBreakdown.tagCountry:
+        return [
+          DonutChartSlice(
+            key: 'sample_ru',
+            label: l10n.guideSampleCountryRu,
+            amountMinor: 520000,
+            color: chartColorAt(0),
+          ),
+          DonutChartSlice(
+            key: 'sample_ge',
+            label: l10n.guideSampleCountryGe,
+            amountMinor: 210000,
+            color: chartColorAt(1),
+          ),
+          DonutChartSlice(
+            key: 'sample_tr',
+            label: l10n.guideSampleCountryTr,
+            amountMinor: 150000,
+            color: chartColorAt(2),
+          ),
+        ];
+      case ExpenseChartBreakdown.payment:
+        return [
+          DonutChartSlice(
+            key: 'sample_cash',
+            label: l10n.tagCash,
+            amountMinor: 380000,
+            color: chartColorAt(0),
+          ),
+          DonutChartSlice(
+            key: 'sample_card',
+            label: l10n.tagCard,
+            amountMinor: 450000,
+            color: chartColorAt(1),
+          ),
+          DonutChartSlice(
+            key: 'sample_crypto',
+            label: l10n.tagCrypto,
+            amountMinor: 120000,
+            color: chartColorAt(2),
+          ),
+        ];
+      case ExpenseChartBreakdown.tagTrip:
+        return [
+          DonutChartSlice(
+            key: 'sample_trip_usd',
+            label: l10n.tripTag('USD'),
+            amountMinor: 410000,
+            color: chartColorAt(0),
+          ),
+          DonutChartSlice(
+            key: 'sample_trip_eur',
+            label: l10n.tripTag('EUR'),
+            amountMinor: 260000,
+            color: chartColorAt(1),
+          ),
+          DonutChartSlice(
+            key: 'sample_trip_gel',
+            label: l10n.tripTag('GEL'),
+            amountMinor: 180000,
+            color: chartColorAt(2),
+          ),
+        ];
+      case ExpenseChartBreakdown.tagCustom:
         return [
           DonutChartSlice(
             key: 'sample_groceries',
@@ -145,7 +215,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             color: chartColorAt(2),
           ),
         ];
-      case DonutBreakdown.month:
+      case ExpenseChartBreakdown.month:
         String monthKey(DateTime d) =>
             '${d.year}-${d.month.toString().padLeft(2, '0')}';
         return [
@@ -168,7 +238,28 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             color: chartColorAt(2),
           ),
         ];
-      case DonutBreakdown.currency:
+      case ExpenseChartBreakdown.year:
+        return [
+          DonutChartSlice(
+            key: '${now.year - 2}',
+            label: '${now.year - 2}',
+            amountMinor: 720000,
+            color: chartColorAt(0),
+          ),
+          DonutChartSlice(
+            key: '${now.year - 1}',
+            label: '${now.year - 1}',
+            amountMinor: 890000,
+            color: chartColorAt(1),
+          ),
+          DonutChartSlice(
+            key: '${now.year}',
+            label: '${now.year}',
+            amountMinor: 540000,
+            color: chartColorAt(2),
+          ),
+        ];
+      case ExpenseChartBreakdown.currency:
         return [
           DonutChartSlice(
             key: 'RUB',
@@ -198,12 +289,19 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final settings = ref.watch(appSettingsProvider).value;
     final expenses = ref.watch(allExpensesProvider).value ?? const [];
     final tags = ref.watch(tagsStreamProvider).value ?? const [];
+    final paymentMethods =
+        ref.watch(paymentMethodsStreamProvider).value ?? const [];
     final expenseTags = ref.watch(expenseTagIdsProvider).value ?? const {};
     final breakdown = ref.watch(donutBreakdownProvider);
     final displayCurrency = settings?.primaryCurrency ?? 'RUB';
     final tagById = {for (final t in tags) t.id: t};
     final tagLabels = {
       for (final t in tags) t.id: localizedTagLabel(context, t),
+    };
+    final paymentById = {for (final m in paymentMethods) m.id: m};
+    final paymentLabels = {
+      for (final m in paymentMethods)
+        m.id: localizedPaymentMethodLabel(context, m),
     };
     final currencyOptions = <String>{
       for (final e in expenses) e.storedCurrencyCode,
@@ -271,20 +369,27 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               breakdown: breakdown,
               currencyOptions: currencyOptions,
               tagLabels: tagLabels,
+              paymentLabels: paymentLabels,
               tags: tags,
+              paymentMethods: paymentMethods,
               isSample: true,
               loading: false,
             )
           : FutureBuilder<List<DonutChartSlice>>(
-              future: _aggregate(
-                ref: ref,
+              future: aggregateExpensesForChart(
                 expenses: filtered,
-                expenseTags: expenseTags,
-                tagById: tagById,
-                tagLabels: tagLabels,
-                displayCurrency: displayCurrency,
+                primaryCurrency: displayCurrency,
+                resolver: ref.read(rateResolverProvider),
                 breakdown: breakdown,
-                untaggedLabel: l10n.untagged,
+                expenseTags: expenseTags,
+                tagLabels: tagLabels,
+                tagById: tagById,
+                paymentById: paymentById,
+                paymentLabels: paymentLabels,
+                untaggedLabel: unspecifiedLabelForChartBreakdown(
+                  l10n,
+                  breakdown,
+                ),
               ),
               builder: (context, snapshot) {
                 final slices = snapshot.data ?? const <DonutChartSlice>[];
@@ -296,7 +401,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   breakdown: breakdown,
                   currencyOptions: currencyOptions,
                   tagLabels: tagLabels,
+                  paymentLabels: paymentLabels,
                   tags: tags,
+                  paymentMethods: paymentMethods,
                   isSample: false,
                   loading:
                       snapshot.connectionState == ConnectionState.waiting,
@@ -311,10 +418,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     required AppLocalizations l10n,
     required List<DonutChartSlice> slices,
     required String displayCurrency,
-    required DonutBreakdown breakdown,
+    required ExpenseChartBreakdown breakdown,
     required List<String> currencyOptions,
     required Map<int, String> tagLabels,
+    required Map<int, String> paymentLabels,
     required List<Tag> tags,
+    required List<PaymentMethod> paymentMethods,
     required bool isSample,
     required bool loading,
   }) {
@@ -369,160 +478,36 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               : (slice) => _openSliceExpenses(slice, breakdown),
         ),
         const SizedBox(height: 8),
-        _DonutBreakdownIcons(
+        ChartBreakdownIcons(
           selected: breakdown,
           onChanged: _changeBreakdown,
+          showYear: false,
         ),
+        if (expenseChartBreakdownUsesTagKind(breakdown) ||
+            expenseChartBreakdownUsesPayment(breakdown)) ...[
+          const SizedBox(height: 4),
+          Text(
+            expenseChartBreakdownUsesPayment(breakdown)
+                ? l10n.chartPaymentHint
+                : l10n.chartTagKindHint,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
         const SizedBox(height: 12),
         ExpensesFilterSummaryBar(
           draft: _applied,
           onTap: () => _openFilters(
             currencyOptions: currencyOptions,
             tagLabels: tagLabels,
+            paymentLabels: paymentLabels,
             tags: tags,
+            paymentMethods: paymentMethods,
           ),
         ),
         if (loading) const LinearProgressIndicator(),
-      ],
-    );
-  }
-
-  Future<List<DonutChartSlice>> _aggregate({
-    required WidgetRef ref,
-    required List<Expense> expenses,
-    required Map<int, List<int>> expenseTags,
-    required Map<int, Tag> tagById,
-    required Map<int, String> tagLabels,
-    required String displayCurrency,
-    required DonutBreakdown breakdown,
-    required String untaggedLabel,
-  }) async {
-    final resolver = ref.read(rateResolverProvider);
-
-    final amounts = <String, int>{};
-    final colors = <String, Color>{};
-    final labels = <String, String>{};
-
-    for (final expense in expenses) {
-      final tagIds =
-          List<int>.from(expenseTags[expense.id] ?? const <int>[]);
-
-      final rate = await resolver.getRate(
-        expense.storedCurrencyCode,
-        displayCurrency,
-      );
-      final amount = rate == null
-          ? (expense.storedCurrencyCode == displayCurrency
-              ? expense.storedAmountMinor
-              : 0)
-          : Money.convertMinor(
-              originalMinor: expense.storedAmountMinor,
-              rate: rate,
-            );
-
-      switch (breakdown) {
-        case DonutBreakdown.tags:
-          if (tagIds.isEmpty) {
-            const key = '__untagged__';
-            amounts[key] = (amounts[key] ?? 0) + amount;
-            labels[key] = untaggedLabel;
-            colors[key] ??= chartColorAt(0);
-          } else {
-            final share = amount ~/ tagIds.length;
-            var remainder = amount - share * tagIds.length;
-            for (final tagId in tagIds) {
-              final key = 'tag_$tagId';
-              final part = share + (remainder > 0 ? 1 : 0);
-              if (remainder > 0) remainder--;
-              amounts[key] = (amounts[key] ?? 0) + part;
-              labels[key] = tagLabels[tagId] ?? untaggedLabel;
-              final tag = tagById[tagId];
-              colors[key] ??=
-                  colorFromValue(tag?.colorValue) ?? chartColorAt(tagId);
-            }
-          }
-        case DonutBreakdown.month:
-          final occurredAt = expense.occurredAt;
-          final key =
-              '${occurredAt.year}-${occurredAt.month.toString().padLeft(2, '0')}';
-          amounts[key] = (amounts[key] ?? 0) + amount;
-          labels[key] = key;
-          colors[key] ??= chartColorAt(amounts.length);
-        case DonutBreakdown.currency:
-          final key = expense.storedCurrencyCode;
-          amounts[key] = (amounts[key] ?? 0) + amount;
-          labels[key] = key;
-          colors[key] ??= chartColorAt(key.hashCode);
-      }
-    }
-
-    final entries = amounts.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-    var i = 0;
-    return [
-      for (final e in entries)
-        DonutChartSlice(
-          key: e.key,
-          label: labels[e.key] ?? e.key,
-          amountMinor: e.value,
-          color: colors[e.key] ?? chartColorAt(i++),
-        ),
-    ];
-  }
-}
-
-class _DonutBreakdownIcons extends StatelessWidget {
-  final DonutBreakdown selected;
-  final ValueChanged<DonutBreakdown> onChanged;
-
-  const _DonutBreakdownIcons({
-    required this.selected,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
-    final primary = theme.colorScheme.primary;
-    final muted = theme.colorScheme.onSurfaceVariant;
-
-    Widget iconBtn({
-      required DonutBreakdown value,
-      required IconData icon,
-      required String tooltip,
-    }) {
-      final isSelected = selected == value;
-      return IconButton(
-        tooltip: tooltip,
-        onPressed: () => onChanged(value),
-        icon: Icon(icon, color: isSelected ? primary : muted),
-        style: IconButton.styleFrom(
-          backgroundColor: isSelected
-              ? primary.withValues(alpha: 0.12)
-              : Colors.transparent,
-        ),
-      );
-    }
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        iconBtn(
-          value: DonutBreakdown.tags,
-          icon: Icons.label_outline,
-          tooltip: l10n.chartByTags,
-        ),
-        iconBtn(
-          value: DonutBreakdown.month,
-          icon: Icons.calendar_month,
-          tooltip: l10n.chartByMonth,
-        ),
-        iconBtn(
-          value: DonutBreakdown.currency,
-          icon: Icons.currency_exchange,
-          tooltip: l10n.chartByCurrency,
-        ),
       ],
     );
   }

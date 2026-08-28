@@ -524,6 +524,36 @@ abstract class AppLocalizations {
   /// **'Language'**
   String get locale;
 
+  /// No description provided for @moneyFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Money display'**
+  String get moneyFormat;
+
+  /// No description provided for @moneyFormatPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get moneyFormatPreview;
+
+  /// No description provided for @moneyFormatLocaleSymbol.
+  ///
+  /// In en, this message translates to:
+  /// **'Locale with symbol'**
+  String get moneyFormatLocaleSymbol;
+
+  /// No description provided for @moneyFormatLocaleCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Locale with currency code'**
+  String get moneyFormatLocaleCode;
+
+  /// No description provided for @moneyFormatPlain.
+  ///
+  /// In en, this message translates to:
+  /// **'Plain (1234.56 CODE)'**
+  String get moneyFormatPlain;
+
   /// No description provided for @timeZone.
   ///
   /// In en, this message translates to:
@@ -758,6 +788,156 @@ abstract class AppLocalizations {
   /// **'Tags'**
   String get chartByTags;
 
+  /// No description provided for @chartByTagCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Country tags'**
+  String get chartByTagCountry;
+
+  /// No description provided for @chartByPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment method'**
+  String get chartByPayment;
+
+  /// No description provided for @chartByTagTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip tags'**
+  String get chartByTagTrip;
+
+  /// No description provided for @chartByTagCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom tags'**
+  String get chartByTagCustom;
+
+  /// No description provided for @chartTagKindHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each expense counts once within this tag kind; missing tags appear as not set'**
+  String get chartTagKindHint;
+
+  /// No description provided for @chartPaymentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each expense has at most one payment method; unset appears as not set'**
+  String get chartPaymentHint;
+
+  /// No description provided for @tagKindSectionCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get tagKindSectionCountry;
+
+  /// No description provided for @tagKindSectionTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip'**
+  String get tagKindSectionTrip;
+
+  /// No description provided for @tagKindSectionCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get tagKindSectionCustom;
+
+  /// No description provided for @tagKindUnspecifiedCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Country not set'**
+  String get tagKindUnspecifiedCountry;
+
+  /// No description provided for @tagKindUnspecifiedTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip not set'**
+  String get tagKindUnspecifiedTrip;
+
+  /// No description provided for @tagKindUnspecifiedCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Category not set'**
+  String get tagKindUnspecifiedCustom;
+
+  /// No description provided for @tagKindSingleSelectHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One tag per group; groups are optional'**
+  String get tagKindSingleSelectHint;
+
+  /// No description provided for @paymentMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get paymentMethod;
+
+  /// No description provided for @paymentMethodNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get paymentMethodNone;
+
+  /// No description provided for @paymentMethodUnspecified.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment not set'**
+  String get paymentMethodUnspecified;
+
+  /// No description provided for @paymentMethodsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment methods'**
+  String get paymentMethodsTitle;
+
+  /// No description provided for @paymentMethodsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a default for new expenses. Built-in methods cannot be deleted.'**
+  String get paymentMethodsHint;
+
+  /// No description provided for @paymentMethodNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New payment method'**
+  String get paymentMethodNew;
+
+  /// No description provided for @paymentMethodAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add payment method'**
+  String get paymentMethodAdd;
+
+  /// No description provided for @paymentMethodEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit payment method'**
+  String get paymentMethodEdit;
+
+  /// No description provided for @paymentMethodBuiltIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in'**
+  String get paymentMethodBuiltIn;
+
+  /// No description provided for @paymentMethodClearDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear default payment'**
+  String get paymentMethodClearDefault;
+
+  /// No description provided for @filterPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get filterPayment;
+
+  /// No description provided for @paymentSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String paymentSelected(int count);
+
   /// No description provided for @chartByMonth.
   ///
   /// In en, this message translates to:
@@ -955,6 +1135,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tag'**
   String get groupTag;
+
+  /// No description provided for @groupTagCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get groupTagCountry;
+
+  /// No description provided for @groupPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get groupPayment;
+
+  /// No description provided for @groupTagTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip'**
+  String get groupTagTrip;
+
+  /// No description provided for @groupTagCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get groupTagCustom;
 
   /// No description provided for @groupTags.
   ///
@@ -1346,6 +1550,24 @@ abstract class AppLocalizations {
   /// **'Dining'**
   String get guideSampleDining;
 
+  /// No description provided for @guideSampleCountryRu.
+  ///
+  /// In en, this message translates to:
+  /// **'Russia'**
+  String get guideSampleCountryRu;
+
+  /// No description provided for @guideSampleCountryGe.
+  ///
+  /// In en, this message translates to:
+  /// **'Georgia'**
+  String get guideSampleCountryGe;
+
+  /// No description provided for @guideSampleCountryTr.
+  ///
+  /// In en, this message translates to:
+  /// **'Turkey'**
+  String get guideSampleCountryTr;
+
   /// No description provided for @guideSectionGettingStartedTitle.
   ///
   /// In en, this message translates to:
@@ -1379,7 +1601,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionTagsBody.
   ///
   /// In en, this message translates to:
-  /// **'Tag expenses with country (auto-detected or picked), payment resource (cash, card, crypto, and more), and your own labels. Manage tags from Settings or the tags icon on the dashboard.'**
+  /// **'Tag expenses with country (auto-detected or picked), trip, and category labels. One tag per group; groups are optional. Payment is a separate field (cash, card, crypto, or your own). Manage tags and payment methods in Settings.'**
   String get guideSectionTagsBody;
 
   /// No description provided for @guideSectionChartsTitle.
@@ -1391,7 +1613,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionChartsBody.
   ///
   /// In en, this message translates to:
-  /// **'The dashboard donut chart breaks down spending by tags, months, or currency. Switch the breakdown with the icons under the chart. Tap a segment on the chart to open matching expenses. Tap a legend chip under the chart to show or hide that slice. Open Show expenses for list, grouping, and chart views with sort and pagination.'**
+  /// **'The dashboard donut chart breaks down spending by country, payment method, trip, category, months, or currency. Switch the breakdown with the icons under the chart. Within a tag kind, each expense is counted once. Missing payment or tags for that kind appear as not set. Tap a segment to open matching expenses. Tap a legend chip to show or hide that slice. Open Show expenses for list, grouping, and chart views with sort and pagination.'**
   String get guideSectionChartsBody;
 
   /// No description provided for @guideSectionExchangeRatesTitle.
