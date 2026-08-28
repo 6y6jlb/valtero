@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/currency_settings/ui/currency_settings_panel.dart';
 import 'package:valtero/features/export_expenses/ui/export_flow.dart';
+import 'package:valtero/pages/platform_guide/platform_guide_page.dart';
 import 'package:valtero/pages/tags/tags_sheet.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/app_timezone.dart';
 import 'package:valtero/shared/utils/app_version_provider.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_page_scaffold.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -100,7 +102,8 @@ class SettingsPage extends ConsumerWidget {
     final versionLabel = ref.watch(appVersionLabelProvider);
     final theme = Theme.of(context);
 
-    return Scaffold(
+    return AppPageScaffold(
+      showAddExpenseFab: false,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -134,6 +137,12 @@ class SettingsPage extends ConsumerWidget {
             title: Text(l10n.settingsExport),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => showExportSheet(context),
+          ),
+          ListTile(
+            leading: const Icon(Icons.menu_book_outlined),
+            title: Text(l10n.guideOpenFromSettings),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => PlatformGuidePage.open(context),
           ),
           if (versionLabel != null) ...[
             const SizedBox(height: 24),

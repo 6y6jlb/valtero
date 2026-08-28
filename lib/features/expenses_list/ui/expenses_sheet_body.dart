@@ -6,6 +6,7 @@ import 'package:valtero/entities/expense/model/expenses_provider.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
 import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
 import 'package:valtero/features/expenses_list/model/expense_chart_aggregator.dart';
+import 'package:valtero/features/expenses_list/model/expense_chart_drill_down.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_export.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_filtering.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
@@ -25,6 +26,7 @@ import 'package:valtero/features/expenses_list/ui/grouped_expense_table.dart';
 import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
 import 'package:valtero/features/export_expenses/model/export_destination.dart';
 import 'package:valtero/features/export_expenses/ui/export_flow.dart';
+import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
@@ -278,6 +280,23 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
     showAppToast(context, AppLocalizations.of(context)!.filtersApplied);
   }
 
+  void _applyChartSegmentFilter(DonutChartSlice slice) {
+    final next = expenseChartDrillDownQuery(
+      base: _applied,
+      breakdown: _chartBreakdown,
+      sliceKey: slice.key,
+    );
+    if (next == null) return;
+    setState(() {
+      _draft = next;
+      _applied = next;
+      _page = 0;
+      _view = ExpenseListViewMode.list;
+    });
+    _persistDisplayPrefs(view: ExpenseListViewMode.list);
+    showAppToast(context, AppLocalizations.of(context)!.filtersApplied);
+  }
+
   void _clearFilters() {
     final defaults = ExpenseListQuery.sessionDefaults();
     setState(() {
@@ -445,7 +464,6 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                       group: _applied.group == ExpenseListGroup.none
                           ? ExpenseListGroup.currency
                           : _applied.group,
-                      chartBreakdown: _chartBreakdown,
                       sort: _applied.sort,
                       ascending: _applied.ascending,
                       displayCurrency: _displayCurrency,
@@ -488,10 +506,6 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                         );
                         _persistDisplayPrefs(group: g);
                       },
-                      onChartBreakdownChanged: (b) {
-                        setState(() => _chartBreakdown = b);
-                        _persistDisplayPrefs(chartBreakdown: b);
-                      },
                       onExport: _export,
                       child: filtered.isEmpty
                           ? Padding(
@@ -525,9 +539,18 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                                     breakdown: _chartBreakdown,
                                     expenseTags: expenseTags,
                                     tagLabels: tagLabels,
+                                    tagById: {
+                                      for (final t in tags) t.id: t,
+                                    },
                                     untaggedLabel: l10n.untagged,
                                   ),
                                   primaryCurrency: summaryCurrency,
+                                  chartBreakdown: _chartBreakdown,
+                                  onChartBreakdownChanged: (b) {
+                                    setState(() => _chartBreakdown = b);
+                                    _persistDisplayPrefs(chartBreakdown: b);
+                                  },
+                                  onSegmentTap: _applyChartSegmentFilter,
                                 ),
                             },
                     ),

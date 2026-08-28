@@ -63,11 +63,12 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 
 ## Navigation
 
-- Home: **Dashboard** (no bottom nav)
-- **Expenses**: full page via FAB “Show expenses” (back arrow); add expense stays a sheet (`+` FAB sticky bottom on Dashboard and Expenses page)
+- Home: **Dashboard** (no bottom nav). If there are **no expenses yet**, Dashboard shows a **sample chart** labeled as an example, with a link to the **platform guide**; after the first expense, real chart data appears. The guide is also opened from Settings → Platform guide.
+- **Expenses**: full page via FAB “Show expenses” (back arrow); add expense stays a sheet (`+` FAB sticky bottom on Dashboard, Expenses, and Platform guide — **not** on Settings)
 - Settings via gear in the AppBar → full page with back arrow
-- Sheets (full window width): add expense, tags, export, currency, appearance, rates list
-- Dashboard: one donut (by tags / months / currency), tag exclude filters, date period; FABs “Show expenses” + add
+- Sheets (full window width): add expense, tags, export, currency, appearance, rates list, dashboard filters
+- Dashboard: one donut (shared [DonutBreakdownChart](lib/features/expenses_list/ui/donut_breakdown_chart.dart): amounts on segments, legend chips toggle visibility; tap segment → Expenses with filter); compact breakdown icons; filter summary bar → full-screen sheet; FABs “Show expenses” + add
+- Expenses chart view uses the same donut widget; tap a segment applies that filter and switches to list
 - AppBar shows live date/time in the selected timezone (default: auto-detected system zone)
 - Desktop default window size: **853×720** (≈⅔ of the previous 1280 width)
 
@@ -84,9 +85,10 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 - Comments only for non-obvious logic
 - Names explain intent: `getRateForPair()` not `get()`, `changeStoredCurrency()` not `set()`
 - PascalCase classes, camelCase members, `_` prefix for private
+- **Do not** put the product name (`Valtero`) in file or class names — use role names (`AppPageScaffold`, not `ValteroPageScaffold`)
 - UI component files: **≤ 500 lines** (one screen/sheet/widget per file); split private sub-widgets into sibling `ui/` files and pure logic into `model/`
 
-Details: [docs/agent-rules/ui-component-size.md](docs/agent-rules/ui-component-size.md)
+Details: [docs/agent-rules/naming.md](docs/agent-rules/naming.md), [docs/agent-rules/ui-component-size.md](docs/agent-rules/ui-component-size.md)
 
 ## New dependencies
 
@@ -115,8 +117,10 @@ Details: [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md)
 | [docs/agent-rules/drift-conventions.md](docs/agent-rules/drift-conventions.md) | Tables/DAOs, `kAppSchemaVersion`, migrate_to_vN, exchange envelope versions |
 | [docs/agent-rules/riverpod-conventions.md](docs/agent-rules/riverpod-conventions.md) | Provider placement and `AsyncNotifier` pattern |
 | [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md) | No hardcoded UI strings; en/ru ARB |
+| [docs/agent-rules/naming.md](docs/agent-rules/naming.md) | No product name in file/class identifiers; intent-based names |
 | [docs/agent-rules/ui-component-size.md](docs/agent-rules/ui-component-size.md) | ≤ 500 lines per UI component; when/how to split |
 | [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md) | New packages: need / overlap / health + explicit user approve |
+| [docs/agent-rules/platform-guide.md](docs/agent-rules/platform-guide.md) | Keep in-app platform guide in sync with new capabilities |
 
 ## Tool-specific rule files (gitignored)
 
@@ -134,7 +138,9 @@ To generate Cursor mirrors once locally:
 | `drift-conventions` | `globs: lib/**/data/**,lib/shared/database/**` |
 | `riverpod-conventions` | `globs: lib/**/model/**,lib/shared/settings/**` |
 | `l10n-strings` | `globs: lib/**/*.dart,lib/shared/l10n/**` |
+| `naming` | `alwaysApply: true` |
 | `ui-component-size` | `globs: lib/**/ui/**,lib/pages/**,lib/widgets/**` |
 | `dependencies` | `alwaysApply: true` |
+| `platform-guide` | `globs: lib/features/platform_guide/**,lib/pages/platform_guide/**` |
 
 Ask an agent: “Mirror `docs/agent-rules/*.md` into `.cursor/rules/*.mdc` with the frontmatter from AGENTS.md.”

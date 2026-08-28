@@ -1267,6 +1267,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Still missing {count} rates'**
   String missingRatesStill(int count);
+
+  /// No description provided for @saveAsIsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The amount is saved in the currency you entered. No conversion is applied.'**
+  String get saveAsIsDescription;
+
+  /// No description provided for @tagsNoneSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'None selected'**
+  String get tagsNoneSelected;
+
+  /// No description provided for @tagsSelectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String tagsSelectedCount(int count);
+
+  /// No description provided for @guideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What Valtero can do'**
+  String get guideTitle;
+
+  /// No description provided for @guideSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A short tour of the main features. Tap a section to expand.'**
+  String get guideSubtitle;
+
+  /// No description provided for @guideOpenFromSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform guide'**
+  String get guideOpenFromSettings;
+
+  /// No description provided for @dashboardSampleChartLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Example — your chart will look like this after you add expenses'**
+  String get dashboardSampleChartLabel;
+
+  /// No description provided for @dashboardOpenGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'What the app can do'**
+  String get dashboardOpenGuide;
+
+  /// No description provided for @chartLegendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Segments'**
+  String get chartLegendTitle;
+
+  /// No description provided for @chartLegendSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{visible} of {total} shown'**
+  String chartLegendSummary(int visible, int total);
+
+  /// No description provided for @guideSampleGroceries.
+  ///
+  /// In en, this message translates to:
+  /// **'Groceries'**
+  String get guideSampleGroceries;
+
+  /// No description provided for @guideSampleTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'Transport'**
+  String get guideSampleTransport;
+
+  /// No description provided for @guideSampleDining.
+  ///
+  /// In en, this message translates to:
+  /// **'Dining'**
+  String get guideSampleDining;
+
+  /// No description provided for @guideSectionGettingStartedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting started'**
+  String get guideSectionGettingStartedTitle;
+
+  /// No description provided for @guideSectionGettingStartedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the + button at the bottom of the screen to open the add-expense form. Enter an amount and currency, optionally convert into a reporting currency, pick tags, and save. Until then, the dashboard shows a sample chart with a link to this guide.'**
+  String get guideSectionGettingStartedBody;
+
+  /// No description provided for @guideSectionExpenseTrackingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense tracking'**
+  String get guideSectionExpenseTrackingTitle;
+
+  /// No description provided for @guideSectionExpenseTrackingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Each expense stores amount, currency, date, and an optional note. The original amount and currency are always kept, even if you convert into a reporting currency for storage.'**
+  String get guideSectionExpenseTrackingBody;
+
+  /// No description provided for @guideSectionTagsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get guideSectionTagsTitle;
+
+  /// No description provided for @guideSectionTagsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag expenses with country (auto-detected or picked), payment resource (cash, card, crypto, and more), and your own labels. Manage tags from Settings or the tags icon on the dashboard.'**
+  String get guideSectionTagsBody;
+
+  /// No description provided for @guideSectionChartsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending charts'**
+  String get guideSectionChartsTitle;
+
+  /// No description provided for @guideSectionChartsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The dashboard donut chart breaks down spending by tags, months, or currency. Switch the breakdown with the icons under the chart. Tap a segment on the chart to open matching expenses. Tap a legend chip under the chart to show or hide that slice. Open Show expenses for list, grouping, and chart views with sort and pagination.'**
+  String get guideSectionChartsBody;
+
+  /// No description provided for @guideSectionExchangeRatesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange rates'**
+  String get guideSectionExchangeRatesTitle;
+
+  /// No description provided for @guideSectionExchangeRatesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Rates refresh in the background when stale (about every 24 hours). Bind an ExchangeRate-API key, refresh manually, set overrides, and browse all rates in Settings → Currency & rates.'**
+  String get guideSectionExchangeRatesBody;
+
+  /// No description provided for @guideSectionExportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get guideSectionExportTitle;
+
+  /// No description provided for @guideSectionExportBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Export expenses as CSV or JSON. Save a file, share it, or copy to the clipboard from the export menu or Settings → Export & Telegram.'**
+  String get guideSectionExportBody;
+
+  /// No description provided for @guideSectionTelegramTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Telegram sharing'**
+  String get guideSectionTelegramTitle;
+
+  /// No description provided for @guideSectionTelegramBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Telegram in Export settings, enter a bot token and chat id, then send an export document straight to Telegram.'**
+  String get guideSectionTelegramBody;
+
+  /// No description provided for @guideSectionFiltersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get guideSectionFiltersTitle;
+
+  /// No description provided for @guideSectionFiltersBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter by period, currency, and tags on the dashboard and expenses page. Apply or clear filters anytime; the dashboard keeps a compact summary and opens filters in a full-screen sheet.'**
+  String get guideSectionFiltersBody;
 }
 
 class _AppLocalizationsDelegate

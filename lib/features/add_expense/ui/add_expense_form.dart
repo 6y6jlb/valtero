@@ -199,201 +199,257 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
     final countryTags = tags.where((t) => t.kind == 'country').toList();
     final resourceTags = tags.where((t) => t.kind == 'resource').toList();
     final scrollController = PrimaryScrollController.maybeOf(context);
+    final theme = Theme.of(context);
+    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    final tagsSubtitle = _tagIds.isEmpty
+        ? l10n.tagsNoneSelected
+        : l10n.tagsSelectedCount(_tagIds.length);
 
-    return ListView(
-      controller: scrollController,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+    return Column(
       children: [
-        Text(l10n.addExpense, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 16),
-        TextField(
-          controller: _amountController,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-          ],
-          decoration: InputDecoration(labelText: l10n.amount),
-        ),
-        const SizedBox(height: 12),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          title: Text(l10n.currency),
-          subtitle: CurrencyCodeLabel(_currency),
-          trailing: const Icon(Icons.arrow_drop_down),
-          onTap: () async {
-            final code = await showCurrencyPicker(context);
-            if (code == null) return;
-            setState(() => _currency = code);
-            _refreshRate();
-          },
-        ),
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          title: Text(_convert ? l10n.convertTo : l10n.saveAsIs),
-          value: _convert,
-          onChanged: (v) {
-            setState(() => _convert = v);
-            _refreshRate();
-          },
-        ),
-        if (_convert) ...[
-          DropdownButtonFormField<String>(
-            // ignore: deprecated_member_use
-            value: reporting.contains(_targetCurrency) ? _targetCurrency : reporting.first,
-            isExpanded: true,
-            decoration: InputDecoration(labelText: l10n.convertTo),
-            items: [
-              for (final code in reporting)
-                DropdownMenuItem(
-                  value: code,
-                  child: CurrencyCodeLabel(code),
+        Expanded(
+          child: ListView(
+            controller: scrollController,
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            children: [
+              Text(l10n.addExpense, style: theme.textTheme.titleLarge),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _amountController,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                ],
+                decoration: InputDecoration(labelText: l10n.amount),
+              ),
+              const SizedBox(height: 12),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.currency),
+                subtitle: CurrencyCodeLabel(_currency),
+                trailing: const Icon(Icons.arrow_drop_down),
+                onTap: () async {
+                  final code = await showCurrencyPicker(context);
+                  if (code == null) return;
+                  setState(() => _currency = code);
+                  _refreshRate();
+                },
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(_convert ? l10n.convertTo : l10n.saveAsIs),
+                value: _convert,
+                onChanged: (v) {
+                  setState(() => _convert = v);
+                  _refreshRate();
+                },
+              ),
+              if (!_convert)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    l10n.saveAsIsDescription,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              if (_convert) ...[
+                DropdownButtonFormField<String>(
+                  // ignore: deprecated_member_use
+                  value: reporting.contains(_targetCurrency)
+                      ? _targetCurrency
+                      : reporting.first,
+                  isExpanded: true,
+                  decoration: InputDecoration(labelText: l10n.convertTo),
+                  items: [
+                    for (final code in reporting)
+                      DropdownMenuItem(
+                        value: code,
+                        child: CurrencyCodeLabel(code),
+                      ),
+                  ],
+                  onChanged: (v) {
+                    setState(() => _targetCurrency = v);
+                    _refreshRate();
+                  },
+                ),
+                const SizedBox(height: 8),
+                if (_loadingRate)
+                  const LinearProgressIndicator()
+                else if (_rate != null)
+                  Text(l10n.exchangeRate(_rate!.toStringAsFixed(6)))
+                else ...[
+                  Text(
+                    l10n.rateUnavailable,
+                    style: TextStyle(color: theme.colorScheme.error),
+                  ),
+                  const SizedBox(height: 8),
+                  OutlinedButton.icon(
+                    onPressed: _offerSetRate,
+                    icon: const Icon(Icons.edit_outlined),
+                    label: Text(l10n.setRateNow),
+                  ),
+                ],
+              ],
+              const SizedBox(height: 8),
+              Card(
+                margin: EdgeInsets.zero,
+                child: ExpansionTile(
+                  initiallyExpanded: false,
+                  title: Text(l10n.tag),
+                  subtitle: Text(
+                    tagsSubtitle,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                  children: [
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final tag in countryTags)
+                          TagChip(
+                            tag: tag,
+                            selected: _tagIds.contains(tag.id),
+                            onTap: () {
+                              setState(() {
+                                if (_tagIds.contains(tag.id)) {
+                                  _tagIds.remove(tag.id);
+                                } else {
+                                  _tagIds.add(tag.id);
+                                }
+                              });
+                            },
+                          ),
+                        ActionChip(
+                          avatar: const Icon(Icons.public, size: 18),
+                          label: Text(l10n.selectCountry),
+                          onPressed: _pickCountry,
+                        ),
+                        for (final tag in resourceTags)
+                          TagChip(
+                            tag: tag,
+                            selected: _tagIds.contains(tag.id),
+                            onTap: () {
+                              setState(() {
+                                if (_tagIds.contains(tag.id)) {
+                                  _tagIds.remove(tag.id);
+                                } else {
+                                  _tagIds.add(tag.id);
+                                }
+                              });
+                            },
+                          ),
+                        for (final tag in normalTags)
+                          TagChip(
+                            tag: tag,
+                            selected: _tagIds.contains(tag.id),
+                            onTap: () {
+                              setState(() {
+                                if (_tagIds.contains(tag.id)) {
+                                  _tagIds.remove(tag.id);
+                                } else {
+                                  _tagIds.add(tag.id);
+                                }
+                              });
+                            },
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _newTagController,
+                            decoration: InputDecoration(labelText: l10n.newTag),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () async {
+                            final result = await showTagEditDialog(
+                              context,
+                              title: l10n.newTag,
+                              initialName: _newTagController.text,
+                              confirmLabel: l10n.add,
+                            );
+                            if (result == null) return;
+                            final id = await ref
+                                .read(manageTagsControllerProvider)
+                                .addTag(
+                                  result.name,
+                                  colorValue: result.colorValue,
+                                );
+                            if (id > 0) {
+                              _newTagController.clear();
+                              setState(() => _tagIds.add(id));
+                            }
+                          },
+                          icon: const Icon(Icons.add),
+                          tooltip: l10n.addTag,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _noteController,
+                decoration: InputDecoration(labelText: l10n.note),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.date),
+                subtitle: Text(
+                  '${_occurredAt.year}-${_occurredAt.month.toString().padLeft(2, '0')}-${_occurredAt.day.toString().padLeft(2, '0')}',
+                ),
+                trailing: const Icon(Icons.calendar_today),
+                onTap: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: _occurredAt,
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime.now().add(const Duration(days: 365)),
+                  );
+                  if (picked != null) {
+                    setState(() {
+                      _occurredAt = DateTime(
+                        picked.year,
+                        picked.month,
+                        picked.day,
+                        _occurredAt.hour,
+                        _occurredAt.minute,
+                      );
+                    });
+                  }
+                },
+              ),
+              if (_error != null)
+                Text(
+                  _error!,
+                  style: TextStyle(color: theme.colorScheme.error),
                 ),
             ],
-            onChanged: (v) {
-              setState(() => _targetCurrency = v);
-              _refreshRate();
-            },
           ),
-          const SizedBox(height: 8),
-          if (_loadingRate)
-            const LinearProgressIndicator()
-          else if (_rate != null)
-            Text(l10n.exchangeRate(_rate!.toStringAsFixed(6)))
-          else ...[
-            Text(
-              l10n.rateUnavailable,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: _offerSetRate,
-              icon: const Icon(Icons.edit_outlined),
-              label: Text(l10n.setRateNow),
-            ),
-          ],
-        ],
-        const SizedBox(height: 12),
-        Text(l10n.tag, style: Theme.of(context).textTheme.titleSmall),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final tag in countryTags)
-              TagChip(
-                tag: tag,
-                selected: _tagIds.contains(tag.id),
-                onTap: () {
-                  setState(() {
-                    if (_tagIds.contains(tag.id)) {
-                      _tagIds.remove(tag.id);
-                    } else {
-                      _tagIds.add(tag.id);
-                    }
-                  });
-                },
-              ),
-            ActionChip(
-              avatar: const Icon(Icons.public, size: 18),
-              label: Text(l10n.selectCountry),
-              onPressed: _pickCountry,
-            ),
-            for (final tag in resourceTags)
-              TagChip(
-                tag: tag,
-                selected: _tagIds.contains(tag.id),
-                onTap: () {
-                  setState(() {
-                    if (_tagIds.contains(tag.id)) {
-                      _tagIds.remove(tag.id);
-                    } else {
-                      _tagIds.add(tag.id);
-                    }
-                  });
-                },
-              ),
-            for (final tag in normalTags)
-              TagChip(
-                tag: tag,
-                selected: _tagIds.contains(tag.id),
-                onTap: () {
-                  setState(() {
-                    if (_tagIds.contains(tag.id)) {
-                      _tagIds.remove(tag.id);
-                    } else {
-                      _tagIds.add(tag.id);
-                    }
-                  });
-                },
-              ),
-          ],
         ),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _newTagController,
-                decoration: InputDecoration(labelText: l10n.newTag),
+        SafeArea(
+          top: false,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 8 + bottomInset),
+            child: SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: _save,
+                child: Text(l10n.save),
               ),
             ),
-            IconButton(
-              onPressed: () async {
-                final result = await showTagEditDialog(
-                  context,
-                  title: l10n.newTag,
-                  initialName: _newTagController.text,
-                  confirmLabel: l10n.add,
-                );
-                if (result == null) return;
-                final id = await ref.read(manageTagsControllerProvider).addTag(
-                      result.name,
-                      colorValue: result.colorValue,
-                    );
-                if (id > 0) {
-                  _newTagController.clear();
-                  setState(() => _tagIds.add(id));
-                }
-              },
-              icon: const Icon(Icons.add),
-              tooltip: l10n.addTag,
-            ),
-          ],
-        ),
-        TextField(
-          controller: _noteController,
-          decoration: InputDecoration(labelText: l10n.note),
-        ),
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          title: Text(l10n.date),
-          subtitle: Text(
-            '${_occurredAt.year}-${_occurredAt.month.toString().padLeft(2, '0')}-${_occurredAt.day.toString().padLeft(2, '0')}',
           ),
-          trailing: const Icon(Icons.calendar_today),
-          onTap: () async {
-            final picked = await showDatePicker(
-              context: context,
-              initialDate: _occurredAt,
-              firstDate: DateTime(2000),
-              lastDate: DateTime.now().add(const Duration(days: 365)),
-            );
-            if (picked != null) {
-              setState(() {
-                _occurredAt = DateTime(
-                  picked.year,
-                  picked.month,
-                  picked.day,
-                  _occurredAt.hour,
-                  _occurredAt.minute,
-                );
-              });
-            }
-          },
         ),
-        if (_error != null)
-          Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
-        const SizedBox(height: 16),
-        FilledButton(onPressed: _save, child: Text(l10n.save)),
       ],
     );
   }

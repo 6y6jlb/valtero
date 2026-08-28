@@ -14,7 +14,6 @@ class ExpensesListingCard extends StatelessWidget {
   final int pageCount;
   final ExpenseListViewMode view;
   final ExpenseListGroup group;
-  final ExpenseChartBreakdown chartBreakdown;
   final ExpenseListSortField sort;
   final bool ascending;
   final String? displayCurrency;
@@ -23,7 +22,6 @@ class ExpensesListingCard extends StatelessWidget {
   final ValueChanged<int> onPageChanged;
   final ValueChanged<ExpenseListViewMode> onViewChanged;
   final ValueChanged<ExpenseListGroup> onGroupChanged;
-  final ValueChanged<ExpenseChartBreakdown> onChartBreakdownChanged;
   final void Function(ExpenseListSortField field, bool ascending)
       onSortChanged;
   final Future<void> Function(
@@ -39,7 +37,6 @@ class ExpensesListingCard extends StatelessWidget {
     required this.pageCount,
     required this.view,
     required this.group,
-    required this.chartBreakdown,
     required this.sort,
     required this.ascending,
     required this.displayCurrency,
@@ -48,7 +45,6 @@ class ExpensesListingCard extends StatelessWidget {
     required this.onPageChanged,
     required this.onViewChanged,
     required this.onGroupChanged,
-    required this.onChartBreakdownChanged,
     required this.onSortChanged,
     required this.onExport,
     required this.child,
@@ -211,44 +207,6 @@ class ExpensesListingCard extends StatelessWidget {
                         ],
                         onChanged: (v) {
                           if (v != null) onGroupChanged(v);
-                        },
-                      ),
-                    if (view == ExpenseListViewMode.chart)
-                      DropdownButton<ExpenseChartBreakdown>(
-                        value: chartBreakdown,
-                        isDense: true,
-                        style: actionStyle?.copyWith(
-                          color: theme.colorScheme.onSurface,
-                        ),
-                        underline: const SizedBox.shrink(),
-                        items: [
-                          DropdownMenuItem(
-                            value: ExpenseChartBreakdown.currency,
-                            child: Text(
-                              '${l10n.chartBy}: ${l10n.chartByCurrency}',
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: ExpenseChartBreakdown.tags,
-                            child: Text(
-                              '${l10n.chartBy}: ${l10n.chartByTags}',
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: ExpenseChartBreakdown.month,
-                            child: Text(
-                              '${l10n.chartBy}: ${l10n.chartByMonth}',
-                            ),
-                          ),
-                          DropdownMenuItem(
-                            value: ExpenseChartBreakdown.year,
-                            child: Text(
-                              '${l10n.chartBy}: ${l10n.chartByYear}',
-                            ),
-                          ),
-                        ],
-                        onChanged: (v) {
-                          if (v != null) onChartBreakdownChanged(v);
                         },
                       ),
                     Row(

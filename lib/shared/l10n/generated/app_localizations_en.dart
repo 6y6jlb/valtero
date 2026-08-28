@@ -616,4 +616,106 @@ class AppLocalizationsEn extends AppLocalizations {
   String missingRatesStill(int count) {
     return 'Still missing $count rates';
   }
+
+  @override
+  String get saveAsIsDescription =>
+      'The amount is saved in the currency you entered. No conversion is applied.';
+
+  @override
+  String get tagsNoneSelected => 'None selected';
+
+  @override
+  String tagsSelectedCount(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get guideTitle => 'What Valtero can do';
+
+  @override
+  String get guideSubtitle =>
+      'A short tour of the main features. Tap a section to expand.';
+
+  @override
+  String get guideOpenFromSettings => 'Platform guide';
+
+  @override
+  String get dashboardSampleChartLabel =>
+      'Example — your chart will look like this after you add expenses';
+
+  @override
+  String get dashboardOpenGuide => 'What the app can do';
+
+  @override
+  String get chartLegendTitle => 'Segments';
+
+  @override
+  String chartLegendSummary(int visible, int total) {
+    return '$visible of $total shown';
+  }
+
+  @override
+  String get guideSampleGroceries => 'Groceries';
+
+  @override
+  String get guideSampleTransport => 'Transport';
+
+  @override
+  String get guideSampleDining => 'Dining';
+
+  @override
+  String get guideSectionGettingStartedTitle => 'Getting started';
+
+  @override
+  String get guideSectionGettingStartedBody =>
+      'Tap the + button at the bottom of the screen to open the add-expense form. Enter an amount and currency, optionally convert into a reporting currency, pick tags, and save. Until then, the dashboard shows a sample chart with a link to this guide.';
+
+  @override
+  String get guideSectionExpenseTrackingTitle => 'Expense tracking';
+
+  @override
+  String get guideSectionExpenseTrackingBody =>
+      'Each expense stores amount, currency, date, and an optional note. The original amount and currency are always kept, even if you convert into a reporting currency for storage.';
+
+  @override
+  String get guideSectionTagsTitle => 'Tags';
+
+  @override
+  String get guideSectionTagsBody =>
+      'Tag expenses with country (auto-detected or picked), payment resource (cash, card, crypto, and more), and your own labels. Manage tags from Settings or the tags icon on the dashboard.';
+
+  @override
+  String get guideSectionChartsTitle => 'Spending charts';
+
+  @override
+  String get guideSectionChartsBody =>
+      'The dashboard donut chart breaks down spending by tags, months, or currency. Switch the breakdown with the icons under the chart. Tap a segment on the chart to open matching expenses. Tap a legend chip under the chart to show or hide that slice. Open Show expenses for list, grouping, and chart views with sort and pagination.';
+
+  @override
+  String get guideSectionExchangeRatesTitle => 'Exchange rates';
+
+  @override
+  String get guideSectionExchangeRatesBody =>
+      'Rates refresh in the background when stale (about every 24 hours). Bind an ExchangeRate-API key, refresh manually, set overrides, and browse all rates in Settings → Currency & rates.';
+
+  @override
+  String get guideSectionExportTitle => 'Export';
+
+  @override
+  String get guideSectionExportBody =>
+      'Export expenses as CSV or JSON. Save a file, share it, or copy to the clipboard from the export menu or Settings → Export & Telegram.';
+
+  @override
+  String get guideSectionTelegramTitle => 'Telegram sharing';
+
+  @override
+  String get guideSectionTelegramBody =>
+      'Enable Telegram in Export settings, enter a bot token and chat id, then send an export document straight to Telegram.';
+
+  @override
+  String get guideSectionFiltersTitle => 'Filters';
+
+  @override
+  String get guideSectionFiltersBody =>
+      'Filter by period, currency, and tags on the dashboard and expenses page. Apply or clear filters anytime; the dashboard keeps a compact summary and opens filters in a full-screen sheet.';
 }

@@ -616,4 +616,106 @@ class AppLocalizationsRu extends AppLocalizations {
   String missingRatesStill(int count) {
     return 'Всё ещё нет курсов: $count';
   }
+
+  @override
+  String get saveAsIsDescription =>
+      'Сумма сохраняется в указанной валюте. Конвертация не выполняется.';
+
+  @override
+  String get tagsNoneSelected => 'Не выбрано';
+
+  @override
+  String tagsSelectedCount(int count) {
+    return 'Выбрано: $count';
+  }
+
+  @override
+  String get guideTitle => 'Что умеет Valtero';
+
+  @override
+  String get guideSubtitle =>
+      'Краткий обзор основных возможностей. Нажмите на пункт, чтобы раскрыть.';
+
+  @override
+  String get guideOpenFromSettings => 'О возможностях';
+
+  @override
+  String get dashboardSampleChartLabel =>
+      'Пример — так будет выглядеть график после добавления трат';
+
+  @override
+  String get dashboardOpenGuide => 'Что умеет приложение';
+
+  @override
+  String get chartLegendTitle => 'Сегменты';
+
+  @override
+  String chartLegendSummary(int visible, int total) {
+    return 'Показано $visible из $total';
+  }
+
+  @override
+  String get guideSampleGroceries => 'Продукты';
+
+  @override
+  String get guideSampleTransport => 'Транспорт';
+
+  @override
+  String get guideSampleDining => 'Кафе';
+
+  @override
+  String get guideSectionGettingStartedTitle => 'С чего начать';
+
+  @override
+  String get guideSectionGettingStartedBody =>
+      'Нажмите кнопку + внизу экрана, чтобы открыть форму добавления траты. Укажите сумму и валюту, при желании сконвертируйте в базовую валюту, выберите теги и сохраните. Пока трат нет, на сводке показывается пример графика со ссылкой на этот гайд.';
+
+  @override
+  String get guideSectionExpenseTrackingTitle => 'Отслеживание расходов';
+
+  @override
+  String get guideSectionExpenseTrackingBody =>
+      'У каждой траты хранятся сумма, валюта, дата и необязательная заметка. Оригинальные сумма и валюта всегда сохраняются — даже если вы конвертируете в базовую валюту для хранения.';
+
+  @override
+  String get guideSectionTagsTitle => 'Теги';
+
+  @override
+  String get guideSectionTagsBody =>
+      'Отмечайте траты страной (определяется автоматически или выбирается вручную), способом оплаты (нал, карта, крипто и др.) и своими метками. Управляйте тегами в Настройках или через иконку тегов на сводке.';
+
+  @override
+  String get guideSectionChartsTitle => 'Графики трат';
+
+  @override
+  String get guideSectionChartsBody =>
+      'Круговая диаграмма на сводке показывает разбивку по тегам, месяцам или валюте. Переключайте вид иконками под графиком. Нажмите на сектор графика, чтобы открыть соответствующие траты. Кликом по цветной метке под графиком можно скрыть или показать сектор. Кнопка «Показать траты» открывает список, группировку и график с сортировкой и постраничным просмотром.';
+
+  @override
+  String get guideSectionExchangeRatesTitle => 'Обменные курсы';
+
+  @override
+  String get guideSectionExchangeRatesBody =>
+      'Курсы обновляются в фоне, если устарели (примерно раз в сутки). Привяжите ключ ExchangeRate-API, обновите вручную, задайте свои курсы и просмотрите все пары в Настройки → Валюта и курсы.';
+
+  @override
+  String get guideSectionExportTitle => 'Экспорт';
+
+  @override
+  String get guideSectionExportBody =>
+      'Выгружайте траты в CSV или JSON. Сохраните файл, поделитесь им или скопируйте в буфер из меню экспорта или Настройки → Экспорт и Telegram.';
+
+  @override
+  String get guideSectionTelegramTitle => 'Шаринг через Telegram';
+
+  @override
+  String get guideSectionTelegramBody =>
+      'Включите Telegram в настройках экспорта, укажите токен бота и chat id — и отправляйте файл экспорта прямо в Telegram.';
+
+  @override
+  String get guideSectionFiltersTitle => 'Фильтры';
+
+  @override
+  String get guideSectionFiltersBody =>
+      'Фильтруйте по периоду, валюте и тегам на сводке и на странице трат. Применяйте или сбрасывайте фильтры в любой момент; на сводке остаётся краткая строка, а полный набор открывается в модалке на весь экран.';
 }
