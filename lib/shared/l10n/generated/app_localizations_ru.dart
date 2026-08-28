@@ -211,6 +211,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get noExpenses => 'Пока нет трат';
 
   @override
+  String get expensesEmptyTitle => 'Пока нет трат';
+
+  @override
+  String get expensesEmptyBody =>
+      'Добавьте первую трату, чтобы увидеть список, сводку и графики.';
+
+  @override
   String get filterTag => 'Фильтр по тегу';
 
   @override
@@ -377,6 +384,37 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get chartTagKindHint =>
       'Каждая трата учитывается один раз внутри выбранного типа; без тега попадает в «не указано»';
+
+  @override
+  String chartMissingRatesAlert(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count траты показаны без курса конвертации',
+      many: '$count трат показано без курса конвертации',
+      few: '$count траты показаны без курса конвертации',
+      one: '1 трата показана без курса конвертации',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chartHelpTitle => 'О графике';
+
+  @override
+  String get chartHelpBody =>
+      'На графике учитываются траты во всех валютах. Если курс не указан, суммы показываются в исходной валюте. Итоги могут смешивать валюты, пока курсы не заданы.';
+
+  @override
+  String get expensesSummaryHelpTitle => 'О сводке трат';
+
+  @override
+  String get expensesSummaryHelpBody =>
+      'Итоги сгруппированы по сохранённой валюте. Кнопка конвертации переводит суммы в списке в одну валюту; итог конвертации показывает, сколько трат удалось пересчитать.';
+
+  @override
+  String get displayCurrencyHelpBody =>
+      'Выберите валюту для отображения сумм в списке. Исходные суммы всегда сохраняются. Отсутствующие курсы можно задать вручную перед конвертацией.';
 
   @override
   String get chartPaymentHint =>
@@ -637,7 +675,28 @@ class AppLocalizationsRu extends AppLocalizations {
   String get summaryCount => 'Трат';
 
   @override
+  String get summaryExpenses => 'Траты';
+
+  @override
   String get summaryCurrencies => 'Валют';
+
+  @override
+  String summaryPerCurrencyCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count траты',
+      many: '$count трат',
+      few: '$count траты',
+      one: '1 трата',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String summaryConvertedTotal(String currency) {
+    return 'Итого в $currency';
+  }
 
   @override
   String summaryPartialTotal(int converted, int total) {

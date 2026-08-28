@@ -24,6 +24,8 @@ import 'package:valtero/features/expenses_list/ui/expense_tag_filter_dialog.dart
 import 'package:valtero/features/expenses_list/ui/expenses_filter_sheet.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_filter_summary_bar.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_listing_card.dart';
+import 'package:valtero/features/expenses_list/model/expense_summary_aggregator.dart';
+import 'package:valtero/features/expenses_list/ui/expenses_empty_placeholder.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_summary_row.dart';
 import 'package:valtero/features/expenses_list/ui/grouped_expense_table.dart';
 import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
@@ -65,6 +67,9 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
   Map<String, double>? _displayRates;
   String? _displayRatesSourcesKey;
   bool _displayPrefsLoaded = false;
+  bool _syncingDisplayRates = false;
+  int _displayRatesSyncGen = 0;
+  String? _displayRatesSyncInFlightKey;
 
   @override
   void initState() {
@@ -149,6 +154,13 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
       );
 
   Future<void> _pickDisplayCurrency(Set<String> sources) async {
+    _displayRatesSyncGen++;
+    if (mounted) {
+      setState(() {
+        _displayRatesSyncInFlightKey = null;
+        _syncingDisplayRates = false;
+      });
+    }
     final pick = await showDisplayCurrencyPicker(
       context,
       ref,
@@ -164,6 +176,8 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
           _displayCurrency = null;
           _displayRates = null;
           _displayRatesSourcesKey = null;
+          _displayRatesSyncInFlightKey = null;
+          _syncingDisplayRates = false;
         });
       case DisplayCurrencyChosen(:final code):
         final ok = await ensureRatesForDisplay(
@@ -191,12 +205,21 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
   Future<void> _syncDisplayRates(Set<String> sources) async {
     final target = _displayCurrency;
     if (target == null) {
-      _displayRatesSourcesKey = null;
+      if (mounted) {
+        setState(() {
+          _displayRatesSourcesKey = null;
+          _syncingDisplayRates = false;
+        });
+      }
       return;
     }
     final key = '${target.toUpperCase()}|${([...sources]..sort()).join(',')}';
     if (key == _displayRatesSourcesKey && _displayRates != null) return;
-    _displayRatesSourcesKey = key;
+    if (key == _displayRatesSyncInFlightKey) return;
+
+    final syncGen = ++_displayRatesSyncGen;
+    _displayRatesSyncInFlightKey = key;
+    if (mounted) setState(() => _syncingDisplayRates = true);
 
     final ok = await ensureRatesForDisplay(
       context,
@@ -204,12 +227,19 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
       sourceCurrencies: sources,
       target: target,
     );
-    if (!mounted) return;
+    if (!_isActiveDisplaySync(syncGen, target)) {
+      if (syncGen == _displayRatesSyncGen) {
+        _displayRatesSyncInFlightKey = null;
+      }
+      return;
+    }
     if (!ok) {
+      _displayRatesSyncInFlightKey = null;
       setState(() {
         _displayCurrency = null;
         _displayRates = null;
         _displayRatesSourcesKey = null;
+        _syncingDisplayRates = false;
       });
       return;
     }
@@ -218,8 +248,31 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
       sourceCurrencies: sources,
       target: target,
     );
-    if (!mounted) return;
-    setState(() => _displayRates = rates);
+    if (!_isActiveDisplaySync(syncGen, target)) {
+      if (syncGen == _displayRatesSyncGen) {
+        _displayRatesSyncInFlightKey = null;
+      }
+      return;
+    }
+    setState(() {
+      _displayRates = rates;
+      _displayRatesSourcesKey = key;
+      _displayRatesSyncInFlightKey = null;
+      _syncingDisplayRates = false;
+    });
+  }
+
+  bool _isActiveDisplaySync(int syncGen, String target) {
+    if (!mounted) return false;
+    if (syncGen != _displayRatesSyncGen) {
+      return false;
+    }
+    if (_displayCurrency != target) {
+      _displayRatesSyncInFlightKey = null;
+      setState(() => _syncingDisplayRates = false);
+      return false;
+    }
+    return true;
   }
 
   Future<void> _openFilters({
@@ -355,6 +408,8 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
           for (final e in filtered) e.storedCurrencyCode.toUpperCase(),
         };
         final summaryCurrency = _displayCurrency ?? primary;
+        final snapshotKey = expensesSnapshotKey(filtered);
+        final byCurrency = aggregateExpensesByCurrency(filtered);
         if (_displayCurrency != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!mounted) return;
@@ -428,133 +483,151 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                         paymentMethods: paymentMethods,
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    ExpensesSummaryRow(
-                      count: filtered.length,
-                      primaryCurrency: summaryCurrency,
-                      totalFuture: sumExpensesInCurrency(
-                        expenses: filtered,
-                        targetCurrency: summaryCurrency,
-                        resolver: resolver,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    ExpensesListingCard(
-                      pageSize: _pageSize,
-                      page: safePage,
-                      pageCount: pageCount,
-                      view: _view,
-                      group: _applied.group == ExpenseListGroup.none
-                          ? ExpenseListGroup.currency
-                          : _applied.group,
-                      sort: _applied.sort,
-                      ascending: _applied.ascending,
-                      displayCurrency: _displayCurrency,
-                      onDisplayIn: () => _pickDisplayCurrency(sourceCurrencies),
-                      onPageSizeChanged: (v) {
-                        setState(() {
-                          _pageSize = v;
-                          _page = 0;
-                        });
-                      },
-                      onPageChanged: (v) => setState(() => _page = v),
-                      onSortChanged: (field, ascending) {
-                        setState(() {
-                          _applied = _applied.copyWith(
-                            sort: field,
-                            ascending: ascending,
-                          );
-                        });
-                      },
-                      onViewChanged: (v) {
-                        setState(() {
-                          _view = v;
-                          if (v == ExpenseListViewMode.grouping &&
-                              _applied.group == ExpenseListGroup.none) {
-                            _applied = _applied.copyWith(
-                              group: ExpenseListGroup.currency,
-                            );
-                          }
-                          if (v == ExpenseListViewMode.list) {
-                            _applied = _applied.copyWith(
-                              group: ExpenseListGroup.none,
-                            );
-                          }
-                        });
-                        _persistDisplayPrefs(view: v);
-                      },
-                      onGroupChanged: (g) {
-                        setState(
-                          () => _applied = _applied.copyWith(group: g),
-                        );
-                        _persistDisplayPrefs(group: g);
-                      },
-                      onExport: _export,
-                      child: filtered.isEmpty
-                          ? Padding(
-                              padding: const EdgeInsets.all(24),
-                              child: Center(
-                                child: Text(
-                                  all.isEmpty
-                                      ? l10n.noExpenses
-                                      : l10n.noMatchingExpenses,
-                                ),
+                    if (all.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      ExpensesSummaryRow(
+                        key: ValueKey(
+                          'summary-$snapshotKey-'
+                          '${_displayCurrency ?? ''}-$_displayRatesSourcesKey',
+                        ),
+                        byCurrency: byCurrency,
+                        totalCount: filtered.length,
+                        displayCurrency: _displayCurrency,
+                        convertedTotalFuture: _displayCurrency == null
+                            ? null
+                            : sumExpensesInCurrency(
+                                expenses: filtered,
+                                targetCurrency: summaryCurrency,
+                                resolver: resolver,
                               ),
-                            )
-                          : switch (_view) {
-                              ExpenseListViewMode.list => ExpenseTable(
-                                  items: pageItems,
-                                  expenseTags: expenseTags,
-                                  tagLabels: tagLabels,
-                                  paymentLabels: paymentLabels,
-                                  untaggedLabel: l10n.untagged,
-                                  displayCurrency: _displayCurrency,
-                                  convertedMinor: _convertedMinor,
-                                  onDelete: (id) =>
-                                      confirmAndDeleteExpense(context, ref, id),
-                                  onEdit: (expense) => showAddExpenseSheet(
-                                    context,
-                                    expense: expense,
-                                  ),
+                        onConvert: () =>
+                            _pickDisplayCurrency(sourceCurrencies),
+                      ),
+                      if (_syncingDisplayRates)
+                        const LinearProgressIndicator(),
+                      const SizedBox(height: 12),
+                      ExpensesListingCard(
+                        pageSize: _pageSize,
+                        page: safePage,
+                        pageCount: pageCount,
+                        view: _view,
+                        group: _applied.group == ExpenseListGroup.none
+                            ? ExpenseListGroup.currency
+                            : _applied.group,
+                        sort: _applied.sort,
+                        ascending: _applied.ascending,
+                        onPageSizeChanged: (v) {
+                          setState(() {
+                            _pageSize = v;
+                            _page = 0;
+                          });
+                        },
+                        onPageChanged: (v) => setState(() => _page = v),
+                        onSortChanged: (field, ascending) {
+                          setState(() {
+                            _applied = _applied.copyWith(
+                              sort: field,
+                              ascending: ascending,
+                            );
+                          });
+                        },
+                        onViewChanged: (v) {
+                          setState(() {
+                            _view = v;
+                            if (v == ExpenseListViewMode.grouping &&
+                                _applied.group == ExpenseListGroup.none) {
+                              _applied = _applied.copyWith(
+                                group: ExpenseListGroup.currency,
+                              );
+                            }
+                            if (v == ExpenseListViewMode.list) {
+                              _applied = _applied.copyWith(
+                                group: ExpenseListGroup.none,
+                              );
+                            }
+                          });
+                          _persistDisplayPrefs(view: v);
+                        },
+                        onGroupChanged: (g) {
+                          setState(
+                            () => _applied = _applied.copyWith(group: g),
+                          );
+                          _persistDisplayPrefs(group: g);
+                        },
+                        onExport: _export,
+                        child: filtered.isEmpty
+                            ? Padding(
+                                padding: const EdgeInsets.all(24),
+                                child: Center(
+                                  child: Text(l10n.noMatchingExpenses),
                                 ),
-                              ExpenseListViewMode.grouping =>
-                                GroupedExpenseTable(rows: groupRows!),
-                              ExpenseListViewMode.chart => ExpenseChart(
-                                  future: aggregateExpensesForChart(
-                                    expenses: filtered,
-                                    primaryCurrency: summaryCurrency,
-                                    resolver: resolver,
-                                    breakdown: _chartBreakdown,
+                              )
+                            : switch (_view) {
+                                ExpenseListViewMode.list => ExpenseTable(
+                                    items: pageItems,
                                     expenseTags: expenseTags,
                                     tagLabels: tagLabels,
-                                    tagById: {
-                                      for (final t in tags) t.id: t,
-                                    },
-                                    paymentById: {
-                                      for (final m in paymentMethods) m.id: m,
-                                    },
                                     paymentLabels: paymentLabels,
-                                    untaggedLabel: unspecifiedLabelForChartBreakdown(
-                                      l10n,
-                                      _chartBreakdown,
+                                    untaggedLabel: l10n.untagged,
+                                    displayCurrency: _displayCurrency,
+                                    convertedMinor: _convertedMinor,
+                                    onDelete: (id) => confirmAndDeleteExpense(
+                                      context,
+                                      ref,
+                                      id,
                                     ),
-                                    countryLabel: (code) => countryDisplayName(
-                                      code,
-                                      languageCode:
-                                          Localizations.localeOf(context)
-                                              .languageCode,
+                                    onEdit: (expense) => showAddExpenseSheet(
+                                      context,
+                                      expense: expense,
                                     ),
                                   ),
-                                  primaryCurrency: summaryCurrency,
-                                  chartBreakdown: _chartBreakdown,
-                                  onChartBreakdownChanged: (b) {
-                                    setState(() => _chartBreakdown = b);
-                                    _persistDisplayPrefs(chartBreakdown: b);
-                                  },
-                                  onSegmentTap: _applyChartSegmentFilter,
-                                ),
-                            },
-                    ),
+                                ExpenseListViewMode.grouping =>
+                                  GroupedExpenseTable(rows: groupRows!),
+                                ExpenseListViewMode.chart => ExpenseChart(
+                                    key: ValueKey(
+                                      'chart-$snapshotKey-'
+                                      '${_chartBreakdown.name}-$summaryCurrency',
+                                    ),
+                                    future: aggregateExpensesForChart(
+                                      expenses: filtered,
+                                      primaryCurrency: summaryCurrency,
+                                      resolver: resolver,
+                                      breakdown: _chartBreakdown,
+                                      expenseTags: expenseTags,
+                                      tagLabels: tagLabels,
+                                      tagById: {
+                                        for (final t in tags) t.id: t,
+                                      },
+                                      paymentById: {
+                                        for (final m in paymentMethods) m.id: m,
+                                      },
+                                      paymentLabels: paymentLabels,
+                                      untaggedLabel:
+                                          unspecifiedLabelForChartBreakdown(
+                                        l10n,
+                                        _chartBreakdown,
+                                      ),
+                                      countryLabel: (code) => countryDisplayName(
+                                        code,
+                                        languageCode:
+                                            Localizations.localeOf(context)
+                                                .languageCode,
+                                      ),
+                                    ),
+                                    primaryCurrency: summaryCurrency,
+                                    chartBreakdown: _chartBreakdown,
+                                    onChartBreakdownChanged: (b) {
+                                      setState(() => _chartBreakdown = b);
+                                      _persistDisplayPrefs(chartBreakdown: b);
+                                    },
+                                    onSegmentTap: _applyChartSegmentFilter,
+                                  ),
+                              },
+                      ),
+                    ] else ...[
+                      const SizedBox(height: 12),
+                      const ExpensesEmptyPlaceholder(),
+                    ],
                   ],
                 ),
               ),

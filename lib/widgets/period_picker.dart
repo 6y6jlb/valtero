@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/utils/date_period.dart';
+import 'package:valtero/widgets/app_modal_sheet.dart';
 import 'package:valtero/widgets/period_month_calendar.dart';
 
 /// Opens a period picker with presets and dual-month custom range selection.
@@ -9,9 +10,12 @@ Future<DatePeriod?> showPeriodPicker(
   BuildContext context, {
   DatePeriod initial = DatePeriod.all,
 }) {
-  return showDialog<DatePeriod>(
+  return showAppModalSheet<DatePeriod>(
     context: context,
-    builder: (context) => PeriodPickerDialog(initial: initial.normalized()),
+    initialChildSize: 0.85,
+    minChildSize: 0.5,
+    maxChildSize: 0.95,
+    child: PeriodPickerSheet(initial: initial.normalized()),
   );
 }
 
@@ -71,16 +75,16 @@ const _sidebarPresets = <PeriodPreset>[
   PeriodPreset.all,
 ];
 
-class PeriodPickerDialog extends StatefulWidget {
+class PeriodPickerSheet extends StatefulWidget {
   final DatePeriod initial;
 
-  const PeriodPickerDialog({super.key, required this.initial});
+  const PeriodPickerSheet({super.key, required this.initial});
 
   @override
-  State<PeriodPickerDialog> createState() => _PeriodPickerDialogState();
+  State<PeriodPickerSheet> createState() => _PeriodPickerSheetState();
 }
 
-class _PeriodPickerDialogState extends State<PeriodPickerDialog> {
+class _PeriodPickerSheetState extends State<PeriodPickerSheet> {
   late PeriodPreset _preset;
   late DateTime? _from;
   late DateTime? _to;
@@ -219,54 +223,44 @@ class _PeriodPickerDialogState extends State<PeriodPickerDialog> {
             ),
           );
 
-    return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: sideBySide ? 720 : 400,
-          maxHeight: screen.height * 0.9,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
-                child: Text(
-                  l10n.periodRange,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              Flexible(child: body),
-              const SizedBox(height: 8),
-              if (_from != null || _to != null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Text(
-                    formatPeriodLabel(
-                      l10n,
-                      DatePeriod(from: _from, to: _to),
-                    ),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(l10n.cancel),
-                ),
-              ),
-            ],
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
+          child: Text(
+            l10n.periodRange,
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
-      ),
+        SizedBox(
+          height: sideBySide ? 420 : 520,
+          child: body,
+        ),
+        const SizedBox(height: 8),
+        if (_from != null || _to != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              formatPeriodLabel(
+                l10n,
+                DatePeriod(from: _from, to: _to),
+              ),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
+        ),
+      ],
     );
   }
 }

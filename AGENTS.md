@@ -65,7 +65,7 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 ## Navigation
 
 - Home: **Dashboard** (no bottom nav). If there are **no expenses yet**, Dashboard shows a **sample chart** labeled as an example, with a link to the **platform guide**; after the first expense, real chart data appears. The guide is also opened from Settings → Platform guide.
-- **Expenses**: full page via FAB / “Show expenses” (back arrow); filters via summary bar → modal sheet (same as dashboard); add/edit stays a sheet (`+` FAB sticky bottom on Dashboard, Expenses, and Platform guide — **not** on Settings)
+- **Expenses**: full page via FAB / “Show expenses” (back arrow); filters via summary bar → modal sheet (same as dashboard); per-currency summary card with convert/info icons; empty placeholder when no expenses; add/edit stays a sheet (`+` FAB sticky bottom on Dashboard, Expenses, and Platform guide — **not** on Settings)
 - Settings via gear in the AppBar → full page with back arrow
 - Sheets (full window width): add/edit expense, tags, export, currency, appearance, rates list, filters
 - Dashboard: one donut (shared [DonutBreakdownChart](lib/features/expenses_list/ui/donut_breakdown_chart.dart): amounts on segments, legend chips toggle visibility; tap segment → Expenses with filter); breakdown by **country** / payment / category / month / currency via shared [ChartBreakdownIcons](lib/features/expenses_list/ui/chart_breakdown_icons.dart); filter summary bar → full-screen sheet; recent 10 + “Show expenses”; FABs

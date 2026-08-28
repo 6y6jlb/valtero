@@ -498,6 +498,18 @@ abstract class AppLocalizations {
   /// **'No expenses yet'**
   String get noExpenses;
 
+  /// No description provided for @expensesEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses yet'**
+  String get expensesEmptyTitle;
+
+  /// No description provided for @expensesEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first expense to see the list, summary, and charts.'**
+  String get expensesEmptyBody;
+
   /// No description provided for @filterTag.
   ///
   /// In en, this message translates to:
@@ -821,6 +833,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Each expense counts once within this tag kind; missing tags appear as not set'**
   String get chartTagKindHint;
+
+  /// No description provided for @chartMissingRatesAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 expense shown without a conversion rate} other{{count} expenses shown without conversion rates}}'**
+  String chartMissingRatesAlert(int count);
+
+  /// No description provided for @chartHelpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About the chart'**
+  String get chartHelpTitle;
+
+  /// No description provided for @chartHelpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The chart includes expenses in all currencies. When an exchange rate is missing, amounts are shown in their original currency. Totals may mix currencies until rates are set.'**
+  String get chartHelpBody;
+
+  /// No description provided for @expensesSummaryHelpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About expenses summary'**
+  String get expensesSummaryHelpTitle;
+
+  /// No description provided for @expensesSummaryHelpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Totals are grouped by stored currency. Use the convert button to display list amounts in one currency; the converted total shows how many expenses could be converted.'**
+  String get expensesSummaryHelpBody;
+
+  /// No description provided for @displayCurrencyHelpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a currency to convert list amounts. Original stored amounts are always kept. Missing rates can be set manually before conversion.'**
+  String get displayCurrencyHelpBody;
 
   /// No description provided for @chartPaymentHint.
   ///
@@ -1320,11 +1368,29 @@ abstract class AppLocalizations {
   /// **'Expenses'**
   String get summaryCount;
 
+  /// No description provided for @summaryExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get summaryExpenses;
+
   /// No description provided for @summaryCurrencies.
   ///
   /// In en, this message translates to:
   /// **'Currencies'**
   String get summaryCurrencies;
+
+  /// No description provided for @summaryPerCurrencyCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 expense} other{{count} expenses}}'**
+  String summaryPerCurrencyCount(int count);
+
+  /// No description provided for @summaryConvertedTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total in {currency}'**
+  String summaryConvertedTotal(String currency);
 
   /// No description provided for @summaryPartialTotal.
   ///

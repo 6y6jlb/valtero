@@ -83,6 +83,8 @@
   "byPeriod": "Po periodu",
   "displayCurrency": "Valuta prikaza",
   "noExpenses": "Još nema troškova",
+  "expensesEmptyTitle": "Još nema troškova",
+  "expensesEmptyBody": "Dodajte prvi trošak da biste videli listu, rezime i grafikone.",
   "filterTag": "Filter oznaka",
   "filterCurrency": "Filter valuta",
   "all": "Sve",
@@ -151,6 +153,19 @@
   "chartByTagTrip": "Oznake putovanja",
   "chartByTagCustom": "Prilagođene oznake",
   "chartTagKindHint": "Svaki trošak se računa jednom unutar ove vrste oznake; nedostajuće oznake se prikazuju kao nije postavljeno",
+  "chartMissingRatesAlert": "{count, plural, one{1 trošak prikazan bez kursa konverzije} few{{count} troška prikazana bez kursa konverzije} other{{count} troškova prikazano bez kursa konverzije}}",
+  "@chartMissingRatesAlert": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chartHelpTitle": "O grafikonu",
+  "chartHelpBody": "Grafikon uključuje troškove u svim valutama. Kada kurs nedostaje, iznosi se prikazuju u originalnoj valuti. Ukupni iznosi mogu mešati valute dok kursevi nisu postavljeni.",
+  "expensesSummaryHelpTitle": "O rezimeu troškova",
+  "expensesSummaryHelpBody": "Ukupni iznosi su grupisani po sačuvanoj valuti. Dugme za konverziju prikazuje iznose u listi u jednoj valuti; konvertovani ukupni iznos pokazuje koliko troškova je bilo moguće preračunati.",
+  "displayCurrencyHelpBody": "Izaberite valutu za prikaz iznosa u listi. Originalni iznosi se uvek čuvaju. Nedostajuće kurseve možete ručno postaviti pre konverzije.",
   "chartPaymentHint": "Svaki trošak ima najviše jedan način plaćanja; ako nije izabran, prikazuje se kao nije postavljeno",
   "tagKindSectionCountry": "Zemlja",
   "tagKindSectionTrip": "Putovanje",
@@ -258,7 +273,24 @@
     }
   },
   "summaryCount": "Troškovi",
+  "summaryExpenses": "Troškovi",
   "summaryCurrencies": "Valute",
+  "summaryPerCurrencyCount": "{count, plural, one{1 trošak} few{{count} troška} other{{count} troškova}}",
+  "@summaryPerCurrencyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryConvertedTotal": "Ukupno u {currency}",
+  "@summaryConvertedTotal": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
   "summaryPartialTotal": "Konvertovano {converted} od {total}",
   "@summaryPartialTotal": {
     "placeholders": {

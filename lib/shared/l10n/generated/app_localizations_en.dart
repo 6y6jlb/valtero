@@ -211,6 +211,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noExpenses => 'No expenses yet';
 
   @override
+  String get expensesEmptyTitle => 'No expenses yet';
+
+  @override
+  String get expensesEmptyBody =>
+      'Add your first expense to see the list, summary, and charts.';
+
+  @override
   String get filterTag => 'Tag filter';
 
   @override
@@ -378,6 +385,35 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get chartTagKindHint =>
       'Each expense counts once within this tag kind; missing tags appear as not set';
+
+  @override
+  String chartMissingRatesAlert(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count expenses shown without conversion rates',
+      one: '1 expense shown without a conversion rate',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chartHelpTitle => 'About the chart';
+
+  @override
+  String get chartHelpBody =>
+      'The chart includes expenses in all currencies. When an exchange rate is missing, amounts are shown in their original currency. Totals may mix currencies until rates are set.';
+
+  @override
+  String get expensesSummaryHelpTitle => 'About expenses summary';
+
+  @override
+  String get expensesSummaryHelpBody =>
+      'Totals are grouped by stored currency. Use the convert button to display list amounts in one currency; the converted total shows how many expenses could be converted.';
+
+  @override
+  String get displayCurrencyHelpBody =>
+      'Pick a currency to convert list amounts. Original stored amounts are always kept. Missing rates can be set manually before conversion.';
 
   @override
   String get chartPaymentHint =>
@@ -638,7 +674,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get summaryCount => 'Expenses';
 
   @override
+  String get summaryExpenses => 'Expenses';
+
+  @override
   String get summaryCurrencies => 'Currencies';
+
+  @override
+  String summaryPerCurrencyCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count expenses',
+      one: '1 expense',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String summaryConvertedTotal(String currency) {
+    return 'Total in $currency';
+  }
 
   @override
   String summaryPartialTotal(int converted, int total) {

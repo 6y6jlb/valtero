@@ -4,6 +4,7 @@ import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_resolver.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
+import 'package:valtero/widgets/app_modal_sheet.dart';
 import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/currency_picker.dart';
 import 'package:valtero/widgets/flag_icon.dart';
@@ -81,9 +82,12 @@ Future<bool> ensureRatesForDisplay(
     }
 
     if (!context.mounted) return false;
-    final action = await showDialog<_MissingRatesAction>(
+    final action = await showAppModalSheet<_MissingRatesAction>(
       context: context,
-      builder: (ctx) => _MissingRatesDialog(
+      initialChildSize: 0.65,
+      minChildSize: 0.4,
+      maxChildSize: 0.9,
+      child: _MissingRatesSheet(
         target: target,
         pairs: missing,
       ),
@@ -126,11 +130,11 @@ class _MissingRatesAction {
   const _MissingRatesAction.set(this.setPair) : cancel = false;
 }
 
-class _MissingRatesDialog extends StatelessWidget {
+class _MissingRatesSheet extends StatelessWidget {
   final String target;
   final List<RatePair> pairs;
 
-  const _MissingRatesDialog({
+  const _MissingRatesSheet({
     required this.target,
     required this.pairs,
   });
@@ -138,51 +142,48 @@ class _MissingRatesDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return AlertDialog(
-      title: Text(l10n.missingRatesTitle),
-      content: SizedBox(
-        width: 420,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(l10n.missingRatesBody(pairs.length, target)),
-            const SizedBox(height: 12),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 280),
-              child: ListView.separated(
-                shrinkWrap: true,
-                itemCount: pairs.length,
-                separatorBuilder: (_, _) => const Divider(height: 1),
-                itemBuilder: (context, index) {
-                  final pair = pairs[index];
-                  return ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text('${pair.base} → ${pair.target}'),
-                    trailing: TextButton(
-                      onPressed: () => Navigator.pop(
-                        context,
-                        _MissingRatesAction.set(pair),
-                      ),
-                      child: Text(l10n.setRateNow),
-                    ),
-                  );
-                },
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+      children: [
+        Text(
+          l10n.missingRatesTitle,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
               ),
+        ),
+        const SizedBox(height: 8),
+        Text(l10n.missingRatesBody(pairs.length, target)),
+        const SizedBox(height: 12),
+        for (var i = 0; i < pairs.length; i++) ...[
+          if (i > 0) const Divider(height: 1),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text('${pairs[i].base} → ${pairs[i].target}'),
+            trailing: TextButton(
+              onPressed: () => Navigator.pop(
+                context,
+                _MissingRatesAction.set(pairs[i]),
+              ),
+              child: Text(l10n.setRateNow),
+            ),
+          ),
+        ],
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            TextButton(
+              onPressed: () =>
+                  Navigator.pop(context, const _MissingRatesAction.cancel()),
+              child: Text(l10n.cancel),
+            ),
+            const SizedBox(width: 8),
+            FilledButton(
+              onPressed: () =>
+                  Navigator.pop(context, const _MissingRatesAction.retry()),
+              child: Text(l10n.retryConversion),
             ),
           ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () =>
-              Navigator.pop(context, const _MissingRatesAction.cancel()),
-          child: Text(l10n.cancel),
-        ),
-        FilledButton(
-          onPressed: () =>
-              Navigator.pop(context, const _MissingRatesAction.retry()),
-          child: Text(l10n.retryConversion),
         ),
       ],
     );
@@ -214,9 +215,12 @@ Future<DisplayCurrencyPick> showDisplayCurrencyPicker(
   required Set<String> sourceCurrencies,
   String? currentDisplayCurrency,
 }) async {
-  final result = await showDialog<DisplayCurrencyPick>(
+  final result = await showAppModalSheet<DisplayCurrencyPick>(
     context: context,
-    builder: (ctx) => _DisplayCurrencyDialog(
+    initialChildSize: 0.75,
+    minChildSize: 0.45,
+    maxChildSize: 0.95,
+    child: _DisplayCurrencySheet(
       sourceCurrencies: sourceCurrencies,
       currentDisplayCurrency: currentDisplayCurrency,
     ),
@@ -224,22 +228,21 @@ Future<DisplayCurrencyPick> showDisplayCurrencyPicker(
   return result ?? const DisplayCurrencyCancelled();
 }
 
-class _DisplayCurrencyDialog extends ConsumerStatefulWidget {
+class _DisplayCurrencySheet extends ConsumerStatefulWidget {
   final Set<String> sourceCurrencies;
   final String? currentDisplayCurrency;
 
-  const _DisplayCurrencyDialog({
+  const _DisplayCurrencySheet({
     required this.sourceCurrencies,
     required this.currentDisplayCurrency,
   });
 
   @override
-  ConsumerState<_DisplayCurrencyDialog> createState() =>
-      _DisplayCurrencyDialogState();
+  ConsumerState<_DisplayCurrencySheet> createState() =>
+      _DisplayCurrencySheetState();
 }
 
-class _DisplayCurrencyDialogState
-    extends ConsumerState<_DisplayCurrencyDialog> {
+class _DisplayCurrencySheetState extends ConsumerState<_DisplayCurrencySheet> {
   late Future<Map<String, List<RatePair>>> _statusFuture;
 
   @override
@@ -278,91 +281,92 @@ class _DisplayCurrencyDialogState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return AlertDialog(
-      title: Text(l10n.displayIn),
-      content: SizedBox(
-        width: 420,
-        child: FutureBuilder<Map<String, List<RatePair>>>(
-          future: _statusFuture,
-          builder: (context, snap) {
-            if (!snap.hasData) {
-              return const SizedBox(
-                height: 120,
-                child: Center(child: CircularProgressIndicator()),
-              );
-            }
-            final statuses = snap.data!;
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 360),
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: [
-                      ListTile(
-                        leading: Icon(
-                          widget.currentDisplayCurrency == null
-                              ? Icons.check_circle
-                              : Icons.money_off_outlined,
-                        ),
-                        title: Text(l10n.displayOriginal),
-                        subtitle: Text(l10n.displayOriginalHint),
-                        onTap: () => Navigator.pop(
-                          context,
-                          const DisplayCurrencyCleared(),
-                        ),
+    final theme = Theme.of(context);
+    return FutureBuilder<Map<String, List<RatePair>>>(
+      future: _statusFuture,
+      builder: (context, snap) {
+        if (!snap.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final statuses = snap.data!;
+        return ListView(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+          children: [
+            Text(
+              l10n.displayIn,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.displayCurrencyHelpBody,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(
+                widget.currentDisplayCurrency == null
+                    ? Icons.check_circle
+                    : Icons.money_off_outlined,
+              ),
+              title: Text(l10n.displayOriginal),
+              subtitle: Text(l10n.displayOriginalHint),
+              onTap: () => Navigator.pop(
+                context,
+                const DisplayCurrencyCleared(),
+              ),
+            ),
+            const Divider(),
+            for (final entry in statuses.entries)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: FlagIcon.currency(entry.key, size: 22),
+                title: Text(entry.key),
+                subtitle: Text(
+                  entry.value.isEmpty
+                      ? l10n.ratesReady
+                      : l10n.ratesMissingCount(entry.value.length),
+                ),
+                trailing: entry.value.isEmpty
+                    ? Icon(
+                        Icons.check,
+                        color: theme.colorScheme.primary,
+                      )
+                    : Icon(
+                        Icons.warning_amber_outlined,
+                        color: theme.colorScheme.error,
                       ),
-                      const Divider(),
-                      for (final entry in statuses.entries)
-                        ListTile(
-                          leading: FlagIcon.currency(entry.key, size: 22),
-                          title: Text(entry.key),
-                          subtitle: Text(
-                            entry.value.isEmpty
-                                ? l10n.ratesReady
-                                : l10n.ratesMissingCount(entry.value.length),
-                          ),
-                          trailing: entry.value.isEmpty
-                              ? Icon(
-                                  Icons.check,
-                                  color: Theme.of(context).colorScheme.primary,
-                                )
-                              : Icon(
-                                  Icons.warning_amber_outlined,
-                                  color: Theme.of(context).colorScheme.error,
-                                ),
-                          selected:
-                              widget.currentDisplayCurrency == entry.key,
-                          onTap: () => Navigator.pop(
-                            context,
-                            DisplayCurrencyChosen(entry.key),
-                          ),
-                        ),
-                    ],
-                  ),
+                selected: widget.currentDisplayCurrency == entry.key,
+                onTap: () => Navigator.pop(
+                  context,
+                  DisplayCurrencyChosen(entry.key),
                 ),
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton.icon(
-                    onPressed: _pickOther,
-                    icon: const Icon(Icons.search),
-                    label: Text(l10n.pickOtherCurrency),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () =>
-              Navigator.pop(context, const DisplayCurrencyCancelled()),
-          child: Text(l10n.cancel),
-        ),
-      ],
+              ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: _pickOther,
+                icon: const Icon(Icons.search),
+                label: Text(l10n.pickOtherCurrency),
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () =>
+                    Navigator.pop(context, const DisplayCurrencyCancelled()),
+                child: Text(l10n.cancel),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

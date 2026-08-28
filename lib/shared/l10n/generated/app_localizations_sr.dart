@@ -211,6 +211,13 @@ class AppLocalizationsSr extends AppLocalizations {
   String get noExpenses => 'Još nema troškova';
 
   @override
+  String get expensesEmptyTitle => 'Još nema troškova';
+
+  @override
+  String get expensesEmptyBody =>
+      'Dodajte prvi trošak da biste videli listu, rezime i grafikone.';
+
+  @override
   String get filterTag => 'Filter oznaka';
 
   @override
@@ -378,6 +385,36 @@ class AppLocalizationsSr extends AppLocalizations {
   @override
   String get chartTagKindHint =>
       'Svaki trošak se računa jednom unutar ove vrste oznake; nedostajuće oznake se prikazuju kao nije postavljeno';
+
+  @override
+  String chartMissingRatesAlert(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count troškova prikazano bez kursa konverzije',
+      few: '$count troška prikazana bez kursa konverzije',
+      one: '1 trošak prikazan bez kursa konverzije',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chartHelpTitle => 'O grafikonu';
+
+  @override
+  String get chartHelpBody =>
+      'Grafikon uključuje troškove u svim valutama. Kada kurs nedostaje, iznosi se prikazuju u originalnoj valuti. Ukupni iznosi mogu mešati valute dok kursevi nisu postavljeni.';
+
+  @override
+  String get expensesSummaryHelpTitle => 'O rezimeu troškova';
+
+  @override
+  String get expensesSummaryHelpBody =>
+      'Ukupni iznosi su grupisani po sačuvanoj valuti. Dugme za konverziju prikazuje iznose u listi u jednoj valuti; konvertovani ukupni iznos pokazuje koliko troškova je bilo moguće preračunati.';
+
+  @override
+  String get displayCurrencyHelpBody =>
+      'Izaberite valutu za prikaz iznosa u listi. Originalni iznosi se uvek čuvaju. Nedostajuće kurseve možete ručno postaviti pre konverzije.';
 
   @override
   String get chartPaymentHint =>
@@ -639,7 +676,27 @@ class AppLocalizationsSr extends AppLocalizations {
   String get summaryCount => 'Troškovi';
 
   @override
+  String get summaryExpenses => 'Troškovi';
+
+  @override
   String get summaryCurrencies => 'Valute';
+
+  @override
+  String summaryPerCurrencyCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count troškova',
+      few: '$count troška',
+      one: '1 trošak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String summaryConvertedTotal(String currency) {
+    return 'Ukupno u $currency';
+  }
 
   @override
   String summaryPartialTotal(int converted, int total) {

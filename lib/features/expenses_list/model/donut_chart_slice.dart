@@ -7,10 +7,14 @@ class DonutChartSlice {
   final int amountMinor;
   final Color color;
 
+  /// When set, segment amounts use this ISO code instead of chart [displayCurrency].
+  final String? currencyCode;
+
   const DonutChartSlice({
     required this.key,
     required this.label,
     required this.amountMinor,
     required this.color,
+    this.currencyCode,
   });
 }

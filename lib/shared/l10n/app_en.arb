@@ -83,6 +83,8 @@
   "byPeriod": "By period",
   "displayCurrency": "Display currency",
   "noExpenses": "No expenses yet",
+  "expensesEmptyTitle": "No expenses yet",
+  "expensesEmptyBody": "Add your first expense to see the list, summary, and charts.",
   "filterTag": "Tag filter",
   "filterCurrency": "Currency filter",
   "all": "All",
@@ -151,6 +153,19 @@
   "chartByTagTrip": "Trip tags",
   "chartByTagCustom": "Custom tags",
   "chartTagKindHint": "Each expense counts once within this tag kind; missing tags appear as not set",
+  "chartMissingRatesAlert": "{count, plural, one{1 expense shown without a conversion rate} other{{count} expenses shown without conversion rates}}",
+  "@chartMissingRatesAlert": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chartHelpTitle": "About the chart",
+  "chartHelpBody": "The chart includes expenses in all currencies. When an exchange rate is missing, amounts are shown in their original currency. Totals may mix currencies until rates are set.",
+  "expensesSummaryHelpTitle": "About expenses summary",
+  "expensesSummaryHelpBody": "Totals are grouped by stored currency. Use the convert button to display list amounts in one currency; the converted total shows how many expenses could be converted.",
+  "displayCurrencyHelpBody": "Pick a currency to convert list amounts. Original stored amounts are always kept. Missing rates can be set manually before conversion.",
   "chartPaymentHint": "Each expense has at most one payment method; unset appears as not set",
   "tagKindSectionCountry": "Country",
   "tagKindSectionTrip": "Trip",
@@ -258,7 +273,24 @@
     }
   },
   "summaryCount": "Expenses",
+  "summaryExpenses": "Expenses",
   "summaryCurrencies": "Currencies",
+  "summaryPerCurrencyCount": "{count, plural, one{1 expense} other{{count} expenses}}",
+  "@summaryPerCurrencyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryConvertedTotal": "Total in {currency}",
+  "@summaryConvertedTotal": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
   "summaryPartialTotal": "Converted {converted} of {total}",
   "@summaryPartialTotal": {
     "placeholders": {

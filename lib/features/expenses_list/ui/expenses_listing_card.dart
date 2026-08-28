@@ -16,8 +16,6 @@ class ExpensesListingCard extends StatelessWidget {
   final ExpenseListGroup group;
   final ExpenseListSortField sort;
   final bool ascending;
-  final String? displayCurrency;
-  final VoidCallback onDisplayIn;
   final ValueChanged<int> onPageSizeChanged;
   final ValueChanged<int> onPageChanged;
   final ValueChanged<ExpenseListViewMode> onViewChanged;
@@ -39,8 +37,6 @@ class ExpensesListingCard extends StatelessWidget {
     required this.group,
     required this.sort,
     required this.ascending,
-    required this.displayCurrency,
-    required this.onDisplayIn,
     required this.onPageSizeChanged,
     required this.onPageChanged,
     required this.onViewChanged,
@@ -80,20 +76,6 @@ class ExpensesListingCard extends StatelessWidget {
                   runSpacing: 6,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    TextButton.icon(
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        visualDensity: VisualDensity.compact,
-                        textStyle: actionStyle,
-                      ),
-                      onPressed: onDisplayIn,
-                      icon: const Icon(Icons.currency_exchange),
-                      label: Text(
-                        displayCurrency == null
-                            ? l10n.displayIn
-                            : '${l10n.displayIn}: $displayCurrency',
-                      ),
-                    ),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [

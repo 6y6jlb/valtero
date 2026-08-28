@@ -12,6 +12,8 @@ class DonutBreakdownChart extends ConsumerStatefulWidget {
   final String displayCurrency;
   final ValueChanged<DonutChartSlice>? onSegmentTap;
   final bool showTotal;
+  final bool hideCenterTotal;
+  final bool hideSegmentAmounts;
   final double chartHeight;
   final double sectionRadius;
   final String? emptyMessage;
@@ -22,6 +24,8 @@ class DonutBreakdownChart extends ConsumerStatefulWidget {
     required this.displayCurrency,
     this.onSegmentTap,
     this.showTotal = true,
+    this.hideCenterTotal = false,
+    this.hideSegmentAmounts = false,
     this.chartHeight = 260,
     this.sectionRadius = 72,
     this.emptyMessage,
@@ -117,13 +121,15 @@ class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
                           value: slice.amountMinor.toDouble().abs() == 0
                               ? 1
                               : slice.amountMinor.toDouble().abs(),
-                          title:
-                              '${slice.label}\n${formatMoneyOf(
-                            context,
-                            ref,
-                            amountMinor: slice.amountMinor,
-                            currencyCode: widget.displayCurrency,
-                          )}',
+                          title: widget.hideSegmentAmounts
+                              ? slice.label
+                              : '${slice.label}\n${formatMoneyOf(
+                                  context,
+                                  ref,
+                                  amountMinor: slice.amountMinor,
+                                  currencyCode: slice.currencyCode ??
+                                      widget.displayCurrency,
+                                )}',
                           color: slice.color,
                           radius: widget.sectionRadius,
                           titleStyle: const TextStyle(
@@ -154,7 +160,9 @@ class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
             ],
           ),
         ],
-        if (widget.showTotal && visible.isNotEmpty) ...[
+        if (widget.showTotal &&
+            !widget.hideCenterTotal &&
+            visible.isNotEmpty) ...[
           const SizedBox(height: 12),
           MoneyText(
             amountMinor: total,

@@ -83,6 +83,8 @@
   "byPeriod": "Por periodo",
   "displayCurrency": "Moneda de visualización",
   "noExpenses": "Aún no hay gastos",
+  "expensesEmptyTitle": "Aún no hay gastos",
+  "expensesEmptyBody": "Añade tu primer gasto para ver la lista, el resumen y los gráficos.",
   "filterTag": "Filtro de etiqueta",
   "filterCurrency": "Filtro de moneda",
   "all": "Todo",
@@ -151,6 +153,19 @@
   "chartByTagTrip": "Etiquetas de viaje",
   "chartByTagCustom": "Etiquetas personalizadas",
   "chartTagKindHint": "Cada gasto cuenta una vez dentro de este tipo de etiqueta; las faltantes aparecen como no definidas",
+  "chartMissingRatesAlert": "{count, plural, one{1 gasto mostrado sin tipo de cambio} other{{count} gastos mostrados sin tipos de cambio}}",
+  "@chartMissingRatesAlert": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chartHelpTitle": "Acerca del gráfico",
+  "chartHelpBody": "El gráfico incluye gastos en todas las monedas. Si falta un tipo de cambio, los importes se muestran en su moneda original. Los totales pueden mezclar monedas hasta que se definan los tipos de cambio.",
+  "expensesSummaryHelpTitle": "Acerca del resumen de gastos",
+  "expensesSummaryHelpBody": "Los totales se agrupan por moneda almacenada. Usa el botón de conversión para mostrar los importes de la lista en una moneda; el total convertido indica cuántos gastos se pudieron convertir.",
+  "displayCurrencyHelpBody": "Elige una moneda para convertir los importes de la lista. Los importes originales siempre se conservan. Los tipos de cambio faltantes se pueden definir manualmente antes de convertir.",
   "chartPaymentHint": "Cada gasto tiene como máximo un método de pago; si falta, aparece como no definido",
   "tagKindSectionCountry": "País",
   "tagKindSectionTrip": "Viaje",
@@ -258,7 +273,24 @@
     }
   },
   "summaryCount": "Gastos",
+  "summaryExpenses": "Gastos",
   "summaryCurrencies": "Monedas",
+  "summaryPerCurrencyCount": "{count, plural, one{1 gasto} other{{count} gastos}}",
+  "@summaryPerCurrencyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryConvertedTotal": "Total en {currency}",
+  "@summaryConvertedTotal": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
   "summaryPartialTotal": "Convertidos {converted} de {total}",
   "@summaryPartialTotal": {
     "placeholders": {

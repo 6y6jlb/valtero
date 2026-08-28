@@ -155,7 +155,12 @@ void _aggregateExpenseByCountry({
   colors[key] ??= chartColorAt(code.hashCode);
 }
 
-Future<List<DonutChartSlice>> aggregateExpensesForChart({
+typedef ExpenseChartAggregation = ({
+  List<DonutChartSlice> slices,
+  int missingRateCount,
+});
+
+Future<ExpenseChartAggregation> aggregateExpensesForChart({
   required List<Expense> expenses,
   required String primaryCurrency,
   required RateResolver resolver,
@@ -171,18 +176,19 @@ Future<List<DonutChartSlice>> aggregateExpensesForChart({
   final amounts = <String, int>{};
   final labels = <String, String>{};
   final colors = <String, Color>{};
+  final sliceCurrencies = <String, String>{};
   final resolveCountry = countryLabel ?? (code) => code;
+  var missingRateCount = 0;
+  final target = primaryCurrency.toUpperCase();
 
   for (final expense in expenses) {
-    final rate = await resolver.getRate(
-      expense.storedCurrencyCode,
-      primaryCurrency,
-    );
+    final from = expense.storedCurrencyCode.toUpperCase();
+    final rate = from == target
+        ? 1.0
+        : await resolver.getRate(expense.storedCurrencyCode, primaryCurrency);
+    if (rate == null && from != target) missingRateCount++;
     final amount = rate == null
-        ? (expense.storedCurrencyCode.toUpperCase() ==
-                primaryCurrency.toUpperCase()
-            ? expense.storedAmountMinor
-            : 0)
+        ? expense.storedAmountMinor
         : Money.convertMinor(
             originalMinor: expense.storedAmountMinor,
             rate: rate,
@@ -191,10 +197,11 @@ Future<List<DonutChartSlice>> aggregateExpensesForChart({
 
     switch (breakdown) {
       case ExpenseChartBreakdown.currency:
-        final key = expense.storedCurrencyCode.toUpperCase();
-        amounts[key] = (amounts[key] ?? 0) + amount;
+        final key = from;
+        amounts[key] = (amounts[key] ?? 0) + expense.storedAmountMinor;
         labels[key] = key;
         colors[key] ??= chartColorAt(key.hashCode);
+        sliceCurrencies[key] = key;
       case ExpenseChartBreakdown.month:
         final key =
             '${expense.occurredAt.year}-'
@@ -246,13 +253,17 @@ Future<List<DonutChartSlice>> aggregateExpensesForChart({
   final entries = amounts.entries.toList()
     ..sort((a, b) => b.value.compareTo(a.value));
   var i = 0;
-  return [
-    for (final e in entries)
-      DonutChartSlice(
-        key: e.key,
-        label: labels[e.key] ?? e.key,
-        amountMinor: e.value,
-        color: colors[e.key] ?? chartColorAt(i++),
-      ),
-  ];
+  return (
+    slices: [
+      for (final e in entries)
+        DonutChartSlice(
+          key: e.key,
+          label: labels[e.key] ?? e.key,
+          amountMinor: e.value,
+          color: colors[e.key] ?? chartColorAt(i++),
+          currencyCode: sliceCurrencies[e.key],
+        ),
+    ],
+    missingRateCount: missingRateCount,
+  );
 }

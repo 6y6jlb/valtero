@@ -211,6 +211,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get noExpenses => 'Aún no hay gastos';
 
   @override
+  String get expensesEmptyTitle => 'Aún no hay gastos';
+
+  @override
+  String get expensesEmptyBody =>
+      'Añade tu primer gasto para ver la lista, el resumen y los gráficos.';
+
+  @override
   String get filterTag => 'Filtro de etiqueta';
 
   @override
@@ -378,6 +385,35 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get chartTagKindHint =>
       'Cada gasto cuenta una vez dentro de este tipo de etiqueta; las faltantes aparecen como no definidas';
+
+  @override
+  String chartMissingRatesAlert(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count gastos mostrados sin tipos de cambio',
+      one: '1 gasto mostrado sin tipo de cambio',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chartHelpTitle => 'Acerca del gráfico';
+
+  @override
+  String get chartHelpBody =>
+      'El gráfico incluye gastos en todas las monedas. Si falta un tipo de cambio, los importes se muestran en su moneda original. Los totales pueden mezclar monedas hasta que se definan los tipos de cambio.';
+
+  @override
+  String get expensesSummaryHelpTitle => 'Acerca del resumen de gastos';
+
+  @override
+  String get expensesSummaryHelpBody =>
+      'Los totales se agrupan por moneda almacenada. Usa el botón de conversión para mostrar los importes de la lista en una moneda; el total convertido indica cuántos gastos se pudieron convertir.';
+
+  @override
+  String get displayCurrencyHelpBody =>
+      'Elige una moneda para convertir los importes de la lista. Los importes originales siempre se conservan. Los tipos de cambio faltantes se pueden definir manualmente antes de convertir.';
 
   @override
   String get chartPaymentHint =>
@@ -639,7 +675,26 @@ class AppLocalizationsEs extends AppLocalizations {
   String get summaryCount => 'Gastos';
 
   @override
+  String get summaryExpenses => 'Gastos';
+
+  @override
   String get summaryCurrencies => 'Monedas';
+
+  @override
+  String summaryPerCurrencyCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count gastos',
+      one: '1 gasto',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String summaryConvertedTotal(String currency) {
+    return 'Total en $currency';
+  }
 
   @override
   String summaryPartialTotal(int converted, int total) {

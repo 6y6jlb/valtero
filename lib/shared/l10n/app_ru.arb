@@ -83,6 +83,8 @@
   "byPeriod": "По периоду",
   "displayCurrency": "Валюта отображения",
   "noExpenses": "Пока нет трат",
+  "expensesEmptyTitle": "Пока нет трат",
+  "expensesEmptyBody": "Добавьте первую трату, чтобы увидеть список, сводку и графики.",
   "filterTag": "Фильтр по тегу",
   "filterCurrency": "Фильтр по валюте",
   "all": "Все",
@@ -151,6 +153,19 @@
   "chartByTagTrip": "Поездки",
   "chartByTagCustom": "Свои теги",
   "chartTagKindHint": "Каждая трата учитывается один раз внутри выбранного типа; без тега попадает в «не указано»",
+  "chartMissingRatesAlert": "{count, plural, one{1 трата показана без курса конвертации} few{{count} траты показаны без курса конвертации} many{{count} трат показано без курса конвертации} other{{count} траты показаны без курса конвертации}}",
+  "@chartMissingRatesAlert": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chartHelpTitle": "О графике",
+  "chartHelpBody": "На графике учитываются траты во всех валютах. Если курс не указан, суммы показываются в исходной валюте. Итоги могут смешивать валюты, пока курсы не заданы.",
+  "expensesSummaryHelpTitle": "О сводке трат",
+  "expensesSummaryHelpBody": "Итоги сгруппированы по сохранённой валюте. Кнопка конвертации переводит суммы в списке в одну валюту; итог конвертации показывает, сколько трат удалось пересчитать.",
+  "displayCurrencyHelpBody": "Выберите валюту для отображения сумм в списке. Исходные суммы всегда сохраняются. Отсутствующие курсы можно задать вручную перед конвертацией.",
   "chartPaymentHint": "У траты не больше одного способа оплаты; без выбора — «не указано»",
   "tagKindSectionCountry": "Страна",
   "tagKindSectionTrip": "Поездка",
@@ -258,7 +273,24 @@
     }
   },
   "summaryCount": "Трат",
+  "summaryExpenses": "Траты",
   "summaryCurrencies": "Валют",
+  "summaryPerCurrencyCount": "{count, plural, one{1 трата} few{{count} траты} many{{count} трат} other{{count} траты}}",
+  "@summaryPerCurrencyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryConvertedTotal": "Итого в {currency}",
+  "@summaryConvertedTotal": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
   "summaryPartialTotal": "Сконвертировано {converted} из {total}",
   "@summaryPartialTotal": {
     "placeholders": {

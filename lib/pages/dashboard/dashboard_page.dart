@@ -37,6 +37,7 @@ import 'package:valtero/shared/utils/payment_method_label.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
 import 'package:valtero/widgets/app_page_scaffold.dart';
 import 'package:valtero/widgets/app_toast.dart';
+import 'package:valtero/widgets/feature_help_sheet.dart';
 import 'package:valtero/widgets/header_clock.dart';
 import 'package:valtero/widgets/period_picker.dart';
 
@@ -348,6 +349,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               context: context,
               l10n: l10n,
               slices: _sampleSlices(l10n, breakdown),
+              missingRateCount: 0,
               displayCurrency: displayCurrency,
               breakdown: breakdown,
               currencyOptions: currencyOptions,
@@ -360,7 +362,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               isSample: true,
               loading: false,
             )
-          : FutureBuilder<List<DonutChartSlice>>(
+          : FutureBuilder<ExpenseChartAggregation>(
               future: aggregateExpensesForChart(
                 expenses: filtered,
                 primaryCurrency: displayCurrency,
@@ -379,11 +381,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     countryDisplayName(code, languageCode: lang),
               ),
               builder: (context, snapshot) {
-                final slices = snapshot.data ?? const <DonutChartSlice>[];
+                final aggregation =
+                    snapshot.data ??
+                    (slices: const <DonutChartSlice>[], missingRateCount: 0);
                 return _buildDashboardBody(
                   context: context,
                   l10n: l10n,
-                  slices: slices,
+                  slices: aggregation.slices,
+                  missingRateCount: aggregation.missingRateCount,
                   displayCurrency: displayCurrency,
                   breakdown: breakdown,
                   currencyOptions: currencyOptions,
@@ -406,6 +411,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     required BuildContext context,
     required AppLocalizations l10n,
     required List<DonutChartSlice> slices,
+    required int missingRateCount,
     required String displayCurrency,
     required ExpenseChartBreakdown breakdown,
     required List<String> currencyOptions,
@@ -461,11 +467,37 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           ),
           const SizedBox(height: 16),
         ],
+        if (!isSample && missingRateCount > 0)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: MaterialBanner(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              leading: Icon(
+                Icons.warning_amber_outlined,
+                color: theme.colorScheme.error,
+              ),
+              content: Text(l10n.chartMissingRatesAlert(missingRateCount)),
+              actions: [
+                TextButton(
+                  onPressed: () => showFeatureHelpSheet(
+                    context,
+                    title: l10n.chartHelpTitle,
+                    body: l10n.chartHelpBody,
+                  ),
+                  child: Text(l10n.chartHelpTitle),
+                ),
+              ],
+            ),
+          ),
         DonutBreakdownChart(
           key: ValueKey('dash-${breakdown.name}-${slices.length}'),
           slices: slices,
           displayCurrency: displayCurrency,
           showTotal: false,
+          hideCenterTotal: missingRateCount > 0 ||
+              breakdown == ExpenseChartBreakdown.currency,
+          hideSegmentAmounts: missingRateCount > 0 &&
+              breakdown != ExpenseChartBreakdown.currency,
           emptyMessage:
               isSample ? l10n.noExpenses : l10n.noMatchingExpenses,
           onSegmentTap: isSample
