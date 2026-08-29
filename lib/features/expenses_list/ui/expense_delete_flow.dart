@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:valtero/entities/expense/model/expense_tags_provider.dart';
 import 'package:valtero/features/add_expense/model/add_expense_controller.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
 import 'package:valtero/widgets/app_toast.dart';
 
-Future<void> confirmAndDeleteExpense(
+/// Returns `true` if the expense was deleted.
+Future<bool> confirmAndDeleteExpense(
   BuildContext context,
   WidgetRef ref,
   int expenseId,
@@ -44,11 +44,11 @@ Future<void> confirmAndDeleteExpense(
       ],
     ),
   );
-  if (confirmed != true || !context.mounted) return;
+  if (confirmed != true || !context.mounted) return false;
 
   await ref.read(addExpenseControllerProvider).delete(expenseId);
-  ref.invalidate(expenseTagIdsProvider);
-  if (!context.mounted) return;
+  if (!context.mounted) return true;
 
   showAppToast(context, l10n.expenseDeleted);
+  return true;
 }

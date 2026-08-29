@@ -6,8 +6,8 @@ import 'package:valtero/entities/payment_method/ui/payment_method_chip.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
 import 'package:valtero/entities/tag/model/tag_kind.dart';
 import 'package:valtero/entities/tag/ui/grouped_tag_picker.dart';
-import 'package:valtero/entities/expense/model/expense_tags_provider.dart';
 import 'package:valtero/features/add_expense/model/add_expense_controller.dart';
+import 'package:valtero/features/add_expense/ui/add_expense_actions_bar.dart';
 import 'package:valtero/features/add_expense/ui/country_picker_dialog.dart';
 import 'package:valtero/features/manage_tags/model/manage_tags_controller.dart';
 import 'package:valtero/shared/consts/countries.dart';
@@ -15,10 +15,12 @@ import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/database/database_provider.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
+import 'package:valtero/shared/utils/app_timezone.dart';
 import 'package:valtero/shared/utils/money.dart';
 import 'package:valtero/shared/utils/payment_method_label.dart';
 import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/currency_picker.dart';
+import 'package:valtero/widgets/date_text.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/set_manual_rate_sheet.dart';
 import 'package:valtero/widgets/tag_color_picker.dart';
@@ -209,7 +211,6 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
       } else {
         await controller.save(input);
       }
-      ref.invalidate(expenseTagIdsProvider);
       if (!mounted) return;
       if (!_isEdit) {
         _amountController.clear();
@@ -248,7 +249,6 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
     final reporting = settings?.reportingCurrencies ?? const ['RUB'];
     final scrollController = PrimaryScrollController.maybeOf(context);
     final theme = Theme.of(context);
-    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
     final lang = Localizations.localeOf(context).languageCode;
     final tagsSubtitle = _tagIds.isEmpty
         ? l10n.tagsNoneSelected
@@ -504,25 +504,30 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(l10n.date),
-                subtitle: Text(
-                  '${_occurredAt.year}-${_occurredAt.month.toString().padLeft(2, '0')}-${_occurredAt.day.toString().padLeft(2, '0')}',
-                ),
+                subtitle: DateText(instant: _occurredAt),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () async {
+                  final tzId = ref.read(appSettingsProvider).value?.timeZoneId ??
+                      kSystemTimeZoneId;
+                  final zoned = zonedFromInstant(_occurredAt, tzId);
+                  final initial = DateTime(zoned.year, zoned.month, zoned.day);
+                  final nowZ = nowInTimeZone(tzId);
                   final picked = await showDatePicker(
                     context: context,
-                    initialDate: _occurredAt,
+                    initialDate: initial,
                     firstDate: DateTime(2000),
-                    lastDate: DateTime.now().add(const Duration(days: 365)),
+                    lastDate: DateTime(nowZ.year, nowZ.month, nowZ.day)
+                        .add(const Duration(days: 365)),
                   );
                   if (picked != null) {
                     setState(() {
-                      _occurredAt = DateTime(
-                        picked.year,
-                        picked.month,
-                        picked.day,
-                        _occurredAt.hour,
-                        _occurredAt.minute,
+                      _occurredAt = wallClockInTimeZone(
+                        tzId,
+                        year: picked.year,
+                        month: picked.month,
+                        day: picked.day,
+                        hour: zoned.hour,
+                        minute: zoned.minute,
                       );
                     });
                   }
@@ -536,18 +541,10 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
             ],
           ),
         ),
-        SafeArea(
-          top: false,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(16, 8, 16, 8 + bottomInset),
-            child: SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: _save,
-                child: Text(l10n.save),
-              ),
-            ),
-          ),
+        AddExpenseActionsBar(
+          isEdit: _isEdit,
+          expenseId: widget.expense?.id,
+          onSave: _save,
         ),
       ],
     );

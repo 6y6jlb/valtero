@@ -3,6 +3,7 @@
   "appTitle": "Valtero",
   "navDashboard": "Сводка",
   "navExpenses": "Траты",
+  "recentOperations": "Последние операции",
   "navAdd": "Добавить",
   "navTags": "Теги",
   "navCurrency": "Валюта",
@@ -11,6 +12,34 @@
   "settingsAppearance": "Оформление",
   "settingsCurrency": "Валюта и курсы",
   "settingsExport": "Экспорт и Telegram",
+  "settingsDataSync": "Резервная копия и синхронизация",
+  "dataSyncTitle": "Резервная копия и синхронизация",
+  "dataSyncExport": "Экспорт",
+  "dataSyncImport": "Импорт",
+  "dataSyncPassphrase": "Парольная фраза",
+  "dataSyncGeneratePassphrase": "Сгенерировать фразу",
+  "dataSyncCopyPassphrase": "Скопировать фразу",
+  "dataSyncPassphraseWarning": "Сохраните парольную фразу в надёжном месте. Без неё резервную копию открыть нельзя.",
+  "dataSyncExportDone": "Резервная копия сохранена",
+  "dataSyncImportDone": "Импортировано: {expenses} трат, {tags} тегов, {payments} способов оплаты",
+  "@dataSyncImportDone": {
+    "placeholders": {
+      "expenses": {
+        "type": "int"
+      },
+      "tags": {
+        "type": "int"
+      },
+      "payments": {
+        "type": "int"
+      }
+    }
+  },
+  "dataSyncWrongPassphrase": "Неверная фраза или повреждённый файл",
+  "dataSyncUnsupportedFormat": "Неподдерживаемый или повреждённый файл резервной копии",
+  "dataSyncNewerSchema": "Для этой копии нужна более новая версия приложения",
+  "dataSyncIntegrationsNotTransferred": "API-ключи и данные Telegram в резервную копию не входят.",
+  "dashboardRestoreFromBackup": "Восстановить из копии",
   "selectCountry": "Выбрать страну",
   "addExpense": "Добавить трату",
   "editExpense": "Изменить трату",
@@ -95,6 +124,7 @@
   "moneyFormatLocaleSymbol": "По локали с символом",
   "moneyFormatLocaleCode": "По локали с кодом валюты",
   "moneyFormatPlain": "Простой (1234.56 CODE)",
+  "dateFormat": "Отображение даты",
   "timeZone": "Часовой пояс",
   "timeZoneSystem": "Системный ({id})",
   "@timeZoneSystem": {
@@ -402,6 +432,8 @@
   "guideSectionExchangeRatesBody": "Курсы обновляются в фоне, если устарели (примерно раз в сутки). Привяжите ключ ExchangeRate-API, обновите вручную, задайте свои курсы и просмотрите все пары в Настройки → Валюта и курсы.",
   "guideSectionExportTitle": "Экспорт",
   "guideSectionExportBody": "Выгружайте траты в CSV или JSON. Сохраните файл, поделитесь им или скопируйте в буфер из меню экспорта или Настройки → Экспорт и Telegram.",
+  "guideSectionDataSyncTitle": "Резервная копия и синхронизация",
+  "guideSectionDataSyncBody": "Создайте зашифрованную копию трат, тегов, способов оплаты, ручных курсов и настроек отображения. Защитите своей парольной фразой или сгенерированной. Восстановите на другом устройстве из Настройки → Резервная копия и синхронизация или с пустого дашборда. API-ключи и Telegram в копию не входят.",
   "guideSectionTelegramTitle": "Шаринг через Telegram",
   "guideSectionTelegramBody": "Включите Telegram в настройках экспорта, укажите токен бота и chat id — и отправляйте файл экспорта прямо в Telegram.",
   "guideSectionFiltersTitle": "Фильтры",

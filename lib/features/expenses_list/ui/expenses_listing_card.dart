@@ -3,21 +3,15 @@ import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
 import 'package:valtero/features/export_expenses/model/export_destination.dart';
+import 'package:valtero/features/export_expenses/model/export_readiness.dart';
 import 'package:valtero/features/export_expenses/ui/export_menu.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 
-const expensesPageSizeOptions = [10, 25, 50, 100];
-
 class ExpensesListingCard extends StatelessWidget {
-  final int pageSize;
-  final int page;
-  final int pageCount;
   final ExpenseListViewMode view;
   final ExpenseListGroup group;
   final ExpenseListSortField sort;
   final bool ascending;
-  final ValueChanged<int> onPageSizeChanged;
-  final ValueChanged<int> onPageChanged;
   final ValueChanged<ExpenseListViewMode> onViewChanged;
   final ValueChanged<ExpenseListGroup> onGroupChanged;
   final void Function(ExpenseListSortField field, bool ascending)
@@ -30,15 +24,10 @@ class ExpensesListingCard extends StatelessWidget {
 
   const ExpensesListingCard({
     super.key,
-    required this.pageSize,
-    required this.page,
-    required this.pageCount,
     required this.view,
     required this.group,
     required this.sort,
     required this.ascending,
-    required this.onPageSizeChanged,
-    required this.onPageChanged,
     required this.onViewChanged,
     required this.onGroupChanged,
     required this.onSortChanged,
@@ -76,30 +65,6 @@ class ExpensesListingCard extends StatelessWidget {
                   runSpacing: 6,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        actionLabel('${l10n.perPage}: '),
-                        DropdownButton<int>(
-                          value: pageSize,
-                          isDense: true,
-                          style: actionStyle?.copyWith(
-                            color: theme.colorScheme.onSurface,
-                          ),
-                          underline: const SizedBox.shrink(),
-                          items: [
-                            for (final n in expensesPageSizeOptions)
-                              DropdownMenuItem(
-                                value: n,
-                                child: Text('$n'),
-                              ),
-                          ],
-                          onChanged: (v) {
-                            if (v != null) onPageSizeChanged(v);
-                          },
-                        ),
-                      ],
-                    ),
                     PopupMenuButton<String>(
                       tooltip: l10n.export,
                       padding: EdgeInsets.zero,
@@ -111,7 +76,10 @@ class ExpensesListingCard extends StatelessWidget {
                           destination: selected.destination,
                         );
                       },
-                      itemBuilder: (context) => buildExportMenuItems(l10n),
+                      itemBuilder: (context) => buildExportMenuItems(
+                        l10n,
+                        showShare: isExportShareSupported,
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 6,
@@ -242,27 +210,6 @@ class ExpensesListingCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    if (view == ExpenseListViewMode.list && pageCount > 1)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            visualDensity: VisualDensity.compact,
-                            onPressed: page > 0
-                                ? () => onPageChanged(page - 1)
-                                : null,
-                            icon: const Icon(Icons.chevron_left),
-                          ),
-                          actionLabel('${page + 1} / $pageCount'),
-                          IconButton(
-                            visualDensity: VisualDensity.compact,
-                            onPressed: page < pageCount - 1
-                                ? () => onPageChanged(page + 1)
-                                : null,
-                            icon: const Icon(Icons.chevron_right),
-                          ),
-                        ],
-                      ),
                   ],
                 ),
               ),

@@ -23,7 +23,7 @@ Guidelines for unit and feature tests in Valtero.
 3. Do **not** hit the network in unit/feature tests — fake `RateResolver` / Dio.
 4. Money stays in **integer minor units** in fixtures.
 5. When adding a pure helper or changing filter/money/rate logic in the same PR, add or extend a test.
-6. Schema / migration: until production data, MVP may use a destructive baseline — no stepwise migration tests required. When `migrate_to_vN` returns, add fixture upgrade tests for breaking changes.
+6. Schema / migration: add fixture upgrade tests for breaking `migrate_to_vN` changes. Never wipe user DB on upgrade.
 
 ## Running
 

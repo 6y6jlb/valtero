@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/shared/database/app_database.dart';
+import 'package:valtero/widgets/date_text.dart';
 import 'package:valtero/widgets/money_text.dart';
 
 class ExpenseTile extends ConsumerWidget {
@@ -22,11 +23,7 @@ class ExpenseTile extends ConsumerWidget {
     final subtitle = StringBuffer()
       ..write(tagLabel)
       ..write(' · ')
-      ..write(
-        '${expense.occurredAt.year}-'
-        '${expense.occurredAt.month.toString().padLeft(2, '0')}-'
-        '${expense.occurredAt.day.toString().padLeft(2, '0')}',
-      );
+      ..write(formatDateOf(context, ref, instant: expense.occurredAt));
     if (expense.originalCurrencyCode != expense.storedCurrencyCode) {
       subtitle.write(' · orig ');
       subtitle.write(

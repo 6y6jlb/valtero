@@ -33,7 +33,7 @@ Details: [docs/agent-rules/fsd-layers.md](docs/agent-rules/fsd-layers.md)
 
 - **Riverpod** for state (`AsyncNotifier` for Hive/Drift-backed state)
 - **Drift (SQLite)** for expenses, tags, exchange-rate cache/overrides (`sqlite3` ≥3.x bundles native SQLite via build hooks on Linux/Android/Windows)
-- **Schema version** SSOT: `kAppSchemaVersion`. **MVP**: single baseline schema — `onUpgrade` may wipe + recreate (no stepwise `migrate_to_vN` yet). Before production data, restore monotonic migrate steps — see [drift-conventions.md](docs/agent-rules/drift-conventions.md). Same int goes into strict exchange envelopes as `schemaVersion`.
+- **Schema version** SSOT: `kAppSchemaVersion`. Production baseline v5 — stepwise `migrate_to_vN` only; **never wipe** user DB on upgrade — see [drift-conventions.md](docs/agent-rules/drift-conventions.md). Same int goes into strict exchange envelopes as `schemaVersion`.
 - **Hive CE** for `AppSettings` only (reporting currencies, API key, detection cache, theme/locale/timezone)
 
 Details: [docs/agent-rules/riverpod-conventions.md](docs/agent-rules/riverpod-conventions.md), [docs/agent-rules/drift-conventions.md](docs/agent-rules/drift-conventions.md)
@@ -60,7 +60,7 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 2. **Dashboard** → donut chart + filter bar → **last 10 expenses** + link to full list; entry points for add / tags / export; convert stored amounts to display currency via `RateResolver` in Dart
 3. **Rates** → on launch if last refresh >24h, refresh in background; Settings → Currency sheet can force refresh / bind API key / set manual rates / view all rates
 4. **Tag suggestions** → detect country/currency (ip-api.com, locale fallback) → suggest **category** tags (Tags sheet). Detected country primes the expense country field on create.
-5. **Export** → CSV/JSON (includes `countryCode` + payment) → save / share / Telegram; future strict/encrypted interchange must embed `formatVersion` + `schemaVersion` (`kAppSchemaVersion`) for import adapters
+5. **Export** → CSV/JSON (includes `countryCode` + payment) → save / share / Telegram; **encrypted backup/sync** (Settings → Backup & sync, `.valterobackup`) embeds `formatVersion` + `schemaVersion` (`kAppSchemaVersion`) for merge import across devices; API keys / Telegram credentials are excluded
 
 ## Navigation
 

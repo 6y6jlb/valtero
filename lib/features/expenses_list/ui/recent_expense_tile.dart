@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/money_text.dart';
 
-/// Compact recent-expense row for the dashboard list.
-class RecentExpenseTile extends StatelessWidget {
+/// Compact recent-operation row for the dashboard list (date is in section header).
+class RecentExpenseTile extends ConsumerWidget {
   final Expense expense;
   final String? paymentLabel;
   final String? countryLabel;
@@ -21,14 +22,9 @@ class RecentExpenseTile extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final date =
-        '${expense.occurredAt.year}-'
-        '${expense.occurredAt.month.toString().padLeft(2, '0')}-'
-        '${expense.occurredAt.day.toString().padLeft(2, '0')}';
     final parts = <String>[
-      date,
       if (paymentLabel != null && paymentLabel!.isNotEmpty) paymentLabel!,
       if (countryLabel != null && countryLabel!.isNotEmpty) countryLabel!,
       if (tagsLabel != null && tagsLabel!.isNotEmpty) tagsLabel!,
@@ -45,11 +41,13 @@ class RecentExpenseTile extends StatelessWidget {
         currencyCode: expense.storedCurrencyCode,
         style: theme.textTheme.titleSmall,
       ),
-      subtitle: Text(
-        parts.join(' · '),
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
+      subtitle: parts.isEmpty
+          ? null
+          : Text(
+              parts.join(' · '),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
     );
   }
 }

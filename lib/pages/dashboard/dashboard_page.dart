@@ -6,8 +6,8 @@ import 'package:valtero/entities/payment_method/model/payment_methods_provider.d
 import 'package:valtero/entities/expense/model/expense_tags_provider.dart';
 import 'package:valtero/entities/expense/model/expenses_provider.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
-import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
 import 'package:valtero/features/currency_settings/ui/rates_sheet.dart';
+import 'package:valtero/features/data_sync/ui/data_sync_flow.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/model/expense_chart_aggregator.dart';
 import 'package:valtero/features/expenses_list/model/expense_chart_drill_down.dart';
@@ -20,9 +20,10 @@ import 'package:valtero/features/expenses_list/ui/expense_payment_filter_dialog.
 import 'package:valtero/features/expenses_list/ui/expense_tag_filter_dialog.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_filter_sheet.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_filter_summary_bar.dart';
-import 'package:valtero/features/expenses_list/ui/recent_expense_tile.dart';
+import 'package:valtero/features/expenses_list/ui/recent_operations_list.dart';
 import 'package:valtero/features/export_expenses/ui/export_flow.dart';
 import 'package:valtero/features/export_expenses/ui/export_menu.dart';
+import 'package:valtero/features/export_expenses/model/export_readiness.dart';
 import 'package:valtero/pages/expenses/expenses_page.dart';
 import 'package:valtero/pages/platform_guide/platform_guide_page.dart';
 import 'package:valtero/pages/settings/settings_page.dart';
@@ -32,6 +33,7 @@ import 'package:valtero/shared/consts/palette.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
+import 'package:valtero/shared/utils/app_timezone.dart';
 import 'package:valtero/shared/utils/date_period.dart';
 import 'package:valtero/shared/utils/payment_method_label.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
@@ -39,11 +41,15 @@ import 'package:valtero/widgets/app_page_scaffold.dart';
 import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/feature_help_sheet.dart';
 import 'package:valtero/widgets/header_clock.dart';
+import 'package:valtero/widgets/infinite_scroll_ellipsis.dart';
 import 'package:valtero/widgets/period_picker.dart';
 
 final donutBreakdownProvider = StateProvider<ExpenseChartBreakdown>(
   (ref) => ExpenseChartBreakdown.country,
 );
+
+const _kRecentInitial = 5;
+const _kRecentBatch = 5;
 
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
@@ -53,8 +59,15 @@ class DashboardPage extends ConsumerStatefulWidget {
 }
 
 class _DashboardPageState extends ConsumerState<DashboardPage> {
-  late ExpenseListQuery _draft = ExpenseListQuery.sessionDefaults();
-  late ExpenseListQuery _applied = ExpenseListQuery.sessionDefaults();
+  bool _hasCustomFilter = false;
+  ExpenseListQuery? _customQuery;
+  int _recentVisibleCount = _kRecentInitial;
+  bool _recentLoadScheduled = false;
+
+  ExpenseListQuery _resolveQuery(String timeZoneId) {
+    if (_hasCustomFilter && _customQuery != null) return _customQuery!;
+    return ExpenseListQuery.sessionDefaults(timeZoneId: timeZoneId);
+  }
 
   void _changeBreakdown(ExpenseChartBreakdown next) {
     ref.read(donutBreakdownProvider.notifier).state = next;
@@ -72,10 +85,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     required Map<int, String> paymentLabels,
     required List<Tag> tags,
     required List<PaymentMethod> paymentMethods,
+    required ExpenseListQuery current,
   }) async {
     final result = await showExpensesFilterSheet(
       context: context,
-      initial: _draft,
+      initial: current,
       currencyOptions: currencyOptions,
       tagLabels: tagLabels,
       paymentLabels: paymentLabels,
@@ -113,15 +127,20 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     );
     if (result == null || !mounted) return;
     setState(() {
-      _draft = result;
-      _applied = result;
+      _hasCustomFilter = true;
+      _customQuery = result;
+      _recentVisibleCount = _kRecentInitial;
     });
     showAppToast(context, AppLocalizations.of(context)!.filtersApplied);
   }
 
-  void _openSliceExpenses(DonutChartSlice slice, ExpenseChartBreakdown breakdown) {
+  void _openSliceExpenses(
+    DonutChartSlice slice,
+    ExpenseChartBreakdown breakdown,
+    ExpenseListQuery applied,
+  ) {
     final query = expenseChartDrillDownQuery(
-      base: _applied,
+      base: applied,
       breakdown: breakdown,
       sliceKey: slice.key,
     );
@@ -291,10 +310,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     }.toList()
       ..sort();
 
+    final timeZoneId = settings?.timeZoneId ?? kSystemTimeZoneId;
+    final applied = _resolveQuery(timeZoneId);
+
     final filtered = filterExpenses(
       all: expenses,
-      query: _applied,
+      query: applied,
       expenseTags: expenseTags,
+      timeZoneId: timeZoneId,
     );
     final isSample = expenses.isEmpty;
     final lang = Localizations.localeOf(context).languageCode;
@@ -325,7 +348,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 destination: selected.destination,
               );
             },
-            itemBuilder: (context) => buildExportMenuItems(l10n),
+            itemBuilder: (context) => buildExportMenuItems(
+              l10n,
+              showShare: isExportShareSupported,
+            ),
             icon: const Icon(Icons.ios_share_outlined),
           ),
           IconButton(
@@ -359,6 +385,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               paymentMethods: paymentMethods,
               recentExpenses: const [],
               expenseTags: expenseTags,
+              applied: applied,
               isSample: true,
               loading: false,
             )
@@ -379,6 +406,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 ),
                 countryLabel: (code) =>
                     countryDisplayName(code, languageCode: lang),
+                timeZoneId: timeZoneId,
               ),
               builder: (context, snapshot) {
                 final aggregation =
@@ -398,6 +426,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   paymentMethods: paymentMethods,
                   recentExpenses: filtered,
                   expenseTags: expenseTags,
+                  applied: applied,
                   isSample: false,
                   loading:
                       snapshot.connectionState == ConnectionState.waiting,
@@ -421,16 +450,34 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     required List<PaymentMethod> paymentMethods,
     required List<Expense> recentExpenses,
     required Map<int, List<int>> expenseTags,
+    required ExpenseListQuery applied,
     required bool isSample,
     required bool loading,
   }) {
     final theme = Theme.of(context);
-    final lang = Localizations.localeOf(context).languageCode;
     final recent = [...recentExpenses]
       ..sort((a, b) => b.occurredAt.compareTo(a.occurredAt));
-    final recentTop = recent.take(10).toList();
+    final visibleCount = _recentVisibleCount.clamp(0, recent.length);
+    final recentTop = recent.take(visibleCount).toList();
+    final hasMoreRecent = visibleCount < recent.length;
 
-    return ListView(
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        if (!hasMoreRecent || _recentLoadScheduled) return false;
+        if (!isNearScrollBottom(notification)) return false;
+        _recentLoadScheduled = true;
+        final total = recent.length;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          setState(() {
+            _recentVisibleCount =
+                (_recentVisibleCount + _kRecentBatch).clamp(0, total);
+          });
+          _recentLoadScheduled = false;
+        });
+        return false;
+      },
+      child: ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, kFabBottomPadding),
       children: [
         if (isSample) ...[
@@ -459,6 +506,18 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: Text(l10n.dashboardOpenGuide),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton(
+                      onPressed: () => showDataSyncImportFlow(context),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: Text(l10n.dashboardRestoreFromBackup),
                     ),
                   ),
                 ],
@@ -502,7 +561,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               isSample ? l10n.noExpenses : l10n.noMatchingExpenses,
           onSegmentTap: isSample
               ? null
-              : (slice) => _openSliceExpenses(slice, breakdown),
+              : (slice) => _openSliceExpenses(slice, breakdown, applied),
         ),
         const SizedBox(height: 8),
         ChartBreakdownIcons(
@@ -525,49 +584,36 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         ],
         const SizedBox(height: 12),
         ExpensesFilterSummaryBar(
-          draft: _applied,
+          draft: applied,
           onTap: () => _openFilters(
             currencyOptions: currencyOptions,
             tagLabels: tagLabels,
             paymentLabels: paymentLabels,
             tags: tags,
             paymentMethods: paymentMethods,
+            current: applied,
           ),
         ),
         if (loading) const LinearProgressIndicator(),
         if (!isSample && recentTop.isNotEmpty) ...[
           const SizedBox(height: 20),
           Text(
-            l10n.navExpenses,
+            l10n.recentOperations,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 4),
-          for (final e in recentTop)
-            RecentExpenseTile(
-              expense: e,
-              paymentLabel: e.paymentMethodId == null
-                  ? null
-                  : paymentLabels[e.paymentMethodId!],
-              countryLabel: e.countryCode == null || e.countryCode!.isEmpty
-                  ? null
-                  : countryDisplayName(
-                      e.countryCode!,
-                      languageCode: lang,
-                    ),
-              tagsLabel: recentExpenseTagsLabel(e.id, expenseTags, tagLabels),
-              onTap: () => showAddExpenseSheet(context, expense: e),
-            ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton(
-              onPressed: () => ExpensesPage.open(context, initial: _applied),
-              child: Text(l10n.showExpenses),
-            ),
+          RecentOperationsList(
+            expenses: recentTop,
+            expenseTags: expenseTags,
+            tagLabels: tagLabels,
+            paymentLabels: paymentLabels,
           ),
+          if (hasMoreRecent) const InfiniteScrollEllipsis(),
         ],
       ],
+    ),
     );
   }
 }

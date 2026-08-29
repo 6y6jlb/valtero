@@ -3,6 +3,7 @@
   "appTitle": "Valtero",
   "navDashboard": "Dashboard",
   "navExpenses": "Expenses",
+  "recentOperations": "Recent operations",
   "navAdd": "Add",
   "navTags": "Tags",
   "navCurrency": "Currency",
@@ -11,6 +12,34 @@
   "settingsAppearance": "Appearance",
   "settingsCurrency": "Currency & rates",
   "settingsExport": "Export & Telegram",
+  "settingsDataSync": "Backup & sync",
+  "dataSyncTitle": "Backup & sync",
+  "dataSyncExport": "Export",
+  "dataSyncImport": "Import",
+  "dataSyncPassphrase": "Passphrase",
+  "dataSyncGeneratePassphrase": "Generate passphrase",
+  "dataSyncCopyPassphrase": "Copy passphrase",
+  "dataSyncPassphraseWarning": "Store this passphrase safely. Without it, the backup cannot be opened.",
+  "dataSyncExportDone": "Backup saved",
+  "dataSyncImportDone": "Imported {expenses} expenses, {tags} tags, {payments} payment methods",
+  "@dataSyncImportDone": {
+    "placeholders": {
+      "expenses": {
+        "type": "int"
+      },
+      "tags": {
+        "type": "int"
+      },
+      "payments": {
+        "type": "int"
+      }
+    }
+  },
+  "dataSyncWrongPassphrase": "Wrong passphrase or damaged file",
+  "dataSyncUnsupportedFormat": "Unsupported or invalid backup file",
+  "dataSyncNewerSchema": "This backup needs a newer app version",
+  "dataSyncIntegrationsNotTransferred": "API keys and Telegram credentials are not included in backups.",
+  "dashboardRestoreFromBackup": "Restore from backup",
   "selectCountry": "Select country",
   "addExpense": "Add expense",
   "editExpense": "Edit expense",
@@ -95,6 +124,7 @@
   "moneyFormatLocaleSymbol": "Locale with symbol",
   "moneyFormatLocaleCode": "Locale with currency code",
   "moneyFormatPlain": "Plain (1234.56 CODE)",
+  "dateFormat": "Date display",
   "timeZone": "Time zone",
   "timeZoneSystem": "System ({id})",
   "@timeZoneSystem": {
@@ -402,6 +432,8 @@
   "guideSectionExchangeRatesBody": "Rates refresh in the background when stale (about every 24 hours). Bind an ExchangeRate-API key, refresh manually, set overrides, and browse all rates in Settings → Currency & rates.",
   "guideSectionExportTitle": "Export",
   "guideSectionExportBody": "Export expenses as CSV or JSON. Save a file, share it, or copy to the clipboard from the export menu or Settings → Export & Telegram.",
+  "guideSectionDataSyncTitle": "Backup & sync",
+  "guideSectionDataSyncBody": "Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Restore on another device from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.",
   "guideSectionTelegramTitle": "Telegram sharing",
   "guideSectionTelegramBody": "Enable Telegram in Export settings, enter a bot token and chat id, then send an export document straight to Telegram.",
   "guideSectionFiltersTitle": "Filters",

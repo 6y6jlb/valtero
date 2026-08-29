@@ -7,5 +7,8 @@ const List<String> paymentMethodSeedKeys = [
   'ewallet',
 ];
 
+/// Default payment method for new expenses when the user has not chosen one.
+const String kDefaultPaymentMethodStableKey = 'card';
+
 bool isPaymentMethodStableKey(String? key) =>
     key != null && paymentMethodSeedKeys.contains(key);

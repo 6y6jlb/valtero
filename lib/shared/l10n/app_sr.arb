@@ -3,6 +3,7 @@
   "appTitle": "Valtero",
   "navDashboard": "Pregled",
   "navExpenses": "Troškovi",
+  "recentOperations": "Nedavne operacije",
   "navAdd": "Dodaj",
   "navTags": "Oznake",
   "navCurrency": "Valuta",
@@ -11,6 +12,34 @@
   "settingsAppearance": "Izgled",
   "settingsCurrency": "Valuta i kursevi",
   "settingsExport": "Izvoz i Telegram",
+  "settingsDataSync": "Rezervna kopija i sinhronizacija",
+  "dataSyncTitle": "Rezervna kopija i sinhronizacija",
+  "dataSyncExport": "Izvoz",
+  "dataSyncImport": "Uvoz",
+  "dataSyncPassphrase": "Lozinka-fraza",
+  "dataSyncGeneratePassphrase": "Generiši frazu",
+  "dataSyncCopyPassphrase": "Kopiraj frazu",
+  "dataSyncPassphraseWarning": "Sačuvajte ovu frazu na sigurnom mestu. Bez nje se rezervna kopija ne može otvoriti.",
+  "dataSyncExportDone": "Rezervna kopija sačuvana",
+  "dataSyncImportDone": "Uvezeno {expenses} troškova, {tags} oznaka, {payments} načina plaćanja",
+  "@dataSyncImportDone": {
+    "placeholders": {
+      "expenses": {
+        "type": "int"
+      },
+      "tags": {
+        "type": "int"
+      },
+      "payments": {
+        "type": "int"
+      }
+    }
+  },
+  "dataSyncWrongPassphrase": "Pogrešna fraza ili oštećen fajl",
+  "dataSyncUnsupportedFormat": "Nepodržan ili nevažeći fajl rezervne kopije",
+  "dataSyncNewerSchema": "Ova kopija zahteva noviju verziju aplikacije",
+  "dataSyncIntegrationsNotTransferred": "API ključevi i Telegram podaci nisu uključeni u rezervne kopije.",
+  "dashboardRestoreFromBackup": "Vrati iz rezervne kopije",
   "selectCountry": "Izaberi zemlju",
   "addExpense": "Dodaj trošak",
   "editExpense": "Izmeni trošak",
@@ -95,6 +124,7 @@
   "moneyFormatLocaleSymbol": "Lokalno sa simbolom",
   "moneyFormatLocaleCode": "Lokalno sa kodom valute",
   "moneyFormatPlain": "Jednostavan (1234.56 CODE)",
+  "dateFormat": "Prikaz datuma",
   "timeZone": "Vremenska zona",
   "timeZoneSystem": "Sistemska ({id})",
   "@timeZoneSystem": {
@@ -402,6 +432,8 @@
   "guideSectionExchangeRatesBody": "Kursevi se osvežavaju u pozadini kada zastare (oko svaka 24 sata). Poveži ključ ExchangeRate-API, osveži ručno, postavi izmene i pregledaj sve kurseve u Podešavanja → Valuta i kursevi.",
   "guideSectionExportTitle": "Izvoz",
   "guideSectionExportBody": "Izvezi troškove kao CSV ili JSON. Sačuvaj fajl, podeli ga ili kopiraj u clipboard iz menija izvoza ili Podešavanja → Izvoz i Telegram.",
+  "guideSectionDataSyncTitle": "Rezervna kopija i sinhronizacija",
+  "guideSectionDataSyncBody": "Napravite šifrovanu rezervnu kopiju troškova, oznaka, načina plaćanja, ručnih kurseva i podešavanja prikaza. Zaštitite je sopstvenom frazom ili generisanom. Vratite na drugom uređaju iz Podešavanja → Rezervna kopija i sinhronizacija, ili sa prazne kontrolne table. API ključevi i Telegram nikad nisu uključeni.",
   "guideSectionTelegramTitle": "Deljenje preko Telegrama",
   "guideSectionTelegramBody": "Omogući Telegram u podešavanjima izvoza, unesi token bota i chat id, zatim pošalji dokument izvoza direktno na Telegram.",
   "guideSectionFiltersTitle": "Filteri",

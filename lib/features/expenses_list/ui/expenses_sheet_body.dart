@@ -36,11 +36,16 @@ import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
+import 'package:valtero/shared/utils/app_timezone.dart';
 import 'package:valtero/shared/utils/date_period.dart';
 import 'package:valtero/shared/utils/payment_method_label.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
 import 'package:valtero/widgets/app_toast.dart';
+import 'package:valtero/widgets/infinite_scroll_ellipsis.dart';
 import 'package:valtero/widgets/period_picker.dart';
+
+const _kListInitial = 25;
+const _kListBatch = 5;
 
 class ExpensesSheetBody extends ConsumerStatefulWidget {
   final ExpenseListQuery initial;
@@ -61,8 +66,8 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
   late ExpenseListQuery _applied;
   ExpenseListViewMode _view = ExpenseListViewMode.list;
   ExpenseChartBreakdown _chartBreakdown = ExpenseChartBreakdown.currency;
-  int _pageSize = 25;
-  int _page = 0;
+  int _visibleCount = _kListInitial;
+  bool _loadMoreScheduled = false;
   String? _displayCurrency;
   Map<String, double>? _displayRates;
   String? _displayRatesSourcesKey;
@@ -133,13 +138,15 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
 
   List<Expense> _filteredExpenses(
     List<Expense> all,
-    Map<int, List<int>> expenseTags,
-  ) {
+    Map<int, List<int>> expenseTags, {
+    required String timeZoneId,
+  }) {
     return sortExpenses(
       list: filterExpenses(
         all: all,
         query: _applied,
         expenseTags: expenseTags,
+        timeZoneId: timeZoneId,
       ),
       query: _applied,
       displayRates: _displayRates,
@@ -328,7 +335,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
         sort: _applied.sort,
         ascending: _applied.ascending,
       );
-      _page = 0;
+      _visibleCount = _kListInitial;
     });
     showAppToast(context, AppLocalizations.of(context)!.filtersApplied);
   }
@@ -364,7 +371,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
     setState(() {
       _draft = next;
       _applied = next;
-      _page = 0;
+      _visibleCount = _kListInitial;
       _view = ExpenseListViewMode.list;
     });
     _persistDisplayPrefs(view: ExpenseListViewMode.list);
@@ -384,6 +391,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
     final expenseTags = ref.watch(expenseTagIdsProvider).value ?? const {};
     final settings = ref.watch(appSettingsProvider).value;
     final primary = settings?.primaryCurrency ?? 'RUB';
+    final timeZoneId = settings?.timeZoneId ?? kSystemTimeZoneId;
     final tagLabels = {
       for (final t in tags) t.id: localizedTagLabel(context, t),
     };
@@ -403,7 +411,11 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('$e')),
       data: (all) {
-        final filtered = _filteredExpenses(all, expenseTags);
+        final filtered = _filteredExpenses(
+          all,
+          expenseTags,
+          timeZoneId: timeZoneId,
+        );
         final sourceCurrencies = {
           for (final e in filtered) e.storedCurrencyCode.toUpperCase(),
         };
@@ -416,14 +428,10 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
             _syncDisplayRates(sourceCurrencies);
           });
         }
-        final pageCount = filtered.isEmpty
-            ? 1
-            : ((filtered.length - 1) ~/ _pageSize) + 1;
-        final safePage = _page.clamp(0, pageCount - 1);
-        final pageItems = filtered
-            .skip(safePage * _pageSize)
-            .take(_pageSize)
-            .toList();
+        final visibleCount = _visibleCount.clamp(0, filtered.length);
+        final pageItems = filtered.take(visibleCount).toList();
+        final hasMoreList =
+            _view == ExpenseListViewMode.list && visibleCount < filtered.length;
         final groupRows = _view == ExpenseListViewMode.grouping
             ? expenseGrouperFor(
                 _applied.group == ExpenseListGroup.none
@@ -440,11 +448,28 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                   unspecifiedCustomLabel: l10n.tagKindUnspecifiedCustom,
                   unspecifiedPaymentLabel: l10n.paymentMethodUnspecified,
                   ascending: _applied.ascending,
+                  timeZoneId: timeZoneId,
                 ),
               )
             : null;
 
-        return CustomScrollView(
+        return NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (!hasMoreList || _loadMoreScheduled) return false;
+            if (!isNearScrollBottom(notification)) return false;
+            _loadMoreScheduled = true;
+            final total = filtered.length;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              setState(() {
+                _visibleCount =
+                    (_visibleCount + _kListBatch).clamp(0, total);
+              });
+              _loadMoreScheduled = false;
+            });
+            return false;
+          },
+          child: CustomScrollView(
           controller: scrollController,
           slivers: [
             SliverPadding(
@@ -507,33 +532,25 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                         const LinearProgressIndicator(),
                       const SizedBox(height: 12),
                       ExpensesListingCard(
-                        pageSize: _pageSize,
-                        page: safePage,
-                        pageCount: pageCount,
                         view: _view,
                         group: _applied.group == ExpenseListGroup.none
                             ? ExpenseListGroup.currency
                             : _applied.group,
                         sort: _applied.sort,
                         ascending: _applied.ascending,
-                        onPageSizeChanged: (v) {
-                          setState(() {
-                            _pageSize = v;
-                            _page = 0;
-                          });
-                        },
-                        onPageChanged: (v) => setState(() => _page = v),
                         onSortChanged: (field, ascending) {
                           setState(() {
                             _applied = _applied.copyWith(
                               sort: field,
                               ascending: ascending,
                             );
+                            _visibleCount = _kListInitial;
                           });
                         },
                         onViewChanged: (v) {
                           setState(() {
                             _view = v;
+                            _visibleCount = _kListInitial;
                             if (v == ExpenseListViewMode.grouping &&
                                 _applied.group == ExpenseListGroup.none) {
                               _applied = _applied.copyWith(
@@ -563,23 +580,31 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                                 ),
                               )
                             : switch (_view) {
-                                ExpenseListViewMode.list => ExpenseTable(
-                                    items: pageItems,
-                                    expenseTags: expenseTags,
-                                    tagLabels: tagLabels,
-                                    paymentLabels: paymentLabels,
-                                    untaggedLabel: l10n.untagged,
-                                    displayCurrency: _displayCurrency,
-                                    convertedMinor: _convertedMinor,
-                                    onDelete: (id) => confirmAndDeleteExpense(
-                                      context,
-                                      ref,
-                                      id,
-                                    ),
-                                    onEdit: (expense) => showAddExpenseSheet(
-                                      context,
-                                      expense: expense,
-                                    ),
+                                ExpenseListViewMode.list => Column(
+                                    children: [
+                                      ExpenseTable(
+                                        items: pageItems,
+                                        expenseTags: expenseTags,
+                                        tagLabels: tagLabels,
+                                        paymentLabels: paymentLabels,
+                                        untaggedLabel: l10n.untagged,
+                                        displayCurrency: _displayCurrency,
+                                        convertedMinor: _convertedMinor,
+                                        onDelete: (id) =>
+                                            confirmAndDeleteExpense(
+                                          context,
+                                          ref,
+                                          id,
+                                        ),
+                                        onEdit: (expense) =>
+                                            showAddExpenseSheet(
+                                          context,
+                                          expense: expense,
+                                        ),
+                                      ),
+                                      if (hasMoreList)
+                                        const InfiniteScrollEllipsis(),
+                                    ],
                                   ),
                                 ExpenseListViewMode.grouping =>
                                   GroupedExpenseTable(rows: groupRows!),
@@ -613,6 +638,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                                             Localizations.localeOf(context)
                                                 .languageCode,
                                       ),
+                                      timeZoneId: timeZoneId,
                                     ),
                                     primaryCurrency: summaryCurrency,
                                     chartBreakdown: _chartBreakdown,
@@ -633,6 +659,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
               ),
             ),
           ],
+        ),
         );
       },
     );

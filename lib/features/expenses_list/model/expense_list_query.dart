@@ -36,9 +36,14 @@ class ExpenseListQuery {
     this.group = ExpenseListGroup.none,
   });
 
-  /// Fresh session defaults: last 30 days, no other filters.
-  factory ExpenseListQuery.sessionDefaults() {
-    final period = periodForPreset(PeriodPreset.last30Days);
+  /// Fresh session defaults: last 30 days in [timeZoneId], no other filters.
+  factory ExpenseListQuery.sessionDefaults({
+    String timeZoneId = 'system',
+  }) {
+    final period = periodForPresetInTimeZone(
+      PeriodPreset.last30Days,
+      timeZoneId,
+    );
     return ExpenseListQuery(from: period.from, to: period.to);
   }
 

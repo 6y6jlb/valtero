@@ -10,6 +10,8 @@ import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
 import 'package:valtero/features/export_expenses/model/export_controller.dart';
 import 'package:valtero/features/export_expenses/model/export_destination.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/shared/settings/app_settings_provider.dart';
+import 'package:valtero/shared/utils/app_timezone.dart';
 import 'package:valtero/shared/utils/payment_method_label.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
 
@@ -26,6 +28,8 @@ Future<String?> exportFilteredExpenses(
   final tags = ref.read(tagsStreamProvider).value ?? const [];
   final methods = ref.read(paymentMethodsStreamProvider).value ?? const [];
   final expenseTags = ref.read(expenseTagIdsProvider).value ?? const {};
+  final timeZoneId =
+      ref.read(appSettingsProvider).value?.timeZoneId ?? kSystemTimeZoneId;
   final tagLabels = {
     for (final t in tags) t.id: localizedTagLabel(context, t),
   };
@@ -37,6 +41,7 @@ Future<String?> exportFilteredExpenses(
       all: expenses,
       query: query,
       expenseTags: expenseTags,
+      timeZoneId: timeZoneId,
     ),
     query: query,
     displayRates: displayRates,

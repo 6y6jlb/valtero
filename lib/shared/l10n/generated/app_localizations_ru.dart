@@ -18,6 +18,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get navExpenses => 'Траты';
 
   @override
+  String get recentOperations => 'Последние операции';
+
+  @override
   String get navAdd => 'Добавить';
 
   @override
@@ -40,6 +43,57 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsExport => 'Экспорт и Telegram';
+
+  @override
+  String get settingsDataSync => 'Резервная копия и синхронизация';
+
+  @override
+  String get dataSyncTitle => 'Резервная копия и синхронизация';
+
+  @override
+  String get dataSyncExport => 'Экспорт';
+
+  @override
+  String get dataSyncImport => 'Импорт';
+
+  @override
+  String get dataSyncPassphrase => 'Парольная фраза';
+
+  @override
+  String get dataSyncGeneratePassphrase => 'Сгенерировать фразу';
+
+  @override
+  String get dataSyncCopyPassphrase => 'Скопировать фразу';
+
+  @override
+  String get dataSyncPassphraseWarning =>
+      'Сохраните парольную фразу в надёжном месте. Без неё резервную копию открыть нельзя.';
+
+  @override
+  String get dataSyncExportDone => 'Резервная копия сохранена';
+
+  @override
+  String dataSyncImportDone(int expenses, int tags, int payments) {
+    return 'Импортировано: $expenses трат, $tags тегов, $payments способов оплаты';
+  }
+
+  @override
+  String get dataSyncWrongPassphrase => 'Неверная фраза или повреждённый файл';
+
+  @override
+  String get dataSyncUnsupportedFormat =>
+      'Неподдерживаемый или повреждённый файл резервной копии';
+
+  @override
+  String get dataSyncNewerSchema =>
+      'Для этой копии нужна более новая версия приложения';
+
+  @override
+  String get dataSyncIntegrationsNotTransferred =>
+      'API-ключи и данные Telegram в резервную копию не входят.';
+
+  @override
+  String get dashboardRestoreFromBackup => 'Восстановить из копии';
 
   @override
   String get selectCountry => 'Выбрать страну';
@@ -246,6 +300,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get moneyFormatPlain => 'Простой (1234.56 CODE)';
+
+  @override
+  String get dateFormat => 'Отображение даты';
 
   @override
   String get timeZone => 'Часовой пояс';
@@ -880,6 +937,13 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get guideSectionExportBody =>
       'Выгружайте траты в CSV или JSON. Сохраните файл, поделитесь им или скопируйте в буфер из меню экспорта или Настройки → Экспорт и Telegram.';
+
+  @override
+  String get guideSectionDataSyncTitle => 'Резервная копия и синхронизация';
+
+  @override
+  String get guideSectionDataSyncBody =>
+      'Создайте зашифрованную копию трат, тегов, способов оплаты, ручных курсов и настроек отображения. Защитите своей парольной фразой или сгенерированной. Восстановите на другом устройстве из Настройки → Резервная копия и синхронизация или с пустого дашборда. API-ключи и Telegram в копию не входят.';
 
   @override
   String get guideSectionTelegramTitle => 'Шаринг через Telegram';

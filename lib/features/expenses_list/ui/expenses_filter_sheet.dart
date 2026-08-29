@@ -96,7 +96,9 @@ class _ExpensesFilterSheetBodyState extends State<_ExpensesFilterSheetBody> {
           },
           onApply: () => Navigator.of(context).pop(_draft),
           onClear: () {
-            final defaults = ExpenseListQuery.sessionDefaults();
+            final defaults = ExpenseListQuery.sessionDefaults(
+              timeZoneId: 'system',
+            );
             setState(() {
               _draft = _draft.copyWith(
                 tagIds: {},

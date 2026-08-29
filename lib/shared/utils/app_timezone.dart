@@ -85,6 +85,75 @@ tz.TZDateTime nowInTimeZone(String timeZoneId) {
   return tz.TZDateTime.now(resolveTimeZoneLocation(timeZoneId));
 }
 
+/// Convert an absolute [instant] into the selected app timezone.
+tz.TZDateTime zonedFromInstant(DateTime instant, String timeZoneId) {
+  return tz.TZDateTime.from(instant, resolveTimeZoneLocation(timeZoneId));
+}
+
+/// Build an absolute instant from wall-clock fields in [timeZoneId].
+tz.TZDateTime wallClockInTimeZone(
+  String timeZoneId, {
+  required int year,
+  required int month,
+  required int day,
+  int hour = 0,
+  int minute = 0,
+  int second = 0,
+  int millisecond = 0,
+}) {
+  return tz.TZDateTime(
+    resolveTimeZoneLocation(timeZoneId),
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    second,
+    millisecond,
+  );
+}
+
+DateTime dayStartInTimeZone(DateTime calendarDay, String timeZoneId) {
+  return wallClockInTimeZone(
+    timeZoneId,
+    year: calendarDay.year,
+    month: calendarDay.month,
+    day: calendarDay.day,
+  );
+}
+
+DateTime dayEndInTimeZone(DateTime calendarDay, String timeZoneId) {
+  return wallClockInTimeZone(
+    timeZoneId,
+    year: calendarDay.year,
+    month: calendarDay.month,
+    day: calendarDay.day,
+    hour: 23,
+    minute: 59,
+    second: 59,
+    millisecond: 999,
+  );
+}
+
+/// Calendar day key `YYYY-MM-DD` in [timeZoneId].
+String calendarDayKey(DateTime instant, String timeZoneId) {
+  final z = zonedFromInstant(instant, timeZoneId);
+  final m = z.month.toString().padLeft(2, '0');
+  final d = z.day.toString().padLeft(2, '0');
+  return '${z.year}-$m-$d';
+}
+
+/// Calendar month key `YYYY-MM` in [timeZoneId].
+String calendarMonthKey(DateTime instant, String timeZoneId) {
+  final z = zonedFromInstant(instant, timeZoneId);
+  return '${z.year}-${z.month.toString().padLeft(2, '0')}';
+}
+
+/// Calendar year key in [timeZoneId].
+String calendarYearKey(DateTime instant, String timeZoneId) {
+  return '${zonedFromInstant(instant, timeZoneId).year}';
+}
+
 String timeZoneLabel(String timeZoneId) {
   if (timeZoneId == kSystemTimeZoneId) {
     return detectedLocalTimeZoneId;

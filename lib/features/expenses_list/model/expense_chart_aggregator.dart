@@ -4,6 +4,7 @@ import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/shared/consts/palette.dart';
 import 'package:valtero/shared/database/app_database.dart';
+import 'package:valtero/shared/utils/app_timezone.dart';
 import 'package:valtero/shared/utils/money.dart';
 
 Future<({int totalMinor, int convertibleCount})> sumExpensesInCurrency({
@@ -172,6 +173,7 @@ Future<ExpenseChartAggregation> aggregateExpensesForChart({
   Map<int, PaymentMethod> paymentById = const {},
   Map<int, String> paymentLabels = const {},
   String Function(String code)? countryLabel,
+  String timeZoneId = kSystemTimeZoneId,
 }) async {
   final amounts = <String, int>{};
   final labels = <String, String>{};
@@ -203,14 +205,12 @@ Future<ExpenseChartAggregation> aggregateExpensesForChart({
         colors[key] ??= chartColorAt(key.hashCode);
         sliceCurrencies[key] = key;
       case ExpenseChartBreakdown.month:
-        final key =
-            '${expense.occurredAt.year}-'
-            '${expense.occurredAt.month.toString().padLeft(2, '0')}';
+        final key = calendarMonthKey(expense.occurredAt, timeZoneId);
         amounts[key] = (amounts[key] ?? 0) + amount;
         labels[key] = key;
         colors[key] ??= chartColorAt(amounts.length);
       case ExpenseChartBreakdown.year:
-        final key = '${expense.occurredAt.year}';
+        final key = calendarYearKey(expense.occurredAt, timeZoneId);
         amounts[key] = (amounts[key] ?? 0) + amount;
         labels[key] = key;
         colors[key] ??= chartColorAt(key.hashCode);

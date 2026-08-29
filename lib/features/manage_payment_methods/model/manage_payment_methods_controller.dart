@@ -22,6 +22,20 @@ class ManagePaymentMethodsController {
         colorValue: defaultTagColorValues[key],
       );
     }
+    await _ensureDefaultPaymentMethod();
+  }
+
+  /// Prefer card as the app default until the user picks something else.
+  Future<void> _ensureDefaultPaymentMethod() async {
+    final settings = ref.read(appSettingsProvider).value;
+    if (settings == null || settings.defaultPaymentMethodId != null) return;
+    final card = await _db.findPaymentMethodByStableKey(
+      kDefaultPaymentMethodStableKey,
+    );
+    if (card == null) return;
+    await ref
+        .read(appSettingsProvider.notifier)
+        .setDefaultPaymentMethodId(card.id);
   }
 
   Future<int> addCustom({

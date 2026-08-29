@@ -1,4 +1,6 @@
-/// Inclusive calendar-day period for filters (local dates, time stripped).
+import 'package:valtero/shared/utils/app_timezone.dart';
+
+/// Inclusive calendar-day period for filters (wall-clock days in app timezone).
 class DatePeriod {
   final DateTime? from;
   final DateTime? to;
@@ -19,6 +21,7 @@ class DatePeriod {
   }
 }
 
+/// Calendar date with time stripped (year/month/day fields only).
 DateTime dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
 
 bool sameDay(DateTime? a, DateTime? b) {
@@ -42,6 +45,8 @@ enum PeriodPreset {
   custom,
 }
 
+/// [now] should be wall-clock "today" in the app timezone when provided.
+/// Prefer [periodForPresetInTimeZone] from UI code.
 DatePeriod periodForPreset(PeriodPreset preset, [DateTime? now]) {
   final n = now ?? DateTime.now();
   final today = dateOnly(n);
@@ -98,6 +103,11 @@ DatePeriod periodForPreset(PeriodPreset preset, [DateTime? now]) {
     case PeriodPreset.custom:
       return DatePeriod.all;
   }
+}
+
+DatePeriod periodForPresetInTimeZone(PeriodPreset preset, String timeZoneId) {
+  final now = nowInTimeZone(timeZoneId);
+  return periodForPreset(preset, DateTime(now.year, now.month, now.day));
 }
 
 PeriodPreset? matchPeriodPreset(DatePeriod period, [DateTime? now]) {

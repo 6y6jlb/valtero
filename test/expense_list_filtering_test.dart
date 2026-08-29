@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:valtero/features/expenses_list/model/expense_list_filtering.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
 import 'package:valtero/shared/database/app_database.dart';
@@ -25,6 +26,10 @@ Expense _expense({
 }
 
 void main() {
+  setUpAll(() {
+    tzdata.initializeTimeZones();
+  });
+
   group('filterExpenses', () {
     final all = [
       _expense(id: 1, currency: 'USD', paymentMethodId: 1, countryCode: 'US'),
@@ -71,6 +76,36 @@ void main() {
         expenseTags: tags,
       );
       expect(result.map((e) => e.id), [1]);
+    });
+
+    test('date range uses wall-clock day in selected timezone', () {
+      // 2026-01-15 02:00 UTC is still Jan 14 in America/Los_Angeles.
+      final expenses = [
+        _expense(id: 10, occurredAt: DateTime.utc(2026, 1, 15, 2)),
+        _expense(id: 11, occurredAt: DateTime.utc(2026, 1, 15, 20)),
+      ];
+      final onJan15Utc = filterExpenses(
+        all: expenses,
+        query: ExpenseListQuery(
+          from: DateTime(2026, 1, 15),
+          to: DateTime(2026, 1, 15),
+        ),
+        expenseTags: const {},
+        timeZoneId: 'UTC',
+      );
+      expect(onJan15Utc.map((e) => e.id), [10, 11]);
+
+      final onJan15Pacific = filterExpenses(
+        all: expenses,
+        query: ExpenseListQuery(
+          from: DateTime(2026, 1, 15),
+          to: DateTime(2026, 1, 15),
+        ),
+        expenseTags: const {},
+        timeZoneId: 'America/Los_Angeles',
+      );
+      // Only 20:00 UTC (= noon Pacific) falls on Jan 15 Pacific.
+      expect(onJan15Pacific.map((e) => e.id), [11]);
     });
   });
 }

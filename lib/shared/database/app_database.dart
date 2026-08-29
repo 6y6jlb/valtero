@@ -28,11 +28,9 @@ class AppDatabase extends _$AppDatabase {
           await m.createAll();
         },
         onUpgrade: (Migrator m, int from, int to) async {
-          // MVP: destructive baseline — no stepwise migrations.
-          for (final table in allTables) {
-            await m.deleteTable(table.actualTableName);
-          }
-          await m.createAll();
+          // Production: stepwise migrate_to_vN only — never wipe user data.
+          // Baseline schema is v5. Wire new steps here, e.g.:
+          // if (from < 6) await migrateToV6(m, this);
         },
       );
 
@@ -223,6 +221,16 @@ class AppDatabase extends _$AppDatabase {
     return map;
   }
 
+  Stream<Map<int, List<int>>> watchAllExpenseTagIds() {
+    return select(expenseTags).watch().map((rows) {
+      final map = <int, List<int>>{};
+      for (final row in rows) {
+        map.putIfAbsent(row.expenseId, () => []).add(row.tagId);
+      }
+      return map;
+    });
+  }
+
   Future<bool> updateExpenseRow(Expense row) => update(expenses).replace(row);
 
   Future<int> deleteExpenseById(int id) async {
@@ -275,6 +283,16 @@ class AppDatabase extends _$AppDatabase {
             (r) => OrderingTerm.asc(r.baseCurrencyCode),
             (r) => OrderingTerm.asc(r.targetCurrencyCode),
             (r) => OrderingTerm.asc(r.source),
+          ]))
+        .get();
+  }
+
+  Future<List<ExchangeRate>> getManualExchangeRates() {
+    return (select(exchangeRates)
+          ..where((r) => r.source.equals('manual'))
+          ..orderBy([
+            (r) => OrderingTerm.asc(r.baseCurrencyCode),
+            (r) => OrderingTerm.asc(r.targetCurrencyCode),
           ]))
         .get();
   }

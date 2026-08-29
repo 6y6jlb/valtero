@@ -18,6 +18,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navExpenses => 'Expenses';
 
   @override
+  String get recentOperations => 'Recent operations';
+
+  @override
   String get navAdd => 'Add';
 
   @override
@@ -40,6 +43,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsExport => 'Export & Telegram';
+
+  @override
+  String get settingsDataSync => 'Backup & sync';
+
+  @override
+  String get dataSyncTitle => 'Backup & sync';
+
+  @override
+  String get dataSyncExport => 'Export';
+
+  @override
+  String get dataSyncImport => 'Import';
+
+  @override
+  String get dataSyncPassphrase => 'Passphrase';
+
+  @override
+  String get dataSyncGeneratePassphrase => 'Generate passphrase';
+
+  @override
+  String get dataSyncCopyPassphrase => 'Copy passphrase';
+
+  @override
+  String get dataSyncPassphraseWarning =>
+      'Store this passphrase safely. Without it, the backup cannot be opened.';
+
+  @override
+  String get dataSyncExportDone => 'Backup saved';
+
+  @override
+  String dataSyncImportDone(int expenses, int tags, int payments) {
+    return 'Imported $expenses expenses, $tags tags, $payments payment methods';
+  }
+
+  @override
+  String get dataSyncWrongPassphrase => 'Wrong passphrase or damaged file';
+
+  @override
+  String get dataSyncUnsupportedFormat => 'Unsupported or invalid backup file';
+
+  @override
+  String get dataSyncNewerSchema => 'This backup needs a newer app version';
+
+  @override
+  String get dataSyncIntegrationsNotTransferred =>
+      'API keys and Telegram credentials are not included in backups.';
+
+  @override
+  String get dashboardRestoreFromBackup => 'Restore from backup';
 
   @override
   String get selectCountry => 'Select country';
@@ -246,6 +298,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moneyFormatPlain => 'Plain (1234.56 CODE)';
+
+  @override
+  String get dateFormat => 'Date display';
 
   @override
   String get timeZone => 'Time zone';
@@ -876,6 +931,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guideSectionExportBody =>
       'Export expenses as CSV or JSON. Save a file, share it, or copy to the clipboard from the export menu or Settings → Export & Telegram.';
+
+  @override
+  String get guideSectionDataSyncTitle => 'Backup & sync';
+
+  @override
+  String get guideSectionDataSyncBody =>
+      'Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Restore on another device from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.';
 
   @override
   String get guideSectionTelegramTitle => 'Telegram sharing';

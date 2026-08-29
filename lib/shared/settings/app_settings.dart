@@ -13,6 +13,8 @@ class AppSettings {
   final String locale;
   /// UI money layout: `localeSymbol` | `localeCode` | `plain`.
   final String moneyDisplayFormat;
+  /// UI date layout: `localeMedium` | `isoYmd` | `dmy` | `mdy`.
+  final String dateDisplayFormat;
   /// IANA id, or `'system'` to follow the device timezone.
   final String timeZoneId;
   /// User-defined currency codes (e.g. niche crypto).
@@ -42,6 +44,7 @@ class AppSettings {
     this.themeMode = 'system',
     this.locale = 'system',
     this.moneyDisplayFormat = 'localeCode',
+    this.dateDisplayFormat = 'isoYmd',
     this.timeZoneId = 'system',
     this.customCurrencyCodes = const [],
     this.telegramEnabled = false,
@@ -78,6 +81,7 @@ class AppSettings {
     String? themeMode,
     String? locale,
     String? moneyDisplayFormat,
+    String? dateDisplayFormat,
     String? timeZoneId,
     List<String>? customCurrencyCodes,
     bool? telegramEnabled,
@@ -107,6 +111,7 @@ class AppSettings {
       themeMode: themeMode ?? this.themeMode,
       locale: locale ?? this.locale,
       moneyDisplayFormat: moneyDisplayFormat ?? this.moneyDisplayFormat,
+      dateDisplayFormat: dateDisplayFormat ?? this.dateDisplayFormat,
       timeZoneId: timeZoneId ?? this.timeZoneId,
       customCurrencyCodes: customCurrencyCodes ?? this.customCurrencyCodes,
       telegramEnabled: telegramEnabled ?? this.telegramEnabled,
@@ -135,6 +140,7 @@ class AppSettings {
         'themeMode': themeMode,
         'locale': locale,
         'moneyDisplayFormat': moneyDisplayFormat,
+        'dateDisplayFormat': dateDisplayFormat,
         'timeZoneId': timeZoneId,
         'customCurrencyCodes': customCurrencyCodes,
         'telegramEnabled': telegramEnabled,
@@ -168,6 +174,7 @@ class AppSettings {
       themeMode: json['themeMode'] as String? ?? 'system',
       locale: json['locale'] as String? ?? 'system',
       moneyDisplayFormat: json['moneyDisplayFormat'] as String? ?? 'localeCode',
+      dateDisplayFormat: json['dateDisplayFormat'] as String? ?? 'isoYmd',
       timeZoneId: json['timeZoneId'] as String? ?? 'system',
       customCurrencyCodes: (json['customCurrencyCodes'] as List<dynamic>?)
               ?.map((e) => e.toString().toUpperCase())

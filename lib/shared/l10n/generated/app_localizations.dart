@@ -120,6 +120,12 @@ abstract class AppLocalizations {
   /// **'Expenses'**
   String get navExpenses;
 
+  /// No description provided for @recentOperations.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent operations'**
+  String get recentOperations;
+
   /// No description provided for @navAdd.
   ///
   /// In en, this message translates to:
@@ -167,6 +173,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Export & Telegram'**
   String get settingsExport;
+
+  /// No description provided for @settingsDataSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup & sync'**
+  String get settingsDataSync;
+
+  /// No description provided for @dataSyncTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup & sync'**
+  String get dataSyncTitle;
+
+  /// No description provided for @dataSyncExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get dataSyncExport;
+
+  /// No description provided for @dataSyncImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get dataSyncImport;
+
+  /// No description provided for @dataSyncPassphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase'**
+  String get dataSyncPassphrase;
+
+  /// No description provided for @dataSyncGeneratePassphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate passphrase'**
+  String get dataSyncGeneratePassphrase;
+
+  /// No description provided for @dataSyncCopyPassphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy passphrase'**
+  String get dataSyncCopyPassphrase;
+
+  /// No description provided for @dataSyncPassphraseWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Store this passphrase safely. Without it, the backup cannot be opened.'**
+  String get dataSyncPassphraseWarning;
+
+  /// No description provided for @dataSyncExportDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup saved'**
+  String get dataSyncExportDone;
+
+  /// No description provided for @dataSyncImportDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {expenses} expenses, {tags} tags, {payments} payment methods'**
+  String dataSyncImportDone(int expenses, int tags, int payments);
+
+  /// No description provided for @dataSyncWrongPassphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong passphrase or damaged file'**
+  String get dataSyncWrongPassphrase;
+
+  /// No description provided for @dataSyncUnsupportedFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsupported or invalid backup file'**
+  String get dataSyncUnsupportedFormat;
+
+  /// No description provided for @dataSyncNewerSchema.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup needs a newer app version'**
+  String get dataSyncNewerSchema;
+
+  /// No description provided for @dataSyncIntegrationsNotTransferred.
+  ///
+  /// In en, this message translates to:
+  /// **'API keys and Telegram credentials are not included in backups.'**
+  String get dataSyncIntegrationsNotTransferred;
+
+  /// No description provided for @dashboardRestoreFromBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from backup'**
+  String get dashboardRestoreFromBackup;
 
   /// No description provided for @selectCountry.
   ///
@@ -569,6 +665,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Plain (1234.56 CODE)'**
   String get moneyFormatPlain;
+
+  /// No description provided for @dateFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Date display'**
+  String get dateFormat;
 
   /// No description provided for @timeZone.
   ///
@@ -1709,6 +1811,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Export expenses as CSV or JSON. Save a file, share it, or copy to the clipboard from the export menu or Settings → Export & Telegram.'**
   String get guideSectionExportBody;
+
+  /// No description provided for @guideSectionDataSyncTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup & sync'**
+  String get guideSectionDataSyncTitle;
+
+  /// No description provided for @guideSectionDataSyncBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Restore on another device from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.'**
+  String get guideSectionDataSyncBody;
 
   /// No description provided for @guideSectionTelegramTitle.
   ///

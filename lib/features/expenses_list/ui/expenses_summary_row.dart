@@ -29,103 +29,98 @@ class ExpensesSummaryRow extends StatelessWidget {
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 8, 14),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.summaryExpenses,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  if (byCurrency.isEmpty)
-                    Text(
-                      '0',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    )
-                  else
-                    for (var i = 0; i < byCurrency.length; i++) ...[
-                      if (i > 0) const SizedBox(height: 6),
-                      _CurrencyLine(summary: byCurrency[i]),
-                    ],
-                  if (displayCurrency != null &&
-                      convertedTotalFuture != null) ...[
-                    const SizedBox(height: 10),
-                    Divider(
-                      height: 1,
-                      color: theme.colorScheme.outlineVariant,
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      l10n.summaryConvertedTotal(displayCurrency!),
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    FutureBuilder(
-                      future: convertedTotalFuture,
-                      builder: (context, snap) {
-                        if (!snap.hasData) {
-                          return const SizedBox(
-                            height: 32,
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              ),
-                            ),
-                          );
-                        }
-                        final data = snap.data!;
-                        final showPartial =
-                            totalCount > 0 && data.convertibleCount < totalCount;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            MoneyText(
-                              amountMinor: data.totalMinor,
-                              currencyCode: displayCurrency!,
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            SizedBox(
-                              height: 18,
-                              child: showPartial
-                                  ? Text(
-                                      l10n.summaryPartialTotal(
-                                        data.convertibleCount,
-                                        totalCount,
-                                      ),
-                                      style: theme.textTheme.bodySmall?.copyWith(
-                                        color: theme.colorScheme.error,
-                                      ),
-                                    )
-                                  : null,
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ],
-                ],
+            Text(
+              l10n.summaryExpenses,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
+            const SizedBox(height: 8),
+            if (byCurrency.isEmpty)
+              Text(
+                '0',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              )
+            else
+              for (var i = 0; i < byCurrency.length; i++) ...[
+                if (i > 0) const SizedBox(height: 6),
+                _CurrencyLine(summary: byCurrency[i]),
+              ],
+            if (displayCurrency != null && convertedTotalFuture != null) ...[
+              const SizedBox(height: 10),
+              Divider(
+                height: 1,
+                color: theme.colorScheme.outlineVariant,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                l10n.summaryConvertedTotal(displayCurrency!),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 4),
+              FutureBuilder(
+                future: convertedTotalFuture,
+                builder: (context, snap) {
+                  if (!snap.hasData) {
+                    return const SizedBox(
+                      height: 32,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
+                    );
+                  }
+                  final data = snap.data!;
+                  final showPartial =
+                      totalCount > 0 && data.convertibleCount < totalCount;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      MoneyText(
+                        amountMinor: data.totalMinor,
+                        currencyCode: displayCurrency!,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 18,
+                        child: showPartial
+                            ? Text(
+                                l10n.summaryPartialTotal(
+                                  data.convertibleCount,
+                                  totalCount,
+                                ),
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.error,
+                                ),
+                              )
+                            : null,
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
+            const SizedBox(height: 8),
+            Divider(
+              height: 1,
+              color: theme.colorScheme.outlineVariant,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(
                   tooltip: l10n.displayIn,

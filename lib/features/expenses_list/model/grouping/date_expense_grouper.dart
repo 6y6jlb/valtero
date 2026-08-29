@@ -1,21 +1,17 @@
 import 'package:valtero/features/expenses_list/model/grouping/expense_grouper.dart';
 import 'package:valtero/features/expenses_list/model/grouping/expense_grouping_context.dart';
 import 'package:valtero/shared/database/app_database.dart';
+import 'package:valtero/shared/utils/app_timezone.dart';
 
 final class DateExpenseGrouper extends ExpenseGrouperBase {
   const DateExpenseGrouper();
-
-  static String formatDay(DateTime date) =>
-      '${date.year}-'
-      '${date.month.toString().padLeft(2, '0')}-'
-      '${date.day.toString().padLeft(2, '0')}';
 
   @override
   Iterable<String> labelsFor(
     Expense expense,
     ExpenseGroupingContext context,
   ) =>
-      [formatDay(expense.occurredAt)];
+      [calendarDayKey(expense.occurredAt, context.timeZoneId)];
 
   @override
   int compareGroupLabels(

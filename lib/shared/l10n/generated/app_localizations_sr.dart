@@ -18,6 +18,9 @@ class AppLocalizationsSr extends AppLocalizations {
   String get navExpenses => 'Troškovi';
 
   @override
+  String get recentOperations => 'Nedavne operacije';
+
+  @override
   String get navAdd => 'Dodaj';
 
   @override
@@ -40,6 +43,57 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get settingsExport => 'Izvoz i Telegram';
+
+  @override
+  String get settingsDataSync => 'Rezervna kopija i sinhronizacija';
+
+  @override
+  String get dataSyncTitle => 'Rezervna kopija i sinhronizacija';
+
+  @override
+  String get dataSyncExport => 'Izvoz';
+
+  @override
+  String get dataSyncImport => 'Uvoz';
+
+  @override
+  String get dataSyncPassphrase => 'Lozinka-fraza';
+
+  @override
+  String get dataSyncGeneratePassphrase => 'Generiši frazu';
+
+  @override
+  String get dataSyncCopyPassphrase => 'Kopiraj frazu';
+
+  @override
+  String get dataSyncPassphraseWarning =>
+      'Sačuvajte ovu frazu na sigurnom mestu. Bez nje se rezervna kopija ne može otvoriti.';
+
+  @override
+  String get dataSyncExportDone => 'Rezervna kopija sačuvana';
+
+  @override
+  String dataSyncImportDone(int expenses, int tags, int payments) {
+    return 'Uvezeno $expenses troškova, $tags oznaka, $payments načina plaćanja';
+  }
+
+  @override
+  String get dataSyncWrongPassphrase => 'Pogrešna fraza ili oštećen fajl';
+
+  @override
+  String get dataSyncUnsupportedFormat =>
+      'Nepodržan ili nevažeći fajl rezervne kopije';
+
+  @override
+  String get dataSyncNewerSchema =>
+      'Ova kopija zahteva noviju verziju aplikacije';
+
+  @override
+  String get dataSyncIntegrationsNotTransferred =>
+      'API ključevi i Telegram podaci nisu uključeni u rezervne kopije.';
+
+  @override
+  String get dashboardRestoreFromBackup => 'Vrati iz rezervne kopije';
 
   @override
   String get selectCountry => 'Izaberi zemlju';
@@ -246,6 +300,9 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get moneyFormatPlain => 'Jednostavan (1234.56 CODE)';
+
+  @override
+  String get dateFormat => 'Prikaz datuma';
 
   @override
   String get timeZone => 'Vremenska zona';
@@ -879,6 +936,13 @@ class AppLocalizationsSr extends AppLocalizations {
   @override
   String get guideSectionExportBody =>
       'Izvezi troškove kao CSV ili JSON. Sačuvaj fajl, podeli ga ili kopiraj u clipboard iz menija izvoza ili Podešavanja → Izvoz i Telegram.';
+
+  @override
+  String get guideSectionDataSyncTitle => 'Rezervna kopija i sinhronizacija';
+
+  @override
+  String get guideSectionDataSyncBody =>
+      'Napravite šifrovanu rezervnu kopiju troškova, oznaka, načina plaćanja, ručnih kurseva i podešavanja prikaza. Zaštitite je sopstvenom frazom ili generisanom. Vratite na drugom uređaju iz Podešavanja → Rezervna kopija i sinhronizacija, ili sa prazne kontrolne table. API ključevi i Telegram nikad nisu uključeni.';
 
   @override
   String get guideSectionTelegramTitle => 'Deljenje preko Telegrama';

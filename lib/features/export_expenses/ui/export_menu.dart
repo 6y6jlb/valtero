@@ -28,7 +28,10 @@ ExportMenuSelection? parseExportMenuValue(String value) {
   return (format: format, destination: destination);
 }
 
-List<PopupMenuEntry<String>> buildExportMenuItems(AppLocalizations l10n) {
+List<PopupMenuEntry<String>> buildExportMenuItems(
+  AppLocalizations l10n, {
+  bool showShare = true,
+}) {
   PopupMenuItem<String> item({
     required ExportFormat format,
     required ExportDestination destination,
@@ -50,11 +53,12 @@ List<PopupMenuEntry<String>> buildExportMenuItems(AppLocalizations l10n) {
         destination: ExportDestination.save,
         label: '${formatLabel(format)} · ${l10n.saveFile}',
       ),
-      item(
-        format: format,
-        destination: ExportDestination.share,
-        label: '${formatLabel(format)} · ${l10n.share}',
-      ),
+      if (showShare)
+        item(
+          format: format,
+          destination: ExportDestination.share,
+          label: '${formatLabel(format)} · ${l10n.share}',
+        ),
       item(
         format: format,
         destination: ExportDestination.copy,

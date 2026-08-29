@@ -18,6 +18,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get navExpenses => 'Gastos';
 
   @override
+  String get recentOperations => 'Operaciones recientes';
+
+  @override
   String get navAdd => 'Añadir';
 
   @override
@@ -40,6 +43,57 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsExport => 'Exportar y Telegram';
+
+  @override
+  String get settingsDataSync => 'Copia de seguridad y sincronización';
+
+  @override
+  String get dataSyncTitle => 'Copia de seguridad y sincronización';
+
+  @override
+  String get dataSyncExport => 'Exportar';
+
+  @override
+  String get dataSyncImport => 'Importar';
+
+  @override
+  String get dataSyncPassphrase => 'Frase de contraseña';
+
+  @override
+  String get dataSyncGeneratePassphrase => 'Generar frase';
+
+  @override
+  String get dataSyncCopyPassphrase => 'Copiar frase';
+
+  @override
+  String get dataSyncPassphraseWarning =>
+      'Guarda esta frase en un lugar seguro. Sin ella no se puede abrir la copia.';
+
+  @override
+  String get dataSyncExportDone => 'Copia guardada';
+
+  @override
+  String dataSyncImportDone(int expenses, int tags, int payments) {
+    return 'Importados $expenses gastos, $tags etiquetas, $payments métodos de pago';
+  }
+
+  @override
+  String get dataSyncWrongPassphrase => 'Frase incorrecta o archivo dañado';
+
+  @override
+  String get dataSyncUnsupportedFormat =>
+      'Archivo de copia no válido o no compatible';
+
+  @override
+  String get dataSyncNewerSchema =>
+      'Esta copia requiere una versión más nueva de la app';
+
+  @override
+  String get dataSyncIntegrationsNotTransferred =>
+      'Las claves API y las credenciales de Telegram no se incluyen en las copias.';
+
+  @override
+  String get dashboardRestoreFromBackup => 'Restaurar desde copia';
 
   @override
   String get selectCountry => 'Seleccionar país';
@@ -246,6 +300,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get moneyFormatPlain => 'Simple (1234.56 CODE)';
+
+  @override
+  String get dateFormat => 'Visualización de fecha';
 
   @override
   String get timeZone => 'Zona horaria';
@@ -877,6 +934,13 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get guideSectionExportBody =>
       'Exporta gastos como CSV o JSON. Guarda un archivo, compártelo o cópialo al portapapeles desde el menú de exportación o Ajustes → Exportar y Telegram.';
+
+  @override
+  String get guideSectionDataSyncTitle => 'Copia de seguridad y sincronización';
+
+  @override
+  String get guideSectionDataSyncBody =>
+      'Crea una copia cifrada de gastos, etiquetas, métodos de pago, tipos manuales y ajustes de visualización. Protégela con tu frase o una generada. Restáurala en otro dispositivo desde Ajustes → Copia de seguridad y sincronización, o desde el panel vacío. Las claves API y Telegram nunca se incluyen.';
 
   @override
   String get guideSectionTelegramTitle => 'Compartir por Telegram';

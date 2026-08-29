@@ -3,6 +3,7 @@
   "appTitle": "Valtero",
   "navDashboard": "Panel",
   "navExpenses": "Gastos",
+  "recentOperations": "Operaciones recientes",
   "navAdd": "Añadir",
   "navTags": "Etiquetas",
   "navCurrency": "Moneda",
@@ -11,6 +12,34 @@
   "settingsAppearance": "Apariencia",
   "settingsCurrency": "Moneda y tipos de cambio",
   "settingsExport": "Exportar y Telegram",
+  "settingsDataSync": "Copia de seguridad y sincronización",
+  "dataSyncTitle": "Copia de seguridad y sincronización",
+  "dataSyncExport": "Exportar",
+  "dataSyncImport": "Importar",
+  "dataSyncPassphrase": "Frase de contraseña",
+  "dataSyncGeneratePassphrase": "Generar frase",
+  "dataSyncCopyPassphrase": "Copiar frase",
+  "dataSyncPassphraseWarning": "Guarda esta frase en un lugar seguro. Sin ella no se puede abrir la copia.",
+  "dataSyncExportDone": "Copia guardada",
+  "dataSyncImportDone": "Importados {expenses} gastos, {tags} etiquetas, {payments} métodos de pago",
+  "@dataSyncImportDone": {
+    "placeholders": {
+      "expenses": {
+        "type": "int"
+      },
+      "tags": {
+        "type": "int"
+      },
+      "payments": {
+        "type": "int"
+      }
+    }
+  },
+  "dataSyncWrongPassphrase": "Frase incorrecta o archivo dañado",
+  "dataSyncUnsupportedFormat": "Archivo de copia no válido o no compatible",
+  "dataSyncNewerSchema": "Esta copia requiere una versión más nueva de la app",
+  "dataSyncIntegrationsNotTransferred": "Las claves API y las credenciales de Telegram no se incluyen en las copias.",
+  "dashboardRestoreFromBackup": "Restaurar desde copia",
   "selectCountry": "Seleccionar país",
   "addExpense": "Añadir gasto",
   "editExpense": "Editar gasto",
@@ -95,6 +124,7 @@
   "moneyFormatLocaleSymbol": "Local con símbolo",
   "moneyFormatLocaleCode": "Local con código de moneda",
   "moneyFormatPlain": "Simple (1234.56 CODE)",
+  "dateFormat": "Visualización de fecha",
   "timeZone": "Zona horaria",
   "timeZoneSystem": "Sistema ({id})",
   "@timeZoneSystem": {
@@ -402,6 +432,8 @@
   "guideSectionExchangeRatesBody": "Los tipos se actualizan en segundo plano cuando están desactualizados (unas cada 24 horas). Vincula una clave de ExchangeRate-API, actualiza manualmente, define anulaciones y consulta todos los tipos en Ajustes → Moneda y tipos de cambio.",
   "guideSectionExportTitle": "Exportar",
   "guideSectionExportBody": "Exporta gastos como CSV o JSON. Guarda un archivo, compártelo o cópialo al portapapeles desde el menú de exportación o Ajustes → Exportar y Telegram.",
+  "guideSectionDataSyncTitle": "Copia de seguridad y sincronización",
+  "guideSectionDataSyncBody": "Crea una copia cifrada de gastos, etiquetas, métodos de pago, tipos manuales y ajustes de visualización. Protégela con tu frase o una generada. Restáurala en otro dispositivo desde Ajustes → Copia de seguridad y sincronización, o desde el panel vacío. Las claves API y Telegram nunca se incluyen.",
   "guideSectionTelegramTitle": "Compartir por Telegram",
   "guideSectionTelegramBody": "Activa Telegram en los ajustes de exportación, introduce el token del bot y el id del chat, y envía un documento de exportación directamente a Telegram.",
   "guideSectionFiltersTitle": "Filtros",

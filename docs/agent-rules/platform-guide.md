@@ -10,7 +10,7 @@ When you add or change **user-facing product capabilities**, keep the in-app pla
 | Collapsible block | `lib/features/platform_guide/ui/platform_guide_section.dart` |
 | Full page (Settings) | `lib/pages/platform_guide/platform_guide_page.dart` |
 | Empty dashboard | `DashboardPage` shows a **sample chart** + “example” banner with a link to `PlatformGuidePage` when `allExpensesProvider` is empty |
-| Copy | `lib/shared/l10n/app_en.arb` / `app_ru.arb` (`guideTitle`, `guideSection*Title`, `guideSection*Body`, `dashboardSampleChartLabel`, `dashboardOpenGuide`, …) |
+| Copy | `lib/shared/l10n/app_en.arb` / `app_ru.arb` / `app_es.arb` / `app_sr.arb` (`guideTitle`, `guideSection*Title`, `guideSection*Body`, `dashboardSampleChartLabel`, `dashboardOpenGuide`, `dashboardRestoreFromBackup`, …) |
 
 ## Rules
 

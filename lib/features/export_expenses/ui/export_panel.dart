@@ -108,11 +108,13 @@ class _ExportPanelState extends ConsumerState<ExportPanel> {
           onPressed: () => _run(ExportDestination.save),
           child: Text(l10n.saveFile),
         ),
-        const SizedBox(height: 8),
-        OutlinedButton(
-          onPressed: () => _run(ExportDestination.share),
-          child: Text(l10n.share),
-        ),
+        if (isExportShareSupported) ...[
+          const SizedBox(height: 8),
+          OutlinedButton(
+            onPressed: () => _run(ExportDestination.share),
+            child: Text(l10n.share),
+          ),
+        ],
         const SizedBox(height: 8),
         OutlinedButton(
           onPressed: () => _run(ExportDestination.copy),

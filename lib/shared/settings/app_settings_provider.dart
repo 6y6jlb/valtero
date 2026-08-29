@@ -111,6 +111,12 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     await _save(current.copyWith(moneyDisplayFormat: format));
   }
 
+  Future<void> setDateDisplayFormat(String format) async {
+    final current = state.value;
+    if (current == null) return;
+    await _save(current.copyWith(dateDisplayFormat: format));
+  }
+
   Future<void> setTimeZoneId(String timeZoneId) async {
     final current = state.value;
     if (current == null) return;

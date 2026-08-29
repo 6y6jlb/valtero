@@ -1,17 +1,13 @@
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
 import 'package:valtero/shared/database/app_database.dart';
+import 'package:valtero/shared/utils/app_timezone.dart';
 import 'package:valtero/shared/utils/money.dart';
-
-DateTime expenseDayStart(DateTime date) =>
-    DateTime(date.year, date.month, date.day);
-
-DateTime expenseDayEnd(DateTime date) =>
-    DateTime(date.year, date.month, date.day, 23, 59, 59, 999);
 
 List<Expense> filterExpenses({
   required List<Expense> all,
   required ExpenseListQuery query,
   required Map<int, List<int>> expenseTags,
+  String timeZoneId = kSystemTimeZoneId,
 }) {
   return all.where((expense) {
     if (query.currencyCode != null &&
@@ -19,11 +15,13 @@ List<Expense> filterExpenses({
       return false;
     }
     if (query.from != null &&
-        expense.occurredAt.isBefore(expenseDayStart(query.from!))) {
+        expense.occurredAt.isBefore(
+          dayStartInTimeZone(query.from!, timeZoneId),
+        )) {
       return false;
     }
     if (query.to != null &&
-        expense.occurredAt.isAfter(expenseDayEnd(query.to!))) {
+        expense.occurredAt.isAfter(dayEndInTimeZone(query.to!, timeZoneId))) {
       return false;
     }
     if (query.tagIds.isNotEmpty) {

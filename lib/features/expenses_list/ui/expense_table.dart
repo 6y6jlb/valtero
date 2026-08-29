@@ -3,8 +3,32 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/widgets/date_text.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/money_text.dart';
+
+const double _kColGap = 16;
+const double _kDateW = 110;
+const double _kAmountW = 120;
+const double _kPaymentW = 100;
+const double _kCountryW = 110;
+const double _kTagsW = 140;
+const double _kDeleteW = 40;
+
+/// Minimum content width so columns don't compress on narrow screens.
+const double _kTableMinWidth =
+    16 * 2 + // horizontal padding
+    _kDateW +
+    _kColGap +
+    _kAmountW +
+    _kColGap +
+    _kPaymentW +
+    _kColGap +
+    _kCountryW +
+    _kColGap +
+    _kTagsW +
+    _kColGap +
+    _kDeleteW;
 
 class ExpenseTable extends StatelessWidget {
   final List<Expense> items;
@@ -37,48 +61,71 @@ class ExpenseTable extends StatelessWidget {
     final headerStyle = theme.textTheme.labelMedium?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            children: [
-              Expanded(flex: 2, child: Text(l10n.columnDate, style: headerStyle)),
-              Expanded(
-                flex: 3,
-                child: Text(l10n.columnAmount, style: headerStyle),
-              ),
-              Expanded(
-                flex: 2,
-                child: Text(l10n.paymentMethod, style: headerStyle),
-              ),
-              Expanded(
-                flex: 2,
-                child: Text(l10n.country, style: headerStyle),
-              ),
-              Expanded(
-                flex: 3,
-                child: Text(l10n.columnTags, style: headerStyle),
-              ),
-              const SizedBox(width: 40),
-            ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth > _kTableMinWidth
+            ? constraints.maxWidth
+            : _kTableMinWidth;
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SizedBox(
+            width: width,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: _kDateW,
+                        child: Text(l10n.columnDate, style: headerStyle),
+                      ),
+                      const SizedBox(width: _kColGap),
+                      SizedBox(
+                        width: _kAmountW,
+                        child: Text(l10n.columnAmount, style: headerStyle),
+                      ),
+                      const SizedBox(width: _kColGap),
+                      SizedBox(
+                        width: _kPaymentW,
+                        child: Text(l10n.paymentMethod, style: headerStyle),
+                      ),
+                      const SizedBox(width: _kColGap),
+                      SizedBox(
+                        width: _kCountryW,
+                        child: Text(l10n.country, style: headerStyle),
+                      ),
+                      const SizedBox(width: _kColGap),
+                      Expanded(
+                        child: Text(l10n.columnTags, style: headerStyle),
+                      ),
+                      const SizedBox(width: _kColGap),
+                      const SizedBox(width: _kDeleteW),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1),
+                for (final expense in items)
+                  ExpenseTableRow(
+                    expense: expense,
+                    tagLabel: _tagLabel(expense.id),
+                    paymentLabel: expense.paymentMethodId == null
+                        ? l10n.paymentMethodNone
+                        : (paymentLabels[expense.paymentMethodId!] ??
+                            l10n.paymentMethodNone),
+                    displayCurrency: displayCurrency,
+                    convertedAmountMinor: convertedMinor(expense),
+                    onDelete: () => onDelete(expense.id),
+                    onEdit: onEdit == null ? null : () => onEdit!(expense),
+                  ),
+              ],
+            ),
           ),
-        ),
-        const Divider(height: 1),
-        for (final expense in items)
-          ExpenseTableRow(
-            expense: expense,
-            tagLabel: _tagLabel(expense.id),
-            paymentLabel: expense.paymentMethodId == null
-                ? l10n.paymentMethodNone
-                : (paymentLabels[expense.paymentMethodId!] ??
-                    l10n.paymentMethodNone),
-            displayCurrency: displayCurrency,
-            convertedAmountMinor: convertedMinor(expense),
-            onDelete: () => onDelete(expense.id),
-            onEdit: onEdit == null ? null : () => onEdit!(expense),
-          ),
-      ],
+        );
+      },
     );
   }
 
@@ -114,10 +161,6 @@ class ExpenseTableRow extends ConsumerWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final lang = Localizations.localeOf(context).languageCode;
-    final date =
-        '${expense.occurredAt.year}-'
-        '${expense.occurredAt.month.toString().padLeft(2, '0')}-'
-        '${expense.occurredAt.day.toString().padLeft(2, '0')}';
     final showConverted =
         displayCurrency != null && convertedAmountMinor != null;
     final countryCode = expense.countryCode;
@@ -126,15 +169,19 @@ class ExpenseTableRow extends ConsumerWidget {
         : countryDisplayName(countryCode, languageCode: lang);
 
     final row = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
         children: [
-          Expanded(
-            flex: 2,
-            child: Text(date, style: theme.textTheme.bodyMedium),
+          SizedBox(
+            width: _kDateW,
+            child: DateText(
+              instant: expense.occurredAt,
+              style: theme.textTheme.bodyMedium,
+            ),
           ),
-          Expanded(
-            flex: 3,
+          const SizedBox(width: _kColGap),
+          SizedBox(
+            width: _kAmountW,
             child: Align(
               alignment: Alignment.centerLeft,
               child: Column(
@@ -163,16 +210,18 @@ class ExpenseTableRow extends ConsumerWidget {
               ),
             ),
           ),
-          Expanded(
-            flex: 2,
+          const SizedBox(width: _kColGap),
+          SizedBox(
+            width: _kPaymentW,
             child: Text(
               paymentLabel,
               style: theme.textTheme.bodySmall,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          Expanded(
-            flex: 2,
+          const SizedBox(width: _kColGap),
+          SizedBox(
+            width: _kCountryW,
             child: Row(
               children: [
                 if (countryCode != null && countryCode.isNotEmpty) ...[
@@ -189,16 +238,17 @@ class ExpenseTableRow extends ConsumerWidget {
               ],
             ),
           ),
+          const SizedBox(width: _kColGap),
           Expanded(
-            flex: 3,
             child: Text(
               tagLabel,
               style: theme.textTheme.bodySmall,
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          const SizedBox(width: _kColGap),
           SizedBox(
-            width: 40,
+            width: _kDeleteW,
             child: IconButton(
               icon: const Icon(Icons.delete_outline, size: 20),
               onPressed: onDelete,
