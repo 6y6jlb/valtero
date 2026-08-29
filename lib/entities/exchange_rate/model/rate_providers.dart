@@ -5,6 +5,7 @@ import 'package:valtero/entities/exchange_rate/model/exchange_rate_provider.dart
 import 'package:valtero/entities/exchange_rate/model/exchange_rate_store.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_resolver.dart';
 import 'package:valtero/shared/database/database_provider.dart';
+import 'package:valtero/shared/logging/logging_providers.dart';
 import 'package:valtero/shared/network/dio_provider.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 
@@ -24,5 +25,6 @@ final rateResolverProvider = Provider<RateResolver>((ref) {
     readSettings: () => ref.read(appSettingsProvider).value,
     writeSettings: (settings) =>
         ref.read(appSettingsProvider.notifier).updateSettings(settings),
+    logger: ref.watch(appLoggerProvider),
   );
 });

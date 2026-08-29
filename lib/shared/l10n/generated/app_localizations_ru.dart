@@ -42,7 +42,108 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsCurrency => 'Валюта и курсы';
 
   @override
-  String get settingsExport => 'Экспорт и Telegram';
+  String get settingsExport => 'Экспорт';
+
+  @override
+  String get settingsIntegrations => 'Интеграции';
+
+  @override
+  String get settingsDebug => 'Отладка и логи';
+
+  @override
+  String get integrationConnected => 'Подключено';
+
+  @override
+  String get integrationNotConnected => 'Не подключено';
+
+  @override
+  String get integrationTestConnection => 'Проверить соединение';
+
+  @override
+  String get integrationSave => 'Сохранить';
+
+  @override
+  String get integrationDisconnect => 'Отключить';
+
+  @override
+  String get connectionOk => 'Соединение успешно';
+
+  @override
+  String get connectionFailed => 'Не удалось подключиться';
+
+  @override
+  String get connectionMissingFields => 'Заполните все обязательные поля';
+
+  @override
+  String get connectionInvalidToken => 'Неверный токен бота';
+
+  @override
+  String get connectionInvalidChat =>
+      'Неверный chat id или бот не имеет доступа';
+
+  @override
+  String get connectionInvalidKey => 'Неверный API-ключ';
+
+  @override
+  String get integrationTelegramTitle => 'Telegram';
+
+  @override
+  String get integrationTelegramDescription =>
+      'Отправка экспорта расходов в чат Telegram через бота.';
+
+  @override
+  String get integrationExchangeRateApiTitle => 'ExchangeRate-API';
+
+  @override
+  String get integrationExchangeRateApiDescription =>
+      'Курсы через ключ ExchangeRate-API. Без ключа используется Frankfurter (ECB).';
+
+  @override
+  String get telegramNotConnectedHint =>
+      'Подключите Telegram в Настройки → Интеграции, чтобы отправлять экспорт туда.';
+
+  @override
+  String get openTelegramIntegration => 'Открыть настройки Telegram';
+
+  @override
+  String get openExchangeRateApiIntegration => 'Настроить ExchangeRate-API';
+
+  @override
+  String get rateSourceConnected => 'Курсы: ExchangeRate-API (подключено)';
+
+  @override
+  String get rateSourceFrankfurter => 'Frankfurter';
+
+  @override
+  String get debugLoggingEnabled => 'Подробные логи';
+
+  @override
+  String get debugLoggingDescription =>
+      'При включении в лог пишутся подробные события. Ошибки пишутся всегда. Секреты (API-ключи, токены бота, chat id, парольные фразы) никогда не записываются.';
+
+  @override
+  String get debugViewLogs => 'Содержимое лога';
+
+  @override
+  String get debugShareLogs => 'Отправить разработчику';
+
+  @override
+  String get debugCopyLogs => 'Скопировать логи';
+
+  @override
+  String get debugClearLogs => 'Очистить логи';
+
+  @override
+  String get debugLogsEmpty => 'Записей в логе пока нет.';
+
+  @override
+  String get debugLogsShared => 'Файл лога готов к отправке';
+
+  @override
+  String get debugLogsCopied => 'Логи скопированы в буфер';
+
+  @override
+  String get debugLogsCleared => 'Логи очищены';
 
   @override
   String get settingsDataSync => 'Резервная копия и синхронизация';
@@ -797,9 +898,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get rateSourceApi => 'ExchangeRate-API';
 
   @override
-  String get rateSourceFrankfurter => 'Frankfurter';
-
-  @override
   String get rateSourceManual => 'Вручную';
 
   @override
@@ -1047,14 +1145,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get guideSectionExchangeRatesBody =>
-      'Курсы обновляются в фоне, если устарели (примерно раз в сутки). Привяжите ключ ExchangeRate-API, обновите вручную, задайте свои курсы и просмотрите все пары в Настройки → Валюта и курсы.';
+      'Курсы обновляются в фоне, если устарели (примерно раз в сутки). Подключите ExchangeRate-API в Настройки → Интеграции, обновите вручную, задайте свои курсы и просмотрите все пары в Настройки → Валюта и курсы. Без ключа используется Frankfurter (ECB).';
 
   @override
   String get guideSectionExportTitle => 'Экспорт';
 
   @override
   String get guideSectionExportBody =>
-      'Выгружайте траты в CSV или JSON. Сохраните файл, поделитесь им или скопируйте в буфер из меню экспорта или Настройки → Экспорт и Telegram.';
+      'Выгружайте траты в CSV или JSON. Сохраните файл, поделитесь им или скопируйте в буфер из меню экспорта или Настройки → Экспорт. Telegram появляется как назначение только после подключения в Интеграциях.';
 
   @override
   String get guideSectionDataSyncTitle => 'Резервная копия и синхронизация';
@@ -1068,7 +1166,21 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get guideSectionTelegramBody =>
-      'Включите Telegram в настройках экспорта, укажите токен бота и chat id — и отправляйте файл экспорта прямо в Telegram.';
+      'Подключите Telegram в Настройки → Интеграции, укажите токен бота и chat id, проверьте соединение — и отправляйте файл экспорта из меню экспорта.';
+
+  @override
+  String get guideSectionIntegrationsTitle => 'Интеграции';
+
+  @override
+  String get guideSectionIntegrationsBody =>
+      'Опциональные сервисы (Telegram, ExchangeRate-API и будущие) живут в Настройки → Интеграции. У каждой свой форма с кнопкой «Проверить соединение». Зависимые пункты UI появляются только пока интеграция подключена.';
+
+  @override
+  String get guideSectionDebugTitle => 'Отладка и логи';
+
+  @override
+  String get guideSectionDebugBody =>
+      'В Настройки → Отладка и логи можно включить подробные логи. Ошибки пишутся всегда. Лог можно просмотреть, скопировать или отправить разработчику; секреты маскируются.';
 
   @override
   String get guideSectionFiltersTitle => 'Фильтры';

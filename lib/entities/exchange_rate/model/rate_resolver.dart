@@ -1,5 +1,6 @@
 import 'package:valtero/entities/exchange_rate/model/exchange_rate_provider.dart';
 import 'package:valtero/entities/exchange_rate/model/exchange_rate_store.dart';
+import 'package:valtero/shared/logging/app_logger.dart';
 import 'package:valtero/shared/settings/app_settings.dart';
 
 typedef SettingsReader = AppSettings? Function();
@@ -12,6 +13,7 @@ class RateResolver {
   final ExchangeRateProvider frankfurter;
   final SettingsReader readSettings;
   final SettingsWriter writeSettings;
+  final AppLogger? logger;
 
   RateResolver({
     required this.store,
@@ -19,6 +21,7 @@ class RateResolver {
     required this.frankfurter,
     required this.readSettings,
     required this.writeSettings,
+    this.logger,
   });
 
   Future<double?> getRate(String base, String target) async {
@@ -55,7 +58,14 @@ class RateResolver {
           );
           return rate;
         }
-      } catch (_) {}
+      } catch (e, st) {
+        // ignore: unawaited_futures
+        logger?.warning(
+          'Rate fetch failed via exchangerate_api for $from→$to',
+          error: e,
+          stackTrace: st,
+        );
+      }
     }
 
     final frankCached = await store.getRateRow(
@@ -82,7 +92,14 @@ class RateResolver {
         );
         return rate;
       }
-    } catch (_) {}
+    } catch (e, st) {
+      // ignore: unawaited_futures
+      logger?.warning(
+        'Rate fetch failed via frankfurter for $from→$to',
+        error: e,
+        stackTrace: st,
+      );
+    }
 
     final manual = await store.getRateRow(
       base: from,
@@ -142,7 +159,17 @@ class RateResolver {
         );
       }
       await writeSettings(settings.copyWith(lastRateRefreshAt: now));
-    } catch (_) {
+      // ignore: unawaited_futures
+      logger?.debug(
+        'Rates refreshed via ${usedProvider.id} base=$base targets=${targets.length}',
+      );
+    } catch (e, st) {
+      // ignore: unawaited_futures
+      logger?.error(
+        'Rate refresh failed via ${usedProvider.id}',
+        error: e,
+        stackTrace: st,
+      );
       if (usedProvider.id != frankfurter.id) {
         try {
           final rates = await frankfurter.fetchRates(
@@ -160,7 +187,16 @@ class RateResolver {
             );
           }
           await writeSettings(settings.copyWith(lastRateRefreshAt: now));
-        } catch (_) {}
+          // ignore: unawaited_futures
+          logger?.debug('Rates refreshed via frankfurter fallback');
+        } catch (e2, st2) {
+          // ignore: unawaited_futures
+          logger?.error(
+            'Rate refresh frankfurter fallback failed',
+            error: e2,
+            stackTrace: st2,
+          );
+        }
       }
     }
   }

@@ -6,14 +6,6 @@ import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
 import 'package:valtero/features/export_expenses/model/export_controller.dart';
 import 'package:valtero/features/export_expenses/model/export_destination.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
-import 'package:valtero/shared/settings/app_settings.dart';
-
-bool isTelegramExportConfigured(AppSettings? settings) {
-  if (settings == null) return false;
-  return settings.telegramEnabled &&
-      settings.telegramBotToken.trim().isNotEmpty &&
-      settings.telegramChatId.trim().isNotEmpty;
-}
 
 /// share_plus has no usable file-share UI on Linux.
 bool get isExportShareSupported =>

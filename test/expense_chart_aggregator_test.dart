@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:valtero/entities/exchange_rate/model/exchange_rate_provider.dart';
 import 'package:valtero/entities/exchange_rate/model/exchange_rate_store.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_resolver.dart';
@@ -48,6 +49,10 @@ Expense _expense({
 
 void main() {
   late RateResolver resolver;
+
+  setUpAll(() {
+    tzdata.initializeTimeZones();
+  });
 
   setUp(() {
     var settings = AppSettings.initial();

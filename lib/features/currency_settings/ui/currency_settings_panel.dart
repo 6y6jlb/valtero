@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
+import 'package:valtero/entities/integrations/exchange_rate_api/model/exchange_rate_api_integration.dart';
+import 'package:valtero/entities/integrations/model/integration_registry.dart';
 import 'package:valtero/features/currency_settings/ui/rates_sheet.dart';
+import 'package:valtero/features/integrations/ui/integration_config_modal.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/currency_label.dart';
@@ -26,28 +29,14 @@ class CurrencySettingsPanel extends ConsumerStatefulWidget {
 }
 
 class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
-  final _apiKeyController = TextEditingController();
   String? _status;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final key = ref.read(appSettingsProvider).value?.exchangeRateApiKey;
-      if (key != null) _apiKeyController.text = key;
-    });
-  }
-
-  @override
-  void dispose() {
-    _apiKeyController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final settingsAsync = ref.watch(appSettingsProvider);
+    final apiConnected =
+        ref.watch(isIntegrationConfiguredProvider(kExchangeRateApiIntegrationId));
     final scrollController = PrimaryScrollController.maybeOf(context);
 
     return settingsAsync.when(
@@ -129,40 +118,32 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
               },
             ),
             const SizedBox(height: 24),
-            TextField(
-              controller: _apiKeyController,
-              decoration: InputDecoration(labelText: l10n.apiKey),
-              obscureText: true,
+            Text(
+              apiConnected
+                  ? l10n.rateSourceConnected
+                  : l10n.rateSourceFrankfurter,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
-                FilledButton(
+                OutlinedButton(
                   onPressed: () async {
-                    final key = _apiKeyController.text.trim();
-                    final ok = await ref
-                        .read(exchangeRateApiProvider)
-                        .validateApiKey(key);
-                    if (!mounted) return;
-                    if (ok) {
-                      await ref
-                          .read(appSettingsProvider.notifier)
-                          .setExchangeRateApiKey(key);
-                      await ref
-                          .read(rateResolverProvider)
-                          .refreshIfStale(force: true);
-                      setState(() => _status = l10n.keyValid);
-                    } else {
-                      setState(() => _status = l10n.keyInvalid);
-                    }
+                    await showIntegrationConfigSheet(
+                      context,
+                      integration:
+                          ref.read(exchangeRateApiIntegrationProvider),
+                    );
                   },
-                  child: Text(l10n.validateKey),
+                  child: Text(l10n.openExchangeRateApiIntegration),
                 ),
                 OutlinedButton(
                   onPressed: () async {
-                    await ref.read(rateResolverProvider).refreshIfStale(force: true);
+                    await ref
+                        .read(rateResolverProvider)
+                        .refreshIfStale(force: true);
                     if (!mounted) return;
                     setState(() => _status = l10n.ratesRefreshed);
                   },

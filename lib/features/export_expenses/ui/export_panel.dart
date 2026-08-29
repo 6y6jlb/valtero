@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:valtero/entities/integrations/model/integration_registry.dart';
+import 'package:valtero/entities/integrations/telegram/model/telegram_integration.dart';
 import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
 import 'package:valtero/features/export_expenses/model/export_destination.dart';
 import 'package:valtero/features/export_expenses/model/export_readiness.dart';
+import 'package:valtero/features/integrations/ui/integration_config_modal.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
-import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/widgets/app_toast.dart';
 
 class ExportPanel extends ConsumerStatefulWidget {
-  final bool highlightTelegram;
-
-  const ExportPanel({super.key, this.highlightTelegram = false});
+  const ExportPanel({super.key});
 
   @override
   ConsumerState<ExportPanel> createState() => _ExportPanelState();
@@ -18,38 +18,6 @@ class ExportPanel extends ConsumerStatefulWidget {
 
 class _ExportPanelState extends ConsumerState<ExportPanel> {
   ExportFormat _format = ExportFormat.csv;
-  final _tokenController = TextEditingController();
-  final _chatController = TextEditingController();
-  final _telegramKey = GlobalKey();
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final s = ref.read(appSettingsProvider).value;
-      if (s != null) {
-        _tokenController.text = s.telegramBotToken;
-        _chatController.text = s.telegramChatId;
-      }
-      if (widget.highlightTelegram) {
-        final ctx = _telegramKey.currentContext;
-        if (ctx != null) {
-          Scrollable.ensureVisible(
-            ctx,
-            duration: const Duration(milliseconds: 250),
-            alignment: 0.1,
-          );
-        }
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _tokenController.dispose();
-    _chatController.dispose();
-    super.dispose();
-  }
 
   Future<void> _run(ExportDestination destination) async {
     final l10n = AppLocalizations.of(context)!;
@@ -58,8 +26,8 @@ class _ExportPanelState extends ConsumerState<ExportPanel> {
       return;
     }
     if (destination == ExportDestination.telegram &&
-        !isTelegramExportConfigured(ref.read(appSettingsProvider).value)) {
-      showAppToast(context, l10n.telegramSetupNeeded);
+        !ref.read(isIntegrationConfiguredProvider(kTelegramIntegrationId))) {
+      showAppToast(context, l10n.telegramNotConnectedHint);
       return;
     }
 
@@ -82,10 +50,16 @@ class _ExportPanelState extends ConsumerState<ExportPanel> {
     }
   }
 
+  Future<void> _openTelegramSettings() async {
+    final integration = ref.read(telegramIntegrationProvider);
+    await showIntegrationConfigSheet(context, integration: integration);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final settings = ref.watch(appSettingsProvider).value;
+    final telegramConnected =
+        ref.watch(isIntegrationConfiguredProvider(kTelegramIntegrationId));
     final scrollController = PrimaryScrollController.maybeOf(context);
     final theme = Theme.of(context);
 
@@ -123,58 +97,26 @@ class _ExportPanelState extends ConsumerState<ExportPanel> {
           ),
         ),
         const SizedBox(height: 24),
-        KeyedSubtree(
-          key: _telegramKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (widget.highlightTelegram) ...[
-                Material(
-                  color: theme.colorScheme.secondaryContainer,
-                  borderRadius: BorderRadius.circular(12),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Text(
-                      l10n.telegramSetupNeeded,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSecondaryContainer,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-              ],
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(l10n.telegramEnabled),
-                value: settings?.telegramEnabled ?? false,
-                onChanged: (v) {
-                  ref.read(appSettingsProvider.notifier).setTelegram(enabled: v);
-                },
-              ),
-              TextField(
-                controller: _tokenController,
-                decoration: InputDecoration(labelText: l10n.telegramBotToken),
-                obscureText: true,
-                onChanged: (v) {
-                  ref.read(appSettingsProvider.notifier).setTelegram(botToken: v);
-                },
-              ),
-              TextField(
-                controller: _chatController,
-                decoration: InputDecoration(labelText: l10n.telegramChatId),
-                onChanged: (v) {
-                  ref.read(appSettingsProvider.notifier).setTelegram(chatId: v);
-                },
-              ),
-              const SizedBox(height: 8),
-              FilledButton.tonal(
-                onPressed: () => _run(ExportDestination.telegram),
-                child: Text(l10n.sendTelegram),
-              ),
-            ],
+        Text(l10n.integrationTelegramTitle, style: theme.textTheme.titleMedium),
+        const SizedBox(height: 8),
+        if (telegramConnected) ...[
+          FilledButton.tonal(
+            onPressed: () => _run(ExportDestination.telegram),
+            child: Text(l10n.sendTelegram),
           ),
-        ),
+        ] else ...[
+          Text(
+            l10n.telegramNotConnectedHint,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton(
+            onPressed: _openTelegramSettings,
+            child: Text(l10n.openTelegramIntegration),
+          ),
+        ],
       ],
     );
   }

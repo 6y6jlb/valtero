@@ -76,6 +76,16 @@ class PlatformGuideBody extends StatelessWidget {
           body: l10n.guideSectionTelegramBody,
         ),
         PlatformGuideSection(
+          icon: Icons.extension_outlined,
+          title: l10n.guideSectionIntegrationsTitle,
+          body: l10n.guideSectionIntegrationsBody,
+        ),
+        PlatformGuideSection(
+          icon: Icons.bug_report_outlined,
+          title: l10n.guideSectionDebugTitle,
+          body: l10n.guideSectionDebugBody,
+        ),
+        PlatformGuideSection(
           icon: Icons.filter_list,
           title: l10n.guideSectionFiltersTitle,
           body: l10n.guideSectionFiltersBody,

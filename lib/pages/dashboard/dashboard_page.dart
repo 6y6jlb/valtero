@@ -4,6 +4,8 @@ import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
 import 'package:valtero/entities/payment_method/model/payment_methods_provider.dart';
 import 'package:valtero/entities/expense/model/expense_tags_provider.dart';
 import 'package:valtero/entities/expense/model/expenses_provider.dart';
+import 'package:valtero/entities/integrations/model/integration_registry.dart';
+import 'package:valtero/entities/integrations/telegram/model/telegram_integration.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
 import 'package:valtero/features/currency_settings/ui/rates_sheet.dart';
 import 'package:valtero/features/data_sync/ui/data_sync_flow.dart';
@@ -351,6 +353,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             itemBuilder: (context) => buildExportMenuItems(
               l10n,
               showShare: isExportShareSupported,
+              showTelegram: ref.watch(
+                isIntegrationConfiguredProvider(kTelegramIntegrationId),
+              ),
             ),
             icon: const Icon(Icons.ios_share_outlined),
           ),

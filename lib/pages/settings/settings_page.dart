@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/currency_settings/ui/currency_settings_panel.dart';
 import 'package:valtero/features/data_sync/ui/data_sync_flow.dart';
+import 'package:valtero/features/debug_logs/ui/debug_logs_panel.dart';
 import 'package:valtero/features/export_expenses/ui/export_flow.dart';
+import 'package:valtero/features/integrations/ui/integrations_settings_section.dart';
 import 'package:valtero/features/manage_payment_methods/ui/payment_methods_sheet.dart';
 import 'package:valtero/pages/platform_guide/platform_guide_page.dart';
 import 'package:valtero/pages/tags/tags_sheet.dart';
@@ -293,6 +295,12 @@ class SettingsPage extends ConsumerWidget {
             onTap: () => showPaymentMethodsSheet(context),
           ),
           ListTile(
+            leading: const Icon(Icons.extension_outlined),
+            title: Text(l10n.settingsIntegrations),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => showIntegrationsSheet(context),
+          ),
+          ListTile(
             leading: const Icon(Icons.ios_share),
             title: Text(l10n.settingsExport),
             trailing: const Icon(Icons.chevron_right),
@@ -309,6 +317,12 @@ class SettingsPage extends ConsumerWidget {
             title: Text(l10n.guideOpenFromSettings),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => PlatformGuidePage.open(context),
+          ),
+          ListTile(
+            leading: const Icon(Icons.bug_report_outlined),
+            title: Text(l10n.settingsDebug),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => showDebugLogsSheet(context),
           ),
           if (versionLabel != null) ...[
             const SizedBox(height: 24),

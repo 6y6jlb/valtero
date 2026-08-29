@@ -201,6 +201,12 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       expensesChartBreakdown: chartBreakdown,
     ));
   }
+
+  Future<void> setDebugLoggingEnabled(bool enabled) async {
+    final current = state.value;
+    if (current == null) return;
+    await _save(current.copyWith(debugLoggingEnabled: enabled));
+  }
 }
 
 final appSettingsProvider =

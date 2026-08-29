@@ -42,7 +42,109 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settingsCurrency => 'Moneda y tipos de cambio';
 
   @override
-  String get settingsExport => 'Exportar y Telegram';
+  String get settingsExport => 'Exportar';
+
+  @override
+  String get settingsIntegrations => 'Integraciones';
+
+  @override
+  String get settingsDebug => 'Depuración y registros';
+
+  @override
+  String get integrationConnected => 'Conectado';
+
+  @override
+  String get integrationNotConnected => 'No conectado';
+
+  @override
+  String get integrationTestConnection => 'Probar conexión';
+
+  @override
+  String get integrationSave => 'Guardar';
+
+  @override
+  String get integrationDisconnect => 'Desconectar';
+
+  @override
+  String get connectionOk => 'Conexión correcta';
+
+  @override
+  String get connectionFailed => 'Error de conexión';
+
+  @override
+  String get connectionMissingFields =>
+      'Completa todos los campos obligatorios';
+
+  @override
+  String get connectionInvalidToken => 'El token del bot no es válido';
+
+  @override
+  String get connectionInvalidChat =>
+      'El chat id no es válido o el bot no tiene acceso';
+
+  @override
+  String get connectionInvalidKey => 'La clave API no es válida';
+
+  @override
+  String get integrationTelegramTitle => 'Telegram';
+
+  @override
+  String get integrationTelegramDescription =>
+      'Envía exportaciones de gastos a un chat de Telegram mediante un bot.';
+
+  @override
+  String get integrationExchangeRateApiTitle => 'ExchangeRate-API';
+
+  @override
+  String get integrationExchangeRateApiDescription =>
+      'Obtén tipos de cambio con una clave de ExchangeRate-API. Sin ella se usa Frankfurter (BCE).';
+
+  @override
+  String get telegramNotConnectedHint =>
+      'Conecta Telegram en Ajustes → Integraciones para enviar exportaciones allí.';
+
+  @override
+  String get openTelegramIntegration => 'Abrir ajustes de Telegram';
+
+  @override
+  String get openExchangeRateApiIntegration => 'Configurar ExchangeRate-API';
+
+  @override
+  String get rateSourceConnected => 'Tipos: ExchangeRate-API (conectado)';
+
+  @override
+  String get rateSourceFrankfurter => 'Frankfurter';
+
+  @override
+  String get debugLoggingEnabled => 'Registro detallado';
+
+  @override
+  String get debugLoggingDescription =>
+      'Al activarlo se escriben eventos detallados. Los errores se registran siempre. Los secretos (claves API, tokens, chat ids, frases) nunca se escriben.';
+
+  @override
+  String get debugViewLogs => 'Contenido del registro';
+
+  @override
+  String get debugShareLogs => 'Compartir con el desarrollador';
+
+  @override
+  String get debugCopyLogs => 'Copiar registros';
+
+  @override
+  String get debugClearLogs => 'Borrar registros';
+
+  @override
+  String get debugLogsEmpty => 'Aún no hay entradas en el registro.';
+
+  @override
+  String get debugLogsShared => 'Archivo de registro listo para compartir';
+
+  @override
+  String get debugLogsCopied => 'Registros copiados al portapapeles';
+
+  @override
+  String get debugLogsCleared => 'Registros borrados';
 
   @override
   String get settingsDataSync => 'Copia de seguridad y sincronización';
@@ -797,9 +899,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get rateSourceApi => 'ExchangeRate-API';
 
   @override
-  String get rateSourceFrankfurter => 'Frankfurter';
-
-  @override
   String get rateSourceManual => 'Manual';
 
   @override
@@ -1044,14 +1143,14 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guideSectionExchangeRatesBody =>
-      'Los tipos se actualizan en segundo plano cuando están desactualizados (unas cada 24 horas). Vincula una clave de ExchangeRate-API, actualiza manualmente, define anulaciones y consulta todos los tipos en Ajustes → Moneda y tipos de cambio.';
+      'Los tipos se actualizan en segundo plano cuando están desactualizados (unas cada 24 horas). Conecta ExchangeRate-API en Ajustes → Integraciones, actualiza manualmente, define anulaciones y consulta todos los tipos en Ajustes → Moneda y tipos de cambio. Sin clave se usa Frankfurter (BCE).';
 
   @override
   String get guideSectionExportTitle => 'Exportar';
 
   @override
   String get guideSectionExportBody =>
-      'Exporta gastos como CSV o JSON. Guarda un archivo, compártelo o cópialo al portapapeles desde el menú de exportación o Ajustes → Exportar y Telegram.';
+      'Exporta gastos como CSV o JSON. Guarda un archivo, compártelo o cópialo al portapapeles desde el menú de exportación o Ajustes → Exportar. Telegram aparece como destino solo tras conectarlo en Integraciones.';
 
   @override
   String get guideSectionDataSyncTitle => 'Copia de seguridad y sincronización';
@@ -1065,7 +1164,21 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guideSectionTelegramBody =>
-      'Activa Telegram en los ajustes de exportación, introduce el token del bot y el id del chat, y envía un documento de exportación directamente a Telegram.';
+      'Conecta Telegram en Ajustes → Integraciones, introduce el token del bot y el id del chat, prueba la conexión y envía un documento desde el menú de exportación.';
+
+  @override
+  String get guideSectionIntegrationsTitle => 'Integraciones';
+
+  @override
+  String get guideSectionIntegrationsBody =>
+      'Los servicios opcionales (Telegram, ExchangeRate-API y futuros) están en Ajustes → Integraciones. Cada uno tiene su formulario con «Probar conexión». Las funciones dependientes solo aparecen mientras la integración esté conectada.';
+
+  @override
+  String get guideSectionDebugTitle => 'Depuración y registros';
+
+  @override
+  String get guideSectionDebugBody =>
+      'En Ajustes → Depuración y registros puedes activar el registro detallado. Los errores siempre se guardan. Puedes ver, copiar o compartir el archivo con un desarrollador; los secretos se ocultan.';
 
   @override
   String get guideSectionFiltersTitle => 'Filtros';

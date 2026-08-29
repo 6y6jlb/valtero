@@ -1,27 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:valtero/entities/integrations/model/integration_registry.dart';
+import 'package:valtero/entities/integrations/telegram/model/telegram_integration.dart';
 import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
 import 'package:valtero/features/export_expenses/model/export_destination.dart';
 import 'package:valtero/features/export_expenses/model/export_readiness.dart';
 import 'package:valtero/features/export_expenses/ui/export_panel.dart';
+import 'package:valtero/features/integrations/ui/integration_config_modal.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
-import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
 import 'package:valtero/widgets/app_toast.dart';
 
-Future<void> showExportSheet(
-  BuildContext context, {
-  bool highlightTelegram = false,
-}) {
+Future<void> showExportSheet(BuildContext context) {
   return showAppModalSheet(
     context: context,
-    child: ExportPanel(highlightTelegram: highlightTelegram),
+    child: const ExportPanel(),
   );
 }
 
-/// Ensures destination can run: opens Telegram setup sheet or shows an alert.
-///
-/// Set [allowSetupSheet] to false when already inside [ExportPanel].
+/// Ensures destination can run: opens Telegram integration sheet or shows alert.
 Future<bool> ensureExportDestinationReady(
   BuildContext context,
   WidgetRef ref, {
@@ -38,16 +35,19 @@ Future<bool> ensureExportDestinationReady(
       await showExportUnsupportedDialog(context, l10n.shareUnsupported);
       return false;
     case ExportDestination.telegram:
-      if (isTelegramExportConfigured(ref.read(appSettingsProvider).value)) {
+      if (ref.read(isIntegrationConfiguredProvider(kTelegramIntegrationId))) {
         return true;
       }
       if (!allowSetupSheet) {
-        showAppToast(context, l10n.telegramSetupNeeded);
+        showAppToast(context, l10n.telegramNotConnectedHint);
         return false;
       }
-      await showExportSheet(context, highlightTelegram: true);
+      await showIntegrationConfigSheet(
+        context,
+        integration: ref.read(telegramIntegrationProvider),
+      );
       if (!context.mounted) return false;
-      return isTelegramExportConfigured(ref.read(appSettingsProvider).value);
+      return ref.read(isIntegrationConfiguredProvider(kTelegramIntegrationId));
   }
 }
 
@@ -87,9 +87,12 @@ Future<void> performExport(
     if (!context.mounted) return;
     if (e.message == 'telegram_not_configured') {
       if (allowSetupSheet) {
-        await showExportSheet(context, highlightTelegram: true);
+        await showIntegrationConfigSheet(
+          context,
+          integration: ref.read(telegramIntegrationProvider),
+        );
       } else {
-        showAppToast(context, l10n.telegramSetupNeeded);
+        showAppToast(context, l10n.telegramNotConnectedHint);
       }
       return;
     }

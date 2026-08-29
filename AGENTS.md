@@ -22,8 +22,8 @@ app → pages → widgets → features → entities → shared
 | `lib/pages/` | One folder per screen; thin composition only |
 | `lib/widgets/` | Cross-feature UI only (keep small) |
 | `lib/features/` | User-facing use cases (`model/` + `ui/`, optional `data/`) |
-| `lib/entities/` | Domain model + Drift tables/DAOs / rate providers |
-| `lib/shared/` | DB core, Hive settings, Dio, consts, l10n, utils |
+| `lib/entities/` | Domain model + Drift tables/DAOs / rate providers / optional integrations registry |
+| `lib/shared/` | DB core, Hive settings, Dio, consts, l10n, utils, file logging |
 
 **Import rule**: a file may only import from its own layer (siblings) or from a layer further down. Never import upward or sideways across features.
 
@@ -34,7 +34,7 @@ Details: [docs/agent-rules/fsd-layers.md](docs/agent-rules/fsd-layers.md)
 - **Riverpod** for state (`AsyncNotifier` for Hive/Drift-backed state)
 - **Drift (SQLite)** for expenses, tags, exchange-rate cache/overrides (`sqlite3` ≥3.x bundles native SQLite via build hooks on Linux/Android/Windows)
 - **Schema version** SSOT: `kAppSchemaVersion`. Production baseline v5 — stepwise `migrate_to_vN` only; **never wipe** user DB on upgrade — see [drift-conventions.md](docs/agent-rules/drift-conventions.md). Same int goes into strict exchange envelopes as `schemaVersion`.
-- **Hive CE** for `AppSettings` only (reporting currencies, API key, detection cache, theme/locale/timezone)
+- **Hive CE** for `AppSettings` only (reporting currencies, API key, detection cache, theme/locale/timezone, integration credentials, debug logging flag)
 
 Details: [docs/agent-rules/riverpod-conventions.md](docs/agent-rules/riverpod-conventions.md), [docs/agent-rules/drift-conventions.md](docs/agent-rules/drift-conventions.md)
 
@@ -58,16 +58,18 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 
 1. **Add / edit expense** (same bottom sheet) → amount + currency → as-is or convert-to reporting currency (show live rate) → **payment method** → **country** (ISO on the expense, not a tag) → **category tags** → note/date → persist. Tap a row in lists/dashboard recent to edit.
 2. **Dashboard** → donut chart + filter bar → **last 10 expenses** + link to full list; entry points for add / tags / export; convert stored amounts to display currency via `RateResolver` in Dart
-3. **Rates** → on launch if last refresh >24h, refresh in background; Settings → Currency sheet can force refresh / bind API key / set manual rates / view all rates
+3. **Rates** → on launch if last refresh >24h, refresh in background; Settings → Currency sheet can force refresh / set manual rates / view all rates; ExchangeRate-API key is bound under **Settings → Integrations** (Frankfurter used when not connected)
 4. **Tag suggestions** → detect country/currency (ip-api.com, locale fallback) → suggest **category** tags (Tags sheet). Detected country primes the expense country field on create.
-5. **Export** → CSV/JSON (includes `countryCode` + payment) → save / share / Telegram; **encrypted backup/sync** (Settings → Backup & sync, `.valterobackup`) embeds `formatVersion` + `schemaVersion` (`kAppSchemaVersion`) for merge import across devices; API keys / Telegram credentials are excluded
+5. **Export** → CSV/JSON (includes `countryCode` + payment) → save / share / copy; **Telegram** destination appears only when the Telegram integration is connected; **encrypted backup/sync** (Settings → Backup & sync, `.valterobackup`) embeds `formatVersion` + `schemaVersion` (`kAppSchemaVersion`) for merge import across devices; API keys / Telegram credentials are excluded
+6. **Integrations** → Settings → Integrations lists optional services (`entities/integrations/`: Telegram, ExchangeRate-API). Each opens a config modal with Test connection / Save / Disconnect. Capability-gated UI (export menu Telegram items, rate source label) reads `isIntegrationConfiguredProvider` / `configuredExportIntegrationsProvider`
+7. **Debug & logs** → Settings → Debug & logs: toggle verbose debug breadcrumbs; **errors/warnings always written** to a redacted file log (`shared/logging/`); view / copy / share via system share sheet (clipboard fallback on Linux). Secrets never logged (`LogRedactor`)
 
 ## Navigation
 
 - Home: **Dashboard** (no bottom nav). If there are **no expenses yet**, Dashboard shows a **sample chart** labeled as an example, with a link to the **platform guide**; after the first expense, real chart data appears. The guide is also opened from Settings → Platform guide.
 - **Expenses**: full page via FAB / “Show expenses” (back arrow); filters via summary bar → modal sheet (same as dashboard); per-currency summary card with convert/info icons; empty placeholder when no expenses; add/edit stays a sheet (`+` FAB sticky bottom on Dashboard, Expenses, and Platform guide — **not** on Settings)
 - Settings via gear in the AppBar → full page with back arrow
-- Sheets (full window width): add/edit expense, tags, export, currency, appearance, rates list, filters
+- Sheets (full window width): add/edit expense, tags, export, currency, appearance, rates list, filters, **integrations**, **debug logs**
 - Dashboard: one donut (shared [DonutBreakdownChart](lib/features/expenses_list/ui/donut_breakdown_chart.dart): amounts on segments, legend chips toggle visibility; tap segment → Expenses with filter); breakdown by **country** / payment / category / month / currency via shared [ChartBreakdownIcons](lib/features/expenses_list/ui/chart_breakdown_icons.dart); filter summary bar → full-screen sheet; recent 10 + “Show expenses”; FABs
 - Expenses list columns: date, amount, payment, country, tags; chart view uses the same donut; tap a segment applies that filter and switches to list
 - AppBar shows live date/time in the selected timezone (default: auto-detected system zone)

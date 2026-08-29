@@ -2,13 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:csv/csv.dart';
-import 'package:dio/dio.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:valtero/shared/database/app_database.dart';
-import 'package:valtero/shared/settings/app_settings.dart';
 import 'package:valtero/shared/utils/money.dart';
 
 enum ExportFormat { csv, json }
@@ -120,30 +118,6 @@ class ExpenseExporter {
   Future<void> shareFile(File file) async {
     await SharePlus.instance.share(
       ShareParams(files: [XFile(file.path)], text: 'Valtero export'),
-    );
-  }
-
-  Future<void> sendTelegram({
-    required Dio dio,
-    required AppSettings settings,
-    required File file,
-  }) async {
-    if (!settings.telegramEnabled ||
-        settings.telegramBotToken.trim().isEmpty ||
-        settings.telegramChatId.trim().isEmpty) {
-      throw StateError('telegram_not_configured');
-    }
-    final token = settings.telegramBotToken.trim();
-    final form = FormData.fromMap({
-      'chat_id': settings.telegramChatId.trim(),
-      'document': await MultipartFile.fromFile(
-        file.path,
-        filename: p.basename(file.path),
-      ),
-    });
-    await dio.post(
-      'https://api.telegram.org/bot$token/sendDocument',
-      data: form,
     );
   }
 }

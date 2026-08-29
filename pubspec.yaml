@@ -3,7 +3,7 @@ description: "Multi-currency expense tracker"
 publish_to: 'none'
 # Synced from ./VERSION by scripts/app_version.sh (make sync-version / build / release).
 # Edit VERSION, not this line. Format: <semver>+<build> e.g. 1.1.0+2
-version: 1.2.0+1
+version: 1.3.0+1
 
 environment:
   sdk: ^3.11.4

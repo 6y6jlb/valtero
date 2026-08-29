@@ -1,12 +1,14 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path/path.dart' as p;
 import 'package:valtero/entities/expense/model/expenses_provider.dart';
+import 'package:valtero/entities/integrations/model/integration_registry.dart';
 import 'package:valtero/entities/payment_method/model/payment_methods_provider.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
 import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/database/database_provider.dart';
-import 'package:valtero/shared/network/dio_provider.dart';
+import 'package:valtero/shared/logging/logging_providers.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 
 final expenseExporterProvider = Provider<ExpenseExporter>((ref) {
@@ -167,15 +169,24 @@ class ExportController {
   }) async {
     final settings = ref.read(appSettingsProvider).value;
     if (settings == null) throw StateError('no_settings');
+    final logger = ref.read(appLoggerProvider);
     final file = await ref.read(expenseExporterProvider).writeTempFile(
           content: content,
           format: format,
         );
-    await ref.read(expenseExporterProvider).sendTelegram(
-          dio: ref.read(dioProvider),
-          settings: settings,
-          file: file,
-        );
+    try {
+      await ref.read(telegramIntegrationProvider).exportFile(
+            file: file,
+            filename: p.basename(file.path),
+            settings: settings,
+          );
+      // ignore: unawaited_futures
+      logger.debug('Telegram export sent format=${format.name}');
+    } catch (e, st) {
+      // ignore: unawaited_futures
+      logger.error('Telegram export failed', error: e, stackTrace: st);
+      rethrow;
+    }
   }
 }
 

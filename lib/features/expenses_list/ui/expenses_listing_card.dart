@@ -20,6 +20,7 @@ class ExpensesListingCard extends StatelessWidget {
     ExportFormat format, {
     required ExportDestination destination,
   }) onExport;
+  final bool showTelegram;
   final Widget child;
 
   const ExpensesListingCard({
@@ -32,6 +33,7 @@ class ExpensesListingCard extends StatelessWidget {
     required this.onGroupChanged,
     required this.onSortChanged,
     required this.onExport,
+    this.showTelegram = false,
     required this.child,
   });
 
@@ -79,6 +81,7 @@ class ExpensesListingCard extends StatelessWidget {
                       itemBuilder: (context) => buildExportMenuItems(
                         l10n,
                         showShare: isExportShareSupported,
+                        showTelegram: showTelegram,
                       ),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(

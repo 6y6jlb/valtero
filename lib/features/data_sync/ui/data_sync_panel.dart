@@ -10,6 +10,7 @@ import 'package:valtero/features/data_sync/model/data_sync_controller.dart';
 import 'package:valtero/features/data_sync/model/passphrase_generator.dart';
 import 'package:valtero/features/data_sync/ui/data_sync_passphrase_field.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/shared/logging/logging_providers.dart';
 import 'package:valtero/widgets/app_toast.dart';
 
 enum DataSyncTab { export, import }
@@ -81,7 +82,13 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
       if (!mounted || path == null) return;
       setState(() => _exportedPath = path);
       showAppToast(context, l10n.dataSyncExportDone);
-    } catch (_) {
+    } catch (e, st) {
+      // ignore: unawaited_futures
+      ref.read(appLoggerProvider).error(
+            'Backup export failed',
+            error: e,
+            stackTrace: st,
+          );
       if (!mounted) return;
       showAppToast(context, l10n.dataSyncExportFailed);
     } finally {
@@ -211,7 +218,13 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
     } on BackupCryptoException {
       if (!mounted) return;
       showAppToast(context, l10n.dataSyncUnsupportedFormat);
-    } catch (_) {
+    } catch (e, st) {
+      // ignore: unawaited_futures
+      ref.read(appLoggerProvider).error(
+            'Backup import failed',
+            error: e,
+            stackTrace: st,
+          );
       if (!mounted) return;
       showAppToast(context, l10n.dataSyncUnsupportedFormat);
     } finally {

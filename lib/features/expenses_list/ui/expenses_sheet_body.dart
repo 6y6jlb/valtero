@@ -4,6 +4,8 @@ import 'package:valtero/entities/payment_method/model/payment_methods_provider.d
 import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
 import 'package:valtero/entities/expense/model/expense_tags_provider.dart';
 import 'package:valtero/entities/expense/model/expenses_provider.dart';
+import 'package:valtero/entities/integrations/model/integration_registry.dart';
+import 'package:valtero/entities/integrations/telegram/model/telegram_integration.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
 import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
 import 'package:valtero/features/expenses_list/model/expense_chart_aggregator.dart';
@@ -544,6 +546,11 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                             : _applied.group,
                         sort: _applied.sort,
                         ascending: _applied.ascending,
+                        showTelegram: ref.watch(
+                          isIntegrationConfiguredProvider(
+                            kTelegramIntegrationId,
+                          ),
+                        ),
                         onSortChanged: (field, ascending) {
                           setState(() {
                             _applied = _applied.copyWith(

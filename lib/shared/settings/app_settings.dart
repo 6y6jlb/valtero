@@ -29,6 +29,9 @@ class AppSettings {
   final String expensesListGroup;
   /// Persisted chart breakdown on expenses list / dashboard donut.
   final String expensesChartBreakdown;
+  /// When true, verbose debug breadcrumbs are written to the app log file.
+  /// Error/warning logs are always written regardless of this flag.
+  final bool debugLoggingEnabled;
 
   const AppSettings({
     required this.reportingCurrencies,
@@ -54,6 +57,7 @@ class AppSettings {
     this.expensesListView = 'list',
     this.expensesListGroup = 'currency',
     this.expensesChartBreakdown = 'currency',
+    this.debugLoggingEnabled = false,
   });
 
   factory AppSettings.initial() {
@@ -91,6 +95,7 @@ class AppSettings {
     String? expensesListView,
     String? expensesListGroup,
     String? expensesChartBreakdown,
+    bool? debugLoggingEnabled,
   }) {
     return AppSettings(
       reportingCurrencies: reportingCurrencies ?? this.reportingCurrencies,
@@ -123,6 +128,7 @@ class AppSettings {
       expensesListGroup: expensesListGroup ?? this.expensesListGroup,
       expensesChartBreakdown:
           expensesChartBreakdown ?? this.expensesChartBreakdown,
+      debugLoggingEnabled: debugLoggingEnabled ?? this.debugLoggingEnabled,
     );
   }
 
@@ -150,6 +156,7 @@ class AppSettings {
         'expensesListView': expensesListView,
         'expensesListGroup': expensesListGroup,
         'expensesChartBreakdown': expensesChartBreakdown,
+        'debugLoggingEnabled': debugLoggingEnabled,
       };
 
   factory AppSettings.fromJson(Map<dynamic, dynamic> json) {
@@ -191,6 +198,7 @@ class AppSettings {
       expensesListGroup: json['expensesListGroup'] as String? ?? 'currency',
       expensesChartBreakdown:
           json['expensesChartBreakdown'] as String? ?? 'currency',
+      debugLoggingEnabled: json['debugLoggingEnabled'] as bool? ?? false,
     );
   }
 }

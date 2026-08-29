@@ -31,6 +31,7 @@ ExportMenuSelection? parseExportMenuValue(String value) {
 List<PopupMenuEntry<String>> buildExportMenuItems(
   AppLocalizations l10n, {
   bool showShare = true,
+  bool showTelegram = false,
 }) {
   PopupMenuItem<String> item({
     required ExportFormat format,
@@ -64,11 +65,12 @@ List<PopupMenuEntry<String>> buildExportMenuItems(
         destination: ExportDestination.copy,
         label: '${l10n.copyAs} ${formatLabel(format)}',
       ),
-      item(
-        format: format,
-        destination: ExportDestination.telegram,
-        label: '${formatLabel(format)} · ${l10n.sendTelegram}',
-      ),
+      if (showTelegram)
+        item(
+          format: format,
+          destination: ExportDestination.telegram,
+          label: '${formatLabel(format)} · ${l10n.sendTelegram}',
+        ),
     ],
   ];
 }

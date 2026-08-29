@@ -42,7 +42,108 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsCurrency => 'Currency & rates';
 
   @override
-  String get settingsExport => 'Export & Telegram';
+  String get settingsExport => 'Export';
+
+  @override
+  String get settingsIntegrations => 'Integrations';
+
+  @override
+  String get settingsDebug => 'Debug & logs';
+
+  @override
+  String get integrationConnected => 'Connected';
+
+  @override
+  String get integrationNotConnected => 'Not connected';
+
+  @override
+  String get integrationTestConnection => 'Test connection';
+
+  @override
+  String get integrationSave => 'Save';
+
+  @override
+  String get integrationDisconnect => 'Disconnect';
+
+  @override
+  String get connectionOk => 'Connection successful';
+
+  @override
+  String get connectionFailed => 'Connection failed';
+
+  @override
+  String get connectionMissingFields => 'Fill in all required fields';
+
+  @override
+  String get connectionInvalidToken => 'Bot token is invalid';
+
+  @override
+  String get connectionInvalidChat =>
+      'Chat id is invalid or bot cannot access it';
+
+  @override
+  String get connectionInvalidKey => 'API key is invalid';
+
+  @override
+  String get integrationTelegramTitle => 'Telegram';
+
+  @override
+  String get integrationTelegramDescription =>
+      'Send expense exports to a Telegram chat via bot.';
+
+  @override
+  String get integrationExchangeRateApiTitle => 'ExchangeRate-API';
+
+  @override
+  String get integrationExchangeRateApiDescription =>
+      'Fetch FX rates with an ExchangeRate-API key. Without it, Frankfurter (ECB) is used.';
+
+  @override
+  String get telegramNotConnectedHint =>
+      'Connect Telegram in Settings → Integrations to send exports there.';
+
+  @override
+  String get openTelegramIntegration => 'Open Telegram settings';
+
+  @override
+  String get openExchangeRateApiIntegration => 'Configure ExchangeRate-API';
+
+  @override
+  String get rateSourceConnected => 'Rates: ExchangeRate-API (connected)';
+
+  @override
+  String get rateSourceFrankfurter => 'Frankfurter';
+
+  @override
+  String get debugLoggingEnabled => 'Debug logging';
+
+  @override
+  String get debugLoggingDescription =>
+      'When enabled, detailed breadcrumbs are written to the log. Errors are always logged. Secrets (API keys, bot tokens, chat ids, passphrases) are never written.';
+
+  @override
+  String get debugViewLogs => 'Log contents';
+
+  @override
+  String get debugShareLogs => 'Share with developer';
+
+  @override
+  String get debugCopyLogs => 'Copy logs';
+
+  @override
+  String get debugClearLogs => 'Clear logs';
+
+  @override
+  String get debugLogsEmpty => 'No log entries yet.';
+
+  @override
+  String get debugLogsShared => 'Log file ready to share';
+
+  @override
+  String get debugLogsCopied => 'Logs copied to clipboard';
+
+  @override
+  String get debugLogsCleared => 'Logs cleared';
 
   @override
   String get settingsDataSync => 'Backup & sync';
@@ -794,9 +895,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rateSourceApi => 'ExchangeRate-API';
 
   @override
-  String get rateSourceFrankfurter => 'Frankfurter';
-
-  @override
   String get rateSourceManual => 'Manual';
 
   @override
@@ -1041,14 +1139,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideSectionExchangeRatesBody =>
-      'Rates refresh in the background when stale (about every 24 hours). Bind an ExchangeRate-API key, refresh manually, set overrides, and browse all rates in Settings → Currency & rates.';
+      'Rates refresh in the background when stale (about every 24 hours). Connect ExchangeRate-API in Settings → Integrations, refresh manually, set overrides, and browse all rates in Settings → Currency & rates. Without a key, Frankfurter (ECB) is used.';
 
   @override
   String get guideSectionExportTitle => 'Export';
 
   @override
   String get guideSectionExportBody =>
-      'Export expenses as CSV or JSON. Save a file, share it, or copy to the clipboard from the export menu or Settings → Export & Telegram.';
+      'Export expenses as CSV or JSON. Save a file, share it, or copy to the clipboard from the export menu or Settings → Export. Telegram appears as a destination only after you connect it under Integrations.';
 
   @override
   String get guideSectionDataSyncTitle => 'Backup & sync';
@@ -1062,7 +1160,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideSectionTelegramBody =>
-      'Enable Telegram in Export settings, enter a bot token and chat id, then send an export document straight to Telegram.';
+      'Connect Telegram in Settings → Integrations, enter a bot token and chat id, test the connection, then send an export document from the export menu.';
+
+  @override
+  String get guideSectionIntegrationsTitle => 'Integrations';
+
+  @override
+  String get guideSectionIntegrationsBody =>
+      'Optional services (Telegram, ExchangeRate-API, and future ones) live under Settings → Integrations. Each has its own form with a Test connection action. Features that depend on an integration appear only while it is connected.';
+
+  @override
+  String get guideSectionDebugTitle => 'Debug & logs';
+
+  @override
+  String get guideSectionDebugBody =>
+      'Settings → Debug & logs can turn on verbose logging. Errors are always recorded. You can view, copy, or share the log file with a developer; secrets are redacted.';
 
   @override
   String get guideSectionFiltersTitle => 'Filters';

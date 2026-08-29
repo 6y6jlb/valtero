@@ -171,8 +171,200 @@ abstract class AppLocalizations {
   /// No description provided for @settingsExport.
   ///
   /// In en, this message translates to:
-  /// **'Export & Telegram'**
+  /// **'Export'**
   String get settingsExport;
+
+  /// No description provided for @settingsIntegrations.
+  ///
+  /// In en, this message translates to:
+  /// **'Integrations'**
+  String get settingsIntegrations;
+
+  /// No description provided for @settingsDebug.
+  ///
+  /// In en, this message translates to:
+  /// **'Debug & logs'**
+  String get settingsDebug;
+
+  /// No description provided for @integrationConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get integrationConnected;
+
+  /// No description provided for @integrationNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get integrationNotConnected;
+
+  /// No description provided for @integrationTestConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Test connection'**
+  String get integrationTestConnection;
+
+  /// No description provided for @integrationSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get integrationSave;
+
+  /// No description provided for @integrationDisconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect'**
+  String get integrationDisconnect;
+
+  /// No description provided for @connectionOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection successful'**
+  String get connectionOk;
+
+  /// No description provided for @connectionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection failed'**
+  String get connectionFailed;
+
+  /// No description provided for @connectionMissingFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in all required fields'**
+  String get connectionMissingFields;
+
+  /// No description provided for @connectionInvalidToken.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot token is invalid'**
+  String get connectionInvalidToken;
+
+  /// No description provided for @connectionInvalidChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat id is invalid or bot cannot access it'**
+  String get connectionInvalidChat;
+
+  /// No description provided for @connectionInvalidKey.
+  ///
+  /// In en, this message translates to:
+  /// **'API key is invalid'**
+  String get connectionInvalidKey;
+
+  /// No description provided for @integrationTelegramTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Telegram'**
+  String get integrationTelegramTitle;
+
+  /// No description provided for @integrationTelegramDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Send expense exports to a Telegram chat via bot.'**
+  String get integrationTelegramDescription;
+
+  /// No description provided for @integrationExchangeRateApiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'ExchangeRate-API'**
+  String get integrationExchangeRateApiTitle;
+
+  /// No description provided for @integrationExchangeRateApiDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetch FX rates with an ExchangeRate-API key. Without it, Frankfurter (ECB) is used.'**
+  String get integrationExchangeRateApiDescription;
+
+  /// No description provided for @telegramNotConnectedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Telegram in Settings → Integrations to send exports there.'**
+  String get telegramNotConnectedHint;
+
+  /// No description provided for @openTelegramIntegration.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Telegram settings'**
+  String get openTelegramIntegration;
+
+  /// No description provided for @openExchangeRateApiIntegration.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure ExchangeRate-API'**
+  String get openExchangeRateApiIntegration;
+
+  /// No description provided for @rateSourceConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rates: ExchangeRate-API (connected)'**
+  String get rateSourceConnected;
+
+  /// No description provided for @rateSourceFrankfurter.
+  ///
+  /// In en, this message translates to:
+  /// **'Frankfurter'**
+  String get rateSourceFrankfurter;
+
+  /// No description provided for @debugLoggingEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Debug logging'**
+  String get debugLoggingEnabled;
+
+  /// No description provided for @debugLoggingDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'When enabled, detailed breadcrumbs are written to the log. Errors are always logged. Secrets (API keys, bot tokens, chat ids, passphrases) are never written.'**
+  String get debugLoggingDescription;
+
+  /// No description provided for @debugViewLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Log contents'**
+  String get debugViewLogs;
+
+  /// No description provided for @debugShareLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Share with developer'**
+  String get debugShareLogs;
+
+  /// No description provided for @debugCopyLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy logs'**
+  String get debugCopyLogs;
+
+  /// No description provided for @debugClearLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear logs'**
+  String get debugClearLogs;
+
+  /// No description provided for @debugLogsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No log entries yet.'**
+  String get debugLogsEmpty;
+
+  /// No description provided for @debugLogsShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Log file ready to share'**
+  String get debugLogsShared;
+
+  /// No description provided for @debugLogsCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Logs copied to clipboard'**
+  String get debugLogsCopied;
+
+  /// No description provided for @debugLogsCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Logs cleared'**
+  String get debugLogsCleared;
 
   /// No description provided for @settingsDataSync.
   ///
@@ -1560,12 +1752,6 @@ abstract class AppLocalizations {
   /// **'ExchangeRate-API'**
   String get rateSourceApi;
 
-  /// No description provided for @rateSourceFrankfurter.
-  ///
-  /// In en, this message translates to:
-  /// **'Frankfurter'**
-  String get rateSourceFrankfurter;
-
   /// No description provided for @rateSourceManual.
   ///
   /// In en, this message translates to:
@@ -1989,7 +2175,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionExchangeRatesBody.
   ///
   /// In en, this message translates to:
-  /// **'Rates refresh in the background when stale (about every 24 hours). Bind an ExchangeRate-API key, refresh manually, set overrides, and browse all rates in Settings → Currency & rates.'**
+  /// **'Rates refresh in the background when stale (about every 24 hours). Connect ExchangeRate-API in Settings → Integrations, refresh manually, set overrides, and browse all rates in Settings → Currency & rates. Without a key, Frankfurter (ECB) is used.'**
   String get guideSectionExchangeRatesBody;
 
   /// No description provided for @guideSectionExportTitle.
@@ -2001,7 +2187,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionExportBody.
   ///
   /// In en, this message translates to:
-  /// **'Export expenses as CSV or JSON. Save a file, share it, or copy to the clipboard from the export menu or Settings → Export & Telegram.'**
+  /// **'Export expenses as CSV or JSON. Save a file, share it, or copy to the clipboard from the export menu or Settings → Export. Telegram appears as a destination only after you connect it under Integrations.'**
   String get guideSectionExportBody;
 
   /// No description provided for @guideSectionDataSyncTitle.
@@ -2025,8 +2211,32 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionTelegramBody.
   ///
   /// In en, this message translates to:
-  /// **'Enable Telegram in Export settings, enter a bot token and chat id, then send an export document straight to Telegram.'**
+  /// **'Connect Telegram in Settings → Integrations, enter a bot token and chat id, test the connection, then send an export document from the export menu.'**
   String get guideSectionTelegramBody;
+
+  /// No description provided for @guideSectionIntegrationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Integrations'**
+  String get guideSectionIntegrationsTitle;
+
+  /// No description provided for @guideSectionIntegrationsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional services (Telegram, ExchangeRate-API, and future ones) live under Settings → Integrations. Each has its own form with a Test connection action. Features that depend on an integration appear only while it is connected.'**
+  String get guideSectionIntegrationsBody;
+
+  /// No description provided for @guideSectionDebugTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Debug & logs'**
+  String get guideSectionDebugTitle;
+
+  /// No description provided for @guideSectionDebugBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings → Debug & logs can turn on verbose logging. Errors are always recorded. You can view, copy, or share the log file with a developer; secrets are redacted.'**
+  String get guideSectionDebugBody;
 
   /// No description provided for @guideSectionFiltersTitle.
   ///

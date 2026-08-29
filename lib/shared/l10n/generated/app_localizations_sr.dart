@@ -42,7 +42,108 @@ class AppLocalizationsSr extends AppLocalizations {
   String get settingsCurrency => 'Valuta i kursevi';
 
   @override
-  String get settingsExport => 'Izvoz i Telegram';
+  String get settingsExport => 'Izvoz';
+
+  @override
+  String get settingsIntegrations => 'Integracije';
+
+  @override
+  String get settingsDebug => 'Otklanjanje grešaka i logovi';
+
+  @override
+  String get integrationConnected => 'Povezano';
+
+  @override
+  String get integrationNotConnected => 'Nije povezano';
+
+  @override
+  String get integrationTestConnection => 'Proveri vezu';
+
+  @override
+  String get integrationSave => 'Sačuvaj';
+
+  @override
+  String get integrationDisconnect => 'Prekini vezu';
+
+  @override
+  String get connectionOk => 'Veza uspešna';
+
+  @override
+  String get connectionFailed => 'Veza nije uspela';
+
+  @override
+  String get connectionMissingFields => 'Popunite sva obavezna polja';
+
+  @override
+  String get connectionInvalidToken => 'Token bota nije važeći';
+
+  @override
+  String get connectionInvalidChat =>
+      'Chat id nije važeći ili bot nema pristup';
+
+  @override
+  String get connectionInvalidKey => 'API ključ nije važeći';
+
+  @override
+  String get integrationTelegramTitle => 'Telegram';
+
+  @override
+  String get integrationTelegramDescription =>
+      'Šalji izvoz troškova u Telegram chat preko bota.';
+
+  @override
+  String get integrationExchangeRateApiTitle => 'ExchangeRate-API';
+
+  @override
+  String get integrationExchangeRateApiDescription =>
+      'Kursevi preko ExchangeRate-API ključa. Bez ključa koristi se Frankfurter (ECB).';
+
+  @override
+  String get telegramNotConnectedHint =>
+      'Poveži Telegram u Podešavanja → Integracije da šalješ izvoz tamo.';
+
+  @override
+  String get openTelegramIntegration => 'Otvori Telegram podešavanja';
+
+  @override
+  String get openExchangeRateApiIntegration => 'Podesi ExchangeRate-API';
+
+  @override
+  String get rateSourceConnected => 'Kursevi: ExchangeRate-API (povezano)';
+
+  @override
+  String get rateSourceFrankfurter => 'Frankfurter';
+
+  @override
+  String get debugLoggingEnabled => 'Detaljno logovanje';
+
+  @override
+  String get debugLoggingDescription =>
+      'Kada je uključeno, pišu se detaljni događaji. Greške se uvek beleže. Tajne (API ključevi, tokeni, chat id, fraze) nikad se ne pišu.';
+
+  @override
+  String get debugViewLogs => 'Sadržaj loga';
+
+  @override
+  String get debugShareLogs => 'Pošalji programeru';
+
+  @override
+  String get debugCopyLogs => 'Kopiraj logove';
+
+  @override
+  String get debugClearLogs => 'Obriši logove';
+
+  @override
+  String get debugLogsEmpty => 'Još nema unosa u logu.';
+
+  @override
+  String get debugLogsShared => 'Log fajl spreman za deljenje';
+
+  @override
+  String get debugLogsCopied => 'Logovi kopirani u clipboard';
+
+  @override
+  String get debugLogsCleared => 'Logovi obrisani';
 
   @override
   String get settingsDataSync => 'Rezervna kopija i sinhronizacija';
@@ -798,9 +899,6 @@ class AppLocalizationsSr extends AppLocalizations {
   String get rateSourceApi => 'ExchangeRate-API';
 
   @override
-  String get rateSourceFrankfurter => 'Frankfurter';
-
-  @override
   String get rateSourceManual => 'Ručno';
 
   @override
@@ -1046,14 +1144,14 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get guideSectionExchangeRatesBody =>
-      'Kursevi se osvežavaju u pozadini kada zastare (oko svaka 24 sata). Poveži ključ ExchangeRate-API, osveži ručno, postavi izmene i pregledaj sve kurseve u Podešavanja → Valuta i kursevi.';
+      'Kursevi se osvežavaju u pozadini kada zastare (oko svaka 24 sata). Poveži ExchangeRate-API u Podešavanja → Integracije, osveži ručno, postavi izmene i pregledaj sve kurseve u Podešavanja → Valuta i kursevi. Bez ključa koristi se Frankfurter (ECB).';
 
   @override
   String get guideSectionExportTitle => 'Izvoz';
 
   @override
   String get guideSectionExportBody =>
-      'Izvezi troškove kao CSV ili JSON. Sačuvaj fajl, podeli ga ili kopiraj u clipboard iz menija izvoza ili Podešavanja → Izvoz i Telegram.';
+      'Izvezi troškove kao CSV ili JSON. Sačuvaj fajl, podeli ga ili kopiraj u clipboard iz menija izvoza ili Podešavanja → Izvoz. Telegram se pojavljuje kao odredište tek nakon povezivanja u Integracijama.';
 
   @override
   String get guideSectionDataSyncTitle => 'Rezervna kopija i sinhronizacija';
@@ -1067,7 +1165,21 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get guideSectionTelegramBody =>
-      'Omogući Telegram u podešavanjima izvoza, unesi token bota i chat id, zatim pošalji dokument izvoza direktno na Telegram.';
+      'Poveži Telegram u Podešavanja → Integracije, unesi token bota i chat id, proveri vezu, zatim pošalji dokument izvoza iz menija izvoza.';
+
+  @override
+  String get guideSectionIntegrationsTitle => 'Integracije';
+
+  @override
+  String get guideSectionIntegrationsBody =>
+      'Opcioni servisi (Telegram, ExchangeRate-API i budući) su u Podešavanja → Integracije. Svaki ima formu sa „Proveri vezu“. Zavisne stavke UI-ja se pojavljuju samo dok je integracija povezana.';
+
+  @override
+  String get guideSectionDebugTitle => 'Otklanjanje grešaka i logovi';
+
+  @override
+  String get guideSectionDebugBody =>
+      'U Podešavanja → Otklanjanje grešaka i logovi možeš uključiti detaljno logovanje. Greške se uvek beleže. Log možeš pregledati, kopirati ili poslati programeru; tajne se maskiraju.';
 
   @override
   String get guideSectionFiltersTitle => 'Filteri';
