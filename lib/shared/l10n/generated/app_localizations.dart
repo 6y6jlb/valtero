@@ -198,6 +198,36 @@ abstract class AppLocalizations {
   /// **'Import'**
   String get dataSyncImport;
 
+  /// No description provided for @dataSyncChooseFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Load file'**
+  String get dataSyncChooseFile;
+
+  /// No description provided for @dataSyncGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'Export: create an encrypted backup with a passphrase, then save or share the file. Import: load that file on this or another device and enter the same passphrase to restore. Sync means exchanging this file between devices.'**
+  String get dataSyncGuide;
+
+  /// No description provided for @dataSyncShareManualTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How to send the backup'**
+  String get dataSyncShareManualTitle;
+
+  /// No description provided for @dataSyncShareManualGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in sharing is not available on this platform. After you save the backup file, send it yourself, for example:\n• attach it to an email;\n• send it in Telegram (or another messenger) as a document;\n• upload it to cloud storage (Google Drive, Dropbox, …) or copy it to a USB drive.\nOn the other device open Backup & sync → Import → Load file, and enter the same passphrase.'**
+  String get dataSyncShareManualGuide;
+
+  /// No description provided for @dataSyncCopyFilePath.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy file path'**
+  String get dataSyncCopyFilePath;
+
   /// No description provided for @dataSyncPassphrase.
   ///
   /// In en, this message translates to:
@@ -215,6 +245,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Copy passphrase'**
   String get dataSyncCopyPassphrase;
+
+  /// No description provided for @dataSyncGenerateShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate'**
+  String get dataSyncGenerateShort;
+
+  /// No description provided for @dataSyncCopyShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get dataSyncCopyShort;
+
+  /// No description provided for @dataSyncShowPassphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get dataSyncShowPassphrase;
+
+  /// No description provided for @dataSyncHidePassphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get dataSyncHidePassphrase;
+
+  /// No description provided for @dataSyncApplyAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply appearance from backup'**
+  String get dataSyncApplyAppearance;
+
+  /// No description provided for @dataSyncApplyAppearanceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Restores theme, language, money and date formats, timezone, and reporting currencies from the backup. Leave off to keep this device’s current look.'**
+  String get dataSyncApplyAppearanceHint;
 
   /// No description provided for @dataSyncPassphraseWarning.
   ///
@@ -1821,7 +1887,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionDataSyncBody.
   ///
   /// In en, this message translates to:
-  /// **'Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Restore on another device from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.'**
+  /// **'Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file, then share it or send it yourself (email, Telegram as a document, cloud, USB). Restore on another device from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.'**
   String get guideSectionDataSyncBody;
 
   /// No description provided for @guideSectionTelegramTitle.

@@ -7,6 +7,7 @@ import 'package:valtero/features/data_sync/model/backup_crypto.dart';
 import 'package:valtero/features/data_sync/model/backup_format.dart';
 import 'package:valtero/features/data_sync/model/data_sync_controller.dart';
 import 'package:valtero/features/data_sync/model/passphrase_generator.dart';
+import 'package:valtero/features/data_sync/ui/data_sync_passphrase_field.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/app_toast.dart';
 
@@ -32,6 +33,7 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
   final _exportPassphrase = TextEditingController();
   final _importPassphrase = TextEditingController();
   String? _pickedPath;
+  String? _exportedPath;
   bool _applySettings = false;
   bool _busy = false;
 
@@ -39,25 +41,27 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
   void initState() {
     super.initState();
     _tab = widget.initialTab;
+    _exportPassphrase.addListener(_onExportPassphraseChanged);
+  }
+
+  void _onExportPassphraseChanged() {
+    if (_exportedPath == null) return;
+    setState(() => _exportedPath = null);
   }
 
   @override
   void dispose() {
+    _exportPassphrase.removeListener(_onExportPassphraseChanged);
     _exportPassphrase.dispose();
     _importPassphrase.dispose();
     super.dispose();
   }
 
   Future<void> _generatePassphrase() async {
-    setState(() => _exportPassphrase.text = generatePassphrase());
-  }
-
-  Future<void> _copyPassphrase() async {
-    final text = _exportPassphrase.text.trim();
-    if (text.isEmpty) return;
-    await Clipboard.setData(ClipboardData(text: text));
-    if (!mounted) return;
-    showAppToast(context, AppLocalizations.of(context)!.copiedToClipboard);
+    setState(() {
+      _exportedPath = null;
+      _exportPassphrase.text = generatePassphrase();
+    });
   }
 
   Future<void> _exportSave() async {
@@ -73,6 +77,7 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
           .read(dataSyncControllerProvider)
           .exportToSaveDialog(passphrase: passphrase);
       if (!mounted || path == null) return;
+      setState(() => _exportedPath = path);
       showAppToast(context, l10n.dataSyncExportDone);
     } catch (_) {
       if (!mounted) return;
@@ -84,31 +89,15 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
 
   Future<void> _exportShare() async {
     final l10n = AppLocalizations.of(context)!;
+    final path = _exportedPath;
+    if (path == null) return;
     if (!_isShareSupported) {
-      await showDialog<void>(
-        context: context,
-        builder: (context) => AlertDialog(
-          content: Text(l10n.shareUnsupported),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(l10n.dismiss),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
-    final passphrase = _exportPassphrase.text.trim();
-    if (passphrase.isEmpty) {
-      showAppToast(context, l10n.dataSyncPassphrase);
+      await _showShareManualGuide(path);
       return;
     }
     setState(() => _busy = true);
     try {
-      await ref
-          .read(dataSyncControllerProvider)
-          .exportShare(passphrase: passphrase);
+      await ref.read(dataSyncControllerProvider).shareBackupFile(path);
       if (!mounted) return;
       showAppToast(context, l10n.dataSyncExportDone);
     } catch (_) {
@@ -130,6 +119,48 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
     }
   }
 
+  Future<void> _showShareManualGuide(String path) async {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.dataSyncShareManualTitle),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(l10n.dataSyncShareManualGuide),
+              const SizedBox(height: 16),
+              Text(
+                path,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  fontFamily: 'monospace',
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              await Clipboard.setData(ClipboardData(text: path));
+              if (!context.mounted) return;
+              showAppToast(context, l10n.copiedToClipboard);
+            },
+            child: Text(l10n.dataSyncCopyFilePath),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(l10n.dismiss),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _pickFile() async {
     final path =
         await ref.read(dataSyncControllerProvider).pickBackupFilePath();
@@ -142,7 +173,7 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
     final passphrase = _importPassphrase.text.trim();
     final path = _pickedPath;
     if (path == null) {
-      showAppToast(context, l10n.dataSyncImport);
+      showAppToast(context, l10n.dataSyncChooseFile);
       return;
     }
     if (passphrase.isEmpty) {
@@ -197,6 +228,35 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       children: [
         Text(l10n.dataSyncTitle, style: theme.textTheme.titleLarge),
+        const SizedBox(height: 12),
+        Card(
+          margin: EdgeInsets.zero,
+          color: theme.colorScheme.surfaceContainerHighest.withValues(
+            alpha: 0.5,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  size: 20,
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    l10n.dataSyncGuide,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
         const SizedBox(height: 16),
         SegmentedButton<DataSyncTab>(
           segments: [
@@ -230,27 +290,11 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
         ),
         const SizedBox(height: 16),
         if (_tab == DataSyncTab.export) ...[
-          TextField(
+          DataSyncPassphraseField(
             controller: _exportPassphrase,
-            decoration: InputDecoration(
-              labelText: l10n.dataSyncPassphrase,
-            ),
-            obscureText: true,
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              OutlinedButton(
-                onPressed: _busy ? null : _generatePassphrase,
-                child: Text(l10n.dataSyncGeneratePassphrase),
-              ),
-              OutlinedButton(
-                onPressed: _busy ? null : _copyPassphrase,
-                child: Text(l10n.dataSyncCopyPassphrase),
-              ),
-            ],
+            enabled: !_busy,
+            showGenerate: true,
+            onGenerate: _generatePassphrase,
           ),
           const SizedBox(height: 24),
           FilledButton(
@@ -259,27 +303,26 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
           ),
           const SizedBox(height: 8),
           OutlinedButton(
-            onPressed: _busy ? null : _exportShare,
+            onPressed: (_busy || _exportedPath == null) ? null : _exportShare,
             child: Text(l10n.share),
           ),
         ] else ...[
           OutlinedButton(
             onPressed: _busy ? null : _pickFile,
             child: Text(
-              _pickedPath == null ? l10n.dataSyncImport : _pickedPath!,
+              _pickedPath == null ? l10n.dataSyncChooseFile : _pickedPath!,
             ),
           ),
           const SizedBox(height: 16),
-          TextField(
+          DataSyncPassphraseField(
             controller: _importPassphrase,
-            decoration: InputDecoration(
-              labelText: l10n.dataSyncPassphrase,
-            ),
-            obscureText: true,
+            enabled: !_busy,
           ),
+          const SizedBox(height: 8),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: Text(l10n.settingsAppearance),
+            title: Text(l10n.dataSyncApplyAppearance),
+            subtitle: Text(l10n.dataSyncApplyAppearanceHint),
             value: _applySettings,
             onChanged:
                 _busy ? null : (v) => setState(() => _applySettings = v),

@@ -104,8 +104,12 @@ class DataSyncController {
         'valtero_backup_${DateTime.now().millisecondsSinceEpoch}.$kBackupFileExtension';
     final file = File(p.join(dir.path, name));
     await file.writeAsString(content);
+    await shareBackupFile(file.path);
+  }
+
+  Future<void> shareBackupFile(String path) async {
     await SharePlus.instance.share(
-      ShareParams(files: [XFile(file.path)]),
+      ShareParams(files: [XFile(path)]),
     );
   }
 
@@ -115,6 +119,10 @@ class DataSyncController {
         XTypeGroup(
           label: 'Backup',
           extensions: [kBackupFileExtension, 'json'],
+          // Android maps extensions via MimeTypeMap; `.valterobackup` is
+          // unknown there, so without an explicit mime the picker greys out
+          // the file. `*/*` lets the user select it; format is validated later.
+          mimeTypes: ['*/*'],
         ),
       ],
     );

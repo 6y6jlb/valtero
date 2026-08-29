@@ -57,6 +57,23 @@ class AppLocalizationsSr extends AppLocalizations {
   String get dataSyncImport => 'Uvoz';
 
   @override
+  String get dataSyncChooseFile => 'Učitaj fajl';
+
+  @override
+  String get dataSyncGuide =>
+      'Izvoz: napravite šifrovanu rezervnu kopiju sa lozinka-frazom, zatim sačuvajte ili podelite fajl. Uvoz: učitajte taj fajl na ovom ili drugom uređaju i unesite istu frazu da biste vratili podatke. Sinhronizacija znači razmenu ovog fajla između uređaja.';
+
+  @override
+  String get dataSyncShareManualTitle => 'Kako poslati rezervnu kopiju';
+
+  @override
+  String get dataSyncShareManualGuide =>
+      'Ugrađeno deljenje nije dostupno na ovoj platformi. Nakon što sačuvate fajl, pošaljite ga sami, na primer:\n• priložite ga u email;\n• pošaljite ga u Telegramu (ili drugom mesendžeru) kao dokument;\n• otpremite ga u cloud (Google Drive, Dropbox, …) ili kopirajte na USB.\nNa drugom uređaju otvorite Rezervna kopija i sinhronizacija → Uvoz → Učitaj fajl i unesite istu lozinka-frazu.';
+
+  @override
+  String get dataSyncCopyFilePath => 'Kopiraj putanju fajla';
+
+  @override
   String get dataSyncPassphrase => 'Lozinka-fraza';
 
   @override
@@ -64,6 +81,25 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get dataSyncCopyPassphrase => 'Kopiraj frazu';
+
+  @override
+  String get dataSyncGenerateShort => 'Generiši';
+
+  @override
+  String get dataSyncCopyShort => 'Kopiraj';
+
+  @override
+  String get dataSyncShowPassphrase => 'Prikaži';
+
+  @override
+  String get dataSyncHidePassphrase => 'Sakrij';
+
+  @override
+  String get dataSyncApplyAppearance => 'Primeni izgled iz kopije';
+
+  @override
+  String get dataSyncApplyAppearanceHint =>
+      'Vraća temu, jezik, formate novca i datuma, vremensku zonu i izveštajne valute iz rezervne kopije. Ostavi isključeno da zadržiš trenutni izgled na ovom uređaju.';
 
   @override
   String get dataSyncPassphraseWarning =>
@@ -942,7 +978,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get guideSectionDataSyncBody =>
-      'Napravite šifrovanu rezervnu kopiju troškova, oznaka, načina plaćanja, ručnih kurseva i podešavanja prikaza. Zaštitite je sopstvenom frazom ili generisanom. Vratite na drugom uređaju iz Podešavanja → Rezervna kopija i sinhronizacija, ili sa prazne kontrolne table. API ključevi i Telegram nikad nisu uključeni.';
+      'Napravite šifrovanu rezervnu kopiju troškova, oznaka, načina plaćanja, ručnih kurseva i podešavanja prikaza. Zaštitite je sopstvenom frazom ili generisanom. Sačuvajte fajl, zatim ga podelite ili pošaljite sami (email, Telegram kao dokument, cloud, USB). Vratite na drugom uređaju iz Podešavanja → Rezervna kopija i sinhronizacija, ili sa prazne kontrolne table. API ključevi i Telegram nikad nisu uključeni.';
 
   @override
   String get guideSectionTelegramTitle => 'Deljenje preko Telegrama';

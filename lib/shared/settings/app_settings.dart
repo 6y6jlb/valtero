@@ -27,7 +27,7 @@ class AppSettings {
   final String expensesListView;
   /// Persisted group-by when view is grouping: `currency` | `date` | `tag`.
   final String expensesListGroup;
-  /// Persisted chart breakdown: `currency` | `tags` | `month` | `year`.
+  /// Persisted chart breakdown on expenses list / dashboard donut.
   final String expensesChartBreakdown;
 
   const AppSettings({

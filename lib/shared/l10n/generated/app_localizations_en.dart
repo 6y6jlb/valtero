@@ -57,6 +57,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dataSyncImport => 'Import';
 
   @override
+  String get dataSyncChooseFile => 'Load file';
+
+  @override
+  String get dataSyncGuide =>
+      'Export: create an encrypted backup with a passphrase, then save or share the file. Import: load that file on this or another device and enter the same passphrase to restore. Sync means exchanging this file between devices.';
+
+  @override
+  String get dataSyncShareManualTitle => 'How to send the backup';
+
+  @override
+  String get dataSyncShareManualGuide =>
+      'Built-in sharing is not available on this platform. After you save the backup file, send it yourself, for example:\n• attach it to an email;\n• send it in Telegram (or another messenger) as a document;\n• upload it to cloud storage (Google Drive, Dropbox, …) or copy it to a USB drive.\nOn the other device open Backup & sync → Import → Load file, and enter the same passphrase.';
+
+  @override
+  String get dataSyncCopyFilePath => 'Copy file path';
+
+  @override
   String get dataSyncPassphrase => 'Passphrase';
 
   @override
@@ -64,6 +81,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dataSyncCopyPassphrase => 'Copy passphrase';
+
+  @override
+  String get dataSyncGenerateShort => 'Generate';
+
+  @override
+  String get dataSyncCopyShort => 'Copy';
+
+  @override
+  String get dataSyncShowPassphrase => 'Show';
+
+  @override
+  String get dataSyncHidePassphrase => 'Hide';
+
+  @override
+  String get dataSyncApplyAppearance => 'Apply appearance from backup';
+
+  @override
+  String get dataSyncApplyAppearanceHint =>
+      'Restores theme, language, money and date formats, timezone, and reporting currencies from the backup. Leave off to keep this device’s current look.';
 
   @override
   String get dataSyncPassphraseWarning =>
@@ -937,7 +973,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideSectionDataSyncBody =>
-      'Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Restore on another device from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.';
+      'Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file, then share it or send it yourself (email, Telegram as a document, cloud, USB). Restore on another device from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.';
 
   @override
   String get guideSectionTelegramTitle => 'Telegram sharing';

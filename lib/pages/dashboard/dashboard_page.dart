@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
 import 'package:valtero/entities/payment_method/model/payment_methods_provider.dart';
 import 'package:valtero/entities/expense/model/expense_tags_provider.dart';
@@ -14,6 +13,7 @@ import 'package:valtero/features/expenses_list/model/expense_chart_drill_down.da
 import 'package:valtero/features/expenses_list/model/expense_list_filtering.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
+import 'package:valtero/features/expenses_list/model/expenses_list_display_prefs.dart';
 import 'package:valtero/features/expenses_list/ui/chart_breakdown_icons.dart';
 import 'package:valtero/features/expenses_list/ui/donut_breakdown_chart.dart';
 import 'package:valtero/features/expenses_list/ui/expense_payment_filter_dialog.dart';
@@ -44,10 +44,6 @@ import 'package:valtero/widgets/header_clock.dart';
 import 'package:valtero/widgets/infinite_scroll_ellipsis.dart';
 import 'package:valtero/widgets/period_picker.dart';
 
-final donutBreakdownProvider = StateProvider<ExpenseChartBreakdown>(
-  (ref) => ExpenseChartBreakdown.country,
-);
-
 const _kRecentInitial = 5;
 const _kRecentBatch = 5;
 
@@ -70,7 +66,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   }
 
   void _changeBreakdown(ExpenseChartBreakdown next) {
-    ref.read(donutBreakdownProvider.notifier).state = next;
+    ref.read(appSettingsProvider.notifier).setExpensesListDisplay(
+          chartBreakdown: next.name,
+        );
   }
 
   void _openSettings(BuildContext context) {
@@ -294,7 +292,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final paymentMethods =
         ref.watch(paymentMethodsStreamProvider).value ?? const [];
     final expenseTags = ref.watch(expenseTagIdsProvider).value ?? const {};
-    final breakdown = ref.watch(donutBreakdownProvider);
+    final breakdown = settings != null
+        ? expensesChartBreakdownFromSettings(settings)
+        : ExpenseChartBreakdown.currency;
     final displayCurrency = settings?.primaryCurrency ?? 'RUB';
     final tagById = {for (final t in tags) t.id: t};
     final tagLabels = {

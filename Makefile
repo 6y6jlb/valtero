@@ -21,7 +21,11 @@
 FOLDER_STYLE ?= VersionDate
 TARGET_PLATFORM ?=
 VERSION ?=
+ifeq ($(OS),Windows_NT)
+VERSION_SCRIPT := powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./scripts/app_version.ps1
+else
 VERSION_SCRIPT := ./scripts/app_version.sh
+endif
 
 .PHONY: help version version-major version-minor version-patch version-build sync-version \
 	pub-get doctor codegen \
@@ -48,16 +52,17 @@ help:
 	@echo '  make build-linux             flutter build linux --release (+ version)'
 	@echo '  make build-windows           flutter build windows --release (+ version)'
 	@echo '  make build-android           flutter build apk --release (+ version)'
-	@echo '  make release-linux           scripts/build_linux_release.sh -> dist/linux/'
-	@echo '  make release-windows         scripts/build_windows_release.ps1 -> dist/windows/'
-	@echo '  make release-android         scripts/build_android_release.sh -> dist/android/'
+	@echo '  make release-linux           scripts/build_linux_release.sh to dist/linux/'
+	@echo '  make release-windows         scripts/build_windows_release.ps1 to dist/windows/'
+	@echo '  make release-android         scripts/build_android_release.sh to dist/android/'
 	@echo ''
 	@echo 'Variables:'
 	@echo '  VERSION=1.2.0+3                     (with make version)'
-	@echo '  FOLDER_STYLE=Version|Date|VersionDate   (default: VersionDate)'
+	@echo '  FOLDER_STYLE=Version Date VersionDate   (default: VersionDate)'
 	@echo '  TARGET_PLATFORM=android-arm64           (android release only)'
 	@echo ''
-	@echo "Current app version: $$($(VERSION_SCRIPT) print)"
+	@echo Current app version:
+	@$(VERSION_SCRIPT) print
 
 version:
 ifeq ($(VERSION),)
@@ -90,6 +95,32 @@ doctor:
 codegen:
 	dart run build_runner build --delete-conflicting-outputs
 
+# cmd.exe (default Make shell on Windows) has no POSIX $(); expand version
+# flags via PowerShell. Unix Make uses bash-style command substitution.
+ifeq ($(OS),Windows_NT)
+
+run-linux: sync-version
+	@echo run-linux must be run on Linux.
+	@exit 1
+
+run-windows: sync-version
+	powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "flutter run -d windows $$((& '.\scripts\app_version.ps1' dart-define-args) -split '\s+')"
+
+run-android: sync-version
+	powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "flutter run -d android $$((& '.\scripts\app_version.ps1' dart-define-args) -split '\s+')"
+
+build-linux: sync-version
+	@echo build-linux must be run on Linux.
+	@exit 1
+
+build-windows: sync-version
+	powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "flutter build windows --release $$((& '.\scripts\app_version.ps1' flutter-args) -split '\s+')"
+
+build-android: sync-version
+	powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "flutter build apk --release $$((& '.\scripts\app_version.ps1' flutter-args) -split '\s+')"
+
+else
+
 run-linux: sync-version
 	flutter run -d linux $$($(VERSION_SCRIPT) dart-define-args)
 
@@ -107,6 +138,8 @@ build-windows: sync-version
 
 build-android: sync-version
 	flutter build apk --release $$($(VERSION_SCRIPT) flutter-args)
+
+endif
 
 release-linux:
 	./scripts/build_linux_release.sh --folder-style $(FOLDER_STYLE)

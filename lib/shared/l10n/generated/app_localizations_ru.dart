@@ -57,6 +57,23 @@ class AppLocalizationsRu extends AppLocalizations {
   String get dataSyncImport => 'Импорт';
 
   @override
+  String get dataSyncChooseFile => 'Загрузить файл';
+
+  @override
+  String get dataSyncGuide =>
+      'Экспорт: создайте зашифрованную копию с парольной фразой, затем сохраните или отправьте файл. Импорт: загрузите этот файл на этом или другом устройстве и введите ту же фразу, чтобы восстановить данные. Синхронизация — обмен этим файлом между устройствами.';
+
+  @override
+  String get dataSyncShareManualTitle => 'Как отправить копию';
+
+  @override
+  String get dataSyncShareManualGuide =>
+      'Встроенная кнопка «Поделиться» на этой платформе недоступна. После сохранения файла отправьте его сами, например:\n• приложите к письму по почте;\n• отправьте в Telegram (или другом мессенджере) как документ;\n• загрузите в облако (Google Drive, Dropbox и т.п.) или скопируйте на флешку.\nНа другом устройстве откройте «Резервная копия и синхронизация» → Импорт → Загрузить файл и введите ту же парольную фразу.';
+
+  @override
+  String get dataSyncCopyFilePath => 'Скопировать путь к файлу';
+
+  @override
   String get dataSyncPassphrase => 'Парольная фраза';
 
   @override
@@ -64,6 +81,25 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get dataSyncCopyPassphrase => 'Скопировать фразу';
+
+  @override
+  String get dataSyncGenerateShort => 'Сгенерировать';
+
+  @override
+  String get dataSyncCopyShort => 'Скопировать';
+
+  @override
+  String get dataSyncShowPassphrase => 'Показать';
+
+  @override
+  String get dataSyncHidePassphrase => 'Скрыть';
+
+  @override
+  String get dataSyncApplyAppearance => 'Применить оформление из копии';
+
+  @override
+  String get dataSyncApplyAppearanceHint =>
+      'Восстановит тему, язык, форматы сумм и дат, часовой пояс и валюты отчёта из резервной копии. Выключите, чтобы оставить текущий вид на этом устройстве.';
 
   @override
   String get dataSyncPassphraseWarning =>
@@ -943,7 +979,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get guideSectionDataSyncBody =>
-      'Создайте зашифрованную копию трат, тегов, способов оплаты, ручных курсов и настроек отображения. Защитите своей парольной фразой или сгенерированной. Восстановите на другом устройстве из Настройки → Резервная копия и синхронизация или с пустого дашборда. API-ключи и Telegram в копию не входят.';
+      'Создайте зашифрованную копию трат, тегов, способов оплаты, ручных курсов и настроек отображения. Защитите своей парольной фразой или сгенерированной. Сохраните файл, затем поделитесь им или отправьте сами (почта, Telegram как документ, облако, флешка). Восстановите на другом устройстве из Настройки → Резервная копия и синхронизация или с пустого дашборда. API-ключи и Telegram в копию не входят.';
 
   @override
   String get guideSectionTelegramTitle => 'Шаринг через Telegram';

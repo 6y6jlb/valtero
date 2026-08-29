@@ -57,6 +57,23 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dataSyncImport => 'Importar';
 
   @override
+  String get dataSyncChooseFile => 'Cargar archivo';
+
+  @override
+  String get dataSyncGuide =>
+      'Exportar: crea una copia cifrada con una frase de contraseña y guárdala o compártela. Importar: carga ese archivo en este u otro dispositivo e introduce la misma frase para restaurar. Sincronizar es intercambiar este archivo entre dispositivos.';
+
+  @override
+  String get dataSyncShareManualTitle => 'Cómo enviar la copia';
+
+  @override
+  String get dataSyncShareManualGuide =>
+      'Compartir integrado no está disponible en esta plataforma. Después de guardar el archivo, envíalo tú mismo, por ejemplo:\n• adjúntalo a un correo;\n• envíalo por Telegram (u otro mensajero) como documento;\n• súbelo a la nube (Google Drive, Dropbox, …) o cópialo a un USB.\nEn el otro dispositivo abre Copia de seguridad y sincronización → Importar → Cargar archivo e introduce la misma frase.';
+
+  @override
+  String get dataSyncCopyFilePath => 'Copiar ruta del archivo';
+
+  @override
   String get dataSyncPassphrase => 'Frase de contraseña';
 
   @override
@@ -64,6 +81,25 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get dataSyncCopyPassphrase => 'Copiar frase';
+
+  @override
+  String get dataSyncGenerateShort => 'Generar';
+
+  @override
+  String get dataSyncCopyShort => 'Copiar';
+
+  @override
+  String get dataSyncShowPassphrase => 'Mostrar';
+
+  @override
+  String get dataSyncHidePassphrase => 'Ocultar';
+
+  @override
+  String get dataSyncApplyAppearance => 'Aplicar apariencia de la copia';
+
+  @override
+  String get dataSyncApplyAppearanceHint =>
+      'Restaura tema, idioma, formatos de dinero y fecha, zona horaria y monedas de informe de la copia. Déjalo apagado para mantener la apariencia actual de este dispositivo.';
 
   @override
   String get dataSyncPassphraseWarning =>
@@ -940,7 +976,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guideSectionDataSyncBody =>
-      'Crea una copia cifrada de gastos, etiquetas, métodos de pago, tipos manuales y ajustes de visualización. Protégela con tu frase o una generada. Restáurala en otro dispositivo desde Ajustes → Copia de seguridad y sincronización, o desde el panel vacío. Las claves API y Telegram nunca se incluyen.';
+      'Crea una copia cifrada de gastos, etiquetas, métodos de pago, tipos manuales y ajustes de visualización. Protégela con tu frase o una generada. Guarda el archivo y compártelo o envíalo tú (correo, Telegram como documento, nube, USB). Restáurala en otro dispositivo desde Ajustes → Copia de seguridad y sincronización, o desde el panel vacío. Las claves API y Telegram nunca se incluyen.';
 
   @override
   String get guideSectionTelegramTitle => 'Compartir por Telegram';
