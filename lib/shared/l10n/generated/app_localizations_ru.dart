@@ -57,7 +57,17 @@ class AppLocalizationsRu extends AppLocalizations {
   String get dataSyncImport => 'Импорт';
 
   @override
-  String get dataSyncChooseFile => 'Загрузить файл';
+  String get dataSyncChooseFile => 'Выбрать файл копии';
+
+  @override
+  String get dataSyncFileSelected => 'Файл копии выбран';
+
+  @override
+  String get dataSyncImportFromFile => 'Импорт из файла';
+
+  @override
+  String get dataSyncImportMergeHint =>
+      'Импорт данных из файла. Существующие траты не будут перезаписаны — добавятся новые данные.';
 
   @override
   String get dataSyncGuide =>
@@ -68,7 +78,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get dataSyncShareManualGuide =>
-      'Встроенная кнопка «Поделиться» на этой платформе недоступна. После сохранения файла отправьте его сами, например:\n• приложите к письму по почте;\n• отправьте в Telegram (или другом мессенджере) как документ;\n• загрузите в облако (Google Drive, Dropbox и т.п.) или скопируйте на флешку.\nНа другом устройстве откройте «Резервная копия и синхронизация» → Импорт → Загрузить файл и введите ту же парольную фразу.';
+      'Встроенная кнопка «Поделиться» на этой платформе недоступна. После сохранения файла отправьте его сами, например:\n• приложите к письму по почте;\n• отправьте в Telegram (или другом мессенджере) как документ;\n• загрузите в облако (Google Drive, Dropbox и т.п.) или скопируйте на флешку.\nНа другом устройстве откройте «Резервная копия и синхронизация» → Импорт → выберите файл и введите ту же парольную фразу.';
 
   @override
   String get dataSyncCopyFilePath => 'Скопировать путь к файлу';
@@ -89,10 +99,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get dataSyncCopyShort => 'Скопировать';
 
   @override
-  String get dataSyncShowPassphrase => 'Показать';
+  String get dataSyncShowPassphrase => 'Показать фразу';
 
   @override
-  String get dataSyncHidePassphrase => 'Скрыть';
+  String get dataSyncHidePassphrase => 'Скрыть фразу';
 
   @override
   String get dataSyncApplyAppearance => 'Применить оформление из копии';
@@ -107,6 +117,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get dataSyncExportDone => 'Резервная копия сохранена';
+
+  @override
+  String get dataSyncExportFailed => 'Не удалось сохранить резервную копию';
 
   @override
   String dataSyncImportDone(int expenses, int tags, int payments) {
@@ -199,7 +212,76 @@ class AppLocalizationsRu extends AppLocalizations {
   String get confirmDeleteExpense => 'Удалить эту трату?';
 
   @override
+  String get confirmDeleteExpenseDescription =>
+      'Эта трата будет удалена безвозвратно.';
+
+  @override
   String get expenseDeleted => 'Трата удалена';
+
+  @override
+  String bulkSelectedCount(int count) {
+    return 'Выбрано: $count';
+  }
+
+  @override
+  String bulkAndMore(int count) {
+    return '…и ещё $count';
+  }
+
+  @override
+  String get bulkDeleteTitle => 'Удалить траты?';
+
+  @override
+  String bulkDeleteDescription(String list) {
+    return 'Эти траты будут удалены безвозвратно:\n$list';
+  }
+
+  @override
+  String get bulkChangeTags => 'Изменить теги';
+
+  @override
+  String get bulkChangeTagsTitle => 'Изменить теги';
+
+  @override
+  String bulkChangeTagsDescription(String list) {
+    return 'Новые теги заменят текущие у:\n$list';
+  }
+
+  @override
+  String get bulkChangeCountry => 'Изменить страну';
+
+  @override
+  String get bulkChangeCountryTitle => 'Изменить страну';
+
+  @override
+  String bulkChangeCountryDescription(String list) {
+    return 'Страна будет обновлена у:\n$list';
+  }
+
+  @override
+  String get bulkChangeCurrency => 'Изменить валюту';
+
+  @override
+  String get bulkChangeCurrencyTitle => 'Изменить валюту';
+
+  @override
+  String bulkChangeCurrencyDescription(String currency, String list) {
+    return 'Суммы будут конвертированы в $currency у:\n$list';
+  }
+
+  @override
+  String bulkExpensesDeleted(int count) {
+    return 'Удалено трат: $count';
+  }
+
+  @override
+  String bulkExpensesUpdated(int count) {
+    return 'Обновлено трат: $count';
+  }
+
+  @override
+  String get bulkCurrencyRateUnavailable =>
+      'Не удалось конвертировать: курс недоступен';
 
   @override
   String get add => 'Добавить';
@@ -944,7 +1026,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get guideSectionExpenseTrackingBody =>
-      'У каждой траты хранятся сумма, валюта, дата, необязательная страна (ISO), способ оплаты, категории и заметка. Исходные сумма и валюта всегда сохраняются, даже если вы конвертируете в отчётную валюту.';
+      'У каждой траты хранятся сумма, валюта, дата, необязательная страна (ISO), способ оплаты, категории и заметка. Исходные сумма и валюта всегда сохраняются, даже если вы конвертируете в отчётную валюту. В списке трат можно отметить несколько строк и сразу удалить их или изменить теги, страну или валюту.';
 
   @override
   String get guideSectionTagsTitle => 'Теги';
@@ -979,7 +1061,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get guideSectionDataSyncBody =>
-      'Создайте зашифрованную копию трат, тегов, способов оплаты, ручных курсов и настроек отображения. Защитите своей парольной фразой или сгенерированной. Сохраните файл, затем поделитесь им или отправьте сами (почта, Telegram как документ, облако, флешка). Восстановите на другом устройстве из Настройки → Резервная копия и синхронизация или с пустого дашборда. API-ключи и Telegram в копию не входят.';
+      'Создайте зашифрованную копию трат, тегов, способов оплаты, ручных курсов и настроек отображения. Защитите своей парольной фразой или сгенерированной. Сохраните файл (на Android/iOS через «Поделиться» можно сохранить в файлы / загрузки), затем отправьте (почта, Telegram как документ, облако, флешка). Импорт добавляет данные: существующие траты не перезаписываются. Восстановите из Настройки → Резервная копия и синхронизация или с пустого дашборда. API-ключи и Telegram в копию не входят.';
 
   @override
   String get guideSectionTelegramTitle => 'Шаринг через Telegram';

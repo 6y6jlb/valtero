@@ -16,22 +16,26 @@
   "dataSyncTitle": "Backup & sync",
   "dataSyncExport": "Export",
   "dataSyncImport": "Import",
-  "dataSyncChooseFile": "Load file",
+  "dataSyncChooseFile": "Choose backup file",
+  "dataSyncFileSelected": "Backup file selected",
+  "dataSyncImportFromFile": "Import from file",
+  "dataSyncImportMergeHint": "Import data from a file. Your existing expenses will not be overwritten — new data will be added.",
   "dataSyncGuide": "Export: create an encrypted backup with a passphrase, then save or share the file. Import: load that file on this or another device and enter the same passphrase to restore. Sync means exchanging this file between devices.",
   "dataSyncShareManualTitle": "How to send the backup",
-  "dataSyncShareManualGuide": "Built-in sharing is not available on this platform. After you save the backup file, send it yourself, for example:\n• attach it to an email;\n• send it in Telegram (or another messenger) as a document;\n• upload it to cloud storage (Google Drive, Dropbox, …) or copy it to a USB drive.\nOn the other device open Backup & sync → Import → Load file, and enter the same passphrase.",
+  "dataSyncShareManualGuide": "Built-in sharing is not available on this platform. After you save the backup file, send it yourself, for example:\n• attach it to an email;\n• send it in Telegram (or another messenger) as a document;\n• upload it to cloud storage (Google Drive, Dropbox, …) or copy it to a USB drive.\nOn the other device open Backup & sync → Import → choose the file, and enter the same passphrase.",
   "dataSyncCopyFilePath": "Copy file path",
   "dataSyncPassphrase": "Passphrase",
   "dataSyncGeneratePassphrase": "Generate passphrase",
   "dataSyncCopyPassphrase": "Copy passphrase",
   "dataSyncGenerateShort": "Generate",
   "dataSyncCopyShort": "Copy",
-  "dataSyncShowPassphrase": "Show",
-  "dataSyncHidePassphrase": "Hide",
+  "dataSyncShowPassphrase": "Show passphrase",
+  "dataSyncHidePassphrase": "Hide passphrase",
   "dataSyncApplyAppearance": "Apply appearance from backup",
   "dataSyncApplyAppearanceHint": "Restores theme, language, money and date formats, timezone, and reporting currencies from the backup. Leave off to keep this device’s current look.",
   "dataSyncPassphraseWarning": "Store this passphrase safely. Without it, the backup cannot be opened.",
   "dataSyncExportDone": "Backup saved",
+  "dataSyncExportFailed": "Could not save the backup",
   "dataSyncImportDone": "Imported {expenses} expenses, {tags} tags, {payments} payment methods",
   "@dataSyncImportDone": {
     "placeholders": {
@@ -89,7 +93,65 @@
   "yes": "Yes",
   "no": "No",
   "confirmDeleteExpense": "Delete this expense?",
+  "confirmDeleteExpenseDescription": "This expense will be permanently deleted.",
   "expenseDeleted": "Expense deleted",
+  "bulkSelectedCount": "{count} selected",
+  "@bulkSelectedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkAndMore": "…and {count} more",
+  "@bulkAndMore": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkDeleteTitle": "Delete expenses?",
+  "bulkDeleteDescription": "These expenses will be permanently deleted:\n{list}",
+  "@bulkDeleteDescription": {
+    "placeholders": {
+      "list": { "type": "String" }
+    }
+  },
+  "bulkChangeTags": "Change tags",
+  "bulkChangeTagsTitle": "Change tags",
+  "bulkChangeTagsDescription": "New tags will replace existing tags on:\n{list}",
+  "@bulkChangeTagsDescription": {
+    "placeholders": {
+      "list": { "type": "String" }
+    }
+  },
+  "bulkChangeCountry": "Change country",
+  "bulkChangeCountryTitle": "Change country",
+  "bulkChangeCountryDescription": "Country will be updated for:\n{list}",
+  "@bulkChangeCountryDescription": {
+    "placeholders": {
+      "list": { "type": "String" }
+    }
+  },
+  "bulkChangeCurrency": "Change currency",
+  "bulkChangeCurrencyTitle": "Change currency",
+  "bulkChangeCurrencyDescription": "Amounts will be converted to {currency} for:\n{list}",
+  "@bulkChangeCurrencyDescription": {
+    "placeholders": {
+      "currency": { "type": "String" },
+      "list": { "type": "String" }
+    }
+  },
+  "bulkExpensesDeleted": "{count} expenses deleted",
+  "@bulkExpensesDeleted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkExpensesUpdated": "{count} expenses updated",
+  "@bulkExpensesUpdated": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkCurrencyRateUnavailable": "Could not convert: exchange rate unavailable",
   "add": "Add",
   "settings": "Settings",
   "reportingCurrencies": "Reporting currencies",
@@ -434,7 +496,7 @@
   "guideSectionGettingStartedTitle": "Getting started",
   "guideSectionGettingStartedBody": "Tap the + button at the bottom of the screen to open the add-expense form. Enter an amount and currency, optionally convert into a reporting currency, pick a country and category tags, and save. Tap an existing expense to edit it in the same form. Until then, the dashboard shows a sample chart with a link to this guide.",
   "guideSectionExpenseTrackingTitle": "Expense tracking",
-  "guideSectionExpenseTrackingBody": "Each expense stores amount, currency, date, optional country (ISO), payment method, category tags, and note. The original amount and currency are always kept, even if you convert into a reporting currency for storage.",
+  "guideSectionExpenseTrackingBody": "Each expense stores amount, currency, date, optional country (ISO), payment method, category tags, and note. The original amount and currency are always kept, even if you convert into a reporting currency for storage. On the expenses list, select several rows to delete them or change tags, country, or currency in bulk.",
   "guideSectionTagsTitle": "Tags",
   "guideSectionTagsBody": "Category tags label what you spent on (groceries, transport, …). Country is a separate field on the expense, not a tag. Payment is also separate (cash, card, crypto, or your own). Manage tags and payment methods in Settings.",
   "guideSectionChartsTitle": "Spending charts",
@@ -444,7 +506,7 @@
   "guideSectionExportTitle": "Export",
   "guideSectionExportBody": "Export expenses as CSV or JSON. Save a file, share it, or copy to the clipboard from the export menu or Settings → Export & Telegram.",
   "guideSectionDataSyncTitle": "Backup & sync",
-  "guideSectionDataSyncBody": "Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file, then share it or send it yourself (email, Telegram as a document, cloud, USB). Restore on another device from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.",
+  "guideSectionDataSyncBody": "Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file (on Android/iOS the share sheet lets you Save to Files / Downloads), then send it (email, Telegram as a document, cloud, USB). Import merges: existing expenses are kept and new data is added. Restore from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.",
   "guideSectionTelegramTitle": "Telegram sharing",
   "guideSectionTelegramBody": "Enable Telegram in Export settings, enter a bot token and chat id, then send an export document straight to Telegram.",
   "guideSectionFiltersTitle": "Filters",

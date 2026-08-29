@@ -16,22 +16,26 @@
   "dataSyncTitle": "Rezervna kopija i sinhronizacija",
   "dataSyncExport": "Izvoz",
   "dataSyncImport": "Uvoz",
-  "dataSyncChooseFile": "Učitaj fajl",
+  "dataSyncChooseFile": "Izaberi fajl kopije",
+  "dataSyncFileSelected": "Fajl kopije izabran",
+  "dataSyncImportFromFile": "Uvoz iz fajla",
+  "dataSyncImportMergeHint": "Uvoz podataka iz fajla. Postojeći troškovi neće biti prepisani — dodaće se novi podaci.",
   "dataSyncGuide": "Izvoz: napravite šifrovanu rezervnu kopiju sa lozinka-frazom, zatim sačuvajte ili podelite fajl. Uvoz: učitajte taj fajl na ovom ili drugom uređaju i unesite istu frazu da biste vratili podatke. Sinhronizacija znači razmenu ovog fajla između uređaja.",
   "dataSyncShareManualTitle": "Kako poslati rezervnu kopiju",
-  "dataSyncShareManualGuide": "Ugrađeno deljenje nije dostupno na ovoj platformi. Nakon što sačuvate fajl, pošaljite ga sami, na primer:\n• priložite ga u email;\n• pošaljite ga u Telegramu (ili drugom mesendžeru) kao dokument;\n• otpremite ga u cloud (Google Drive, Dropbox, …) ili kopirajte na USB.\nNa drugom uređaju otvorite Rezervna kopija i sinhronizacija → Uvoz → Učitaj fajl i unesite istu lozinka-frazu.",
+  "dataSyncShareManualGuide": "Ugrađeno deljenje nije dostupno na ovoj platformi. Nakon što sačuvate fajl, pošaljite ga sami, na primer:\n• priložite ga u email;\n• pošaljite ga u Telegramu (ili drugom mesendžeru) kao dokument;\n• otpremite ga u cloud (Google Drive, Dropbox, …) ili kopirajte na USB.\nNa drugom uređaju otvorite Rezervna kopija i sinhronizacija → Uvoz → izaberite fajl i unesite istu lozinka-frazu.",
   "dataSyncCopyFilePath": "Kopiraj putanju fajla",
   "dataSyncPassphrase": "Lozinka-fraza",
   "dataSyncGeneratePassphrase": "Generiši frazu",
   "dataSyncCopyPassphrase": "Kopiraj frazu",
   "dataSyncGenerateShort": "Generiši",
   "dataSyncCopyShort": "Kopiraj",
-  "dataSyncShowPassphrase": "Prikaži",
-  "dataSyncHidePassphrase": "Sakrij",
+  "dataSyncShowPassphrase": "Prikaži frazu",
+  "dataSyncHidePassphrase": "Sakrij frazu",
   "dataSyncApplyAppearance": "Primeni izgled iz kopije",
   "dataSyncApplyAppearanceHint": "Vraća temu, jezik, formate novca i datuma, vremensku zonu i izveštajne valute iz rezervne kopije. Ostavi isključeno da zadržiš trenutni izgled na ovom uređaju.",
   "dataSyncPassphraseWarning": "Sačuvajte ovu frazu na sigurnom mestu. Bez nje se rezervna kopija ne može otvoriti.",
   "dataSyncExportDone": "Rezervna kopija sačuvana",
+  "dataSyncExportFailed": "Nije moguće sačuvati rezervnu kopiju",
   "dataSyncImportDone": "Uvezeno {expenses} troškova, {tags} oznaka, {payments} načina plaćanja",
   "@dataSyncImportDone": {
     "placeholders": {
@@ -89,7 +93,65 @@
   "yes": "Da",
   "no": "Ne",
   "confirmDeleteExpense": "Obrisati ovaj trošak?",
+  "confirmDeleteExpenseDescription": "Ovaj trošak biće trajno obrisan.",
   "expenseDeleted": "Trošak obrisan",
+  "bulkSelectedCount": "Izabrano: {count}",
+  "@bulkSelectedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkAndMore": "…i još {count}",
+  "@bulkAndMore": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkDeleteTitle": "Obrisati troškove?",
+  "bulkDeleteDescription": "Ovi troškovi biće trajno obrisani:\n{list}",
+  "@bulkDeleteDescription": {
+    "placeholders": {
+      "list": { "type": "String" }
+    }
+  },
+  "bulkChangeTags": "Promeni oznake",
+  "bulkChangeTagsTitle": "Promeni oznake",
+  "bulkChangeTagsDescription": "Nove oznake zameniće postojeće na:\n{list}",
+  "@bulkChangeTagsDescription": {
+    "placeholders": {
+      "list": { "type": "String" }
+    }
+  },
+  "bulkChangeCountry": "Promeni zemlju",
+  "bulkChangeCountryTitle": "Promeni zemlju",
+  "bulkChangeCountryDescription": "Zemlja će biti ažurirana za:\n{list}",
+  "@bulkChangeCountryDescription": {
+    "placeholders": {
+      "list": { "type": "String" }
+    }
+  },
+  "bulkChangeCurrency": "Promeni valutu",
+  "bulkChangeCurrencyTitle": "Promeni valutu",
+  "bulkChangeCurrencyDescription": "Iznosi će biti konvertovani u {currency} za:\n{list}",
+  "@bulkChangeCurrencyDescription": {
+    "placeholders": {
+      "currency": { "type": "String" },
+      "list": { "type": "String" }
+    }
+  },
+  "bulkExpensesDeleted": "Obrisano troškova: {count}",
+  "@bulkExpensesDeleted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkExpensesUpdated": "Ažurirano troškova: {count}",
+  "@bulkExpensesUpdated": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkCurrencyRateUnavailable": "Nije moguće konvertovati: kurs nije dostupan",
   "add": "Dodaj",
   "settings": "Podešavanja",
   "reportingCurrencies": "Valute izveštaja",
@@ -434,7 +496,7 @@
   "guideSectionGettingStartedTitle": "Početak",
   "guideSectionGettingStartedBody": "Dodirnite + na dnu ekrana da otvorite formular troška. Unesite iznos i valutu, po želji konvertujte u izveštajnu valutu, izaberite zemlju i kategorije, pa sačuvajte. Dodirnite postojeći trošak da ga izmenite u istom formularu. Do tada kontrolna tabla pokazuje primer grafikona sa linkom na ovaj vodič.",
   "guideSectionExpenseTrackingTitle": "Praćenje troškova",
-  "guideSectionExpenseTrackingBody": "Svaki trošak čuva iznos, valutu, datum, opcionu zemlju (ISO), način plaćanja, kategorije i belešku. Originalni iznos i valuta se uvek čuvaju, čak i ako konvertujete u izveštajnu valutu.",
+  "guideSectionExpenseTrackingBody": "Svaki trošak čuva iznos, valutu, datum, opcionu zemlju (ISO), način plaćanja, kategorije i belešku. Originalni iznos i valuta se uvek čuvaju, čak i ako konvertujete u izveštajnu valutu. Na listi troškova možete izabrati više redova da ih obrišete ili odjednom promenite oznake, zemlju ili valutu.",
   "guideSectionTagsTitle": "Oznake",
   "guideSectionTagsBody": "Kategorije označavaju na šta ste potrošili (namirnice, prevoz…). Zemlja je posebno polje troška, ne oznaka. Plaćanje je takođe posebno (gotovina, kartica, kripto ili sopstveno). Oznakama i načinima plaćanja upravljate u Podešavanjima.",
   "guideSectionChartsTitle": "Grafikoni potrošnje",
@@ -444,7 +506,7 @@
   "guideSectionExportTitle": "Izvoz",
   "guideSectionExportBody": "Izvezi troškove kao CSV ili JSON. Sačuvaj fajl, podeli ga ili kopiraj u clipboard iz menija izvoza ili Podešavanja → Izvoz i Telegram.",
   "guideSectionDataSyncTitle": "Rezervna kopija i sinhronizacija",
-  "guideSectionDataSyncBody": "Napravite šifrovanu rezervnu kopiju troškova, oznaka, načina plaćanja, ručnih kurseva i podešavanja prikaza. Zaštitite je sopstvenom frazom ili generisanom. Sačuvajte fajl, zatim ga podelite ili pošaljite sami (email, Telegram kao dokument, cloud, USB). Vratite na drugom uređaju iz Podešavanja → Rezervna kopija i sinhronizacija, ili sa prazne kontrolne table. API ključevi i Telegram nikad nisu uključeni.",
+  "guideSectionDataSyncBody": "Napravite šifrovanu rezervnu kopiju troškova, oznaka, načina plaćanja, ručnih kurseva i podešavanja prikaza. Zaštitite je sopstvenom frazom ili generisanom. Sačuvajte fajl (na Android/iOS preko deljenja možete sačuvati u Fajlove / Preuzimanja), zatim ga pošaljite (email, Telegram kao dokument, cloud, USB). Uvoz spaja podatke: postojeći troškovi ostaju, dodaju se novi. Vratite iz Podešavanja → Rezervna kopija i sinhronizacija, ili sa prazne kontrolne table. API ključevi i Telegram nikad nisu uključeni.",
   "guideSectionTelegramTitle": "Deljenje preko Telegrama",
   "guideSectionTelegramBody": "Omogući Telegram u podešavanjima izvoza, unesi token bota i chat id, zatim pošalji dokument izvoza direktno na Telegram.",
   "guideSectionFiltersTitle": "Filteri",

@@ -9,8 +9,8 @@ Future<void> showDataSyncSheet(
 }) {
   return showAppModalSheet(
     context: context,
-    initialChildSize: 0.8,
-    minChildSize: 0.45,
+    initialChildSize: 0.88,
+    minChildSize: 0.5,
     child: DataSyncPanel(initialTab: initialTab),
   );
 }

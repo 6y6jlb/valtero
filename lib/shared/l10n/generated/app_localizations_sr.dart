@@ -57,7 +57,17 @@ class AppLocalizationsSr extends AppLocalizations {
   String get dataSyncImport => 'Uvoz';
 
   @override
-  String get dataSyncChooseFile => 'Učitaj fajl';
+  String get dataSyncChooseFile => 'Izaberi fajl kopije';
+
+  @override
+  String get dataSyncFileSelected => 'Fajl kopije izabran';
+
+  @override
+  String get dataSyncImportFromFile => 'Uvoz iz fajla';
+
+  @override
+  String get dataSyncImportMergeHint =>
+      'Uvoz podataka iz fajla. Postojeći troškovi neće biti prepisani — dodaće se novi podaci.';
 
   @override
   String get dataSyncGuide =>
@@ -68,7 +78,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get dataSyncShareManualGuide =>
-      'Ugrađeno deljenje nije dostupno na ovoj platformi. Nakon što sačuvate fajl, pošaljite ga sami, na primer:\n• priložite ga u email;\n• pošaljite ga u Telegramu (ili drugom mesendžeru) kao dokument;\n• otpremite ga u cloud (Google Drive, Dropbox, …) ili kopirajte na USB.\nNa drugom uređaju otvorite Rezervna kopija i sinhronizacija → Uvoz → Učitaj fajl i unesite istu lozinka-frazu.';
+      'Ugrađeno deljenje nije dostupno na ovoj platformi. Nakon što sačuvate fajl, pošaljite ga sami, na primer:\n• priložite ga u email;\n• pošaljite ga u Telegramu (ili drugom mesendžeru) kao dokument;\n• otpremite ga u cloud (Google Drive, Dropbox, …) ili kopirajte na USB.\nNa drugom uređaju otvorite Rezervna kopija i sinhronizacija → Uvoz → izaberite fajl i unesite istu lozinka-frazu.';
 
   @override
   String get dataSyncCopyFilePath => 'Kopiraj putanju fajla';
@@ -89,10 +99,10 @@ class AppLocalizationsSr extends AppLocalizations {
   String get dataSyncCopyShort => 'Kopiraj';
 
   @override
-  String get dataSyncShowPassphrase => 'Prikaži';
+  String get dataSyncShowPassphrase => 'Prikaži frazu';
 
   @override
-  String get dataSyncHidePassphrase => 'Sakrij';
+  String get dataSyncHidePassphrase => 'Sakrij frazu';
 
   @override
   String get dataSyncApplyAppearance => 'Primeni izgled iz kopije';
@@ -107,6 +117,9 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get dataSyncExportDone => 'Rezervna kopija sačuvana';
+
+  @override
+  String get dataSyncExportFailed => 'Nije moguće sačuvati rezervnu kopiju';
 
   @override
   String dataSyncImportDone(int expenses, int tags, int payments) {
@@ -199,7 +212,76 @@ class AppLocalizationsSr extends AppLocalizations {
   String get confirmDeleteExpense => 'Obrisati ovaj trošak?';
 
   @override
+  String get confirmDeleteExpenseDescription =>
+      'Ovaj trošak biće trajno obrisan.';
+
+  @override
   String get expenseDeleted => 'Trošak obrisan';
+
+  @override
+  String bulkSelectedCount(int count) {
+    return 'Izabrano: $count';
+  }
+
+  @override
+  String bulkAndMore(int count) {
+    return '…i još $count';
+  }
+
+  @override
+  String get bulkDeleteTitle => 'Obrisati troškove?';
+
+  @override
+  String bulkDeleteDescription(String list) {
+    return 'Ovi troškovi biće trajno obrisani:\n$list';
+  }
+
+  @override
+  String get bulkChangeTags => 'Promeni oznake';
+
+  @override
+  String get bulkChangeTagsTitle => 'Promeni oznake';
+
+  @override
+  String bulkChangeTagsDescription(String list) {
+    return 'Nove oznake zameniće postojeće na:\n$list';
+  }
+
+  @override
+  String get bulkChangeCountry => 'Promeni zemlju';
+
+  @override
+  String get bulkChangeCountryTitle => 'Promeni zemlju';
+
+  @override
+  String bulkChangeCountryDescription(String list) {
+    return 'Zemlja će biti ažurirana za:\n$list';
+  }
+
+  @override
+  String get bulkChangeCurrency => 'Promeni valutu';
+
+  @override
+  String get bulkChangeCurrencyTitle => 'Promeni valutu';
+
+  @override
+  String bulkChangeCurrencyDescription(String currency, String list) {
+    return 'Iznosi će biti konvertovani u $currency za:\n$list';
+  }
+
+  @override
+  String bulkExpensesDeleted(int count) {
+    return 'Obrisano troškova: $count';
+  }
+
+  @override
+  String bulkExpensesUpdated(int count) {
+    return 'Ažurirano troškova: $count';
+  }
+
+  @override
+  String get bulkCurrencyRateUnavailable =>
+      'Nije moguće konvertovati: kurs nije dostupan';
 
   @override
   String get add => 'Dodaj';
@@ -943,7 +1025,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get guideSectionExpenseTrackingBody =>
-      'Svaki trošak čuva iznos, valutu, datum, opcionu zemlju (ISO), način plaćanja, kategorije i belešku. Originalni iznos i valuta se uvek čuvaju, čak i ako konvertujete u izveštajnu valutu.';
+      'Svaki trošak čuva iznos, valutu, datum, opcionu zemlju (ISO), način plaćanja, kategorije i belešku. Originalni iznos i valuta se uvek čuvaju, čak i ako konvertujete u izveštajnu valutu. Na listi troškova možete izabrati više redova da ih obrišete ili odjednom promenite oznake, zemlju ili valutu.';
 
   @override
   String get guideSectionTagsTitle => 'Oznake';
@@ -978,7 +1060,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get guideSectionDataSyncBody =>
-      'Napravite šifrovanu rezervnu kopiju troškova, oznaka, načina plaćanja, ručnih kurseva i podešavanja prikaza. Zaštitite je sopstvenom frazom ili generisanom. Sačuvajte fajl, zatim ga podelite ili pošaljite sami (email, Telegram kao dokument, cloud, USB). Vratite na drugom uređaju iz Podešavanja → Rezervna kopija i sinhronizacija, ili sa prazne kontrolne table. API ključevi i Telegram nikad nisu uključeni.';
+      'Napravite šifrovanu rezervnu kopiju troškova, oznaka, načina plaćanja, ručnih kurseva i podešavanja prikaza. Zaštitite je sopstvenom frazom ili generisanom. Sačuvajte fajl (na Android/iOS preko deljenja možete sačuvati u Fajlove / Preuzimanja), zatim ga pošaljite (email, Telegram kao dokument, cloud, USB). Uvoz spaja podatke: postojeći troškovi ostaju, dodaju se novi. Vratite iz Podešavanja → Rezervna kopija i sinhronizacija, ili sa prazne kontrolne table. API ključevi i Telegram nikad nisu uključeni.';
 
   @override
   String get guideSectionTelegramTitle => 'Deljenje preko Telegrama';

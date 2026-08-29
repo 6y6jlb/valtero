@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path/path.dart' as p;
 import 'package:valtero/features/data_sync/model/backup_crypto.dart';
 import 'package:valtero/features/data_sync/model/backup_format.dart';
 import 'package:valtero/features/data_sync/model/data_sync_controller.dart';
@@ -41,6 +42,7 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
   void initState() {
     super.initState();
     _tab = widget.initialTab;
+    _exportPassphrase.text = generatePassphrase();
     _exportPassphrase.addListener(_onExportPassphraseChanged);
   }
 
@@ -81,7 +83,7 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
       showAppToast(context, l10n.dataSyncExportDone);
     } catch (_) {
       if (!mounted) return;
-      showAppToast(context, l10n.dataSyncUnsupportedFormat);
+      showAppToast(context, l10n.dataSyncExportFailed);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -222,10 +224,12 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final scrollController = PrimaryScrollController.maybeOf(context);
+    final fileSelected = _pickedPath != null;
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return ListView(
       controller: scrollController,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      padding: EdgeInsets.fromLTRB(16, 0, 16, 32 + bottomInset),
       children: [
         Text(l10n.dataSyncTitle, style: theme.textTheme.titleLarge),
         const SizedBox(height: 12),
@@ -294,29 +298,33 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
             controller: _exportPassphrase,
             enabled: !_busy,
             showGenerate: true,
+            showCopy: true,
+            initiallyObscured: false,
             onGenerate: _generatePassphrase,
           ),
           const SizedBox(height: 24),
-          FilledButton(
-            onPressed: _busy ? null : _exportSave,
-            child: Text(l10n.saveFile),
-          ),
-          const SizedBox(height: 8),
-          OutlinedButton(
-            onPressed: (_busy || _exportedPath == null) ? null : _exportShare,
-            child: Text(l10n.share),
+          Row(
+            children: [
+              Expanded(
+                child: FilledButton(
+                  onPressed: _busy ? null : _exportSave,
+                  child: Text(l10n.saveFile),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton.filledTonal(
+                tooltip: l10n.share,
+                onPressed:
+                    (_busy || _exportedPath == null) ? null : _exportShare,
+                icon: const Icon(Icons.share_outlined),
+              ),
+            ],
           ),
         ] else ...[
-          OutlinedButton(
-            onPressed: _busy ? null : _pickFile,
-            child: Text(
-              _pickedPath == null ? l10n.dataSyncChooseFile : _pickedPath!,
-            ),
-          ),
-          const SizedBox(height: 16),
           DataSyncPassphraseField(
             controller: _importPassphrase,
             enabled: !_busy,
+            showCopy: false,
           ),
           const SizedBox(height: 8),
           SwitchListTile(
@@ -328,10 +336,51 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
                 _busy ? null : (v) => setState(() => _applySettings = v),
           ),
           const SizedBox(height: 16),
-          FilledButton(
-            onPressed: _busy ? null : _import,
-            child: Text(l10n.dataSyncImport),
+          Text(
+            l10n.dataSyncImportMergeHint,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              IconButton.filledTonal(
+                tooltip: fileSelected
+                    ? '${l10n.dataSyncFileSelected}: ${p.basename(_pickedPath!)}'
+                    : l10n.dataSyncChooseFile,
+                onPressed: _busy ? null : _pickFile,
+                style: fileSelected
+                    ? IconButton.styleFrom(
+                        foregroundColor: theme.colorScheme.primary,
+                      )
+                    : null,
+                icon: Icon(
+                  fileSelected
+                      ? Icons.check_circle_outline
+                      : Icons.attach_file,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: FilledButton(
+                  onPressed: (_busy || !fileSelected) ? null : _import,
+                  child: Text(l10n.dataSyncImportFromFile),
+                ),
+              ),
+            ],
+          ),
+          if (fileSelected) ...[
+            const SizedBox(height: 8),
+            Text(
+              p.basename(_pickedPath!),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ],
       ],
     );

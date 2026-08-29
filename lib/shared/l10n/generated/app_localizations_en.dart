@@ -57,7 +57,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dataSyncImport => 'Import';
 
   @override
-  String get dataSyncChooseFile => 'Load file';
+  String get dataSyncChooseFile => 'Choose backup file';
+
+  @override
+  String get dataSyncFileSelected => 'Backup file selected';
+
+  @override
+  String get dataSyncImportFromFile => 'Import from file';
+
+  @override
+  String get dataSyncImportMergeHint =>
+      'Import data from a file. Your existing expenses will not be overwritten — new data will be added.';
 
   @override
   String get dataSyncGuide =>
@@ -68,7 +78,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dataSyncShareManualGuide =>
-      'Built-in sharing is not available on this platform. After you save the backup file, send it yourself, for example:\n• attach it to an email;\n• send it in Telegram (or another messenger) as a document;\n• upload it to cloud storage (Google Drive, Dropbox, …) or copy it to a USB drive.\nOn the other device open Backup & sync → Import → Load file, and enter the same passphrase.';
+      'Built-in sharing is not available on this platform. After you save the backup file, send it yourself, for example:\n• attach it to an email;\n• send it in Telegram (or another messenger) as a document;\n• upload it to cloud storage (Google Drive, Dropbox, …) or copy it to a USB drive.\nOn the other device open Backup & sync → Import → choose the file, and enter the same passphrase.';
 
   @override
   String get dataSyncCopyFilePath => 'Copy file path';
@@ -89,10 +99,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dataSyncCopyShort => 'Copy';
 
   @override
-  String get dataSyncShowPassphrase => 'Show';
+  String get dataSyncShowPassphrase => 'Show passphrase';
 
   @override
-  String get dataSyncHidePassphrase => 'Hide';
+  String get dataSyncHidePassphrase => 'Hide passphrase';
 
   @override
   String get dataSyncApplyAppearance => 'Apply appearance from backup';
@@ -107,6 +117,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dataSyncExportDone => 'Backup saved';
+
+  @override
+  String get dataSyncExportFailed => 'Could not save the backup';
 
   @override
   String dataSyncImportDone(int expenses, int tags, int payments) {
@@ -197,7 +210,76 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmDeleteExpense => 'Delete this expense?';
 
   @override
+  String get confirmDeleteExpenseDescription =>
+      'This expense will be permanently deleted.';
+
+  @override
   String get expenseDeleted => 'Expense deleted';
+
+  @override
+  String bulkSelectedCount(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String bulkAndMore(int count) {
+    return '…and $count more';
+  }
+
+  @override
+  String get bulkDeleteTitle => 'Delete expenses?';
+
+  @override
+  String bulkDeleteDescription(String list) {
+    return 'These expenses will be permanently deleted:\n$list';
+  }
+
+  @override
+  String get bulkChangeTags => 'Change tags';
+
+  @override
+  String get bulkChangeTagsTitle => 'Change tags';
+
+  @override
+  String bulkChangeTagsDescription(String list) {
+    return 'New tags will replace existing tags on:\n$list';
+  }
+
+  @override
+  String get bulkChangeCountry => 'Change country';
+
+  @override
+  String get bulkChangeCountryTitle => 'Change country';
+
+  @override
+  String bulkChangeCountryDescription(String list) {
+    return 'Country will be updated for:\n$list';
+  }
+
+  @override
+  String get bulkChangeCurrency => 'Change currency';
+
+  @override
+  String get bulkChangeCurrencyTitle => 'Change currency';
+
+  @override
+  String bulkChangeCurrencyDescription(String currency, String list) {
+    return 'Amounts will be converted to $currency for:\n$list';
+  }
+
+  @override
+  String bulkExpensesDeleted(int count) {
+    return '$count expenses deleted';
+  }
+
+  @override
+  String bulkExpensesUpdated(int count) {
+    return '$count expenses updated';
+  }
+
+  @override
+  String get bulkCurrencyRateUnavailable =>
+      'Could not convert: exchange rate unavailable';
 
   @override
   String get add => 'Add';
@@ -938,7 +1020,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideSectionExpenseTrackingBody =>
-      'Each expense stores amount, currency, date, optional country (ISO), payment method, category tags, and note. The original amount and currency are always kept, even if you convert into a reporting currency for storage.';
+      'Each expense stores amount, currency, date, optional country (ISO), payment method, category tags, and note. The original amount and currency are always kept, even if you convert into a reporting currency for storage. On the expenses list, select several rows to delete them or change tags, country, or currency in bulk.';
 
   @override
   String get guideSectionTagsTitle => 'Tags';
@@ -973,7 +1055,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideSectionDataSyncBody =>
-      'Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file, then share it or send it yourself (email, Telegram as a document, cloud, USB). Restore on another device from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.';
+      'Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file (on Android/iOS the share sheet lets you Save to Files / Downloads), then send it (email, Telegram as a document, cloud, USB). Import merges: existing expenses are kept and new data is added. Restore from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.';
 
   @override
   String get guideSectionTelegramTitle => 'Telegram sharing';

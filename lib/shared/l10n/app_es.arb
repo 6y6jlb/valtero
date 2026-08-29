@@ -16,22 +16,26 @@
   "dataSyncTitle": "Copia de seguridad y sincronización",
   "dataSyncExport": "Exportar",
   "dataSyncImport": "Importar",
-  "dataSyncChooseFile": "Cargar archivo",
+  "dataSyncChooseFile": "Elegir archivo de copia",
+  "dataSyncFileSelected": "Archivo de copia seleccionado",
+  "dataSyncImportFromFile": "Importar desde archivo",
+  "dataSyncImportMergeHint": "Importar datos desde un archivo. Tus gastos existentes no se sobrescribirán: se añadirán los datos nuevos.",
   "dataSyncGuide": "Exportar: crea una copia cifrada con una frase de contraseña y guárdala o compártela. Importar: carga ese archivo en este u otro dispositivo e introduce la misma frase para restaurar. Sincronizar es intercambiar este archivo entre dispositivos.",
   "dataSyncShareManualTitle": "Cómo enviar la copia",
-  "dataSyncShareManualGuide": "Compartir integrado no está disponible en esta plataforma. Después de guardar el archivo, envíalo tú mismo, por ejemplo:\n• adjúntalo a un correo;\n• envíalo por Telegram (u otro mensajero) como documento;\n• súbelo a la nube (Google Drive, Dropbox, …) o cópialo a un USB.\nEn el otro dispositivo abre Copia de seguridad y sincronización → Importar → Cargar archivo e introduce la misma frase.",
+  "dataSyncShareManualGuide": "Compartir integrado no está disponible en esta plataforma. Después de guardar el archivo, envíalo tú mismo, por ejemplo:\n• adjúntalo a un correo;\n• envíalo por Telegram (u otro mensajero) como documento;\n• súbelo a la nube (Google Drive, Dropbox, …) o cópialo a un USB.\nEn el otro dispositivo abre Copia de seguridad y sincronización → Importar → elige el archivo e introduce la misma frase.",
   "dataSyncCopyFilePath": "Copiar ruta del archivo",
   "dataSyncPassphrase": "Frase de contraseña",
   "dataSyncGeneratePassphrase": "Generar frase",
   "dataSyncCopyPassphrase": "Copiar frase",
   "dataSyncGenerateShort": "Generar",
   "dataSyncCopyShort": "Copiar",
-  "dataSyncShowPassphrase": "Mostrar",
-  "dataSyncHidePassphrase": "Ocultar",
+  "dataSyncShowPassphrase": "Mostrar frase",
+  "dataSyncHidePassphrase": "Ocultar frase",
   "dataSyncApplyAppearance": "Aplicar apariencia de la copia",
   "dataSyncApplyAppearanceHint": "Restaura tema, idioma, formatos de dinero y fecha, zona horaria y monedas de informe de la copia. Déjalo apagado para mantener la apariencia actual de este dispositivo.",
   "dataSyncPassphraseWarning": "Guarda esta frase en un lugar seguro. Sin ella no se puede abrir la copia.",
   "dataSyncExportDone": "Copia guardada",
+  "dataSyncExportFailed": "No se pudo guardar la copia",
   "dataSyncImportDone": "Importados {expenses} gastos, {tags} etiquetas, {payments} métodos de pago",
   "@dataSyncImportDone": {
     "placeholders": {
@@ -89,7 +93,65 @@
   "yes": "Sí",
   "no": "No",
   "confirmDeleteExpense": "¿Eliminar este gasto?",
+  "confirmDeleteExpenseDescription": "Este gasto se eliminará permanentemente.",
   "expenseDeleted": "Gasto eliminado",
+  "bulkSelectedCount": "{count} seleccionados",
+  "@bulkSelectedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkAndMore": "…y {count} más",
+  "@bulkAndMore": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkDeleteTitle": "¿Eliminar gastos?",
+  "bulkDeleteDescription": "Estos gastos se eliminarán permanentemente:\n{list}",
+  "@bulkDeleteDescription": {
+    "placeholders": {
+      "list": { "type": "String" }
+    }
+  },
+  "bulkChangeTags": "Cambiar etiquetas",
+  "bulkChangeTagsTitle": "Cambiar etiquetas",
+  "bulkChangeTagsDescription": "Las nuevas etiquetas reemplazarán las actuales en:\n{list}",
+  "@bulkChangeTagsDescription": {
+    "placeholders": {
+      "list": { "type": "String" }
+    }
+  },
+  "bulkChangeCountry": "Cambiar país",
+  "bulkChangeCountryTitle": "Cambiar país",
+  "bulkChangeCountryDescription": "Se actualizará el país de:\n{list}",
+  "@bulkChangeCountryDescription": {
+    "placeholders": {
+      "list": { "type": "String" }
+    }
+  },
+  "bulkChangeCurrency": "Cambiar moneda",
+  "bulkChangeCurrencyTitle": "Cambiar moneda",
+  "bulkChangeCurrencyDescription": "Los importes se convertirán a {currency} para:\n{list}",
+  "@bulkChangeCurrencyDescription": {
+    "placeholders": {
+      "currency": { "type": "String" },
+      "list": { "type": "String" }
+    }
+  },
+  "bulkExpensesDeleted": "{count} gastos eliminados",
+  "@bulkExpensesDeleted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkExpensesUpdated": "{count} gastos actualizados",
+  "@bulkExpensesUpdated": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkCurrencyRateUnavailable": "No se pudo convertir: tipo de cambio no disponible",
   "add": "Añadir",
   "settings": "Ajustes",
   "reportingCurrencies": "Monedas de informe",
@@ -434,7 +496,7 @@
   "guideSectionGettingStartedTitle": "Primeros pasos",
   "guideSectionGettingStartedBody": "Toca el botón + en la parte inferior para abrir el formulario de gasto. Introduce importe y moneda, opcionalmente convierte a una moneda de informe, elige país y categorías, y guarda. Toca un gasto existente para editarlo en el mismo formulario. Hasta entonces, el panel muestra un gráfico de ejemplo con enlace a esta guía.",
   "guideSectionExpenseTrackingTitle": "Seguimiento de gastos",
-  "guideSectionExpenseTrackingBody": "Cada gasto guarda importe, moneda, fecha, país opcional (ISO), método de pago, etiquetas de categoría y nota. El importe y la moneda originales siempre se conservan, aunque conviertas a una moneda de informe.",
+  "guideSectionExpenseTrackingBody": "Cada gasto guarda importe, moneda, fecha, país opcional (ISO), método de pago, etiquetas de categoría y nota. El importe y la moneda originales siempre se conservan, aunque conviertas a una moneda de informe. En la lista de gastos puedes seleccionar varias filas para eliminarlas o cambiar etiquetas, país o moneda a la vez.",
   "guideSectionTagsTitle": "Etiquetas",
   "guideSectionTagsBody": "Las categorías indican en qué gastaste (comida, transporte…). El país es un campo aparte del gasto, no una etiqueta. El pago también es aparte (efectivo, tarjeta, cripto o el tuyo). Gestiona etiquetas y métodos de pago en Ajustes.",
   "guideSectionChartsTitle": "Gráficos de gasto",
@@ -444,7 +506,7 @@
   "guideSectionExportTitle": "Exportar",
   "guideSectionExportBody": "Exporta gastos como CSV o JSON. Guarda un archivo, compártelo o cópialo al portapapeles desde el menú de exportación o Ajustes → Exportar y Telegram.",
   "guideSectionDataSyncTitle": "Copia de seguridad y sincronización",
-  "guideSectionDataSyncBody": "Crea una copia cifrada de gastos, etiquetas, métodos de pago, tipos manuales y ajustes de visualización. Protégela con tu frase o una generada. Guarda el archivo y compártelo o envíalo tú (correo, Telegram como documento, nube, USB). Restáurala en otro dispositivo desde Ajustes → Copia de seguridad y sincronización, o desde el panel vacío. Las claves API y Telegram nunca se incluyen.",
+  "guideSectionDataSyncBody": "Crea una copia cifrada de gastos, etiquetas, métodos de pago, tipos manuales y ajustes de visualización. Protégela con tu frase o una generada. Guarda el archivo (en Android/iOS la hoja de compartir permite Guardar en Archivos / Descargas) y envíalo (correo, Telegram como documento, nube, USB). La importación fusiona: se conservan los gastos existentes y se añaden datos nuevos. Restaura desde Ajustes → Copia de seguridad y sincronización, o desde el panel vacío. Las claves API y Telegram nunca se incluyen.",
   "guideSectionTelegramTitle": "Compartir por Telegram",
   "guideSectionTelegramBody": "Activa Telegram en los ajustes de exportación, introduce el token del bot y el id del chat, y envía un documento de exportación directamente a Telegram.",
   "guideSectionFiltersTitle": "Filtros",

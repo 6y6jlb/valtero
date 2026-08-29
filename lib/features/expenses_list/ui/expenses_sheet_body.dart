@@ -11,6 +11,7 @@ import 'package:valtero/features/expenses_list/model/expense_chart_drill_down.da
 import 'package:valtero/features/expenses_list/model/expense_list_export.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_filtering.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
+import 'package:valtero/features/expenses_list/model/expense_list_selection.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/expenses_list/model/expenses_list_display_prefs.dart';
 import 'package:valtero/features/expenses_list/model/grouping/expense_grouper_for.dart';
@@ -337,6 +338,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
       );
       _visibleCount = _kListInitial;
     });
+    ref.read(expenseListSelectionProvider.notifier).clear();
     showAppToast(context, AppLocalizations.of(context)!.filtersApplied);
   }
 
@@ -374,6 +376,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
       _visibleCount = _kListInitial;
       _view = ExpenseListViewMode.list;
     });
+    ref.read(expenseListSelectionProvider.notifier).clear();
     _persistDisplayPrefs(view: ExpenseListViewMode.list);
     showAppToast(context, AppLocalizations.of(context)!.filtersApplied);
   }
@@ -452,6 +455,9 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                 ),
               )
             : null;
+
+        final selectedIds = ref.watch(expenseListSelectionProvider);
+        final selection = ref.read(expenseListSelectionProvider.notifier);
 
         return NotificationListener<ScrollNotification>(
           onNotification: (notification) {
@@ -563,6 +569,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                               );
                             }
                           });
+                          ref.read(expenseListSelectionProvider.notifier).clear();
                           _persistDisplayPrefs(view: v);
                         },
                         onGroupChanged: (g) {
@@ -590,12 +597,31 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                                         untaggedLabel: l10n.untagged,
                                         displayCurrency: _displayCurrency,
                                         convertedMinor: _convertedMinor,
-                                        onDelete: (id) =>
-                                            confirmAndDeleteExpense(
-                                          context,
-                                          ref,
-                                          id,
+                                        selectedIds: selectedIds,
+                                        onToggleSelected: selection.toggle,
+                                        onToggleSelectAll: () =>
+                                            selection.toggleAll(
+                                          filtered.map((e) => e.id),
                                         ),
+                                        allSelectableSelected:
+                                            filtered.isNotEmpty &&
+                                                filtered.every(
+                                                  (e) =>
+                                                      selectedIds.contains(e.id),
+                                                ),
+                                        onDelete: (id) {
+                                          final match = filtered.where(
+                                            (e) => e.id == id,
+                                          );
+                                          confirmAndDeleteExpense(
+                                            context,
+                                            ref,
+                                            id,
+                                            expense: match.isEmpty
+                                                ? null
+                                                : match.first,
+                                          );
+                                        },
                                         onEdit: (expense) =>
                                             showAddExpenseSheet(
                                           context,

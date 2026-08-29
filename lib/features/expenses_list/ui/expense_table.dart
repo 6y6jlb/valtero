@@ -8,6 +8,7 @@ import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/money_text.dart';
 
 const double _kColGap = 16;
+const double _kSelectW = 40;
 const double _kDateW = 110;
 const double _kAmountW = 120;
 const double _kPaymentW = 100;
@@ -18,6 +19,8 @@ const double _kDeleteW = 40;
 /// Minimum content width so columns don't compress on narrow screens.
 const double _kTableMinWidth =
     16 * 2 + // horizontal padding
+    _kSelectW +
+    _kColGap +
     _kDateW +
     _kColGap +
     _kAmountW +
@@ -40,6 +43,10 @@ class ExpenseTable extends StatelessWidget {
   final int? Function(Expense expense) convertedMinor;
   final ValueChanged<int> onDelete;
   final ValueChanged<Expense>? onEdit;
+  final Set<int> selectedIds;
+  final ValueChanged<int> onToggleSelected;
+  final VoidCallback? onToggleSelectAll;
+  final bool allSelectableSelected;
 
   const ExpenseTable({
     super.key,
@@ -52,7 +59,13 @@ class ExpenseTable extends StatelessWidget {
     required this.convertedMinor,
     required this.onDelete,
     this.onEdit,
+    this.selectedIds = const {},
+    required this.onToggleSelected,
+    this.onToggleSelectAll,
+    this.allSelectableSelected = false,
   });
+
+  bool get _hasSelection => selectedIds.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +74,9 @@ class ExpenseTable extends StatelessWidget {
     final headerStyle = theme.textTheme.labelMedium?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
+    final someSelected =
+        _hasSelection && !allSelectableSelected && items.isNotEmpty;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth > _kTableMinWidth
@@ -79,6 +95,22 @@ class ExpenseTable extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
+                      SizedBox(
+                        width: _kSelectW,
+                        child: Checkbox(
+                          tristate: true,
+                          value: allSelectableSelected
+                              ? true
+                              : (someSelected ? null : false),
+                          onChanged: onToggleSelectAll == null
+                              ? null
+                              : (_) => onToggleSelectAll!(),
+                          visualDensity: VisualDensity.compact,
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ),
+                      const SizedBox(width: _kColGap),
                       SizedBox(
                         width: _kDateW,
                         child: Text(l10n.columnDate, style: headerStyle),
@@ -118,6 +150,9 @@ class ExpenseTable extends StatelessWidget {
                             l10n.paymentMethodNone),
                     displayCurrency: displayCurrency,
                     convertedAmountMinor: convertedMinor(expense),
+                    selected: selectedIds.contains(expense.id),
+                    selectionActive: _hasSelection,
+                    onToggleSelected: () => onToggleSelected(expense.id),
                     onDelete: () => onDelete(expense.id),
                     onEdit: onEdit == null ? null : () => onEdit!(expense),
                   ),
@@ -142,6 +177,9 @@ class ExpenseTableRow extends ConsumerWidget {
   final String paymentLabel;
   final String? displayCurrency;
   final int? convertedAmountMinor;
+  final bool selected;
+  final bool selectionActive;
+  final VoidCallback onToggleSelected;
   final VoidCallback onDelete;
   final VoidCallback? onEdit;
 
@@ -152,6 +190,9 @@ class ExpenseTableRow extends ConsumerWidget {
     required this.paymentLabel,
     required this.displayCurrency,
     required this.convertedAmountMinor,
+    required this.selected,
+    required this.selectionActive,
+    required this.onToggleSelected,
     required this.onDelete,
     this.onEdit,
   });
@@ -168,8 +209,8 @@ class ExpenseTableRow extends ConsumerWidget {
         ? l10n.tagKindUnspecifiedCountry
         : countryDisplayName(countryCode, languageCode: lang);
 
-    final row = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+    final content = Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
           SizedBox(
@@ -251,7 +292,7 @@ class ExpenseTableRow extends ConsumerWidget {
             width: _kDeleteW,
             child: IconButton(
               icon: const Icon(Icons.delete_outline, size: 20),
-              onPressed: onDelete,
+              onPressed: selectionActive ? null : onDelete,
               visualDensity: VisualDensity.compact,
             ),
           ),
@@ -259,9 +300,37 @@ class ExpenseTableRow extends ConsumerWidget {
       ),
     );
 
+    VoidCallback? rowTap;
+    if (selectionActive) {
+      rowTap = onToggleSelected;
+    } else if (onEdit != null) {
+      rowTap = onEdit;
+    }
+
     return Column(
       children: [
-        if (onEdit == null) row else InkWell(onTap: onEdit, child: row),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              SizedBox(
+                width: _kSelectW,
+                child: Checkbox(
+                  value: selected,
+                  onChanged: (_) => onToggleSelected(),
+                  visualDensity: VisualDensity.compact,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ),
+              const SizedBox(width: _kColGap),
+              Expanded(
+                child: rowTap == null
+                    ? content
+                    : InkWell(onTap: rowTap, child: content),
+              ),
+            ],
+          ),
+        ),
         const Divider(height: 1),
       ],
     );

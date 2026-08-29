@@ -16,22 +16,26 @@
   "dataSyncTitle": "Резервная копия и синхронизация",
   "dataSyncExport": "Экспорт",
   "dataSyncImport": "Импорт",
-  "dataSyncChooseFile": "Загрузить файл",
+  "dataSyncChooseFile": "Выбрать файл копии",
+  "dataSyncFileSelected": "Файл копии выбран",
+  "dataSyncImportFromFile": "Импорт из файла",
+  "dataSyncImportMergeHint": "Импорт данных из файла. Существующие траты не будут перезаписаны — добавятся новые данные.",
   "dataSyncGuide": "Экспорт: создайте зашифрованную копию с парольной фразой, затем сохраните или отправьте файл. Импорт: загрузите этот файл на этом или другом устройстве и введите ту же фразу, чтобы восстановить данные. Синхронизация — обмен этим файлом между устройствами.",
   "dataSyncShareManualTitle": "Как отправить копию",
-  "dataSyncShareManualGuide": "Встроенная кнопка «Поделиться» на этой платформе недоступна. После сохранения файла отправьте его сами, например:\n• приложите к письму по почте;\n• отправьте в Telegram (или другом мессенджере) как документ;\n• загрузите в облако (Google Drive, Dropbox и т.п.) или скопируйте на флешку.\nНа другом устройстве откройте «Резервная копия и синхронизация» → Импорт → Загрузить файл и введите ту же парольную фразу.",
+  "dataSyncShareManualGuide": "Встроенная кнопка «Поделиться» на этой платформе недоступна. После сохранения файла отправьте его сами, например:\n• приложите к письму по почте;\n• отправьте в Telegram (или другом мессенджере) как документ;\n• загрузите в облако (Google Drive, Dropbox и т.п.) или скопируйте на флешку.\nНа другом устройстве откройте «Резервная копия и синхронизация» → Импорт → выберите файл и введите ту же парольную фразу.",
   "dataSyncCopyFilePath": "Скопировать путь к файлу",
   "dataSyncPassphrase": "Парольная фраза",
   "dataSyncGeneratePassphrase": "Сгенерировать фразу",
   "dataSyncCopyPassphrase": "Скопировать фразу",
   "dataSyncGenerateShort": "Сгенерировать",
   "dataSyncCopyShort": "Скопировать",
-  "dataSyncShowPassphrase": "Показать",
-  "dataSyncHidePassphrase": "Скрыть",
+  "dataSyncShowPassphrase": "Показать фразу",
+  "dataSyncHidePassphrase": "Скрыть фразу",
   "dataSyncApplyAppearance": "Применить оформление из копии",
   "dataSyncApplyAppearanceHint": "Восстановит тему, язык, форматы сумм и дат, часовой пояс и валюты отчёта из резервной копии. Выключите, чтобы оставить текущий вид на этом устройстве.",
   "dataSyncPassphraseWarning": "Сохраните парольную фразу в надёжном месте. Без неё резервную копию открыть нельзя.",
   "dataSyncExportDone": "Резервная копия сохранена",
+  "dataSyncExportFailed": "Не удалось сохранить резервную копию",
   "dataSyncImportDone": "Импортировано: {expenses} трат, {tags} тегов, {payments} способов оплаты",
   "@dataSyncImportDone": {
     "placeholders": {
@@ -89,7 +93,65 @@
   "yes": "Да",
   "no": "Нет",
   "confirmDeleteExpense": "Удалить эту трату?",
+  "confirmDeleteExpenseDescription": "Эта трата будет удалена безвозвратно.",
   "expenseDeleted": "Трата удалена",
+  "bulkSelectedCount": "Выбрано: {count}",
+  "@bulkSelectedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkAndMore": "…и ещё {count}",
+  "@bulkAndMore": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkDeleteTitle": "Удалить траты?",
+  "bulkDeleteDescription": "Эти траты будут удалены безвозвратно:\n{list}",
+  "@bulkDeleteDescription": {
+    "placeholders": {
+      "list": { "type": "String" }
+    }
+  },
+  "bulkChangeTags": "Изменить теги",
+  "bulkChangeTagsTitle": "Изменить теги",
+  "bulkChangeTagsDescription": "Новые теги заменят текущие у:\n{list}",
+  "@bulkChangeTagsDescription": {
+    "placeholders": {
+      "list": { "type": "String" }
+    }
+  },
+  "bulkChangeCountry": "Изменить страну",
+  "bulkChangeCountryTitle": "Изменить страну",
+  "bulkChangeCountryDescription": "Страна будет обновлена у:\n{list}",
+  "@bulkChangeCountryDescription": {
+    "placeholders": {
+      "list": { "type": "String" }
+    }
+  },
+  "bulkChangeCurrency": "Изменить валюту",
+  "bulkChangeCurrencyTitle": "Изменить валюту",
+  "bulkChangeCurrencyDescription": "Суммы будут конвертированы в {currency} у:\n{list}",
+  "@bulkChangeCurrencyDescription": {
+    "placeholders": {
+      "currency": { "type": "String" },
+      "list": { "type": "String" }
+    }
+  },
+  "bulkExpensesDeleted": "Удалено трат: {count}",
+  "@bulkExpensesDeleted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkExpensesUpdated": "Обновлено трат: {count}",
+  "@bulkExpensesUpdated": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkCurrencyRateUnavailable": "Не удалось конвертировать: курс недоступен",
   "add": "Добавить",
   "settings": "Настройки",
   "reportingCurrencies": "Базовые валюты",
@@ -434,7 +496,7 @@
   "guideSectionGettingStartedTitle": "С чего начать",
   "guideSectionGettingStartedBody": "Нажмите + внизу экрана, чтобы открыть форму траты. Укажите сумму и валюту, при необходимости конвертируйте в отчётную валюту, выберите страну и категории, сохраните. Нажмите на существующую трату, чтобы изменить её в той же форме. Пока трат нет, на дашборде — пример графика со ссылкой на это руководство.",
   "guideSectionExpenseTrackingTitle": "Отслеживание расходов",
-  "guideSectionExpenseTrackingBody": "У каждой траты хранятся сумма, валюта, дата, необязательная страна (ISO), способ оплаты, категории и заметка. Исходные сумма и валюта всегда сохраняются, даже если вы конвертируете в отчётную валюту.",
+  "guideSectionExpenseTrackingBody": "У каждой траты хранятся сумма, валюта, дата, необязательная страна (ISO), способ оплаты, категории и заметка. Исходные сумма и валюта всегда сохраняются, даже если вы конвертируете в отчётную валюту. В списке трат можно отметить несколько строк и сразу удалить их или изменить теги, страну или валюту.",
   "guideSectionTagsTitle": "Теги",
   "guideSectionTagsBody": "Категории описывают, на что ушла трата (продукты, транспорт…). Страна — отдельное поле траты, не тег. Способ оплаты тоже отдельный (наличные, карта, крипто или свой). Теги и способы оплаты — в Настройках.",
   "guideSectionChartsTitle": "Графики трат",
@@ -444,7 +506,7 @@
   "guideSectionExportTitle": "Экспорт",
   "guideSectionExportBody": "Выгружайте траты в CSV или JSON. Сохраните файл, поделитесь им или скопируйте в буфер из меню экспорта или Настройки → Экспорт и Telegram.",
   "guideSectionDataSyncTitle": "Резервная копия и синхронизация",
-  "guideSectionDataSyncBody": "Создайте зашифрованную копию трат, тегов, способов оплаты, ручных курсов и настроек отображения. Защитите своей парольной фразой или сгенерированной. Сохраните файл, затем поделитесь им или отправьте сами (почта, Telegram как документ, облако, флешка). Восстановите на другом устройстве из Настройки → Резервная копия и синхронизация или с пустого дашборда. API-ключи и Telegram в копию не входят.",
+  "guideSectionDataSyncBody": "Создайте зашифрованную копию трат, тегов, способов оплаты, ручных курсов и настроек отображения. Защитите своей парольной фразой или сгенерированной. Сохраните файл (на Android/iOS через «Поделиться» можно сохранить в файлы / загрузки), затем отправьте (почта, Telegram как документ, облако, флешка). Импорт добавляет данные: существующие траты не перезаписываются. Восстановите из Настройки → Резервная копия и синхронизация или с пустого дашборда. API-ключи и Telegram в копию не входят.",
   "guideSectionTelegramTitle": "Шаринг через Telegram",
   "guideSectionTelegramBody": "Включите Telegram в настройках экспорта, укажите токен бота и chat id — и отправляйте файл экспорта прямо в Telegram.",
   "guideSectionFiltersTitle": "Фильтры",

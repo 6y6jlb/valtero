@@ -201,8 +201,26 @@ abstract class AppLocalizations {
   /// No description provided for @dataSyncChooseFile.
   ///
   /// In en, this message translates to:
-  /// **'Load file'**
+  /// **'Choose backup file'**
   String get dataSyncChooseFile;
+
+  /// No description provided for @dataSyncFileSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup file selected'**
+  String get dataSyncFileSelected;
+
+  /// No description provided for @dataSyncImportFromFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Import from file'**
+  String get dataSyncImportFromFile;
+
+  /// No description provided for @dataSyncImportMergeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Import data from a file. Your existing expenses will not be overwritten — new data will be added.'**
+  String get dataSyncImportMergeHint;
 
   /// No description provided for @dataSyncGuide.
   ///
@@ -219,7 +237,7 @@ abstract class AppLocalizations {
   /// No description provided for @dataSyncShareManualGuide.
   ///
   /// In en, this message translates to:
-  /// **'Built-in sharing is not available on this platform. After you save the backup file, send it yourself, for example:\n• attach it to an email;\n• send it in Telegram (or another messenger) as a document;\n• upload it to cloud storage (Google Drive, Dropbox, …) or copy it to a USB drive.\nOn the other device open Backup & sync → Import → Load file, and enter the same passphrase.'**
+  /// **'Built-in sharing is not available on this platform. After you save the backup file, send it yourself, for example:\n• attach it to an email;\n• send it in Telegram (or another messenger) as a document;\n• upload it to cloud storage (Google Drive, Dropbox, …) or copy it to a USB drive.\nOn the other device open Backup & sync → Import → choose the file, and enter the same passphrase.'**
   String get dataSyncShareManualGuide;
 
   /// No description provided for @dataSyncCopyFilePath.
@@ -261,13 +279,13 @@ abstract class AppLocalizations {
   /// No description provided for @dataSyncShowPassphrase.
   ///
   /// In en, this message translates to:
-  /// **'Show'**
+  /// **'Show passphrase'**
   String get dataSyncShowPassphrase;
 
   /// No description provided for @dataSyncHidePassphrase.
   ///
   /// In en, this message translates to:
-  /// **'Hide'**
+  /// **'Hide passphrase'**
   String get dataSyncHidePassphrase;
 
   /// No description provided for @dataSyncApplyAppearance.
@@ -293,6 +311,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Backup saved'**
   String get dataSyncExportDone;
+
+  /// No description provided for @dataSyncExportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the backup'**
+  String get dataSyncExportFailed;
 
   /// No description provided for @dataSyncImportDone.
   ///
@@ -456,11 +480,113 @@ abstract class AppLocalizations {
   /// **'Delete this expense?'**
   String get confirmDeleteExpense;
 
+  /// No description provided for @confirmDeleteExpenseDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'This expense will be permanently deleted.'**
+  String get confirmDeleteExpenseDescription;
+
   /// No description provided for @expenseDeleted.
   ///
   /// In en, this message translates to:
   /// **'Expense deleted'**
   String get expenseDeleted;
+
+  /// No description provided for @bulkSelectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String bulkSelectedCount(int count);
+
+  /// No description provided for @bulkAndMore.
+  ///
+  /// In en, this message translates to:
+  /// **'…and {count} more'**
+  String bulkAndMore(int count);
+
+  /// No description provided for @bulkDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete expenses?'**
+  String get bulkDeleteTitle;
+
+  /// No description provided for @bulkDeleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'These expenses will be permanently deleted:\n{list}'**
+  String bulkDeleteDescription(String list);
+
+  /// No description provided for @bulkChangeTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Change tags'**
+  String get bulkChangeTags;
+
+  /// No description provided for @bulkChangeTagsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change tags'**
+  String get bulkChangeTagsTitle;
+
+  /// No description provided for @bulkChangeTagsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'New tags will replace existing tags on:\n{list}'**
+  String bulkChangeTagsDescription(String list);
+
+  /// No description provided for @bulkChangeCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Change country'**
+  String get bulkChangeCountry;
+
+  /// No description provided for @bulkChangeCountryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change country'**
+  String get bulkChangeCountryTitle;
+
+  /// No description provided for @bulkChangeCountryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Country will be updated for:\n{list}'**
+  String bulkChangeCountryDescription(String list);
+
+  /// No description provided for @bulkChangeCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Change currency'**
+  String get bulkChangeCurrency;
+
+  /// No description provided for @bulkChangeCurrencyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change currency'**
+  String get bulkChangeCurrencyTitle;
+
+  /// No description provided for @bulkChangeCurrencyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Amounts will be converted to {currency} for:\n{list}'**
+  String bulkChangeCurrencyDescription(String currency, String list);
+
+  /// No description provided for @bulkExpensesDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} expenses deleted'**
+  String bulkExpensesDeleted(int count);
+
+  /// No description provided for @bulkExpensesUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} expenses updated'**
+  String bulkExpensesUpdated(int count);
+
+  /// No description provided for @bulkCurrencyRateUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not convert: exchange rate unavailable'**
+  String get bulkCurrencyRateUnavailable;
 
   /// No description provided for @add.
   ///
@@ -1827,7 +1953,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionExpenseTrackingBody.
   ///
   /// In en, this message translates to:
-  /// **'Each expense stores amount, currency, date, optional country (ISO), payment method, category tags, and note. The original amount and currency are always kept, even if you convert into a reporting currency for storage.'**
+  /// **'Each expense stores amount, currency, date, optional country (ISO), payment method, category tags, and note. The original amount and currency are always kept, even if you convert into a reporting currency for storage. On the expenses list, select several rows to delete them or change tags, country, or currency in bulk.'**
   String get guideSectionExpenseTrackingBody;
 
   /// No description provided for @guideSectionTagsTitle.
@@ -1887,7 +2013,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionDataSyncBody.
   ///
   /// In en, this message translates to:
-  /// **'Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file, then share it or send it yourself (email, Telegram as a document, cloud, USB). Restore on another device from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.'**
+  /// **'Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file (on Android/iOS the share sheet lets you Save to Files / Downloads), then send it (email, Telegram as a document, cloud, USB). Import merges: existing expenses are kept and new data is added. Restore from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.'**
   String get guideSectionDataSyncBody;
 
   /// No description provided for @guideSectionTelegramTitle.

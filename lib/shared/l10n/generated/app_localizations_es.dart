@@ -57,7 +57,17 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dataSyncImport => 'Importar';
 
   @override
-  String get dataSyncChooseFile => 'Cargar archivo';
+  String get dataSyncChooseFile => 'Elegir archivo de copia';
+
+  @override
+  String get dataSyncFileSelected => 'Archivo de copia seleccionado';
+
+  @override
+  String get dataSyncImportFromFile => 'Importar desde archivo';
+
+  @override
+  String get dataSyncImportMergeHint =>
+      'Importar datos desde un archivo. Tus gastos existentes no se sobrescribirán: se añadirán los datos nuevos.';
 
   @override
   String get dataSyncGuide =>
@@ -68,7 +78,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get dataSyncShareManualGuide =>
-      'Compartir integrado no está disponible en esta plataforma. Después de guardar el archivo, envíalo tú mismo, por ejemplo:\n• adjúntalo a un correo;\n• envíalo por Telegram (u otro mensajero) como documento;\n• súbelo a la nube (Google Drive, Dropbox, …) o cópialo a un USB.\nEn el otro dispositivo abre Copia de seguridad y sincronización → Importar → Cargar archivo e introduce la misma frase.';
+      'Compartir integrado no está disponible en esta plataforma. Después de guardar el archivo, envíalo tú mismo, por ejemplo:\n• adjúntalo a un correo;\n• envíalo por Telegram (u otro mensajero) como documento;\n• súbelo a la nube (Google Drive, Dropbox, …) o cópialo a un USB.\nEn el otro dispositivo abre Copia de seguridad y sincronización → Importar → elige el archivo e introduce la misma frase.';
 
   @override
   String get dataSyncCopyFilePath => 'Copiar ruta del archivo';
@@ -89,10 +99,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dataSyncCopyShort => 'Copiar';
 
   @override
-  String get dataSyncShowPassphrase => 'Mostrar';
+  String get dataSyncShowPassphrase => 'Mostrar frase';
 
   @override
-  String get dataSyncHidePassphrase => 'Ocultar';
+  String get dataSyncHidePassphrase => 'Ocultar frase';
 
   @override
   String get dataSyncApplyAppearance => 'Aplicar apariencia de la copia';
@@ -107,6 +117,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get dataSyncExportDone => 'Copia guardada';
+
+  @override
+  String get dataSyncExportFailed => 'No se pudo guardar la copia';
 
   @override
   String dataSyncImportDone(int expenses, int tags, int payments) {
@@ -199,7 +212,76 @@ class AppLocalizationsEs extends AppLocalizations {
   String get confirmDeleteExpense => '¿Eliminar este gasto?';
 
   @override
+  String get confirmDeleteExpenseDescription =>
+      'Este gasto se eliminará permanentemente.';
+
+  @override
   String get expenseDeleted => 'Gasto eliminado';
+
+  @override
+  String bulkSelectedCount(int count) {
+    return '$count seleccionados';
+  }
+
+  @override
+  String bulkAndMore(int count) {
+    return '…y $count más';
+  }
+
+  @override
+  String get bulkDeleteTitle => '¿Eliminar gastos?';
+
+  @override
+  String bulkDeleteDescription(String list) {
+    return 'Estos gastos se eliminarán permanentemente:\n$list';
+  }
+
+  @override
+  String get bulkChangeTags => 'Cambiar etiquetas';
+
+  @override
+  String get bulkChangeTagsTitle => 'Cambiar etiquetas';
+
+  @override
+  String bulkChangeTagsDescription(String list) {
+    return 'Las nuevas etiquetas reemplazarán las actuales en:\n$list';
+  }
+
+  @override
+  String get bulkChangeCountry => 'Cambiar país';
+
+  @override
+  String get bulkChangeCountryTitle => 'Cambiar país';
+
+  @override
+  String bulkChangeCountryDescription(String list) {
+    return 'Se actualizará el país de:\n$list';
+  }
+
+  @override
+  String get bulkChangeCurrency => 'Cambiar moneda';
+
+  @override
+  String get bulkChangeCurrencyTitle => 'Cambiar moneda';
+
+  @override
+  String bulkChangeCurrencyDescription(String currency, String list) {
+    return 'Los importes se convertirán a $currency para:\n$list';
+  }
+
+  @override
+  String bulkExpensesDeleted(int count) {
+    return '$count gastos eliminados';
+  }
+
+  @override
+  String bulkExpensesUpdated(int count) {
+    return '$count gastos actualizados';
+  }
+
+  @override
+  String get bulkCurrencyRateUnavailable =>
+      'No se pudo convertir: tipo de cambio no disponible';
 
   @override
   String get add => 'Añadir';
@@ -941,7 +1023,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guideSectionExpenseTrackingBody =>
-      'Cada gasto guarda importe, moneda, fecha, país opcional (ISO), método de pago, etiquetas de categoría y nota. El importe y la moneda originales siempre se conservan, aunque conviertas a una moneda de informe.';
+      'Cada gasto guarda importe, moneda, fecha, país opcional (ISO), método de pago, etiquetas de categoría y nota. El importe y la moneda originales siempre se conservan, aunque conviertas a una moneda de informe. En la lista de gastos puedes seleccionar varias filas para eliminarlas o cambiar etiquetas, país o moneda a la vez.';
 
   @override
   String get guideSectionTagsTitle => 'Etiquetas';
@@ -976,7 +1058,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guideSectionDataSyncBody =>
-      'Crea una copia cifrada de gastos, etiquetas, métodos de pago, tipos manuales y ajustes de visualización. Protégela con tu frase o una generada. Guarda el archivo y compártelo o envíalo tú (correo, Telegram como documento, nube, USB). Restáurala en otro dispositivo desde Ajustes → Copia de seguridad y sincronización, o desde el panel vacío. Las claves API y Telegram nunca se incluyen.';
+      'Crea una copia cifrada de gastos, etiquetas, métodos de pago, tipos manuales y ajustes de visualización. Protégela con tu frase o una generada. Guarda el archivo (en Android/iOS la hoja de compartir permite Guardar en Archivos / Descargas) y envíalo (correo, Telegram como documento, nube, USB). La importación fusiona: se conservan los gastos existentes y se añaden datos nuevos. Restaura desde Ajustes → Copia de seguridad y sincronización, o desde el panel vacío. Las claves API y Telegram nunca se incluyen.';
 
   @override
   String get guideSectionTelegramTitle => 'Compartir por Telegram';

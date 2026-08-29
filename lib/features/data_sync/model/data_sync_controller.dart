@@ -72,12 +72,33 @@ class DataSyncController {
     return envelope;
   }
 
+  /// Writes encrypted backup bytes to a uniquely named temp file.
+  Future<File> _writeTempBackupFile(String content) async {
+    final dir = await getTemporaryDirectory();
+    final name =
+        'valtero_backup_${DateTime.now().millisecondsSinceEpoch}.$kBackupFileExtension';
+    final file = File(p.join(dir.path, name));
+    await file.writeAsString(content);
+    return file;
+  }
+
+  /// Desktop: native save dialog. Android/iOS: write temp + system share
+  /// (Save to Files / Downloads), since [getSaveLocation] is unsupported.
   Future<String?> exportToSaveDialog({required String passphrase}) async {
     final envelope = await buildEnvelope();
     final content = await encryptEnvelopeToJson(
       envelope: envelope,
       passphrase: passphrase,
     );
+
+    if (Platform.isAndroid || Platform.isIOS) {
+      final file = await _writeTempBackupFile(content);
+      final shared = await shareBackupFile(file.path);
+      // Dismissed share sheet — treat as cancel (no success toast / path).
+      if (!shared) return null;
+      return file.path;
+    }
+
     final path = await getSaveLocation(
       suggestedName: 'valtero_backup.$kBackupFileExtension',
       acceptedTypeGroups: [
@@ -99,18 +120,16 @@ class DataSyncController {
       envelope: envelope,
       passphrase: passphrase,
     );
-    final dir = await getTemporaryDirectory();
-    final name =
-        'valtero_backup_${DateTime.now().millisecondsSinceEpoch}.$kBackupFileExtension';
-    final file = File(p.join(dir.path, name));
-    await file.writeAsString(content);
+    final file = await _writeTempBackupFile(content);
     await shareBackupFile(file.path);
   }
 
-  Future<void> shareBackupFile(String path) async {
-    await SharePlus.instance.share(
+  /// Returns `false` when the platform reports the share sheet was dismissed.
+  Future<bool> shareBackupFile(String path) async {
+    final result = await SharePlus.instance.share(
       ShareParams(files: [XFile(path)]),
     );
+    return result.status != ShareResultStatus.dismissed;
   }
 
   Future<String?> pickBackupFilePath() async {
