@@ -50,6 +50,7 @@
   "googleDriveAuthCanceled": "Вход через Google отменён",
   "googleDriveAccessDenied": "Доступ Google отклонён. Разрешите права Drive и повторите вход.",
   "googleDriveAndroidCustomUriHint": "На Android откройте Google Cloud Console → Android OAuth-клиент → Advanced settings и включите «Custom URI scheme», затем повторите вход. Для новых Android-клиентов Google по умолчанию блокирует этот redirect.",
+  "googleDriveMissingClientSecret": "Не задан client secret для Desktop OAuth. В Google Cloud Console откройте Desktop OAuth-клиент, скопируйте Client secret в local.oauth.env как GOOGLE_OAUTH_CLIENT_SECRET_DESKTOP и пересоберите (make run-linux).",
   "googleDriveLastSynced": "Последняя синхронизация: {when}",
   "@googleDriveLastSynced": {
     "placeholders": {

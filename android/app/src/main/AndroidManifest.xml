@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Needed for FX rates, Telegram, Google OAuth/Drive, and VPN split-tunnel
+         app lists that filter packages by INTERNET permission. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="valtero"
         android:name="${applicationName}"

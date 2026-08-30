@@ -90,7 +90,7 @@ flutter doctor
 flutter doctor --android-licenses   # optional, for Android
 ```
 
-4. Linux desktop also needs: `clang`, `cmake`, `ninja-build`, `pkg-config`, `libgtk-3-dev` (see `flutter doctor` for exact packages).
+4. Linux desktop also needs: `clang`, `cmake`, `ninja-build`, `pkg-config`, `libgtk-3-dev` (see `flutter doctor` for exact packages). For Google Drive Sync / `flutter_web_auth_2` also install `libwebkit2gtk-4.1-dev` and `libsoup-3.0-dev` (Ubuntu 24.04+).
 
 ### Install Flutter — Windows
 
@@ -135,6 +135,14 @@ make release-android TARGET_PLATFORM=android-arm64
 ## Linux
 
 Prerequisites: Flutter (see [Requirements](#requirements)), Linux desktop toolchain (clang, cmake, ninja, GTK), optional Make.
+
+On Ubuntu 24.04+, Google Drive Sync pulls in `desktop_webview_window`, which needs **WebKitGTK 4.1** and **libsoup 3** *dev* packages (runtime alone is not enough for CMake):
+
+```bash
+sudo apt install -y libwebkit2gtk-4.1-dev libsoup-3.0-dev
+```
+
+(`libwebkit2gtk-4.0-dev` is gone on Noble; do not chase 4.0 — the plugin falls back to it only when 4.1 is missing.)
 
 ```bash
 flutter run -d linux
@@ -226,6 +234,7 @@ cp local.oauth.env.example local.oauth.env
 
 ```bash
 GOOGLE_OAUTH_CLIENT_ID_DESKTOP=….apps.googleusercontent.com   # Linux / Windows
+GOOGLE_OAUTH_CLIENT_SECRET_DESKTOP=GOCSPX-…                 # Desktop client secret (required)
 GOOGLE_OAUTH_CLIENT_ID_ANDROID=….apps.googleusercontent.com  # Android
 ```
 
@@ -246,8 +255,10 @@ In [Google Cloud Console](https://console.cloud.google.com/apis/credentials):
 1. Enable **Google Drive API**.
 2. OAuth consent screen → **Testing** + your account in Test users.
 3. Create OAuth clients:
-   - **Desktop app** → paste into `GOOGLE_OAUTH_CLIENT_ID_DESKTOP`  
-     Redirect (loopback): `http://localhost:43823/oauth2redirect`
+   - **Desktop app** → paste Client ID into `GOOGLE_OAUTH_CLIENT_ID_DESKTOP` and
+     Client secret into `GOOGLE_OAUTH_CLIENT_SECRET_DESKTOP`  
+     Redirect (loopback): `http://127.0.0.1:43823/oauth2redirect`  
+     (Google’s token endpoint typically requires the Desktop client secret even with PKCE.)
    - **Android** → package `com.valtero.valtero`, SHA-1 from:
 
 ```bash

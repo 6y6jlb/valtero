@@ -74,6 +74,10 @@ class _GoogleDriveSyncConfigFormState
       'connectionInvalidToken' => l10n.googleDriveReauthRequired,
       'wrong_passphrase' => l10n.googleDriveWrongPassphrase,
       'missing_client_id' => l10n.googleDriveMissingClientId,
+      'missing_client_secret' ||
+      'invalid_client' =>
+        l10n.googleDriveMissingClientSecret,
+      'invalid_grant' => l10n.googleDriveReauthRequired,
       'missing_refresh_token' => l10n.googleDriveReauthRequired,
       'not_configured' => l10n.connectionMissingFields,
       'network_error' => l10n.connectionNetwork,

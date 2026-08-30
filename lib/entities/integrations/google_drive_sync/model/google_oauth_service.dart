@@ -21,10 +21,16 @@ class GoogleOAuthService {
   Future<GoogleOAuthSignInResult> signIn({
     required bool includeFileScope,
     String? clientId,
+    String? clientSecret,
   }) async {
     final id = (clientId ?? googleOAuthClientIdForPlatform()).trim();
     if (id.isEmpty) {
       throw const GoogleOAuthException('missing_client_id');
+    }
+    final secret =
+        (clientSecret ?? googleOAuthClientSecretForPlatform()).trim();
+    if (isGoogleOAuthDesktopClientSecretRequired && secret.isEmpty) {
+      throw const GoogleOAuthException('missing_client_secret');
     }
 
     final redirect = GoogleOAuthRedirect.forPlatform(clientId: id);
@@ -86,6 +92,7 @@ class GoogleOAuthService {
 
     final tokens = await _exchangeCode(
       clientId: id,
+      clientSecret: secret,
       code: code,
       codeVerifier: verifier,
       redirectUri: redirect.redirectUri,
@@ -100,6 +107,7 @@ class GoogleOAuthService {
   Future<GoogleOAuthTokens> refreshAccessToken({
     required String refreshToken,
     String? clientId,
+    String? clientSecret,
   }) async {
     final id = (clientId ?? googleOAuthClientIdForPlatform()).trim();
     if (id.isEmpty) {
@@ -108,14 +116,18 @@ class GoogleOAuthService {
     if (refreshToken.trim().isEmpty) {
       throw const GoogleOAuthException('missing_refresh_token');
     }
+    final secret =
+        (clientSecret ?? googleOAuthClientSecretForPlatform()).trim();
     try {
+      final body = <String, String>{
+        'client_id': id,
+        'grant_type': 'refresh_token',
+        'refresh_token': refreshToken,
+        if (secret.isNotEmpty) 'client_secret': secret,
+      };
       final response = await _dio.post<Map<String, dynamic>>(
         kGoogleOAuthTokenEndpoint,
-        data: {
-          'client_id': id,
-          'grant_type': 'refresh_token',
-          'refresh_token': refreshToken,
-        },
+        data: body,
         options: Options(
           contentType: Headers.formUrlEncodedContentType,
           responseType: ResponseType.json,
@@ -134,7 +146,7 @@ class GoogleOAuthService {
       }
       return tokens;
     } on DioException catch (e) {
-      throw GoogleOAuthException(_dioErrorKey(e), detail: e.message);
+      throw _oauthDioException(e);
     }
   }
 
@@ -155,20 +167,23 @@ class GoogleOAuthService {
 
   Future<GoogleOAuthTokens> _exchangeCode({
     required String clientId,
+    required String clientSecret,
     required String code,
     required String codeVerifier,
     required String redirectUri,
   }) async {
     try {
+      final body = <String, String>{
+        'client_id': clientId,
+        'code': code,
+        'code_verifier': codeVerifier,
+        'redirect_uri': redirectUri,
+        'grant_type': 'authorization_code',
+        if (clientSecret.isNotEmpty) 'client_secret': clientSecret,
+      };
       final response = await _dio.post<Map<String, dynamic>>(
         kGoogleOAuthTokenEndpoint,
-        data: {
-          'client_id': clientId,
-          'code': code,
-          'code_verifier': codeVerifier,
-          'redirect_uri': redirectUri,
-          'grant_type': 'authorization_code',
-        },
+        data: body,
         options: Options(
           contentType: Headers.formUrlEncodedContentType,
           responseType: ResponseType.json,
@@ -180,7 +195,7 @@ class GoogleOAuthService {
       }
       return GoogleOAuthTokens.fromJson(data);
     } on DioException catch (e) {
-      throw GoogleOAuthException(_dioErrorKey(e), detail: e.message);
+      throw _oauthDioException(e);
     }
   }
 
@@ -200,6 +215,56 @@ class GoogleOAuthService {
 
   String _base64UrlNoPad(List<int> bytes) {
     return base64UrlEncode(bytes).replaceAll('=', '');
+  }
+
+  GoogleOAuthException _oauthDioException(DioException e) {
+    final parsed = _parseGoogleOAuthError(e.response?.data);
+    final code = parsed.$1 ?? _dioErrorKey(e);
+    final detail = parsed.$2 ?? e.message;
+    return GoogleOAuthException(code, detail: detail);
+  }
+
+  /// Returns `(error, error_description)` from Google's token JSON body.
+  (String?, String?) _parseGoogleOAuthError(Object? data) {
+    Map<String, dynamic>? map;
+    if (data is Map) {
+      map = Map<String, dynamic>.from(data);
+    } else if (data is String && data.trim().isNotEmpty) {
+      try {
+        final decoded = jsonDecode(data);
+        if (decoded is Map) {
+          map = Map<String, dynamic>.from(decoded);
+        }
+      } catch (_) {
+        return (null, data);
+      }
+    }
+    if (map == null) return (null, null);
+    final error = map['error']?.toString();
+    final description = map['error_description']?.toString();
+    if (error == null || error.isEmpty) {
+      return (null, description);
+    }
+    // Normalize Google's token errors to stable app keys.
+    final normalized = switch (error) {
+      'invalid_grant' => 'invalid_grant',
+      'invalid_client' => 'invalid_client',
+      'invalid_request' => _invalidRequestKey(description),
+      'unauthorized_client' => 'unauthorized_client',
+      _ => error,
+    };
+    return (normalized, description ?? error);
+  }
+
+  String _invalidRequestKey(String? description) {
+    final d = (description ?? '').toLowerCase();
+    if (d.contains('client_secret')) {
+      return 'missing_client_secret';
+    }
+    if (d.contains('redirect_uri')) {
+      return 'redirect_uri_mismatch';
+    }
+    return 'invalid_request';
   }
 
   String _dioErrorKey(DioException e) {

@@ -8,6 +8,24 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.4.5] - 2026-08-30
+
+### Fixed
+
+- Desktop Google Drive sign-in: send Desktop OAuth **client secret** on token
+  exchange (Google still requires it with PKCE); clearer error when the secret
+  is missing; loopback redirect uses `http://127.0.0.1:43823/oauth2redirect`.
+- Opening Settings → Integrations no longer hits Riverpod
+  `setState() during build` when the logger depended on settings via `watch`.
+- Android release builds declare `INTERNET` so VPNs can list the app for
+  split-tunneling and network features work outside debug/profile.
+
+### Changed
+
+- Document Linux WebKitGTK 4.1 / libsoup 3.0 **dev** packages for
+  `make run-linux`, and `GOOGLE_OAUTH_CLIENT_SECRET_DESKTOP` in
+  `local.oauth.env.example` / Make dart-defines.
+
 ## [1.4.4] - 2026-08-30
 
 ### Added

@@ -70,4 +70,11 @@ void main() {
     expect(out.contains('[REDACTED_ACCESS_TOKEN]'), isTrue);
     expect(out.contains('[REDACTED_REFRESH_TOKEN]'), isTrue);
   });
+
+  test('redacts Google Desktop client secret shape', () {
+    const secret = 'GOCSPX-AbCdEfGhIjKlMnOpQrStUvWxYz';
+    final out = LogRedactor.redact('client_secret=$secret');
+    expect(out.contains(secret), isFalse);
+    expect(out.contains('[REDACTED_CLIENT_SECRET]'), isTrue);
+  });
 }

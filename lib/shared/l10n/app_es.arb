@@ -50,6 +50,7 @@
   "googleDriveAuthCanceled": "Se canceló el inicio de sesión con Google",
   "googleDriveAccessDenied": "Se denegó el acceso de Google. Concede permisos de Drive e inténtalo de nuevo.",
   "googleDriveAndroidCustomUriHint": "En Android, abre Google Cloud Console → tu cliente OAuth de Android → Advanced settings y activa “Custom URI scheme”, luego inténtalo de nuevo. Google bloquea este redirect por defecto en clientes Android nuevos.",
+  "googleDriveMissingClientSecret": "Falta el client secret de OAuth de escritorio. En Google Cloud Console abre el cliente Desktop, copia el Client secret a local.oauth.env como GOOGLE_OAUTH_CLIENT_SECRET_DESKTOP y vuelve a compilar (make run-linux).",
   "googleDriveLastSynced": "Última sincronización: {when}",
   "@googleDriveLastSynced": {
     "placeholders": {

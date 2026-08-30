@@ -50,6 +50,7 @@
   "googleDriveAuthCanceled": "Prijava preko Google-a je otkazana",
   "googleDriveAccessDenied": "Google je odbio pristup. Dozvoli Drive dozvole i pokušaj ponovo.",
   "googleDriveAndroidCustomUriHint": "Na Androidu otvori Google Cloud Console → Android OAuth klijent → Advanced settings i uključi „Custom URI scheme“, pa pokušaj ponovo. Google po podrazumevanom blokira ovaj redirect za nove Android klijente.",
+  "googleDriveMissingClientSecret": "Nedostaje client secret za Desktop OAuth. U Google Cloud Console otvori Desktop OAuth klijent, kopiraj Client secret u local.oauth.env kao GOOGLE_OAUTH_CLIENT_SECRET_DESKTOP i ponovo builduj (make run-linux).",
   "googleDriveLastSynced": "Poslednja sinhronizacija: {when}",
   "@googleDriveLastSynced": {
     "placeholders": {

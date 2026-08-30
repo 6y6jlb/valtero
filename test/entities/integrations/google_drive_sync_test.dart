@@ -83,7 +83,35 @@ void main() {
       expect(adapter.requests, hasLength(1));
     });
 
-    test('maps 401 to invalid_grant', () async {
+    test('maps Google error JSON body (not only HTTP status)', () async {
+      final dio = Dio();
+      dio.httpClientAdapter = _RecordingAdapter((options) async {
+        return ResponseBody.fromString(
+          '{"error":"invalid_request","error_description":"client_secret is missing."}',
+          400,
+          headers: {
+            Headers.contentTypeHeader: [Headers.jsonContentType],
+          },
+        );
+      });
+      final service = GoogleOAuthService(dio);
+      expect(
+        () => service.refreshAccessToken(
+          refreshToken: 'bad',
+          clientId: 'client',
+          clientSecret: 'secret',
+        ),
+        throwsA(
+          isA<GoogleOAuthException>().having(
+            (e) => e.code,
+            'code',
+            'missing_client_secret',
+          ),
+        ),
+      );
+    });
+
+    test('maps 401 invalid_grant from Google JSON', () async {
       final dio = Dio();
       dio.httpClientAdapter = _RecordingAdapter((options) async {
         return ResponseBody.fromString(
@@ -99,6 +127,7 @@ void main() {
         () => service.refreshAccessToken(
           refreshToken: 'bad',
           clientId: 'client',
+          clientSecret: 'secret',
         ),
         throwsA(
           isA<GoogleOAuthException>().having(
@@ -108,6 +137,30 @@ void main() {
           ),
         ),
       );
+    });
+
+    test('sends client_secret when provided', () async {
+      final dio = Dio();
+      final adapter = _RecordingAdapter((options) async {
+        final data = options.data as Map;
+        expect(data['client_secret'], 'GOCSPX-test');
+        return ResponseBody.fromString(
+          '{"access_token":"access-2","expires_in":1800,"token_type":"Bearer"}',
+          200,
+          headers: {
+            Headers.contentTypeHeader: [Headers.jsonContentType],
+          },
+        );
+      });
+      dio.httpClientAdapter = adapter;
+
+      final service = GoogleOAuthService(dio);
+      await service.refreshAccessToken(
+        refreshToken: 'refresh-1',
+        clientId: 'client-xyz',
+        clientSecret: 'GOCSPX-test',
+      );
+      expect(adapter.requests, hasLength(1));
     });
   });
 

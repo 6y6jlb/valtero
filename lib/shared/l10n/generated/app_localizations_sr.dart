@@ -172,6 +172,10 @@ class AppLocalizationsSr extends AppLocalizations {
       'Na Androidu otvori Google Cloud Console → Android OAuth klijent → Advanced settings i uključi „Custom URI scheme“, pa pokušaj ponovo. Google po podrazumevanom blokira ovaj redirect za nove Android klijente.';
 
   @override
+  String get googleDriveMissingClientSecret =>
+      'Nedostaje client secret za Desktop OAuth. U Google Cloud Console otvori Desktop OAuth klijent, kopiraj Client secret u local.oauth.env kao GOOGLE_OAUTH_CLIENT_SECRET_DESKTOP i ponovo builduj (make run-linux).';
+
+  @override
   String googleDriveLastSynced(String when) {
     return 'Poslednja sinhronizacija: $when';
   }

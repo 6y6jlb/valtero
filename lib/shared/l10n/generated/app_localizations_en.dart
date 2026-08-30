@@ -172,6 +172,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'On Android, open Google Cloud Console → your Android OAuth client → Advanced settings and enable “Custom URI scheme”, then try again. Google blocks this redirect by default on new Android clients.';
 
   @override
+  String get googleDriveMissingClientSecret =>
+      'Desktop Google OAuth client secret is missing. In Google Cloud Console open your Desktop OAuth client, copy the Client secret into local.oauth.env as GOOGLE_OAUTH_CLIENT_SECRET_DESKTOP, then rebuild (make run-linux).';
+
+  @override
   String googleDriveLastSynced(String when) {
     return 'Last synced: $when';
   }

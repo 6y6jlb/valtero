@@ -18,6 +18,12 @@ const String kGoogleOAuthClientIdAndroid = String.fromEnvironment(
   'GOOGLE_OAUTH_CLIENT_ID_ANDROID',
 );
 
+/// Desktop OAuth client secret (Google Cloud → Desktop app credentials).
+/// Google often still requires this on the token endpoint even with PKCE.
+const String kGoogleOAuthClientSecretDesktop = String.fromEnvironment(
+  'GOOGLE_OAUTH_CLIENT_SECRET_DESKTOP',
+);
+
 /// Hidden app-data scope — non-sensitive, no verification for personal sync.
 const String kGoogleDriveAppDataScope =
     'https://www.googleapis.com/auth/drive.appdata';
@@ -64,6 +70,18 @@ String googleOAuthClientIdForPlatform() {
 bool get isGoogleOAuthClientConfigured =>
     googleOAuthClientIdForPlatform().isNotEmpty;
 
+/// Client secret for the current platform (desktop only; Android uses PKCE alone).
+String googleOAuthClientSecretForPlatform() {
+  if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+    return kGoogleOAuthClientSecretDesktop.trim();
+  }
+  return '';
+}
+
+/// Desktop token exchange needs the Console client secret (even with PKCE).
+bool get isGoogleOAuthDesktopClientSecretRequired =>
+    Platform.isLinux || Platform.isWindows || Platform.isMacOS;
+
 /// `com.googleusercontent.apps.<id-prefix>` from a full Client ID.
 String googleOAuthReverseClientIdScheme(String clientId) {
   final id = clientId.trim();
@@ -92,9 +110,12 @@ class GoogleOAuthRedirect {
   });
 
   /// Desktop: loopback HTTP. Android: reverse Google client-id scheme.
+  ///
+  /// Prefer `127.0.0.1` over `localhost` (Google OAuth loopback guidance;
+  /// [flutter_web_auth_2] binds the listener to 127.0.0.1).
   factory GoogleOAuthRedirect.forPlatform({String? clientId}) {
     if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-      final scheme = 'http://localhost:$kGoogleOAuthDesktopLoopbackPort';
+      final scheme = 'http://127.0.0.1:$kGoogleOAuthDesktopLoopbackPort';
       return GoogleOAuthRedirect(
         callbackUrlScheme: scheme,
         redirectUri: '$scheme/oauth2redirect',

@@ -21,6 +21,7 @@ if (-not (Test-Path -LiteralPath $EnvFile)) {
 
 $allowed = @(
   'GOOGLE_OAUTH_CLIENT_ID_DESKTOP',
+  'GOOGLE_OAUTH_CLIENT_SECRET_DESKTOP',
   'GOOGLE_OAUTH_CLIENT_ID_ANDROID',
   'GOOGLE_OAUTH_CLIENT_ID'
 )
