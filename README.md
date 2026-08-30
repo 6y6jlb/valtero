@@ -5,7 +5,7 @@ Multi-currency personal expense tracker (Flutter). Primary target: Linux; also W
 **App version (single source of truth):** [`VERSION`](VERSION) (`x.y.z+build`).  
 `make` / release scripts sync it into `pubspec.yaml` and pass `--build-name` / `--build-number` / `--dart-define=APP_VERSION=…` so Linux, Windows, and Android (and the in-app label in Settings) all get the same value.
 
-User-facing history: [`CHANGELOG.md`](CHANGELOG.md) (update on every **minor** / **major** bump).
+User-facing history: [`CHANGELOG.md`](CHANGELOG.md). Every commit bumps **patch** and adds a changelog entry unless you explicitly request a **minor** or **major** bump (see [docs/agent-rules/changelog.md](docs/agent-rules/changelog.md)).
 
 ```bash
 make version                     # show

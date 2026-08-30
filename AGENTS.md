@@ -80,7 +80,7 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 ## App version
 
 - **SSOT**: repo-root `VERSION` (`semver+build`, e.g. `1.0.0+1`)
-- **Changelog**: root [`CHANGELOG.md`](CHANGELOG.md) (Keep a Changelog). On every **minor** or **major** bump, add an entry — see [docs/agent-rules/changelog.md](docs/agent-rules/changelog.md). Patch/build bumps are optional.
+- **Changelog + bump**: every commit bumps **patch** and updates [`CHANGELOG.md`](CHANGELOG.md), unless the user explicitly asks for **minor** or **major** — see [docs/agent-rules/changelog.md](docs/agent-rules/changelog.md). Build-only (`+n`) bumps are optional and do not replace patch-on-commit.
 - **Tooling**: `scripts/app_version.sh` / `.ps1` — `sync` writes `pubspec.yaml`; `flutter-args` emits `--build-name` / `--build-number` / `--dart-define=APP_VERSION=…`; `bump major|minor|patch` changes semver only, `bump build` increments `+N` (Android `versionCode`)
 - **Make**: `version-major` / `version-minor` / `version-patch` / `version-build`, or `version VERSION=x.y.z+n`; also `codegen` for Drift (`build_runner`) after clone / schema changes
 - **Make / release**: `run-*`, `build-*`, `release-*` sync + pass those flags so Linux / Windows / Android binaries and the in-app label match. Google Drive Sync client ids come from gitignored `local.oauth.env` (see `local.oauth.env.example`); `make android-sha1` prints the debug SHA-1 for the Android OAuth client.
@@ -114,7 +114,7 @@ Details: [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md)
 6. If platform run/build/release flow changes, update `README.md` and the **App version** section here
 7. **If editing an agent rule**: update `docs/agent-rules/<topic>.md` first (source of truth). If a local `.cursor/rules/<topic>.mdc` mirror exists, update its body in the same pass. Never edit only the `.mdc`.
 8. **After finishing a plan / feature**: run full `flutter test` (not only new files), fix every failure including unrelated fixtures broken by schema changes, then re-run until green — see [testing.md](docs/agent-rules/testing.md)
-9. **If bumping minor or major in `VERSION`**: update [`CHANGELOG.md`](CHANGELOG.md) in the same change set — see [changelog.md](docs/agent-rules/changelog.md)
+9. **On every commit**: bump **patch** in `VERSION` (unless the user explicitly asked for minor/major), sync `pubspec.yaml`, and update [`CHANGELOG.md`](CHANGELOG.md) — see [changelog.md](docs/agent-rules/changelog.md)
 
 ## Topic rules (tool-agnostic)
 
@@ -130,7 +130,7 @@ Details: [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md)
 | [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md) | New packages: need / overlap / health + explicit user approve |
 | [docs/agent-rules/platform-guide.md](docs/agent-rules/platform-guide.md) | Keep in-app platform guide in sync with new capabilities |
 | [docs/agent-rules/testing.md](docs/agent-rules/testing.md) | Unit/feature tests; **full `flutter test` after finishing a plan** |
-| [docs/agent-rules/changelog.md](docs/agent-rules/changelog.md) | Keep a Changelog; required on minor/major `VERSION` bumps |
+| [docs/agent-rules/changelog.md](docs/agent-rules/changelog.md) | Keep a Changelog; **patch + changelog on every commit**; minor/major only when the user asks |
 
 ## Tool-specific rule files (gitignored)
 

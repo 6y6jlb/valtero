@@ -8,6 +8,13 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-08-30
+
+### Changed
+
+- Versioning policy: every commit bumps **patch** and updates `CHANGELOG.md`;
+  **minor** / **major** only when explicitly requested (see `docs/agent-rules/changelog.md`).
+
 ## [1.4.0] - 2026-08-30
 
 ### Added

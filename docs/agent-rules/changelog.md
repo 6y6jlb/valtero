@@ -1,26 +1,38 @@
-# Changelog
+# Changelog and version bumps
 
-Whenever the app version’s **minor** or **major** segment changes, update
-[`CHANGELOG.md`](../../CHANGELOG.md) in the same change set (or immediately
-before the version bump commit).
+Every **git commit** that lands project work must bump the app version and update
+[`CHANGELOG.md`](../../CHANGELOG.md) in the **same** commit (or immediately before
+it in the same change set).
 
-## When an entry is required
+SSOT for the version string: repo-root [`VERSION`](../../VERSION)
+(`x.y.z+build`). Sync into `pubspec.yaml` with `./scripts/app_version.sh sync`
+(or `make sync-version`) after bumping.
 
-| Change to `VERSION` (`x.y.z+n`) | CHANGELOG entry |
+## Default: patch on every commit
+
+Unless the user **explicitly** asks to bump **minor** or **major**, agents must:
+
+1. Run `./scripts/app_version.sh bump patch` (or `make version-patch`)
+2. Run `./scripts/app_version.sh sync`
+3. Add / extend a `CHANGELOG.md` section for the new `x.y.z`
+4. Include `VERSION`, `pubspec.yaml`, and `CHANGELOG.md` in that commit
+
+| Situation | What to bump |
 | --- | --- |
-| **major** (`x` increases) | **Required** |
-| **minor** (`y` increases) | **Required** |
-| **patch** (`z` increases) | Optional (add if the fix is user-facing and worth calling out) |
-| **build** only (`+n`) | Not required |
+| Normal commit (feature, fix, docs-for-product, refactor that ships) | **patch** (`z`) + changelog |
+| User says to bump **minor** / «минор» / minor version | **minor** (`y`) + changelog |
+| User says to bump **major** / «мажор» / major version | **major** (`x`) + changelog |
+| User says only bump **build** / Android `versionCode` | **build** (`+n`) — changelog optional |
+| Empty / no-op commit | Do not create; no bump |
 
-Triggers include `scripts/app_version.sh bump major|minor`, Make targets
-`version-major` / `version-minor`, and `make version VERSION=x.y.z+n` when `x` or
-`y` changes relative to the previous `VERSION`.
+Vague “ship it” / “commit” **without** naming minor/major → **patch**.
 
-## How to write the entry
+## Changelog entry (required with every semver bump of x/y/z)
 
-1. Open root [`CHANGELOG.md`](../../CHANGELOG.md) (Keep a Changelog style).
-2. Move relevant items from `## [Unreleased]` into a new section:
+Keep a Changelog style at repo root [`CHANGELOG.md`](../../CHANGELOG.md).
+
+1. Prefer moving bullets from `## [Unreleased]` into a dated section, or write the
+   section directly for this bump:
 
    ```markdown
    ## [x.y.z] - YYYY-MM-DD
@@ -38,14 +50,20 @@ Triggers include `scripts/app_version.sh bump major|minor`, Make targets
    - …
    ```
 
-3. Summarize **user-facing** behavior (Settings paths, sync, export, l10n), not
-   every internal refactor. Link to docs or issue keys only when helpful.
-4. Keep `## [Unreleased]` at the top for work not yet released under a bump.
+2. Summarize **user-facing** behavior when possible (Settings paths, sync, export,
+   l10n). For pure agent-rule / tooling commits, a short **Changed** note is enough.
+3. Do not invent future dates; use the commit / bump day.
+4. Keep `## [Unreleased]` at the top for notes not yet tied to a version.
 
-## Agent checklist
+## Build-only bumps
 
-- [ ] If this PR/commit bumps minor or major in `VERSION`, `CHANGELOG.md` has a
-      matching `## [x.y.z]` section (or Unreleased items were moved into it).
-- [ ] Do not invent dates in the future; use the release / bump day.
-- [ ] Do not skip the changelog because “docs only” if the bump is minor/major —
-      at least note the capability change that justified the bump.
+`bump build` / `make version-build` (Android `versionCode` only) does **not**
+require a changelog entry. Do not use build-only bumps as a substitute for the
+default patch-on-commit rule.
+
+## Agent checklist (before finishing a commit)
+
+- [ ] `VERSION` bumped (**patch** by default; minor/major only if the user asked)
+- [ ] `pubspec.yaml` synced from `VERSION`
+- [ ] `CHANGELOG.md` has a `## [x.y.z]` section matching the new version
+- [ ] Commit message matches the bump intent (`fix` / `add` / `Ship vX.Y` as usual)
