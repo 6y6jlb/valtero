@@ -27,6 +27,12 @@ class _FakeProvider implements ExchangeRateProvider {
   }) async => rates;
 
   @override
+  Future<Map<String, double>> fetchAllRates({
+    required String base,
+    String? apiKey,
+  }) async => rates;
+
+  @override
   Future<bool> validateApiKey(String apiKey) async => true;
 }
 

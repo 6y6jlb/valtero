@@ -42,6 +42,8 @@ class AppSettings {
   final String googleDriveAppDataFileId;
   final String googleDriveSharedFileId;
   final List<String> googleDriveSharedWithEmails;
+  /// `'owner'` = personal sync (+ optional share); `'joined'` = member of shared sync.
+  final String googleDriveSyncRole;
 
   const AppSettings({
     required this.reportingCurrencies,
@@ -76,6 +78,7 @@ class AppSettings {
     this.googleDriveAppDataFileId = '',
     this.googleDriveSharedFileId = '',
     this.googleDriveSharedWithEmails = const [],
+    this.googleDriveSyncRole = 'owner',
   });
 
   factory AppSettings.initial() {
@@ -123,6 +126,7 @@ class AppSettings {
     String? googleDriveAppDataFileId,
     String? googleDriveSharedFileId,
     List<String>? googleDriveSharedWithEmails,
+    String? googleDriveSyncRole,
   }) {
     return AppSettings(
       reportingCurrencies: reportingCurrencies ?? this.reportingCurrencies,
@@ -173,6 +177,7 @@ class AppSettings {
           googleDriveSharedFileId ?? this.googleDriveSharedFileId,
       googleDriveSharedWithEmails:
           googleDriveSharedWithEmails ?? this.googleDriveSharedWithEmails,
+      googleDriveSyncRole: googleDriveSyncRole ?? this.googleDriveSyncRole,
     );
   }
 
@@ -209,6 +214,7 @@ class AppSettings {
         'googleDriveAppDataFileId': googleDriveAppDataFileId,
         'googleDriveSharedFileId': googleDriveSharedFileId,
         'googleDriveSharedWithEmails': googleDriveSharedWithEmails,
+        'googleDriveSyncRole': googleDriveSyncRole,
       };
 
   factory AppSettings.fromJson(Map<dynamic, dynamic> json) {
@@ -267,6 +273,7 @@ class AppSettings {
                   ?.map((e) => e.toString())
                   .toList() ??
               const [],
+      googleDriveSyncRole: json['googleDriveSyncRole'] as String? ?? 'owner',
     );
   }
 }

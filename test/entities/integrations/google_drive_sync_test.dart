@@ -266,13 +266,21 @@ void main() {
   });
 
   group('googleDriveSyncScopes', () {
-    test('personal excludes drive.file; shared includes it', () {
-      final personal = googleDriveSyncScopes(includeFileScope: false);
+    test('personal excludes drive.file; share includes it; join uses full drive',
+        () {
+      final personal = googleDriveSyncScopes(includeFileScope: false).split(' ');
       expect(personal, contains(kGoogleDriveAppDataScope));
       expect(personal, isNot(contains(kGoogleDriveFileScope)));
+      expect(personal, isNot(contains(kGoogleDriveFullScope)));
 
-      final shared = googleDriveSyncScopes(includeFileScope: true);
+      final shared = googleDriveSyncScopes(includeFileScope: true).split(' ');
       expect(shared, contains(kGoogleDriveFileScope));
+      expect(shared, isNot(contains(kGoogleDriveFullScope)));
+
+      final join =
+          googleDriveSyncScopes(mode: GoogleDriveOAuthScopeMode.join).split(' ');
+      expect(join, contains(kGoogleDriveFullScope));
+      expect(join, isNot(contains(kGoogleDriveAppDataScope)));
     });
   });
 

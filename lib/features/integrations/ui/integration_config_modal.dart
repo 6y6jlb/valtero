@@ -5,8 +5,9 @@ import 'package:valtero/entities/integrations/frankfurter/model/frankfurter_inte
 import 'package:valtero/entities/integrations/google_drive_sync/model/google_drive_sync_integration.dart';
 import 'package:valtero/entities/integrations/model/app_integration.dart';
 import 'package:valtero/entities/integrations/telegram/model/telegram_integration.dart';
-import 'package:valtero/features/integrations/model/integration_ui_meta.dart';
 import 'package:valtero/features/google_drive_sync/ui/google_drive_sync_config_form.dart';
+import 'package:valtero/features/google_drive_sync/ui/google_drive_sync_help_sheet.dart';
+import 'package:valtero/features/integrations/model/integration_ui_meta.dart';
 import 'package:valtero/features/integrations/ui/forms/exchange_rate_api_config_form.dart';
 import 'package:valtero/features/integrations/ui/forms/frankfurter_config_form.dart';
 import 'package:valtero/features/integrations/ui/forms/telegram_config_form.dart';
@@ -34,6 +35,11 @@ class IntegrationConfigModal extends ConsumerWidget {
     final meta = integrationUiMeta(integration.id);
     final scrollController = PrimaryScrollController.maybeOf(context);
     final theme = Theme.of(context);
+    final descriptionStyle = theme.textTheme.bodyMedium?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    final showDriveHelp =
+        integration.id == kGoogleDriveSyncIntegrationId;
 
     return ListView(
       controller: scrollController,
@@ -52,12 +58,36 @@ class IntegrationConfigModal extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 8),
-        Text(
-          meta.description(l10n),
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
+        if (showDriveHelp)
+          Text.rich(
+            TextSpan(
+              style: descriptionStyle,
+              children: [
+                TextSpan(text: meta.description(l10n)),
+                const TextSpan(text: ' '),
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.middle,
+                  child: IconButton(
+                    tooltip: l10n.googleDriveHelpTitle,
+                    visualDensity: VisualDensity.compact,
+                    constraints: const BoxConstraints(
+                      minWidth: 28,
+                      minHeight: 28,
+                    ),
+                    padding: EdgeInsets.zero,
+                    onPressed: () => showGoogleDriveSyncHelpSheet(context),
+                    icon: Icon(
+                      Icons.help_outline,
+                      size: 20,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          Text(meta.description(l10n), style: descriptionStyle),
         const SizedBox(height: 20),
         switch (integration.id) {
           kTelegramIntegrationId => const TelegramConfigForm(),

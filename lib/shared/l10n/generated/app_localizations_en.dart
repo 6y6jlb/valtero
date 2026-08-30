@@ -219,6 +219,96 @@ class AppLocalizationsEn extends AppLocalizations {
       'Cloud sync file format is not supported by this app version';
 
   @override
+  String get googleDriveHelpTitle => 'How Google Drive Sync works';
+
+  @override
+  String get googleDriveHelpSameAccountTitle =>
+      'Same Google account on another device';
+
+  @override
+  String get googleDriveHelpSameAccountBody =>
+      '1. On this device: set a sync passphrase, then Sign in with Google.\n2. On the other device: Sign in with the same Google account and enter the exact same passphrase.\n3. Sync runs automatically after login and when you tap Sync now. Nothing else to configure.';
+
+  @override
+  String get googleDriveHelpCrossAccountTitle => 'Different Google accounts';
+
+  @override
+  String get googleDriveHelpCrossAccountBody =>
+      'Account 1 (owner):\n1. Set a sync passphrase and Sign in with Google.\n2. Under “Share with another account”, enter account 2’s email and share.\n\nAccount 2 (joiner):\n1. Tap “Join a sync someone shared with you”.\n2. Sign in with Google (broader Drive permission is requested so the app can find the shared file).\n3. Pick the shared sync file, then enter the exact same passphrase account 1 used.\n4. Sync now pulls and merges data both ways through that shared file.';
+
+  @override
+  String get googleDriveHelpPassphraseNote =>
+      'The passphrase never leaves the device — Google only stores encrypted data. Everyone who syncs together must know and enter the same passphrase.';
+
+  @override
+  String get googleDriveHelpRegenNote =>
+      'If you regenerate or change the passphrase after connecting, other devices and accounts stop decrypting until they enter the new passphrase too.';
+
+  @override
+  String get googleDriveJoinShared => 'Join a sync someone shared with you';
+
+  @override
+  String get googleDriveJoinPickTitle => 'Shared sync files';
+
+  @override
+  String get googleDriveJoinPickEmpty =>
+      'No shared Valtero sync files found. Ask the owner to share with this Google account first.';
+
+  @override
+  String get googleDriveJoinConfirm => 'Join this sync';
+
+  @override
+  String get googleDriveJoinedAs => 'Joined shared sync';
+
+  @override
+  String get googleDriveLeaveShared => 'Leave shared sync';
+
+  @override
+  String get googleDrivePassphraseChangeTitle => 'Change sync passphrase?';
+
+  @override
+  String get googleDrivePassphraseChangeBody =>
+      'Other devices and accounts will stop syncing until they enter this new passphrase. Continue?';
+
+  @override
+  String googleDriveSharedFrom(String email) {
+    return 'Shared by $email';
+  }
+
+  @override
+  String fetchAllRatesFrom(String service) {
+    return 'Fetch all rates from $service';
+  }
+
+  @override
+  String fetchAllRatesDone(int count, String service) {
+    return 'Saved $count rates from $service to local cache';
+  }
+
+  @override
+  String fetchRateFromService(String service) {
+    return 'Fetch from $service';
+  }
+
+  @override
+  String rateFetchedFromCache(String service) {
+    return 'Using rate from local cache ($service). Tap refresh to update.';
+  }
+
+  @override
+  String get rateRefreshPair => 'Refresh this rate';
+
+  @override
+  String ratesFetchCooldown(int minutes) {
+    return 'Next network fetch in $minutes min (keeps free API quota)';
+  }
+
+  @override
+  String flagUnavailableTooltip(String code) {
+    return 'No flag for $code';
+  }
+
+  @override
   String get telegramNotConnectedHint =>
       'Connect Telegram in Settings → Integrations to send exports there.';
 

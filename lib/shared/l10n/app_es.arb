@@ -76,6 +76,81 @@
     }
   },
   "googleDriveUnsupportedFormat": "El formato del archivo de sincronización no es compatible con esta versión",
+  "googleDriveHelpTitle": "Cómo funciona la sincronización con Google Drive",
+  "googleDriveHelpSameAccountTitle": "Misma cuenta de Google en otro dispositivo",
+  "googleDriveHelpSameAccountBody": "1. En este dispositivo: define una frase de sincronización e inicia sesión con Google.\n2. En el otro dispositivo: inicia sesión con la misma cuenta e introduce la misma frase.\n3. La sincronización ocurre tras el inicio de sesión y al pulsar Sincronizar. No hace falta más.",
+  "googleDriveHelpCrossAccountTitle": "Cuentas de Google distintas",
+  "googleDriveHelpCrossAccountBody": "Cuenta 1 (propietario):\n1. Define una frase e inicia sesión con Google.\n2. En “Compartir con otra cuenta”, introduce el email de la cuenta 2 y comparte.\n\nCuenta 2 (invitado):\n1. Pulsa “Unirme a una sincronización compartida”.\n2. Inicia sesión con Google (se pide acceso amplio a Drive para encontrar el archivo).\n3. Elige el archivo compartido e introduce la misma frase que usó la cuenta 1.\n4. Sincronizar intercambia datos en ambas direcciones por ese archivo.",
+  "googleDriveHelpPassphraseNote": "La frase nunca se envía a Google: solo se guarda cifrado. Todos los que sincronizan deben conocer e introducir la misma frase.",
+  "googleDriveHelpRegenNote": "Si regeneras o cambias la frase tras conectar, los demás dispositivos dejarán de descifrar hasta introducir la nueva.",
+  "googleDriveJoinShared": "Unirme a una sincronización compartida",
+  "googleDriveJoinPickTitle": "Archivos de sincronización compartidos",
+  "googleDriveJoinPickEmpty": "No hay archivos Valtero compartidos. Pide al propietario que comparta con esta cuenta primero.",
+  "googleDriveJoinConfirm": "Unirme",
+  "googleDriveJoinedAs": "Unido a sincronización compartida",
+  "googleDriveLeaveShared": "Salir de la sincronización compartida",
+  "googleDrivePassphraseChangeTitle": "¿Cambiar la frase de sincronización?",
+  "googleDrivePassphraseChangeBody": "Otros dispositivos y cuentas dejarán de sincronizar hasta introducir la nueva frase. ¿Continuar?",
+  "googleDriveSharedFrom": "De {email}",
+  "@googleDriveSharedFrom": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "fetchAllRatesFrom": "Obtener todos los tipos de {service}",
+  "@fetchAllRatesFrom": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "fetchAllRatesDone": "Guardados {count} tipos de {service} en la caché local",
+  "@fetchAllRatesDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "fetchRateFromService": "Obtener de {service}",
+  "@fetchRateFromService": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "rateFetchedFromCache": "Tipo de la caché local ({service}). Pulsa actualizar para descargar de nuevo.",
+  "@rateFetchedFromCache": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "rateRefreshPair": "Actualizar este tipo",
+  "ratesFetchCooldown": "Próxima descarga en {minutes} min (cuota gratuita de la API)",
+  "@ratesFetchCooldown": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "flagUnavailableTooltip": "Sin bandera para {code}",
+  "@flagUnavailableTooltip": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
   "telegramNotConnectedHint": "Conecta Telegram en Ajustes → Integraciones para enviar exportaciones allí.",
   "openTelegramIntegration": "Abrir ajustes de Telegram",
   "openExchangeRateApiIntegration": "Configurar ExchangeRate-API",

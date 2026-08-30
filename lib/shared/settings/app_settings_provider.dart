@@ -218,6 +218,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     String? appDataFileId,
     String? sharedFileId,
     List<String>? sharedWithEmails,
+    String? syncRole,
   }) async {
     final current = state.value;
     if (current == null) return;
@@ -231,6 +232,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       googleDriveAppDataFileId: appDataFileId,
       googleDriveSharedFileId: sharedFileId,
       googleDriveSharedWithEmails: sharedWithEmails,
+      googleDriveSyncRole: syncRole,
     ));
   }
 
@@ -244,6 +246,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       appDataFileId: '',
       sharedFileId: '',
       sharedWithEmails: const [],
+      syncRole: 'owner',
     );
   }
 }

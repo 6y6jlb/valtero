@@ -20,6 +20,22 @@ class ExchangeRateApiProvider implements ExchangeRateProvider {
     required List<String> targets,
     String? apiKey,
   }) async {
+    final all = await fetchAllRates(base: base, apiKey: apiKey);
+    final result = <String, double>{};
+    for (final target in targets) {
+      final value = all[target.toUpperCase()];
+      if (value != null) {
+        result[target.toUpperCase()] = value;
+      }
+    }
+    return result;
+  }
+
+  @override
+  Future<Map<String, double>> fetchAllRates({
+    required String base,
+    String? apiKey,
+  }) async {
     final key = apiKey?.trim() ?? '';
     if (key.isEmpty) {
       throw StateError('ExchangeRate-API key is required');
@@ -33,10 +49,9 @@ class ExchangeRateApiProvider implements ExchangeRateProvider {
     }
     final conversion = data['conversion_rates'] as Map<String, dynamic>? ?? {};
     final result = <String, double>{};
-    for (final target in targets) {
-      final value = conversion[target.toUpperCase()];
-      if (value is num) {
-        result[target.toUpperCase()] = value.toDouble();
+    for (final entry in conversion.entries) {
+      if (entry.value is num) {
+        result[entry.key.toUpperCase()] = (entry.value as num).toDouble();
       }
     }
     return result;

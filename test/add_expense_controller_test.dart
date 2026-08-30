@@ -26,6 +26,13 @@ class _NoopProvider implements ExchangeRateProvider {
       {};
 
   @override
+  Future<Map<String, double>> fetchAllRates({
+    required String base,
+    String? apiKey,
+  }) async =>
+      {};
+
+  @override
   Future<bool> validateApiKey(String apiKey) async => true;
 }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
+import 'package:valtero/entities/exchange_rate/model/rate_resolver.dart';
 import 'package:valtero/entities/integrations/exchange_rate_api/model/exchange_rate_api_integration.dart';
 import 'package:valtero/entities/integrations/model/integration_registry.dart';
 import 'package:valtero/features/currency_settings/ui/rates_sheet.dart';
@@ -150,15 +151,49 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
                   },
                   child: Text(l10n.openExchangeRateApiIntegration),
                 ),
-                OutlinedButton(
+                FilledButton.icon(
                   onPressed: () async {
-                    await ref
-                        .read(rateResolverProvider)
-                        .refreshIfStale(force: true);
-                    if (!mounted) return;
-                    setState(() => _status = l10n.ratesRefreshed);
+                    final resolver = ref.read(rateResolverProvider);
+                    final cooldown = resolver.rateFetchCooldownRemaining();
+                    if (cooldown != null) {
+                      final minutes = cooldown.inMinutes.clamp(1, 60);
+                      setState(
+                        () => _status = l10n.ratesFetchCooldown(minutes),
+                      );
+                      return;
+                    }
+                    final serviceId = resolver.activeProviderId();
+                    final serviceLabel = serviceId == 'exchangerate_api'
+                        ? l10n.rateSourceApi
+                        : l10n.rateSourceFrankfurter;
+                    try {
+                      final count = await resolver.refreshAllRates();
+                      if (!mounted) return;
+                      setState(
+                        () => _status = l10n.fetchAllRatesDone(
+                          count,
+                          serviceLabel,
+                        ),
+                      );
+                    } on RatesCooldownException catch (e) {
+                      if (!mounted) return;
+                      final minutes = e.remaining.inMinutes.clamp(1, 60);
+                      setState(
+                        () => _status = l10n.ratesFetchCooldown(minutes),
+                      );
+                    } catch (_) {
+                      if (!mounted) return;
+                      setState(() => _status = l10n.connectionFailed);
+                    }
                   },
-                  child: Text(l10n.refreshRates),
+                  icon: const Icon(Icons.cloud_download_outlined),
+                  label: Text(
+                    l10n.fetchAllRatesFrom(
+                      apiConnected
+                          ? l10n.rateSourceApi
+                          : l10n.rateSourceFrankfurter,
+                    ),
+                  ),
                 ),
                 FilledButton.tonal(
                   onPressed: () => showRatesSheet(context),

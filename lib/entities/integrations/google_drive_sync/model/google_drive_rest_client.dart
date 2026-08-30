@@ -10,21 +10,32 @@ class GoogleDriveFileMeta {
   final String name;
   final DateTime? modifiedTime;
   final int? size;
+  final String? ownerEmail;
 
   const GoogleDriveFileMeta({
     required this.id,
     required this.name,
     required this.modifiedTime,
     required this.size,
+    this.ownerEmail,
   });
 
   factory GoogleDriveFileMeta.fromJson(Map<String, dynamic> json) {
     final modified = json['modifiedTime'] as String?;
+    String? ownerEmail;
+    final owners = json['owners'];
+    if (owners is List && owners.isNotEmpty) {
+      final first = owners.first;
+      if (first is Map) {
+        ownerEmail = first['emailAddress'] as String?;
+      }
+    }
     return GoogleDriveFileMeta(
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
       modifiedTime: modified != null ? DateTime.tryParse(modified) : null,
       size: int.tryParse('${json['size'] ?? ''}'),
+      ownerEmail: ownerEmail,
     );
   }
 }
@@ -145,16 +156,18 @@ class GoogleDriveRestClient {
     );
   }
 
-  /// Lists shared sync files visible to this account.
+  /// Lists shared sync files visible to this account (sharedWithMe).
+  /// Requires full `drive` scope — `drive.file` alone cannot discover these.
   Future<List<GoogleDriveFileMeta>> listSharedSyncFiles(
     String accessToken,
   ) async {
     final response = await _dio.get<Map<String, dynamic>>(
       _filesUrl,
       queryParameters: {
-        'q': "name = '$kGoogleDriveSharedSyncFileName' and trashed = false",
-        'fields': 'files(id,name,modifiedTime,size)',
-        'pageSize': 10,
+        'q': "sharedWithMe = true and name = '$kGoogleDriveSharedSyncFileName' "
+            'and trashed = false',
+        'fields': 'files(id,name,modifiedTime,size,owners(emailAddress))',
+        'pageSize': 20,
       },
       options: _auth(accessToken),
     );
@@ -165,6 +178,28 @@ class GoogleDriveRestClient {
         .map((e) => GoogleDriveFileMeta.fromJson(Map<String, dynamic>.from(e)))
         .where((f) => f.id.isNotEmpty)
         .toList();
+  }
+
+  /// Fetches metadata for a known file id (works with drive.file when the
+  /// app created the file, or full drive for shared-with-me files).
+  Future<GoogleDriveFileMeta?> getFileMeta({
+    required String accessToken,
+    required String fileId,
+  }) async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '$_filesUrl/$fileId',
+        queryParameters: {
+          'fields': 'id,name,modifiedTime,size,owners(emailAddress)',
+        },
+        options: _auth(accessToken),
+      );
+      final data = response.data;
+      if (data == null) return null;
+      return GoogleDriveFileMeta.fromJson(data);
+    } on DioException {
+      return null;
+    }
   }
 
   /// Lightweight probe used by Test connection.

@@ -76,6 +76,81 @@
     }
   },
   "googleDriveUnsupportedFormat": "Format fajla sinhronizacije nije podržan ovom verzijom aplikacije",
+  "googleDriveHelpTitle": "Kako radi Google Drive sinhronizacija",
+  "googleDriveHelpSameAccountTitle": "Isti Google nalog na drugom uređaju",
+  "googleDriveHelpSameAccountBody": "1. Na ovom uređaju: postavi lozinku sinhronizacije i prijavi se preko Google-a.\n2. Na drugom uređaju: prijavi se istim nalogom i unesi istu lozinku.\n3. Sinhronizacija ide posle prijave i na dugme Sinhronizuj. Ništa više nije potrebno.",
+  "googleDriveHelpCrossAccountTitle": "Različiti Google nalozi",
+  "googleDriveHelpCrossAccountBody": "Nalog 1 (vlasnik):\n1. Postavi lozinku i prijavi se preko Google-a.\n2. Pod „Podeli sa drugim nalogom“ unesi email naloga 2 i podeli.\n\nNalog 2 (učesnik):\n1. Pritisni „Pridruži se deljenoj sinhronizaciji“.\n2. Prijavi se preko Google-a (traži se širi pristup Drive-u da se nađe deljeni fajl).\n3. Izaberi deljeni fajl i unesi istu lozinku koju koristi nalog 1.\n4. Sinhronizuj razmenjuje podatke u oba smera preko tog fajla.",
+  "googleDriveHelpPassphraseNote": "Lozinka nikad ne ide na Google — tamo je samo šifrovani sadržaj. Svi koji sinhronizuju moraju znati i uneti istu lozinku.",
+  "googleDriveHelpRegenNote": "Ako posle povezivanja promeniš ili regenerišeš lozinku, drugi uređaji i nalozi prestaju da dešifruju dok ne unesu novu.",
+  "googleDriveJoinShared": "Pridruži se deljenoj sinhronizaciji",
+  "googleDriveJoinPickTitle": "Deljeni fajlovi sinhronizacije",
+  "googleDriveJoinPickEmpty": "Nema deljenih Valtero fajlova. Traži od vlasnika da prvo podeli sa ovim Google nalogom.",
+  "googleDriveJoinConfirm": "Pridruži se",
+  "googleDriveJoinedAs": "Pridružen deljenoj sinhronizaciji",
+  "googleDriveLeaveShared": "Napusti deljenu sinhronizaciju",
+  "googleDrivePassphraseChangeTitle": "Promeniti lozinku sinhronizacije?",
+  "googleDrivePassphraseChangeBody": "Drugi uređaji i nalozi prestaju da se sinhronizuju dok ne unesu novu lozinku. Nastaviti?",
+  "googleDriveSharedFrom": "Od {email}",
+  "@googleDriveSharedFrom": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "fetchAllRatesFrom": "Preuzmi sve kurseve iz {service}",
+  "@fetchAllRatesFrom": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "fetchAllRatesDone": "Sačuvano {count} kurseva iz {service} u lokalni keš",
+  "@fetchAllRatesDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "fetchRateFromService": "Preuzmi iz {service}",
+  "@fetchRateFromService": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "rateFetchedFromCache": "Kurs iz lokalnog keša ({service}). Pritisni osvežavanje da preuzmeš ponovo.",
+  "@rateFetchedFromCache": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "rateRefreshPair": "Osveži ovaj kurs",
+  "ratesFetchCooldown": "Sledeći mrežni zahtev za {minutes} min (besplatni API limit)",
+  "@ratesFetchCooldown": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "flagUnavailableTooltip": "Nema zastave za {code}",
+  "@flagUnavailableTooltip": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
   "telegramNotConnectedHint": "Poveži Telegram u Podešavanja → Integracije da šalješ izvoz tamo.",
   "openTelegramIntegration": "Otvori Telegram podešavanja",
   "openExchangeRateApiIntegration": "Podesi ExchangeRate-API",

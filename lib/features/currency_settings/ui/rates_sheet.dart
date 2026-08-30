@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
+import 'package:valtero/entities/exchange_rate/model/rate_resolver.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/database/database_provider.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
@@ -28,6 +29,7 @@ class RatesSheetBody extends ConsumerStatefulWidget {
 
 class _RatesSheetBodyState extends ConsumerState<RatesSheetBody> {
   bool _refreshing = false;
+  String? _refreshingPair;
   String? _status;
 
   String _sourceLabel(AppLocalizations l10n, String source) {
@@ -48,18 +50,73 @@ class _RatesSheetBodyState extends ConsumerState<RatesSheetBody> {
         '${local.minute.toString().padLeft(2, '0')}';
   }
 
-  Future<void> _refresh() async {
+  Future<void> _refreshAll() async {
     setState(() {
       _refreshing = true;
       _status = null;
     });
-    await ref.read(rateResolverProvider).refreshIfStale(force: true);
-    if (!mounted) return;
+    final resolver = ref.read(rateResolverProvider);
     final l10n = AppLocalizations.of(context)!;
+    final cooldown = resolver.rateFetchCooldownRemaining();
+    if (cooldown != null) {
+      final minutes = cooldown.inMinutes.clamp(1, 60);
+      setState(() {
+        _refreshing = false;
+        _status = l10n.ratesFetchCooldown(minutes);
+      });
+      return;
+    }
+    final serviceId = resolver.activeProviderId();
+    final serviceLabel = serviceId == 'exchangerate_api'
+        ? l10n.rateSourceApi
+        : l10n.rateSourceFrankfurter;
+    try {
+      final count = await resolver.refreshAllRates();
+      if (!mounted) return;
+      setState(() {
+        _refreshing = false;
+        _status = l10n.fetchAllRatesDone(count, serviceLabel);
+      });
+    } on RatesCooldownException catch (e) {
+      if (!mounted) return;
+      final minutes = e.remaining.inMinutes.clamp(1, 60);
+      setState(() {
+        _refreshing = false;
+        _status = l10n.ratesFetchCooldown(minutes);
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _refreshing = false;
+        _status = l10n.connectionFailed;
+      });
+    }
+  }
+
+  Future<void> _refreshPair(String base, String target) async {
+    final key = '$base-$target';
     setState(() {
-      _refreshing = false;
-      _status = l10n.ratesRefreshed;
+      _refreshingPair = key;
+      _status = null;
     });
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      final rate = await ref
+          .read(rateResolverProvider)
+          .forceRefreshRate(base, target);
+      if (!mounted) return;
+      setState(() {
+        _refreshingPair = null;
+        _status = rate == null ? l10n.connectionFailed : l10n.ratesRefreshed;
+      });
+    } on RatesCooldownException catch (e) {
+      if (!mounted) return;
+      final minutes = e.remaining.inMinutes.clamp(1, 60);
+      setState(() {
+        _refreshingPair = null;
+        _status = l10n.ratesFetchCooldown(minutes);
+      });
+    }
   }
 
   Future<void> _addOrEdit({
@@ -81,6 +138,10 @@ class _RatesSheetBodyState extends ConsumerState<RatesSheetBody> {
     final l10n = AppLocalizations.of(context)!;
     final ratesAsync = ref.watch(allExchangeRatesProvider);
     final scrollController = PrimaryScrollController.of(context);
+    final serviceId = ref.read(rateResolverProvider).activeProviderId();
+    final serviceLabel = serviceId == 'exchangerate_api'
+        ? l10n.rateSourceApi
+        : l10n.rateSourceFrankfurter;
 
     return ratesAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -110,15 +171,17 @@ class _RatesSheetBodyState extends ConsumerState<RatesSheetBody> {
                           label: Text(l10n.addRate),
                         ),
                         OutlinedButton.icon(
-                          onPressed: _refreshing ? null : _refresh,
+                          onPressed: _refreshing ? null : _refreshAll,
                           icon: _refreshing
                               ? const SizedBox(
                                   width: 16,
                                   height: 16,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
                                 )
-                              : const Icon(Icons.refresh),
-                          label: Text(l10n.refreshRates),
+                              : const Icon(Icons.cloud_download_outlined),
+                          label: Text(l10n.fetchAllRatesFrom(serviceLabel)),
                         ),
                       ],
                     ),
@@ -141,13 +204,20 @@ class _RatesSheetBodyState extends ConsumerState<RatesSheetBody> {
                 separatorBuilder: (_, _) => const Divider(height: 1),
                 itemBuilder: (context, index) {
                   final rate = rates[index];
+                  final pairKey =
+                      '${rate.baseCurrencyCode}-${rate.targetCurrencyCode}';
+                  final pairBusy = _refreshingPair == pairKey;
                   return ListTile(
                     onTap: () => _addOrEdit(
                       base: rate.baseCurrencyCode,
                       target: rate.targetCurrencyCode,
                       rate: rate.rate,
                     ),
+                    // Align trailing with the title (flag + rate) row, not the
+                    // full three-line tile height.
+                    titleAlignment: ListTileTitleAlignment.titleHeight,
                     title: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         FlagIcon.currency(rate.baseCurrencyCode, size: 20),
                         const SizedBox(width: 6),
@@ -162,9 +232,55 @@ class _RatesSheetBodyState extends ConsumerState<RatesSheetBody> {
                       ],
                     ),
                     subtitle: Text(
-                      '${_sourceLabel(l10n, rate.source)} · ${_formatTime(rate.fetchedAt)}',
+                      '${_sourceLabel(l10n, rate.source)} · ${_formatTime(rate.fetchedAt)}'
+                      '${rate.source != 'manual' ? '\n${l10n.rateFetchedFromCache(_sourceLabel(l10n, rate.source))}' : ''}',
                     ),
-                    trailing: const Icon(Icons.edit_outlined, size: 18),
+                    isThreeLine: rate.source != 'manual',
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        if (rate.source != 'manual')
+                          IconButton(
+                            tooltip: l10n.rateRefreshPair,
+                            visualDensity: VisualDensity.compact,
+                            constraints: const BoxConstraints(
+                              minWidth: 36,
+                              minHeight: 36,
+                            ),
+                            padding: EdgeInsets.zero,
+                            onPressed: pairBusy || _refreshing
+                                ? null
+                                : () => _refreshPair(
+                                      rate.baseCurrencyCode,
+                                      rate.targetCurrencyCode,
+                                    ),
+                            icon: pairBusy
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.refresh, size: 20),
+                          ),
+                        IconButton(
+                          visualDensity: VisualDensity.compact,
+                          constraints: const BoxConstraints(
+                            minWidth: 36,
+                            minHeight: 36,
+                          ),
+                          padding: EdgeInsets.zero,
+                          onPressed: () => _addOrEdit(
+                            base: rate.baseCurrencyCode,
+                            target: rate.targetCurrencyCode,
+                            rate: rate.rate,
+                          ),
+                          icon: const Icon(Icons.edit_outlined, size: 20),
+                        ),
+                      ],
+                    ),
                   );
                 },
               ),

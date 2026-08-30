@@ -6,6 +6,19 @@ import 'package:valtero/shared/settings/app_settings.dart';
 typedef SettingsReader = AppSettings? Function();
 typedef SettingsWriter = Future<void> Function(AppSettings settings);
 
+/// Minimum gap between network rate fetches (fetch-all / force pair).
+/// Keeps ExchangeRate-API free tier (~1500/mo) safe at ≤1 request/hour.
+const Duration kRateNetworkFetchCooldown = Duration(hours: 1);
+
+/// Thrown when a network rate fetch is blocked by [kRateNetworkFetchCooldown].
+class RatesCooldownException implements Exception {
+  final Duration remaining;
+  const RatesCooldownException(this.remaining);
+
+  @override
+  String toString() => 'RatesCooldownException($remaining)';
+}
+
 /// Resolves FX rates: keyed API → Frankfurter → manual → null.
 class RateResolver {
   final ExchangeRateStore store;
@@ -134,59 +147,40 @@ class RateResolver {
       return;
     }
 
-    final apiKey = settings.exchangeRateApiKey;
-    var usedProvider = frankfurter;
-    String? key;
-    if (apiKey != null && apiKey.trim().isNotEmpty) {
-      usedProvider = exchangeRateApi;
-      key = apiKey;
-    }
-
+    final used = _selectProvider(settings);
     try {
-      final rates = await usedProvider.fetchRates(
+      final rates = await used.provider.fetchRates(
         base: base,
         targets: targets,
-        apiKey: key,
+        apiKey: used.apiKey,
       );
-      final now = DateTime.now();
-      for (final entry in rates.entries) {
-        await store.upsertRate(
-          base: base,
-          target: entry.key,
-          source: usedProvider.id,
-          rate: entry.value,
-          fetchedAt: now,
-        );
-      }
-      await writeSettings(settings.copyWith(lastRateRefreshAt: now));
+      await _storeRates(
+        base: base,
+        rates: rates,
+        source: used.provider.id,
+      );
       // ignore: unawaited_futures
       logger?.debug(
-        'Rates refreshed via ${usedProvider.id} base=$base targets=${targets.length}',
+        'Rates refreshed via ${used.provider.id} base=$base targets=${targets.length}',
       );
     } catch (e, st) {
       // ignore: unawaited_futures
       logger?.error(
-        'Rate refresh failed via ${usedProvider.id}',
+        'Rate refresh failed via ${used.provider.id}',
         error: e,
         stackTrace: st,
       );
-      if (usedProvider.id != frankfurter.id) {
+      if (used.provider.id != frankfurter.id) {
         try {
           final rates = await frankfurter.fetchRates(
             base: base,
             targets: targets,
           );
-          final now = DateTime.now();
-          for (final entry in rates.entries) {
-            await store.upsertRate(
-              base: base,
-              target: entry.key,
-              source: frankfurter.id,
-              rate: entry.value,
-              fetchedAt: now,
-            );
-          }
-          await writeSettings(settings.copyWith(lastRateRefreshAt: now));
+          await _storeRates(
+            base: base,
+            rates: rates,
+            source: frankfurter.id,
+          );
           // ignore: unawaited_futures
           logger?.debug('Rates refreshed via frankfurter fallback');
         } catch (e2, st2) {
@@ -198,6 +192,173 @@ class RateResolver {
           );
         }
       }
+    }
+  }
+
+  /// Time left until the next network fetch is allowed, or `null` if ready.
+  Duration? rateFetchCooldownRemaining() {
+    final settings = readSettings();
+    final last = settings?.lastRateRefreshAt;
+    if (last == null) return null;
+    final elapsed = DateTime.now().difference(last);
+    if (elapsed >= kRateNetworkFetchCooldown) return null;
+    return kRateNetworkFetchCooldown - elapsed;
+  }
+
+  void _ensureNetworkFetchAllowed() {
+    final remaining = rateFetchCooldownRemaining();
+    if (remaining != null) {
+      throw RatesCooldownException(remaining);
+    }
+  }
+
+  /// Fetches every rate the active provider offers for [base] into Drift cache.
+  ///
+  /// Respects [kRateNetworkFetchCooldown] unless [force] is true (tests / debug).
+  Future<int> refreshAllRates({String? base, bool force = false}) async {
+    final settings = readSettings();
+    if (settings == null) return 0;
+    if (!force) _ensureNetworkFetchAllowed();
+    final from = (base ?? settings.primaryCurrency).toUpperCase();
+    final used = _selectProvider(settings);
+    try {
+      final rates = await used.provider.fetchAllRates(
+        base: from,
+        apiKey: used.apiKey,
+      );
+      await _storeRates(
+        base: from,
+        rates: rates,
+        source: used.provider.id,
+      );
+      // ignore: unawaited_futures
+      logger?.debug(
+        'Fetched all rates via ${used.provider.id} base=$from count=${rates.length}',
+      );
+      return rates.length;
+    } catch (e, st) {
+      if (e is RatesCooldownException) rethrow;
+      // ignore: unawaited_futures
+      logger?.error(
+        'Fetch-all rates failed via ${used.provider.id}',
+        error: e,
+        stackTrace: st,
+      );
+      if (used.provider.id != frankfurter.id) {
+        final rates = await frankfurter.fetchAllRates(base: from);
+        await _storeRates(
+          base: from,
+          rates: rates,
+          source: frankfurter.id,
+        );
+        return rates.length;
+      }
+      rethrow;
+    }
+  }
+
+  /// Force-refreshes one pair from the network (skips per-row cache staleness).
+  /// Still respects [kRateNetworkFetchCooldown] (one latest call ≈ full quota unit).
+  Future<double?> forceRefreshRate(
+    String base,
+    String target, {
+    bool force = false,
+  }) async {
+    final from = base.toUpperCase();
+    final to = target.toUpperCase();
+    if (from == to) return 1.0;
+    final settings = readSettings();
+    if (settings == null) return null;
+    if (!force) _ensureNetworkFetchAllowed();
+    final used = _selectProvider(settings);
+    try {
+      final rates = await used.provider.fetchRates(
+        base: from,
+        targets: [to],
+        apiKey: used.apiKey,
+      );
+      final rate = rates[to];
+      if (rate == null) return null;
+      final now = DateTime.now();
+      await store.upsertRate(
+        base: from,
+        target: to,
+        source: used.provider.id,
+        rate: rate,
+        fetchedAt: now,
+      );
+      await writeSettings(settings.copyWith(lastRateRefreshAt: now));
+      return rate;
+    } catch (e, st) {
+      if (e is RatesCooldownException) rethrow;
+      // ignore: unawaited_futures
+      logger?.warning(
+        'Force refresh failed via ${used.provider.id} for $from→$to',
+        error: e,
+        stackTrace: st,
+      );
+      if (used.provider.id != frankfurter.id) {
+        try {
+          final rates = await frankfurter.fetchRates(
+            base: from,
+            targets: [to],
+          );
+          final rate = rates[to];
+          if (rate == null) return null;
+          final now = DateTime.now();
+          await store.upsertRate(
+            base: from,
+            target: to,
+            source: frankfurter.id,
+            rate: rate,
+            fetchedAt: now,
+          );
+          await writeSettings(settings.copyWith(lastRateRefreshAt: now));
+          return rate;
+        } catch (_) {
+          return null;
+        }
+      }
+      return null;
+    }
+  }
+
+  /// Active provider id for UI labels (`exchangerate_api` or `frankfurter`).
+  String activeProviderId() {
+    final settings = readSettings();
+    if (settings == null) return frankfurter.id;
+    return _selectProvider(settings).provider.id;
+  }
+
+  ({ExchangeRateProvider provider, String? apiKey}) _selectProvider(
+    AppSettings settings,
+  ) {
+    final apiKey = settings.exchangeRateApiKey;
+    if (apiKey != null && apiKey.trim().isNotEmpty) {
+      return (provider: exchangeRateApi, apiKey: apiKey);
+    }
+    return (provider: frankfurter, apiKey: null);
+  }
+
+  Future<void> _storeRates({
+    required String base,
+    required Map<String, double> rates,
+    required String source,
+  }) async {
+    final now = DateTime.now();
+    for (final entry in rates.entries) {
+      if (entry.key.toUpperCase() == base.toUpperCase()) continue;
+      await store.upsertRate(
+        base: base.toUpperCase(),
+        target: entry.key.toUpperCase(),
+        source: source,
+        rate: entry.value,
+        fetchedAt: now,
+      );
+    }
+    final settings = readSettings();
+    if (settings != null) {
+      await writeSettings(settings.copyWith(lastRateRefreshAt: now));
     }
   }
 

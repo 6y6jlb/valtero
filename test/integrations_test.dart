@@ -46,6 +46,13 @@ class _FakeRateProvider implements ExchangeRateProvider {
       {};
 
   @override
+  Future<Map<String, double>> fetchAllRates({
+    required String base,
+    String? apiKey,
+  }) async =>
+      {};
+
+  @override
   Future<bool> validateApiKey(String apiKey) async => valid;
 }
 
@@ -231,6 +238,22 @@ class _FakeFrankfurterProvider implements ExchangeRateProvider {
     }
     if (!ok) return {};
     return {for (final t in targets) t.toUpperCase(): 1.1};
+  }
+
+  @override
+  Future<Map<String, double>> fetchAllRates({
+    required String base,
+    String? apiKey,
+  }) async {
+    if (throwNetwork) {
+      throw DioException(
+        requestOptions: RequestOptions(path: '/v1/latest'),
+        type: DioExceptionType.connectionError,
+        error: const SocketException("Failed host lookup: 'api.frankfurter.dev'"),
+      );
+    }
+    if (!ok) return {};
+    return {'EUR': 1.1, 'USD': 1.1};
   }
 
   @override

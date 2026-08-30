@@ -34,7 +34,24 @@ class FrankfurterProvider implements ExchangeRateProvider {
         'to': uniqueTargets.join(','),
       },
     );
-    final data = response.data;
+    return _parseRates(response.data);
+  }
+
+  @override
+  Future<Map<String, double>> fetchAllRates({
+    required String base,
+    String? apiKey,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      'https://api.frankfurter.dev/v1/latest',
+      queryParameters: {
+        'from': base.toUpperCase(),
+      },
+    );
+    return _parseRates(response.data);
+  }
+
+  Map<String, double> _parseRates(Map<String, dynamic>? data) {
     if (data == null) {
       throw StateError('Frankfurter request failed');
     }

@@ -28,6 +28,14 @@ class _FixedRateProvider implements ExchangeRateProvider {
   }
 
   @override
+  Future<Map<String, double>> fetchAllRates({
+    required String base,
+    String? apiKey,
+  }) async {
+    return {'EUR': 2.0, 'USD': 2.0};
+  }
+
+  @override
   Future<bool> validateApiKey(String apiKey) async => true;
 }
 

@@ -76,6 +76,81 @@
     }
   },
   "googleDriveUnsupportedFormat": "Формат файла облачной синхронизации не поддерживается этой версией приложения",
+  "googleDriveHelpTitle": "Как работает синхронизация через Google Drive",
+  "googleDriveHelpSameAccountTitle": "Тот же аккаунт Google на другом устройстве",
+  "googleDriveHelpSameAccountBody": "1. На этом устройстве: задайте пароль синхронизации и войдите через Google.\n2. На другом устройстве: войдите тем же аккаунтом Google и введите тот же пароль.\n3. Синхронизация идёт после входа и по кнопке «Синхронизировать». Больше ничего настраивать не нужно.",
+  "googleDriveHelpCrossAccountTitle": "Разные аккаунты Google",
+  "googleDriveHelpCrossAccountBody": "Аккаунт 1 (владелец):\n1. Задайте пароль синхронизации и войдите через Google.\n2. В блоке «Поделиться с другим аккаунтом» укажите email аккаунта 2 и поделитесь.\n\nАккаунт 2 (участник):\n1. Нажмите «Подключиться к чужой синхронизации».\n2. Войдите через Google (нужен расширенный доступ к Drive, чтобы найти расшаренный файл).\n3. Выберите файл синхронизации и введите тот же пароль, что у аккаунта 1.\n4. «Синхронизировать» обменивает данные через этот общий файл в обе стороны.",
+  "googleDriveHelpPassphraseNote": "Пароль никогда не уходит в Google — там только зашифрованные данные. Всем участникам нужно знать и ввести один и тот же пароль.",
+  "googleDriveHelpRegenNote": "Если после подключения сменить или перегенерировать пароль, другие устройства и аккаунты перестанут расшифровывать данные, пока не введут новый пароль.",
+  "googleDriveJoinShared": "Подключиться к чужой синхронизации",
+  "googleDriveJoinPickTitle": "Расшаренные файлы синхронизации",
+  "googleDriveJoinPickEmpty": "Расшаренных файлов Valtero не найдено. Попросите владельца сначала поделиться с этим аккаунтом Google.",
+  "googleDriveJoinConfirm": "Подключиться",
+  "googleDriveJoinedAs": "Подключено к общей синхронизации",
+  "googleDriveLeaveShared": "Отключиться от общей синхронизации",
+  "googleDrivePassphraseChangeTitle": "Сменить пароль синхронизации?",
+  "googleDrivePassphraseChangeBody": "Другие устройства и аккаунты перестанут синхронизироваться, пока не введут новый пароль. Продолжить?",
+  "googleDriveSharedFrom": "От {email}",
+  "@googleDriveSharedFrom": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "fetchAllRatesFrom": "Получить все курсы из {service}",
+  "@fetchAllRatesFrom": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "fetchAllRatesDone": "Сохранено {count} курсов из {service} в локальный кэш",
+  "@fetchAllRatesDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "fetchRateFromService": "Получить из {service}",
+  "@fetchRateFromService": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "rateFetchedFromCache": "Курс из локального кэша ({service}). Нажмите обновление, чтобы скачать заново.",
+  "@rateFetchedFromCache": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "rateRefreshPair": "Обновить этот курс",
+  "ratesFetchCooldown": "Следующий сетевой запрос через {minutes} мин (чтобы хватило бесплатного лимита)",
+  "@ratesFetchCooldown": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "flagUnavailableTooltip": "Нет флага для {code}",
+  "@flagUnavailableTooltip": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
   "telegramNotConnectedHint": "Подключите Telegram в Настройки → Интеграции, чтобы отправлять экспорт туда.",
   "openTelegramIntegration": "Открыть настройки Telegram",
   "openExchangeRateApiIntegration": "Настроить ExchangeRate-API",

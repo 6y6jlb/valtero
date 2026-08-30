@@ -220,6 +220,98 @@ class AppLocalizationsRu extends AppLocalizations {
       'Формат файла облачной синхронизации не поддерживается этой версией приложения';
 
   @override
+  String get googleDriveHelpTitle =>
+      'Как работает синхронизация через Google Drive';
+
+  @override
+  String get googleDriveHelpSameAccountTitle =>
+      'Тот же аккаунт Google на другом устройстве';
+
+  @override
+  String get googleDriveHelpSameAccountBody =>
+      '1. На этом устройстве: задайте пароль синхронизации и войдите через Google.\n2. На другом устройстве: войдите тем же аккаунтом Google и введите тот же пароль.\n3. Синхронизация идёт после входа и по кнопке «Синхронизировать». Больше ничего настраивать не нужно.';
+
+  @override
+  String get googleDriveHelpCrossAccountTitle => 'Разные аккаунты Google';
+
+  @override
+  String get googleDriveHelpCrossAccountBody =>
+      'Аккаунт 1 (владелец):\n1. Задайте пароль синхронизации и войдите через Google.\n2. В блоке «Поделиться с другим аккаунтом» укажите email аккаунта 2 и поделитесь.\n\nАккаунт 2 (участник):\n1. Нажмите «Подключиться к чужой синхронизации».\n2. Войдите через Google (нужен расширенный доступ к Drive, чтобы найти расшаренный файл).\n3. Выберите файл синхронизации и введите тот же пароль, что у аккаунта 1.\n4. «Синхронизировать» обменивает данные через этот общий файл в обе стороны.';
+
+  @override
+  String get googleDriveHelpPassphraseNote =>
+      'Пароль никогда не уходит в Google — там только зашифрованные данные. Всем участникам нужно знать и ввести один и тот же пароль.';
+
+  @override
+  String get googleDriveHelpRegenNote =>
+      'Если после подключения сменить или перегенерировать пароль, другие устройства и аккаунты перестанут расшифровывать данные, пока не введут новый пароль.';
+
+  @override
+  String get googleDriveJoinShared => 'Подключиться к чужой синхронизации';
+
+  @override
+  String get googleDriveJoinPickTitle => 'Расшаренные файлы синхронизации';
+
+  @override
+  String get googleDriveJoinPickEmpty =>
+      'Расшаренных файлов Valtero не найдено. Попросите владельца сначала поделиться с этим аккаунтом Google.';
+
+  @override
+  String get googleDriveJoinConfirm => 'Подключиться';
+
+  @override
+  String get googleDriveJoinedAs => 'Подключено к общей синхронизации';
+
+  @override
+  String get googleDriveLeaveShared => 'Отключиться от общей синхронизации';
+
+  @override
+  String get googleDrivePassphraseChangeTitle =>
+      'Сменить пароль синхронизации?';
+
+  @override
+  String get googleDrivePassphraseChangeBody =>
+      'Другие устройства и аккаунты перестанут синхронизироваться, пока не введут новый пароль. Продолжить?';
+
+  @override
+  String googleDriveSharedFrom(String email) {
+    return 'От $email';
+  }
+
+  @override
+  String fetchAllRatesFrom(String service) {
+    return 'Получить все курсы из $service';
+  }
+
+  @override
+  String fetchAllRatesDone(int count, String service) {
+    return 'Сохранено $count курсов из $service в локальный кэш';
+  }
+
+  @override
+  String fetchRateFromService(String service) {
+    return 'Получить из $service';
+  }
+
+  @override
+  String rateFetchedFromCache(String service) {
+    return 'Курс из локального кэша ($service). Нажмите обновление, чтобы скачать заново.';
+  }
+
+  @override
+  String get rateRefreshPair => 'Обновить этот курс';
+
+  @override
+  String ratesFetchCooldown(int minutes) {
+    return 'Следующий сетевой запрос через $minutes мин (чтобы хватило бесплатного лимита)';
+  }
+
+  @override
+  String flagUnavailableTooltip(String code) {
+    return 'Нет флага для $code';
+  }
+
+  @override
   String get telegramNotConnectedHint =>
       'Подключите Telegram в Настройки → Интеграции, чтобы отправлять экспорт туда.';
 

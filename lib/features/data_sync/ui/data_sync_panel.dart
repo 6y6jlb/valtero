@@ -8,7 +8,7 @@ import 'package:valtero/features/data_sync/model/backup_crypto.dart';
 import 'package:valtero/features/data_sync/model/backup_format.dart';
 import 'package:valtero/features/data_sync/model/data_sync_controller.dart';
 import 'package:valtero/features/data_sync/model/passphrase_generator.dart';
-import 'package:valtero/features/data_sync/ui/data_sync_passphrase_field.dart';
+import 'package:valtero/widgets/passphrase_text_field.dart';
 import 'package:valtero/features/data_sync/ui/duplicate_import_resolution_dialog.dart';
 import 'package:valtero/entities/payment_method/model/payment_methods_provider.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
@@ -348,8 +348,9 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
         ),
         const SizedBox(height: 16),
         if (_tab == DataSyncTab.export) ...[
-          DataSyncPassphraseField(
+          PassphraseTextField(
             controller: _exportPassphrase,
+            labelText: l10n.dataSyncPassphrase,
             enabled: !_busy,
             showGenerate: true,
             showCopy: true,
@@ -375,8 +376,9 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
             ],
           ),
         ] else ...[
-          DataSyncPassphraseField(
+          PassphraseTextField(
             controller: _importPassphrase,
+            labelText: l10n.dataSyncPassphrase,
             enabled: !_busy,
             showCopy: false,
           ),

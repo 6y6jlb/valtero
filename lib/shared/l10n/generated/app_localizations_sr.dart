@@ -221,6 +221,97 @@ class AppLocalizationsSr extends AppLocalizations {
       'Format fajla sinhronizacije nije podržan ovom verzijom aplikacije';
 
   @override
+  String get googleDriveHelpTitle => 'Kako radi Google Drive sinhronizacija';
+
+  @override
+  String get googleDriveHelpSameAccountTitle =>
+      'Isti Google nalog na drugom uređaju';
+
+  @override
+  String get googleDriveHelpSameAccountBody =>
+      '1. Na ovom uređaju: postavi lozinku sinhronizacije i prijavi se preko Google-a.\n2. Na drugom uređaju: prijavi se istim nalogom i unesi istu lozinku.\n3. Sinhronizacija ide posle prijave i na dugme Sinhronizuj. Ništa više nije potrebno.';
+
+  @override
+  String get googleDriveHelpCrossAccountTitle => 'Različiti Google nalozi';
+
+  @override
+  String get googleDriveHelpCrossAccountBody =>
+      'Nalog 1 (vlasnik):\n1. Postavi lozinku i prijavi se preko Google-a.\n2. Pod „Podeli sa drugim nalogom“ unesi email naloga 2 i podeli.\n\nNalog 2 (učesnik):\n1. Pritisni „Pridruži se deljenoj sinhronizaciji“.\n2. Prijavi se preko Google-a (traži se širi pristup Drive-u da se nađe deljeni fajl).\n3. Izaberi deljeni fajl i unesi istu lozinku koju koristi nalog 1.\n4. Sinhronizuj razmenjuje podatke u oba smera preko tog fajla.';
+
+  @override
+  String get googleDriveHelpPassphraseNote =>
+      'Lozinka nikad ne ide na Google — tamo je samo šifrovani sadržaj. Svi koji sinhronizuju moraju znati i uneti istu lozinku.';
+
+  @override
+  String get googleDriveHelpRegenNote =>
+      'Ako posle povezivanja promeniš ili regenerišeš lozinku, drugi uređaji i nalozi prestaju da dešifruju dok ne unesu novu.';
+
+  @override
+  String get googleDriveJoinShared => 'Pridruži se deljenoj sinhronizaciji';
+
+  @override
+  String get googleDriveJoinPickTitle => 'Deljeni fajlovi sinhronizacije';
+
+  @override
+  String get googleDriveJoinPickEmpty =>
+      'Nema deljenih Valtero fajlova. Traži od vlasnika da prvo podeli sa ovim Google nalogom.';
+
+  @override
+  String get googleDriveJoinConfirm => 'Pridruži se';
+
+  @override
+  String get googleDriveJoinedAs => 'Pridružen deljenoj sinhronizaciji';
+
+  @override
+  String get googleDriveLeaveShared => 'Napusti deljenu sinhronizaciju';
+
+  @override
+  String get googleDrivePassphraseChangeTitle =>
+      'Promeniti lozinku sinhronizacije?';
+
+  @override
+  String get googleDrivePassphraseChangeBody =>
+      'Drugi uređaji i nalozi prestaju da se sinhronizuju dok ne unesu novu lozinku. Nastaviti?';
+
+  @override
+  String googleDriveSharedFrom(String email) {
+    return 'Od $email';
+  }
+
+  @override
+  String fetchAllRatesFrom(String service) {
+    return 'Preuzmi sve kurseve iz $service';
+  }
+
+  @override
+  String fetchAllRatesDone(int count, String service) {
+    return 'Sačuvano $count kurseva iz $service u lokalni keš';
+  }
+
+  @override
+  String fetchRateFromService(String service) {
+    return 'Preuzmi iz $service';
+  }
+
+  @override
+  String rateFetchedFromCache(String service) {
+    return 'Kurs iz lokalnog keša ($service). Pritisni osvežavanje da preuzmeš ponovo.';
+  }
+
+  @override
+  String get rateRefreshPair => 'Osveži ovaj kurs';
+
+  @override
+  String ratesFetchCooldown(int minutes) {
+    return 'Sledeći mrežni zahtev za $minutes min (besplatni API limit)';
+  }
+
+  @override
+  String flagUnavailableTooltip(String code) {
+    return 'Nema zastave za $code';
+  }
+
+  @override
   String get telegramNotConnectedHint =>
       'Poveži Telegram u Podešavanja → Integracije da šalješ izvoz tamo.';
 

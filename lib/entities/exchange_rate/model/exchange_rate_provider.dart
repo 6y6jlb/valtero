@@ -11,6 +11,12 @@ abstract class ExchangeRateProvider {
     String? apiKey,
   });
 
+  /// Returns every rate the provider offers for [base] (no target filter).
+  Future<Map<String, double>> fetchAllRates({
+    required String base,
+    String? apiKey,
+  });
+
   /// Returns true if the key works for a simple probe request.
   Future<bool> validateApiKey(String apiKey);
 }

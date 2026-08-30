@@ -33,6 +33,11 @@ const String kGoogleDriveAppDataScope =
 const String kGoogleDriveFileScope =
     'https://www.googleapis.com/auth/drive.file';
 
+/// Full Drive access — needed for a joined account to discover files shared
+/// via permissions.create (drive.file alone cannot list those). Restricted
+/// scope; CASA assessment required above ~100 users.
+const String kGoogleDriveFullScope = 'https://www.googleapis.com/auth/drive';
+
 const String kGoogleUserInfoEmailScope =
     'https://www.googleapis.com/auth/userinfo.email';
 
@@ -132,12 +137,43 @@ class GoogleOAuthRedirect {
   }
 }
 
-/// Space-separated scopes for personal sync (and shared when [includeFileScope]).
-String googleDriveSyncScopes({required bool includeFileScope}) {
-  final scopes = <String>[
-    kGoogleDriveAppDataScope,
-    kGoogleUserInfoEmailScope,
-    if (includeFileScope) kGoogleDriveFileScope,
-  ];
-  return scopes.join(' ');
+/// OAuth scope set for Google Drive Sync flows.
+enum GoogleDriveOAuthScopeMode {
+  /// Personal appDataFolder sync only.
+  personal,
+
+  /// Owner sharing a regular Drive file (adds drive.file).
+  share,
+
+  /// Joining a sync shared with this account (needs full drive).
+  join,
+}
+
+/// Space-separated scopes for the given sync flow.
+String googleDriveSyncScopes({
+  bool includeFileScope = false,
+  GoogleDriveOAuthScopeMode? mode,
+}) {
+  final resolved = mode ??
+      (includeFileScope
+          ? GoogleDriveOAuthScopeMode.share
+          : GoogleDriveOAuthScopeMode.personal);
+  switch (resolved) {
+    case GoogleDriveOAuthScopeMode.personal:
+      return [
+        kGoogleDriveAppDataScope,
+        kGoogleUserInfoEmailScope,
+      ].join(' ');
+    case GoogleDriveOAuthScopeMode.share:
+      return [
+        kGoogleDriveAppDataScope,
+        kGoogleDriveFileScope,
+        kGoogleUserInfoEmailScope,
+      ].join(' ');
+    case GoogleDriveOAuthScopeMode.join:
+      return [
+        kGoogleDriveFullScope,
+        kGoogleUserInfoEmailScope,
+      ].join(' ');
+  }
 }

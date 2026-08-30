@@ -17,22 +17,28 @@ Future<T?> showAppModalSheet<T>({
     // Desktop Material defaults to a narrow sheet — force full window width.
     constraints: BoxConstraints(maxWidth: width, minWidth: width),
     builder: (context) {
-      return SizedBox(
-        width: width,
-        child: DraggableScrollableSheet(
-          expand: false,
-          initialChildSize: initialChildSize,
-          minChildSize: minChildSize,
-          maxChildSize: maxChildSize,
-          builder: (context, scrollController) {
-            return Material(
-              color: Theme.of(context).colorScheme.surface,
-              child: PrimaryScrollController(
-                controller: scrollController,
-                child: child,
-              ),
-            );
-          },
+      final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+      return AnimatedPadding(
+        padding: EdgeInsets.only(bottom: bottomInset),
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.easeOut,
+        child: SizedBox(
+          width: width,
+          child: DraggableScrollableSheet(
+            expand: false,
+            initialChildSize: initialChildSize,
+            minChildSize: minChildSize,
+            maxChildSize: maxChildSize,
+            builder: (context, scrollController) {
+              return Material(
+                color: Theme.of(context).colorScheme.surface,
+                child: PrimaryScrollController(
+                  controller: scrollController,
+                  child: child,
+                ),
+              );
+            },
+          ),
         ),
       );
     },

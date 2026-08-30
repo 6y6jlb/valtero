@@ -224,6 +224,99 @@ class AppLocalizationsEs extends AppLocalizations {
       'El formato del archivo de sincronización no es compatible con esta versión';
 
   @override
+  String get googleDriveHelpTitle =>
+      'Cómo funciona la sincronización con Google Drive';
+
+  @override
+  String get googleDriveHelpSameAccountTitle =>
+      'Misma cuenta de Google en otro dispositivo';
+
+  @override
+  String get googleDriveHelpSameAccountBody =>
+      '1. En este dispositivo: define una frase de sincronización e inicia sesión con Google.\n2. En el otro dispositivo: inicia sesión con la misma cuenta e introduce la misma frase.\n3. La sincronización ocurre tras el inicio de sesión y al pulsar Sincronizar. No hace falta más.';
+
+  @override
+  String get googleDriveHelpCrossAccountTitle => 'Cuentas de Google distintas';
+
+  @override
+  String get googleDriveHelpCrossAccountBody =>
+      'Cuenta 1 (propietario):\n1. Define una frase e inicia sesión con Google.\n2. En “Compartir con otra cuenta”, introduce el email de la cuenta 2 y comparte.\n\nCuenta 2 (invitado):\n1. Pulsa “Unirme a una sincronización compartida”.\n2. Inicia sesión con Google (se pide acceso amplio a Drive para encontrar el archivo).\n3. Elige el archivo compartido e introduce la misma frase que usó la cuenta 1.\n4. Sincronizar intercambia datos en ambas direcciones por ese archivo.';
+
+  @override
+  String get googleDriveHelpPassphraseNote =>
+      'La frase nunca se envía a Google: solo se guarda cifrado. Todos los que sincronizan deben conocer e introducir la misma frase.';
+
+  @override
+  String get googleDriveHelpRegenNote =>
+      'Si regeneras o cambias la frase tras conectar, los demás dispositivos dejarán de descifrar hasta introducir la nueva.';
+
+  @override
+  String get googleDriveJoinShared => 'Unirme a una sincronización compartida';
+
+  @override
+  String get googleDriveJoinPickTitle =>
+      'Archivos de sincronización compartidos';
+
+  @override
+  String get googleDriveJoinPickEmpty =>
+      'No hay archivos Valtero compartidos. Pide al propietario que comparta con esta cuenta primero.';
+
+  @override
+  String get googleDriveJoinConfirm => 'Unirme';
+
+  @override
+  String get googleDriveJoinedAs => 'Unido a sincronización compartida';
+
+  @override
+  String get googleDriveLeaveShared => 'Salir de la sincronización compartida';
+
+  @override
+  String get googleDrivePassphraseChangeTitle =>
+      '¿Cambiar la frase de sincronización?';
+
+  @override
+  String get googleDrivePassphraseChangeBody =>
+      'Otros dispositivos y cuentas dejarán de sincronizar hasta introducir la nueva frase. ¿Continuar?';
+
+  @override
+  String googleDriveSharedFrom(String email) {
+    return 'De $email';
+  }
+
+  @override
+  String fetchAllRatesFrom(String service) {
+    return 'Obtener todos los tipos de $service';
+  }
+
+  @override
+  String fetchAllRatesDone(int count, String service) {
+    return 'Guardados $count tipos de $service en la caché local';
+  }
+
+  @override
+  String fetchRateFromService(String service) {
+    return 'Obtener de $service';
+  }
+
+  @override
+  String rateFetchedFromCache(String service) {
+    return 'Tipo de la caché local ($service). Pulsa actualizar para descargar de nuevo.';
+  }
+
+  @override
+  String get rateRefreshPair => 'Actualizar este tipo';
+
+  @override
+  String ratesFetchCooldown(int minutes) {
+    return 'Próxima descarga en $minutes min (cuota gratuita de la API)';
+  }
+
+  @override
+  String flagUnavailableTooltip(String code) {
+    return 'Sin bandera para $code';
+  }
+
+  @override
   String get telegramNotConnectedHint =>
       'Conecta Telegram en Ajustes → Integraciones para enviar exportaciones allí.';
 

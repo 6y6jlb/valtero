@@ -4,18 +4,23 @@ import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/secret_text_field.dart';
 
-/// Passphrase input: lock toggles visibility; optional generate/copy as suffix.
-class DataSyncPassphraseField extends StatefulWidget {
+/// Passphrase / secret input with lock visibility toggle and optional
+/// generate / copy suffix actions (Backup & sync, Google Drive Sync, …).
+class PassphraseTextField extends StatefulWidget {
   final TextEditingController controller;
+  final String labelText;
+  final String? helperText;
   final bool enabled;
   final bool showGenerate;
   final bool showCopy;
   final bool initiallyObscured;
   final VoidCallback? onGenerate;
 
-  const DataSyncPassphraseField({
+  const PassphraseTextField({
     super.key,
     required this.controller,
+    required this.labelText,
+    this.helperText,
     this.enabled = true,
     this.showGenerate = false,
     this.showCopy = true,
@@ -24,11 +29,10 @@ class DataSyncPassphraseField extends StatefulWidget {
   });
 
   @override
-  State<DataSyncPassphraseField> createState() =>
-      _DataSyncPassphraseFieldState();
+  State<PassphraseTextField> createState() => _PassphraseTextFieldState();
 }
 
-class _DataSyncPassphraseFieldState extends State<DataSyncPassphraseField> {
+class _PassphraseTextFieldState extends State<PassphraseTextField> {
   final _fieldKey = GlobalKey<SecretTextFieldState>();
 
   Future<void> _copy() async {
@@ -50,7 +54,8 @@ class _DataSyncPassphraseFieldState extends State<DataSyncPassphraseField> {
     return SecretTextField(
       key: _fieldKey,
       controller: widget.controller,
-      labelText: l10n.dataSyncPassphrase,
+      labelText: widget.labelText,
+      helperText: widget.helperText,
       enabled: widget.enabled,
       initiallyObscured: widget.initiallyObscured,
       suffixIcon: hasSuffix

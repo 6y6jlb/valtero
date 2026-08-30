@@ -8,6 +8,35 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.4.6] - 2026-08-30
+
+### Added
+
+- Google Drive Sync help sheet explaining same-account vs cross-account flows;
+  “Join a sync someone shared with you” for a second Google account (restricted
+  `drive` scope to discover shared files); pull-merge-push on the shared file
+  for both owner and joiner.
+- Currency settings: fetch-all-rates from the active service into the local
+  Drift cache; per-pair refresh icon on View rates; fetch-from-service on the
+  manual rate sheet. Network fetches share a **1-hour cooldown** (via
+  `lastRateRefreshAt`) so ExchangeRate-API free quota stays usable.
+- Unknown currency/country flags use a muted help icon with tooltip instead of
+  the package’s white question-mark square.
+
+### Changed
+
+- Google Drive Sync passphrase Generate/Copy moved into the field suffix (same
+  pattern as Backup & sync via shared `PassphraseTextField`); regenerating after
+  connect asks for confirmation.
+- Google Drive Sync help icon sits at the end of the integration description
+  instead of on its own row.
+- Modal sheets pad for the on-screen keyboard so focused fields stay visible.
+
+### Fixed
+
+- Shared-file sync no longer blind-overwrites the collaborator’s changes; both
+  sides pull-merge before push.
+
 ## [1.4.5] - 2026-08-30
 
 ### Fixed

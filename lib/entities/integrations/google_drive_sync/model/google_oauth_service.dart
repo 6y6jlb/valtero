@@ -20,6 +20,7 @@ class GoogleOAuthService {
   /// Opens the system browser / Custom Tab, returns tokens + email.
   Future<GoogleOAuthSignInResult> signIn({
     required bool includeFileScope,
+    GoogleDriveOAuthScopeMode? scopeMode,
     String? clientId,
     String? clientSecret,
   }) async {
@@ -42,7 +43,10 @@ class GoogleOAuthService {
         'response_type': 'code',
         'client_id': id,
         'redirect_uri': redirect.redirectUri,
-        'scope': googleDriveSyncScopes(includeFileScope: includeFileScope),
+        'scope': googleDriveSyncScopes(
+          includeFileScope: includeFileScope,
+          mode: scopeMode,
+        ),
         'code_challenge': challenge,
         'code_challenge_method': 'S256',
         'access_type': 'offline',

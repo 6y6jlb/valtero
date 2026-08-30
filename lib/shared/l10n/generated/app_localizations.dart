@@ -478,6 +478,144 @@ abstract class AppLocalizations {
   /// **'Cloud sync file format is not supported by this app version'**
   String get googleDriveUnsupportedFormat;
 
+  /// No description provided for @googleDriveHelpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How Google Drive Sync works'**
+  String get googleDriveHelpTitle;
+
+  /// No description provided for @googleDriveHelpSameAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Same Google account on another device'**
+  String get googleDriveHelpSameAccountTitle;
+
+  /// No description provided for @googleDriveHelpSameAccountBody.
+  ///
+  /// In en, this message translates to:
+  /// **'1. On this device: set a sync passphrase, then Sign in with Google.\n2. On the other device: Sign in with the same Google account and enter the exact same passphrase.\n3. Sync runs automatically after login and when you tap Sync now. Nothing else to configure.'**
+  String get googleDriveHelpSameAccountBody;
+
+  /// No description provided for @googleDriveHelpCrossAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Different Google accounts'**
+  String get googleDriveHelpCrossAccountTitle;
+
+  /// No description provided for @googleDriveHelpCrossAccountBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Account 1 (owner):\n1. Set a sync passphrase and Sign in with Google.\n2. Under “Share with another account”, enter account 2’s email and share.\n\nAccount 2 (joiner):\n1. Tap “Join a sync someone shared with you”.\n2. Sign in with Google (broader Drive permission is requested so the app can find the shared file).\n3. Pick the shared sync file, then enter the exact same passphrase account 1 used.\n4. Sync now pulls and merges data both ways through that shared file.'**
+  String get googleDriveHelpCrossAccountBody;
+
+  /// No description provided for @googleDriveHelpPassphraseNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The passphrase never leaves the device — Google only stores encrypted data. Everyone who syncs together must know and enter the same passphrase.'**
+  String get googleDriveHelpPassphraseNote;
+
+  /// No description provided for @googleDriveHelpRegenNote.
+  ///
+  /// In en, this message translates to:
+  /// **'If you regenerate or change the passphrase after connecting, other devices and accounts stop decrypting until they enter the new passphrase too.'**
+  String get googleDriveHelpRegenNote;
+
+  /// No description provided for @googleDriveJoinShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Join a sync someone shared with you'**
+  String get googleDriveJoinShared;
+
+  /// No description provided for @googleDriveJoinPickTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared sync files'**
+  String get googleDriveJoinPickTitle;
+
+  /// No description provided for @googleDriveJoinPickEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No shared Valtero sync files found. Ask the owner to share with this Google account first.'**
+  String get googleDriveJoinPickEmpty;
+
+  /// No description provided for @googleDriveJoinConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Join this sync'**
+  String get googleDriveJoinConfirm;
+
+  /// No description provided for @googleDriveJoinedAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined shared sync'**
+  String get googleDriveJoinedAs;
+
+  /// No description provided for @googleDriveLeaveShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave shared sync'**
+  String get googleDriveLeaveShared;
+
+  /// No description provided for @googleDrivePassphraseChangeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change sync passphrase?'**
+  String get googleDrivePassphraseChangeTitle;
+
+  /// No description provided for @googleDrivePassphraseChangeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Other devices and accounts will stop syncing until they enter this new passphrase. Continue?'**
+  String get googleDrivePassphraseChangeBody;
+
+  /// No description provided for @googleDriveSharedFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared by {email}'**
+  String googleDriveSharedFrom(String email);
+
+  /// No description provided for @fetchAllRatesFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetch all rates from {service}'**
+  String fetchAllRatesFrom(String service);
+
+  /// No description provided for @fetchAllRatesDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {count} rates from {service} to local cache'**
+  String fetchAllRatesDone(int count, String service);
+
+  /// No description provided for @fetchRateFromService.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetch from {service}'**
+  String fetchRateFromService(String service);
+
+  /// No description provided for @rateFetchedFromCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Using rate from local cache ({service}). Tap refresh to update.'**
+  String rateFetchedFromCache(String service);
+
+  /// No description provided for @rateRefreshPair.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh this rate'**
+  String get rateRefreshPair;
+
+  /// No description provided for @ratesFetchCooldown.
+  ///
+  /// In en, this message translates to:
+  /// **'Next network fetch in {minutes} min (keeps free API quota)'**
+  String ratesFetchCooldown(int minutes);
+
+  /// No description provided for @flagUnavailableTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'No flag for {code}'**
+  String flagUnavailableTooltip(String code);
+
   /// No description provided for @telegramNotConnectedHint.
   ///
   /// In en, this message translates to:
