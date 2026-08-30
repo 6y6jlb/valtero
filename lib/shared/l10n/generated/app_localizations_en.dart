@@ -241,6 +241,83 @@ class AppLocalizationsEn extends AppLocalizations {
       'API keys and Telegram credentials are not included in backups.';
 
   @override
+  String dataSyncImportDoneWithDuplicates(
+    int expenses,
+    int tags,
+    int payments,
+    int skipped,
+  ) {
+    return 'Imported $expenses expenses, $tags tags, $payments payment methods ($skipped duplicates skipped)';
+  }
+
+  @override
+  String get dataSyncDuplicatesFoundTitle => 'Possible duplicates found';
+
+  @override
+  String get dataSyncDuplicatesFoundHint =>
+      'These incoming expenses look like ones you already have (same day, amount, and currency). Choose how to handle each.';
+
+  @override
+  String get dataSyncMarkAsDuplicate => 'Mark as duplicate';
+
+  @override
+  String get dataSyncMarkAsUnique => 'Mark as unique';
+
+  @override
+  String get dataSyncMarkSelectedAsDuplicate => 'Selected → duplicate';
+
+  @override
+  String get dataSyncMarkSelectedAsUnique => 'Selected → unique';
+
+  @override
+  String get dataSyncMarkAllAsDuplicate => 'All → duplicate';
+
+  @override
+  String get dataSyncMarkAllAsUnique => 'All → unique';
+
+  @override
+  String get dataSyncContinueImport => 'Continue import';
+
+  @override
+  String get dataSyncIncomingExpense => 'Incoming';
+
+  @override
+  String get dataSyncExistingExpense => 'Existing';
+
+  @override
+  String get possibleDuplicateTooltip => 'Possible duplicate';
+
+  @override
+  String possibleDuplicatesBannerTitle(int count) {
+    return 'Possible duplicates ($count)';
+  }
+
+  @override
+  String get duplicateReviewSheetTitle => 'Possible duplicates';
+
+  @override
+  String get duplicateMarkNotDuplicate => 'Not a duplicate';
+
+  @override
+  String get duplicateConflictDialogTitle => 'Similar expense found';
+
+  @override
+  String get duplicateConflictDialogHint =>
+      'An expense with the same day, amount, and currency already exists.';
+
+  @override
+  String get duplicateSaveAsUnique => 'Save as unique';
+
+  @override
+  String get duplicateDeleteMatchAndSave => 'Delete match and save';
+
+  @override
+  String get duplicateYourExpense => 'Your expense';
+
+  @override
+  String get duplicateMatchingExpense => 'Matching expense';
+
+  @override
   String get dashboardRestoreFromBackup => 'Restore from backup';
 
   @override
@@ -1111,14 +1188,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideSectionGettingStartedBody =>
-      'Tap the + button at the bottom of the screen to open the add-expense form. Enter an amount and currency, optionally convert into a reporting currency, pick a country and category tags, and save. Tap an existing expense to edit it in the same form. Until then, the dashboard shows a sample chart with a link to this guide.';
+      'Tap the + button at the bottom of the screen to open the add-expense form. Enter an amount and currency, optionally convert into a reporting currency, pick a country and category tags, and save. If another expense already has the same day, amount, and currency, you can mark yours as unique, delete the match, or cancel. Tap an existing expense to edit it in the same form. Until then, the dashboard shows a sample chart with a link to this guide.';
 
   @override
   String get guideSectionExpenseTrackingTitle => 'Expense tracking';
 
   @override
   String get guideSectionExpenseTrackingBody =>
-      'Each expense stores amount, currency, date, optional country (ISO), payment method, category tags, and note. The original amount and currency are always kept, even if you convert into a reporting currency for storage. On the expenses list, select several rows to delete them or change tags, country, or currency in bulk.';
+      'Each expense stores amount, currency, date, optional country (ISO), payment method, category tags, and note. The original amount and currency are always kept, even if you convert into a reporting currency for storage. On the expenses list, select several rows to delete them or change tags, country, or currency in bulk. Possible duplicates (same day, original amount, and currency) show an alert badge; open the banner to delete a row or mark it as not a duplicate.';
 
   @override
   String get guideSectionTagsTitle => 'Tags';
@@ -1153,7 +1230,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideSectionDataSyncBody =>
-      'Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file (on Android/iOS the share sheet lets you Save to Files / Downloads), then send it (email, Telegram as a document, cloud, USB). Import merges: existing expenses are kept and new data is added. Restore from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.';
+      'Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file (on Android/iOS the share sheet lets you Save to Files / Downloads), then send it (email, Telegram as a document, cloud, USB). Import merges: existing expenses are kept and new data is added. If incoming expenses look like ones you already have (same day, amount, and currency), you choose which to skip as duplicates and which to import as unique. Restore from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.';
 
   @override
   String get guideSectionTelegramTitle => 'Telegram sharing';

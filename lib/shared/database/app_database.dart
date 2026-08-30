@@ -9,6 +9,7 @@ import 'package:valtero/entities/expense/data/expense_tags_table.dart';
 import 'package:valtero/entities/expense/data/expenses_table.dart';
 import 'package:valtero/entities/payment_method/data/payment_methods_table.dart';
 import 'package:valtero/entities/tag/data/tags_table.dart';
+import 'package:valtero/shared/database/migrations/migrate_to_v6.dart';
 import 'package:valtero/shared/database/schema_version.dart';
 
 part 'app_database.g.dart';
@@ -29,8 +30,8 @@ class AppDatabase extends _$AppDatabase {
         },
         onUpgrade: (Migrator m, int from, int to) async {
           // Production: stepwise migrate_to_vN only — never wipe user data.
-          // Baseline schema is v5. Wire new steps here, e.g.:
-          // if (from < 6) await migrateToV6(m, this);
+          // Baseline schema is v5.
+          if (from < 6) await migrateToV6(m, this);
         },
       );
 

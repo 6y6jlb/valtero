@@ -243,6 +243,83 @@ class AppLocalizationsRu extends AppLocalizations {
       'API-ключи и данные Telegram в резервную копию не входят.';
 
   @override
+  String dataSyncImportDoneWithDuplicates(
+    int expenses,
+    int tags,
+    int payments,
+    int skipped,
+  ) {
+    return 'Импортировано: $expenses трат, $tags тегов, $payments способов оплаты (пропущено дублей: $skipped)';
+  }
+
+  @override
+  String get dataSyncDuplicatesFoundTitle => 'Найдены возможные дубли';
+
+  @override
+  String get dataSyncDuplicatesFoundHint =>
+      'Эти входящие траты похожи на уже существующие (тот же день, сумма и валюта). Выберите, как поступить с каждой.';
+
+  @override
+  String get dataSyncMarkAsDuplicate => 'Пометить как дубль';
+
+  @override
+  String get dataSyncMarkAsUnique => 'Пометить как уникальную';
+
+  @override
+  String get dataSyncMarkSelectedAsDuplicate => 'Выбранные → дубли';
+
+  @override
+  String get dataSyncMarkSelectedAsUnique => 'Выбранные → уникальные';
+
+  @override
+  String get dataSyncMarkAllAsDuplicate => 'Все → дубли';
+
+  @override
+  String get dataSyncMarkAllAsUnique => 'Все → уникальные';
+
+  @override
+  String get dataSyncContinueImport => 'Продолжить импорт';
+
+  @override
+  String get dataSyncIncomingExpense => 'Входящая';
+
+  @override
+  String get dataSyncExistingExpense => 'Существующая';
+
+  @override
+  String get possibleDuplicateTooltip => 'Возможный дубль';
+
+  @override
+  String possibleDuplicatesBannerTitle(int count) {
+    return 'Возможные дубли ($count)';
+  }
+
+  @override
+  String get duplicateReviewSheetTitle => 'Возможные дубли';
+
+  @override
+  String get duplicateMarkNotDuplicate => 'Это не дубль';
+
+  @override
+  String get duplicateConflictDialogTitle => 'Найдена похожая трата';
+
+  @override
+  String get duplicateConflictDialogHint =>
+      'Уже есть трата с тем же днём, суммой и валютой.';
+
+  @override
+  String get duplicateSaveAsUnique => 'Сохранить как уникальную';
+
+  @override
+  String get duplicateDeleteMatchAndSave => 'Удалить похожую и сохранить';
+
+  @override
+  String get duplicateYourExpense => 'Ваша трата';
+
+  @override
+  String get duplicateMatchingExpense => 'Похожая трата';
+
+  @override
   String get dashboardRestoreFromBackup => 'Восстановить из копии';
 
   @override
@@ -1117,14 +1194,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get guideSectionGettingStartedBody =>
-      'Нажмите + внизу экрана, чтобы открыть форму траты. Укажите сумму и валюту, при необходимости конвертируйте в отчётную валюту, выберите страну и категории, сохраните. Нажмите на существующую трату, чтобы изменить её в той же форме. Пока трат нет, на дашборде — пример графика со ссылкой на это руководство.';
+      'Нажмите + внизу экрана, чтобы открыть форму траты. Укажите сумму и валюту, при необходимости конвертируйте в отчётную валюту, выберите страну и категории, сохраните. Если уже есть трата с тем же днём, суммой и валютой, можно сохранить как уникальную, удалить похожую или отменить. Нажмите на существующую трату, чтобы изменить её в той же форме. Пока трат нет, на дашборде — пример графика со ссылкой на это руководство.';
 
   @override
   String get guideSectionExpenseTrackingTitle => 'Отслеживание расходов';
 
   @override
   String get guideSectionExpenseTrackingBody =>
-      'У каждой траты хранятся сумма, валюта, дата, необязательная страна (ISO), способ оплаты, категории и заметка. Исходные сумма и валюта всегда сохраняются, даже если вы конвертируете в отчётную валюту. В списке трат можно отметить несколько строк и сразу удалить их или изменить теги, страну или валюту.';
+      'У каждой траты хранятся сумма, валюта, дата, необязательная страна (ISO), способ оплаты, категории и заметка. Исходные сумма и валюта всегда сохраняются, даже если вы конвертируете в отчётную валюту. В списке трат можно отметить несколько строк и сразу удалить их или изменить теги, страну или валюту. Возможные дубли (тот же день, исходная сумма и валюта) помечаются значком; откройте баннер, чтобы удалить строку или отметить «это не дубль».';
 
   @override
   String get guideSectionTagsTitle => 'Теги';
@@ -1159,7 +1236,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get guideSectionDataSyncBody =>
-      'Создайте зашифрованную копию трат, тегов, способов оплаты, ручных курсов и настроек отображения. Защитите своей парольной фразой или сгенерированной. Сохраните файл (на Android/iOS через «Поделиться» можно сохранить в файлы / загрузки), затем отправьте (почта, Telegram как документ, облако, флешка). Импорт добавляет данные: существующие траты не перезаписываются. Восстановите из Настройки → Резервная копия и синхронизация или с пустого дашборда. API-ключи и Telegram в копию не входят.';
+      'Создайте зашифрованную копию трат, тегов, способов оплаты, ручных курсов и настроек отображения. Защитите своей парольной фразой или сгенерированной. Сохраните файл (на Android/iOS через «Поделиться» можно сохранить в файлы / загрузки), затем отправьте (почта, Telegram как документ, облако, флешка). Импорт добавляет данные: существующие траты не перезаписываются. Если входящие траты похожи на уже имеющиеся (тот же день, сумма и валюта), вы выбираете, что пропустить как дубль, а что импортировать как уникальные. Восстановите из Настройки → Резервная копия и синхронизация или с пустого дашборда. API-ключи и Telegram в копию не входят.';
 
   @override
   String get guideSectionTelegramTitle => 'Шаринг через Telegram';

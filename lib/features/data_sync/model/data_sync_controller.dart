@@ -6,10 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:valtero/entities/expense/model/duplicate_matcher.dart';
 import 'package:valtero/features/data_sync/model/backup_crypto.dart';
 import 'package:valtero/features/data_sync/model/backup_format.dart';
 import 'package:valtero/features/data_sync/model/backup_importer.dart';
 import 'package:valtero/features/data_sync/model/backup_snapshot.dart';
+import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/database/database_provider.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/app_version_provider.dart';
@@ -21,6 +23,17 @@ final backupSnapshotBuilderProvider =
 
 final backupImporterProvider =
     Provider<BackupImporter>((ref) => BackupImporter());
+
+/// One incoming backup expense that matches one or more local expenses.
+class ImportConflict {
+  final BackupExpenseData incoming;
+  final List<Expense> existingMatches;
+
+  const ImportConflict({
+    required this.incoming,
+    required this.existingMatches,
+  });
+}
 
 class DataSyncController {
   final Ref ref;
@@ -148,16 +161,44 @@ class DataSyncController {
     return file?.path;
   }
 
-  Future<ImportReport> importFromPath({
+  Future<BackupEnvelope> decryptFromPath({
     required String path,
     required String passphrase,
-    required bool applySettings,
   }) async {
     final content = await File(path).readAsString();
-    final envelope = await decryptFileContent(
+    return decryptFileContent(
       fileContent: content,
       passphrase: passphrase,
     );
+  }
+
+  Future<List<ImportConflict>> findDuplicateConflicts(
+    BackupEnvelope envelope,
+  ) async {
+    final local = await ref.read(appDatabaseProvider).getAllExpenses();
+    final indexed = indexByFingerprint(local);
+    final conflicts = <ImportConflict>[];
+    for (final expense in envelope.data.expenses) {
+      final key = fingerprintOf(
+        occurredAt: expense.occurredAt,
+        originalAmountMinor: expense.originalAmountMinor,
+        originalCurrencyCode: expense.originalCurrencyCode,
+      );
+      final matches = indexed[key];
+      if (matches == null || matches.isEmpty) continue;
+      conflicts.add(
+        ImportConflict(incoming: expense, existingMatches: matches),
+      );
+    }
+    return conflicts;
+  }
+
+  Future<ImportReport> applyImport({
+    required BackupEnvelope envelope,
+    required bool applySettings,
+    Set<String> skipClientIds = const {},
+    Set<String> markUniqueClientIds = const {},
+  }) async {
     final settings = ref.read(appSettingsProvider).value;
     if (settings == null) throw StateError('no_settings');
     final report = await ref.read(backupImporterProvider).importEnvelope(
@@ -165,12 +206,32 @@ class DataSyncController {
           envelope: envelope,
           currentSettings: settings,
           applySettings: applySettings,
+          skipClientIds: skipClientIds,
+          forceUniqueClientIds: markUniqueClientIds,
           saveSettings: (updated) =>
               ref.read(appSettingsProvider.notifier).updateSettings(updated),
         );
-    // Nudge providers that read streams / async settings.
     ref.invalidate(appSettingsProvider);
     return report;
+  }
+
+  Future<ImportReport> importFromPath({
+    required String path,
+    required String passphrase,
+    required bool applySettings,
+    Set<String> skipClientIds = const {},
+    Set<String> markUniqueClientIds = const {},
+  }) async {
+    final envelope = await decryptFromPath(
+      path: path,
+      passphrase: passphrase,
+    );
+    return applyImport(
+      envelope: envelope,
+      applySettings: applySettings,
+      skipClientIds: skipClientIds,
+      markUniqueClientIds: markUniqueClientIds,
+    );
   }
 }
 

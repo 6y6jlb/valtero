@@ -4,4 +4,4 @@
 /// `lib/shared/database/migrations/migrate_to_vN.dart`, then wire
 /// `if (from < N) await migrateToVN(m, this);` in [AppDatabase.migration].
 /// Never wipe user data on upgrade — see docs/agent-rules/drift-conventions.md.
-const int kAppSchemaVersion = 5;
+const int kAppSchemaVersion = 6;

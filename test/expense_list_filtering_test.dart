@@ -22,6 +22,7 @@ Expense _expense({
     paymentMethodId: paymentMethodId,
     countryCode: countryCode,
     createdAt: at,
+    duplicateDismissed: false,
   );
 }
 

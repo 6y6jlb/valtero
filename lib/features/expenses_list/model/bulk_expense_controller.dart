@@ -19,6 +19,20 @@ class BulkExpenseController {
     return trimmed.toUpperCase();
   }
 
+  Future<void> markNotDuplicate(List<int> ids) async {
+    if (ids.isEmpty) return;
+    await _db.transaction(() async {
+      for (final id in ids) {
+        final existing = await _db.getExpenseById(id);
+        if (existing == null) continue;
+        if (existing.duplicateDismissed) continue;
+        await _db.updateExpenseRow(
+          existing.copyWith(duplicateDismissed: true),
+        );
+      }
+    });
+  }
+
   Future<void> deleteMany(List<int> ids) async {
     if (ids.isEmpty) return;
     await _db.transaction(() async {

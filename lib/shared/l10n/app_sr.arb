@@ -86,6 +86,51 @@
   "dataSyncUnsupportedFormat": "Nepodržan ili nevažeći fajl rezervne kopije",
   "dataSyncNewerSchema": "Ova kopija zahteva noviju verziju aplikacije",
   "dataSyncIntegrationsNotTransferred": "API ključevi i Telegram podaci nisu uključeni u rezervne kopije.",
+  "dataSyncImportDoneWithDuplicates": "Uvezeno {expenses} troškova, {tags} oznaka, {payments} načina plaćanja (preskočeno duplikata: {skipped})",
+  "@dataSyncImportDoneWithDuplicates": {
+    "placeholders": {
+      "expenses": {
+        "type": "int"
+      },
+      "tags": {
+        "type": "int"
+      },
+      "payments": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "dataSyncDuplicatesFoundTitle": "Pronađeni mogući duplikati",
+  "dataSyncDuplicatesFoundHint": "Ovi dolazni troškovi liče na one koje već imate (isti dan, iznos i valuta). Izaberite kako da postupite sa svakim.",
+  "dataSyncMarkAsDuplicate": "Označi kao duplikat",
+  "dataSyncMarkAsUnique": "Označi kao jedinstven",
+  "dataSyncMarkSelectedAsDuplicate": "Izabrani → duplikati",
+  "dataSyncMarkSelectedAsUnique": "Izabrani → jedinstveni",
+  "dataSyncMarkAllAsDuplicate": "Svi → duplikati",
+  "dataSyncMarkAllAsUnique": "Svi → jedinstveni",
+  "dataSyncContinueImport": "Nastavi uvoz",
+  "dataSyncIncomingExpense": "Dolazni",
+  "dataSyncExistingExpense": "Postojeći",
+  "possibleDuplicateTooltip": "Mogući duplikat",
+  "possibleDuplicatesBannerTitle": "Mogući duplikati ({count})",
+  "@possibleDuplicatesBannerTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "duplicateReviewSheetTitle": "Mogući duplikati",
+  "duplicateMarkNotDuplicate": "Nije duplikat",
+  "duplicateConflictDialogTitle": "Pronađen sličan trošak",
+  "duplicateConflictDialogHint": "Već postoji trošak sa istim danom, iznosom i valutom.",
+  "duplicateSaveAsUnique": "Sačuvaj kao jedinstven",
+  "duplicateDeleteMatchAndSave": "Obriši podudaranje i sačuvaj",
+  "duplicateYourExpense": "Vaš trošak",
+  "duplicateMatchingExpense": "Podudarni trošak",
   "dashboardRestoreFromBackup": "Vrati iz rezervne kopije",
   "selectCountry": "Izaberi zemlju",
   "addExpense": "Dodaj trošak",
@@ -526,9 +571,9 @@
   "guideSampleCountryGe": "Gruzija",
   "guideSampleCountryTr": "Turska",
   "guideSectionGettingStartedTitle": "Početak",
-  "guideSectionGettingStartedBody": "Dodirnite + na dnu ekrana da otvorite formular troška. Unesite iznos i valutu, po želji konvertujte u izveštajnu valutu, izaberite zemlju i kategorije, pa sačuvajte. Dodirnite postojeći trošak da ga izmenite u istom formularu. Do tada kontrolna tabla pokazuje primer grafikona sa linkom na ovaj vodič.",
+  "guideSectionGettingStartedBody": "Dodirnite + na dnu ekrana da otvorite formular troška. Unesite iznos i valutu, po želji konvertujte u izveštajnu valutu, izaberite zemlju i kategorije, pa sačuvajte. Ako već postoji trošak sa istim danom, iznosom i valutom, možete sačuvati kao jedinstven, obrisati podudaranje ili otkazati. Dodirnite postojeći trošak da ga izmenite u istom formularu. Do tada kontrolna tabla pokazuje primer grafikona sa linkom na ovaj vodič.",
   "guideSectionExpenseTrackingTitle": "Praćenje troškova",
-  "guideSectionExpenseTrackingBody": "Svaki trošak čuva iznos, valutu, datum, opcionu zemlju (ISO), način plaćanja, kategorije i belešku. Originalni iznos i valuta se uvek čuvaju, čak i ako konvertujete u izveštajnu valutu. Na listi troškova možete izabrati više redova da ih obrišete ili odjednom promenite oznake, zemlju ili valutu.",
+  "guideSectionExpenseTrackingBody": "Svaki trošak čuva iznos, valutu, datum, opcionu zemlju (ISO), način plaćanja, kategorije i belešku. Originalni iznos i valuta se uvek čuvaju, čak i ako konvertujete u izveštajnu valutu. Na listi troškova možete izabrati više redova da ih obrišete ili odjednom promenite oznake, zemlju ili valutu. Mogući duplikati (isti dan, originalni iznos i valuta) prikazuju upozorenje; otvorite baner da obrišete red ili označite da nije duplikat.",
   "guideSectionTagsTitle": "Oznake",
   "guideSectionTagsBody": "Kategorije označavaju na šta ste potrošili (namirnice, prevoz…). Zemlja je posebno polje troška, ne oznaka. Plaćanje je takođe posebno (gotovina, kartica, kripto ili sopstveno). Oznakama i načinima plaćanja upravljate u Podešavanjima.",
   "guideSectionChartsTitle": "Grafikoni potrošnje",
@@ -538,7 +583,7 @@
   "guideSectionExportTitle": "Izvoz",
   "guideSectionExportBody": "Izvezi troškove kao CSV ili JSON. Sačuvaj fajl, podeli ga ili kopiraj u clipboard iz menija izvoza ili Podešavanja → Izvoz. Telegram se pojavljuje kao odredište tek nakon povezivanja u Integracijama.",
   "guideSectionDataSyncTitle": "Rezervna kopija i sinhronizacija",
-  "guideSectionDataSyncBody": "Napravite šifrovanu rezervnu kopiju troškova, oznaka, načina plaćanja, ručnih kurseva i podešavanja prikaza. Zaštitite je sopstvenom frazom ili generisanom. Sačuvajte fajl (na Android/iOS preko deljenja možete sačuvati u Fajlove / Preuzimanja), zatim ga pošaljite (email, Telegram kao dokument, cloud, USB). Uvoz spaja podatke: postojeći troškovi ostaju, dodaju se novi. Vratite iz Podešavanja → Rezervna kopija i sinhronizacija, ili sa prazne kontrolne table. API ključevi i Telegram nikad nisu uključeni.",
+  "guideSectionDataSyncBody": "Napravite šifrovanu rezervnu kopiju troškova, oznaka, načina plaćanja, ručnih kurseva i podešavanja prikaza. Zaštitite je sopstvenom frazom ili generisanom. Sačuvajte fajl (na Android/iOS preko deljenja možete sačuvati u Fajlove / Preuzimanja), zatim ga pošaljite (email, Telegram kao dokument, cloud, USB). Uvoz spaja podatke: postojeći troškovi ostaju, dodaju se novi. Ako dolazni troškovi liče na one koje već imate (isti dan, iznos i valuta), birate šta da preskočite kao duplikat, a šta da uvezete kao jedinstveno. Vratite iz Podešavanja → Rezervna kopija i sinhronizacija, ili sa prazne kontrolne table. API ključevi i Telegram nikad nisu uključeni.",
   "guideSectionTelegramTitle": "Deljenje preko Telegrama",
   "guideSectionTelegramBody": "Poveži Telegram u Podešavanja → Integracije, unesi token bota i chat id, proveri vezu, zatim pošalji dokument izvoza iz menija izvoza.",
   "guideSectionIntegrationsTitle": "Integracije",

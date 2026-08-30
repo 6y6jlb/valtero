@@ -18,7 +18,9 @@ import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/expenses_list/model/expenses_list_display_prefs.dart';
 import 'package:valtero/features/expenses_list/model/grouping/expense_grouper_for.dart';
 import 'package:valtero/features/expenses_list/model/grouping/expense_grouping_context.dart';
+import 'package:valtero/features/expenses_list/model/duplicate_expenses_provider.dart';
 import 'package:valtero/features/expenses_list/ui/display_currency_flow.dart';
+import 'package:valtero/features/expenses_list/ui/duplicate_review_sheet.dart';
 import 'package:valtero/features/expenses_list/ui/expense_chart.dart';
 import 'package:valtero/features/expenses_list/ui/expense_delete_flow.dart';
 import 'package:valtero/features/expenses_list/ui/expense_table.dart';
@@ -394,6 +396,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
     final paymentMethods =
         ref.watch(paymentMethodsStreamProvider).value ?? const [];
     final expenseTags = ref.watch(expenseTagIdsProvider).value ?? const {};
+    final dupState = ref.watch(duplicateExpensesProvider);
     final settings = ref.watch(appSettingsProvider).value;
     final primary = settings?.primaryCurrency ?? 'RUB';
     final timeZoneId = settings?.timeZoneId ?? kSystemTimeZoneId;
@@ -516,6 +519,45 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                         paymentMethods: paymentMethods,
                       ),
                     ),
+                    if (dupState.flaggedCount > 0) ...[
+                      const SizedBox(height: 8),
+                      Card(
+                        margin: EdgeInsets.zero,
+                        color: theme.colorScheme.errorContainer
+                            .withValues(alpha: 0.55),
+                        child: InkWell(
+                          onTap: () => showDuplicateReviewSheet(context),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.warning_amber_rounded,
+                                  color: theme.colorScheme.error,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    l10n.possibleDuplicatesBannerTitle(
+                                      dupState.flaggedCount,
+                                    ),
+                                    style: theme.textTheme.labelLarge?.copyWith(
+                                      color: theme.colorScheme.onErrorContainer,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.chevron_right,
+                                  color: theme.colorScheme.onErrorContainer,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                     if (all.isNotEmpty) ...[
                       const SizedBox(height: 12),
                       ExpensesSummaryRow(
@@ -605,6 +647,9 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                                         displayCurrency: _displayCurrency,
                                         convertedMinor: _convertedMinor,
                                         selectedIds: selectedIds,
+                                        possibleDuplicateIds:
+                                            dupState.groupByExpenseId.keys
+                                                .toSet(),
                                         onToggleSelected: selection.toggle,
                                         onToggleSelectAll: () =>
                                             selection.toggleAll(

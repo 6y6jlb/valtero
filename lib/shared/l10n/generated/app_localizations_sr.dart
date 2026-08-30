@@ -243,6 +243,83 @@ class AppLocalizationsSr extends AppLocalizations {
       'API ključevi i Telegram podaci nisu uključeni u rezervne kopije.';
 
   @override
+  String dataSyncImportDoneWithDuplicates(
+    int expenses,
+    int tags,
+    int payments,
+    int skipped,
+  ) {
+    return 'Uvezeno $expenses troškova, $tags oznaka, $payments načina plaćanja (preskočeno duplikata: $skipped)';
+  }
+
+  @override
+  String get dataSyncDuplicatesFoundTitle => 'Pronađeni mogući duplikati';
+
+  @override
+  String get dataSyncDuplicatesFoundHint =>
+      'Ovi dolazni troškovi liče na one koje već imate (isti dan, iznos i valuta). Izaberite kako da postupite sa svakim.';
+
+  @override
+  String get dataSyncMarkAsDuplicate => 'Označi kao duplikat';
+
+  @override
+  String get dataSyncMarkAsUnique => 'Označi kao jedinstven';
+
+  @override
+  String get dataSyncMarkSelectedAsDuplicate => 'Izabrani → duplikati';
+
+  @override
+  String get dataSyncMarkSelectedAsUnique => 'Izabrani → jedinstveni';
+
+  @override
+  String get dataSyncMarkAllAsDuplicate => 'Svi → duplikati';
+
+  @override
+  String get dataSyncMarkAllAsUnique => 'Svi → jedinstveni';
+
+  @override
+  String get dataSyncContinueImport => 'Nastavi uvoz';
+
+  @override
+  String get dataSyncIncomingExpense => 'Dolazni';
+
+  @override
+  String get dataSyncExistingExpense => 'Postojeći';
+
+  @override
+  String get possibleDuplicateTooltip => 'Mogući duplikat';
+
+  @override
+  String possibleDuplicatesBannerTitle(int count) {
+    return 'Mogući duplikati ($count)';
+  }
+
+  @override
+  String get duplicateReviewSheetTitle => 'Mogući duplikati';
+
+  @override
+  String get duplicateMarkNotDuplicate => 'Nije duplikat';
+
+  @override
+  String get duplicateConflictDialogTitle => 'Pronađen sličan trošak';
+
+  @override
+  String get duplicateConflictDialogHint =>
+      'Već postoji trošak sa istim danom, iznosom i valutom.';
+
+  @override
+  String get duplicateSaveAsUnique => 'Sačuvaj kao jedinstven';
+
+  @override
+  String get duplicateDeleteMatchAndSave => 'Obriši podudaranje i sačuvaj';
+
+  @override
+  String get duplicateYourExpense => 'Vaš trošak';
+
+  @override
+  String get duplicateMatchingExpense => 'Podudarni trošak';
+
+  @override
   String get dashboardRestoreFromBackup => 'Vrati iz rezervne kopije';
 
   @override
@@ -1116,14 +1193,14 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get guideSectionGettingStartedBody =>
-      'Dodirnite + na dnu ekrana da otvorite formular troška. Unesite iznos i valutu, po želji konvertujte u izveštajnu valutu, izaberite zemlju i kategorije, pa sačuvajte. Dodirnite postojeći trošak da ga izmenite u istom formularu. Do tada kontrolna tabla pokazuje primer grafikona sa linkom na ovaj vodič.';
+      'Dodirnite + na dnu ekrana da otvorite formular troška. Unesite iznos i valutu, po želji konvertujte u izveštajnu valutu, izaberite zemlju i kategorije, pa sačuvajte. Ako već postoji trošak sa istim danom, iznosom i valutom, možete sačuvati kao jedinstven, obrisati podudaranje ili otkazati. Dodirnite postojeći trošak da ga izmenite u istom formularu. Do tada kontrolna tabla pokazuje primer grafikona sa linkom na ovaj vodič.';
 
   @override
   String get guideSectionExpenseTrackingTitle => 'Praćenje troškova';
 
   @override
   String get guideSectionExpenseTrackingBody =>
-      'Svaki trošak čuva iznos, valutu, datum, opcionu zemlju (ISO), način plaćanja, kategorije i belešku. Originalni iznos i valuta se uvek čuvaju, čak i ako konvertujete u izveštajnu valutu. Na listi troškova možete izabrati više redova da ih obrišete ili odjednom promenite oznake, zemlju ili valutu.';
+      'Svaki trošak čuva iznos, valutu, datum, opcionu zemlju (ISO), način plaćanja, kategorije i belešku. Originalni iznos i valuta se uvek čuvaju, čak i ako konvertujete u izveštajnu valutu. Na listi troškova možete izabrati više redova da ih obrišete ili odjednom promenite oznake, zemlju ili valutu. Mogući duplikati (isti dan, originalni iznos i valuta) prikazuju upozorenje; otvorite baner da obrišete red ili označite da nije duplikat.';
 
   @override
   String get guideSectionTagsTitle => 'Oznake';
@@ -1158,7 +1235,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get guideSectionDataSyncBody =>
-      'Napravite šifrovanu rezervnu kopiju troškova, oznaka, načina plaćanja, ručnih kurseva i podešavanja prikaza. Zaštitite je sopstvenom frazom ili generisanom. Sačuvajte fajl (na Android/iOS preko deljenja možete sačuvati u Fajlove / Preuzimanja), zatim ga pošaljite (email, Telegram kao dokument, cloud, USB). Uvoz spaja podatke: postojeći troškovi ostaju, dodaju se novi. Vratite iz Podešavanja → Rezervna kopija i sinhronizacija, ili sa prazne kontrolne table. API ključevi i Telegram nikad nisu uključeni.';
+      'Napravite šifrovanu rezervnu kopiju troškova, oznaka, načina plaćanja, ručnih kurseva i podešavanja prikaza. Zaštitite je sopstvenom frazom ili generisanom. Sačuvajte fajl (na Android/iOS preko deljenja možete sačuvati u Fajlove / Preuzimanja), zatim ga pošaljite (email, Telegram kao dokument, cloud, USB). Uvoz spaja podatke: postojeći troškovi ostaju, dodaju se novi. Ako dolazni troškovi liče na one koje već imate (isti dan, iznos i valuta), birate šta da preskočite kao duplikat, a šta da uvezete kao jedinstveno. Vratite iz Podešavanja → Rezervna kopija i sinhronizacija, ili sa prazne kontrolne table. API ključevi i Telegram nikad nisu uključeni.';
 
   @override
   String get guideSectionTelegramTitle => 'Deljenje preko Telegrama';

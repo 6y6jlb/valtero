@@ -206,6 +206,7 @@ class BackupExpenseData {
   final String? countryCode;
   final String? note;
   final DateTime createdAt;
+  final bool duplicateDismissed;
 
   const BackupExpenseData({
     required this.clientId,
@@ -221,6 +222,7 @@ class BackupExpenseData {
     required this.countryCode,
     required this.note,
     required this.createdAt,
+    this.duplicateDismissed = false,
   });
 
   Map<String, dynamic> toJson() => {
@@ -237,6 +239,7 @@ class BackupExpenseData {
         'countryCode': countryCode,
         'note': note,
         'createdAt': createdAt.toIso8601String(),
+        'duplicateDismissed': duplicateDismissed,
       };
 
   factory BackupExpenseData.fromJson(Map<String, dynamic> json) {
@@ -261,6 +264,7 @@ class BackupExpenseData {
       countryCode: json['countryCode'] as String?,
       note: json['note'] as String?,
       createdAt: createdAt,
+      duplicateDismissed: json['duplicateDismissed'] as bool? ?? false,
     );
   }
 }

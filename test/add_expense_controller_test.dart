@@ -109,4 +109,96 @@ void main() {
     expect(row.countryCode, 'ES');
     expect(row.occurredAt.day, 2);
   });
+
+  test('update resets duplicateDismissed when fingerprint changes', () async {
+    final controller = container.read(addExpenseControllerProvider);
+    final id = await controller.save(
+      AddExpenseInput(
+        originalAmountMinor: 1000,
+        originalCurrencyCode: 'EUR',
+        convert: false,
+        occurredAt: DateTime(2026, 3, 1),
+      ),
+      markUnique: true,
+    );
+    expect((await db.getExpenseById(id))!.duplicateDismissed, isTrue);
+
+    await controller.update(
+      id,
+      AddExpenseInput(
+        originalAmountMinor: 1000,
+        originalCurrencyCode: 'EUR',
+        convert: false,
+        note: 'same fingerprint',
+        occurredAt: DateTime(2026, 3, 1),
+      ),
+    );
+    expect((await db.getExpenseById(id))!.duplicateDismissed, isTrue);
+
+    await controller.update(
+      id,
+      AddExpenseInput(
+        originalAmountMinor: 2500,
+        originalCurrencyCode: 'EUR',
+        convert: false,
+        occurredAt: DateTime(2026, 3, 1),
+      ),
+    );
+    expect((await db.getExpenseById(id))!.duplicateDismissed, isFalse);
+  });
+
+  test('update with markUnique forces duplicateDismissed true', () async {
+    final controller = container.read(addExpenseControllerProvider);
+    final id = await controller.save(
+      AddExpenseInput(
+        originalAmountMinor: 1000,
+        originalCurrencyCode: 'EUR',
+        convert: false,
+        occurredAt: DateTime(2026, 3, 1),
+      ),
+    );
+    await controller.update(
+      id,
+      AddExpenseInput(
+        originalAmountMinor: 2000,
+        originalCurrencyCode: 'EUR',
+        convert: false,
+        occurredAt: DateTime(2026, 3, 2),
+      ),
+      markUnique: true,
+    );
+    expect((await db.getExpenseById(id))!.duplicateDismissed, isTrue);
+  });
+
+  test('findPotentialDuplicates matches same day amount currency', () async {
+    final controller = container.read(addExpenseControllerProvider);
+    final id = await controller.save(
+      AddExpenseInput(
+        originalAmountMinor: 777,
+        originalCurrencyCode: 'USD',
+        convert: false,
+        occurredAt: DateTime(2026, 6, 1, 10),
+      ),
+    );
+    final matches = await controller.findPotentialDuplicates(
+      AddExpenseInput(
+        originalAmountMinor: 777,
+        originalCurrencyCode: 'USD',
+        convert: false,
+        occurredAt: DateTime(2026, 6, 1, 22),
+      ),
+    );
+    expect(matches.map((e) => e.id), [id]);
+
+    final selfExcluded = await controller.findPotentialDuplicates(
+      AddExpenseInput(
+        originalAmountMinor: 777,
+        originalCurrencyCode: 'USD',
+        convert: false,
+        occurredAt: DateTime(2026, 6, 1, 22),
+      ),
+      excludeId: id,
+    );
+    expect(selfExcluded, isEmpty);
+  });
 }

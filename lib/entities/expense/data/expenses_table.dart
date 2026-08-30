@@ -19,4 +19,8 @@ class Expenses extends Table {
   TextColumn get countryCode => text().nullable()();
   TextColumn get note => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
+  /// User confirmed this expense is not a duplicate of others sharing
+  /// the same day + original amount + currency fingerprint.
+  BoolColumn get duplicateDismissed =>
+      boolean().withDefault(const Constant(false))();
 }

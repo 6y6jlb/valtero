@@ -540,6 +540,143 @@ abstract class AppLocalizations {
   /// **'API keys and Telegram credentials are not included in backups.'**
   String get dataSyncIntegrationsNotTransferred;
 
+  /// No description provided for @dataSyncImportDoneWithDuplicates.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {expenses} expenses, {tags} tags, {payments} payment methods ({skipped} duplicates skipped)'**
+  String dataSyncImportDoneWithDuplicates(
+    int expenses,
+    int tags,
+    int payments,
+    int skipped,
+  );
+
+  /// No description provided for @dataSyncDuplicatesFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Possible duplicates found'**
+  String get dataSyncDuplicatesFoundTitle;
+
+  /// No description provided for @dataSyncDuplicatesFoundHint.
+  ///
+  /// In en, this message translates to:
+  /// **'These incoming expenses look like ones you already have (same day, amount, and currency). Choose how to handle each.'**
+  String get dataSyncDuplicatesFoundHint;
+
+  /// No description provided for @dataSyncMarkAsDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as duplicate'**
+  String get dataSyncMarkAsDuplicate;
+
+  /// No description provided for @dataSyncMarkAsUnique.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as unique'**
+  String get dataSyncMarkAsUnique;
+
+  /// No description provided for @dataSyncMarkSelectedAsDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected → duplicate'**
+  String get dataSyncMarkSelectedAsDuplicate;
+
+  /// No description provided for @dataSyncMarkSelectedAsUnique.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected → unique'**
+  String get dataSyncMarkSelectedAsUnique;
+
+  /// No description provided for @dataSyncMarkAllAsDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'All → duplicate'**
+  String get dataSyncMarkAllAsDuplicate;
+
+  /// No description provided for @dataSyncMarkAllAsUnique.
+  ///
+  /// In en, this message translates to:
+  /// **'All → unique'**
+  String get dataSyncMarkAllAsUnique;
+
+  /// No description provided for @dataSyncContinueImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue import'**
+  String get dataSyncContinueImport;
+
+  /// No description provided for @dataSyncIncomingExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Incoming'**
+  String get dataSyncIncomingExpense;
+
+  /// No description provided for @dataSyncExistingExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing'**
+  String get dataSyncExistingExpense;
+
+  /// No description provided for @possibleDuplicateTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Possible duplicate'**
+  String get possibleDuplicateTooltip;
+
+  /// No description provided for @possibleDuplicatesBannerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Possible duplicates ({count})'**
+  String possibleDuplicatesBannerTitle(int count);
+
+  /// No description provided for @duplicateReviewSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Possible duplicates'**
+  String get duplicateReviewSheetTitle;
+
+  /// No description provided for @duplicateMarkNotDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a duplicate'**
+  String get duplicateMarkNotDuplicate;
+
+  /// No description provided for @duplicateConflictDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Similar expense found'**
+  String get duplicateConflictDialogTitle;
+
+  /// No description provided for @duplicateConflictDialogHint.
+  ///
+  /// In en, this message translates to:
+  /// **'An expense with the same day, amount, and currency already exists.'**
+  String get duplicateConflictDialogHint;
+
+  /// No description provided for @duplicateSaveAsUnique.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as unique'**
+  String get duplicateSaveAsUnique;
+
+  /// No description provided for @duplicateDeleteMatchAndSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete match and save'**
+  String get duplicateDeleteMatchAndSave;
+
+  /// No description provided for @duplicateYourExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Your expense'**
+  String get duplicateYourExpense;
+
+  /// No description provided for @duplicateMatchingExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Matching expense'**
+  String get duplicateMatchingExpense;
+
   /// No description provided for @dashboardRestoreFromBackup.
   ///
   /// In en, this message translates to:
@@ -2127,7 +2264,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionGettingStartedBody.
   ///
   /// In en, this message translates to:
-  /// **'Tap the + button at the bottom of the screen to open the add-expense form. Enter an amount and currency, optionally convert into a reporting currency, pick a country and category tags, and save. Tap an existing expense to edit it in the same form. Until then, the dashboard shows a sample chart with a link to this guide.'**
+  /// **'Tap the + button at the bottom of the screen to open the add-expense form. Enter an amount and currency, optionally convert into a reporting currency, pick a country and category tags, and save. If another expense already has the same day, amount, and currency, you can mark yours as unique, delete the match, or cancel. Tap an existing expense to edit it in the same form. Until then, the dashboard shows a sample chart with a link to this guide.'**
   String get guideSectionGettingStartedBody;
 
   /// No description provided for @guideSectionExpenseTrackingTitle.
@@ -2139,7 +2276,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionExpenseTrackingBody.
   ///
   /// In en, this message translates to:
-  /// **'Each expense stores amount, currency, date, optional country (ISO), payment method, category tags, and note. The original amount and currency are always kept, even if you convert into a reporting currency for storage. On the expenses list, select several rows to delete them or change tags, country, or currency in bulk.'**
+  /// **'Each expense stores amount, currency, date, optional country (ISO), payment method, category tags, and note. The original amount and currency are always kept, even if you convert into a reporting currency for storage. On the expenses list, select several rows to delete them or change tags, country, or currency in bulk. Possible duplicates (same day, original amount, and currency) show an alert badge; open the banner to delete a row or mark it as not a duplicate.'**
   String get guideSectionExpenseTrackingBody;
 
   /// No description provided for @guideSectionTagsTitle.
@@ -2199,7 +2336,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionDataSyncBody.
   ///
   /// In en, this message translates to:
-  /// **'Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file (on Android/iOS the share sheet lets you Save to Files / Downloads), then send it (email, Telegram as a document, cloud, USB). Import merges: existing expenses are kept and new data is added. Restore from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.'**
+  /// **'Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file (on Android/iOS the share sheet lets you Save to Files / Downloads), then send it (email, Telegram as a document, cloud, USB). Import merges: existing expenses are kept and new data is added. If incoming expenses look like ones you already have (same day, amount, and currency), you choose which to skip as duplicates and which to import as unique. Restore from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.'**
   String get guideSectionDataSyncBody;
 
   /// No description provided for @guideSectionTelegramTitle.

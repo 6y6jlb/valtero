@@ -244,6 +244,83 @@ class AppLocalizationsEs extends AppLocalizations {
       'Las claves API y las credenciales de Telegram no se incluyen en las copias.';
 
   @override
+  String dataSyncImportDoneWithDuplicates(
+    int expenses,
+    int tags,
+    int payments,
+    int skipped,
+  ) {
+    return 'Importados $expenses gastos, $tags etiquetas, $payments métodos de pago ($skipped duplicados omitidos)';
+  }
+
+  @override
+  String get dataSyncDuplicatesFoundTitle => 'Posibles duplicados encontrados';
+
+  @override
+  String get dataSyncDuplicatesFoundHint =>
+      'Estos gastos entrantes se parecen a los que ya tienes (mismo día, importe y moneda). Elige cómo tratar cada uno.';
+
+  @override
+  String get dataSyncMarkAsDuplicate => 'Marcar como duplicado';
+
+  @override
+  String get dataSyncMarkAsUnique => 'Marcar como único';
+
+  @override
+  String get dataSyncMarkSelectedAsDuplicate => 'Seleccionados → duplicados';
+
+  @override
+  String get dataSyncMarkSelectedAsUnique => 'Seleccionados → únicos';
+
+  @override
+  String get dataSyncMarkAllAsDuplicate => 'Todos → duplicados';
+
+  @override
+  String get dataSyncMarkAllAsUnique => 'Todos → únicos';
+
+  @override
+  String get dataSyncContinueImport => 'Continuar importación';
+
+  @override
+  String get dataSyncIncomingExpense => 'Entrante';
+
+  @override
+  String get dataSyncExistingExpense => 'Existente';
+
+  @override
+  String get possibleDuplicateTooltip => 'Posible duplicado';
+
+  @override
+  String possibleDuplicatesBannerTitle(int count) {
+    return 'Posibles duplicados ($count)';
+  }
+
+  @override
+  String get duplicateReviewSheetTitle => 'Posibles duplicados';
+
+  @override
+  String get duplicateMarkNotDuplicate => 'No es un duplicado';
+
+  @override
+  String get duplicateConflictDialogTitle => 'Gasto similar encontrado';
+
+  @override
+  String get duplicateConflictDialogHint =>
+      'Ya existe un gasto con el mismo día, importe y moneda.';
+
+  @override
+  String get duplicateSaveAsUnique => 'Guardar como único';
+
+  @override
+  String get duplicateDeleteMatchAndSave => 'Eliminar coincidencia y guardar';
+
+  @override
+  String get duplicateYourExpense => 'Tu gasto';
+
+  @override
+  String get duplicateMatchingExpense => 'Gasto coincidente';
+
+  @override
   String get dashboardRestoreFromBackup => 'Restaurar desde copia';
 
   @override
@@ -1115,14 +1192,14 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guideSectionGettingStartedBody =>
-      'Toca el botón + en la parte inferior para abrir el formulario de gasto. Introduce importe y moneda, opcionalmente convierte a una moneda de informe, elige país y categorías, y guarda. Toca un gasto existente para editarlo en el mismo formulario. Hasta entonces, el panel muestra un gráfico de ejemplo con enlace a esta guía.';
+      'Toca el botón + en la parte inferior para abrir el formulario de gasto. Introduce importe y moneda, opcionalmente convierte a una moneda de informe, elige país y categorías, y guarda. Si ya existe un gasto con el mismo día, importe y moneda, puedes guardarlo como único, eliminar la coincidencia o cancelar. Toca un gasto existente para editarlo en el mismo formulario. Hasta entonces, el panel muestra un gráfico de ejemplo con enlace a esta guía.';
 
   @override
   String get guideSectionExpenseTrackingTitle => 'Seguimiento de gastos';
 
   @override
   String get guideSectionExpenseTrackingBody =>
-      'Cada gasto guarda importe, moneda, fecha, país opcional (ISO), método de pago, etiquetas de categoría y nota. El importe y la moneda originales siempre se conservan, aunque conviertas a una moneda de informe. En la lista de gastos puedes seleccionar varias filas para eliminarlas o cambiar etiquetas, país o moneda a la vez.';
+      'Cada gasto guarda importe, moneda, fecha, país opcional (ISO), método de pago, etiquetas de categoría y nota. El importe y la moneda originales siempre se conservan, aunque conviertas a una moneda de informe. En la lista de gastos puedes seleccionar varias filas para eliminarlas o cambiar etiquetas, país o moneda a la vez. Los posibles duplicados (mismo día, importe original y moneda) muestran un aviso; abre el banner para eliminar una fila o marcarla como no duplicado.';
 
   @override
   String get guideSectionTagsTitle => 'Etiquetas';
@@ -1157,7 +1234,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guideSectionDataSyncBody =>
-      'Crea una copia cifrada de gastos, etiquetas, métodos de pago, tipos manuales y ajustes de visualización. Protégela con tu frase o una generada. Guarda el archivo (en Android/iOS la hoja de compartir permite Guardar en Archivos / Descargas) y envíalo (correo, Telegram como documento, nube, USB). La importación fusiona: se conservan los gastos existentes y se añaden datos nuevos. Restaura desde Ajustes → Copia de seguridad y sincronización, o desde el panel vacío. Las claves API y Telegram nunca se incluyen.';
+      'Crea una copia cifrada de gastos, etiquetas, métodos de pago, tipos manuales y ajustes de visualización. Protégela con tu frase o una generada. Guarda el archivo (en Android/iOS la hoja de compartir permite Guardar en Archivos / Descargas) y envíalo (correo, Telegram como documento, nube, USB). La importación fusiona: se conservan los gastos existentes y se añaden datos nuevos. Si los gastos entrantes se parecen a los que ya tienes (mismo día, importe y moneda), eliges cuáles omitir como duplicados y cuáles importar como únicos. Restaura desde Ajustes → Copia de seguridad y sincronización, o desde el panel vacío. Las claves API y Telegram nunca se incluyen.';
 
   @override
   String get guideSectionTelegramTitle => 'Compartir por Telegram';

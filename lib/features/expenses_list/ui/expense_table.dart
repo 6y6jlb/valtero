@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:valtero/features/expenses_list/ui/possible_duplicate_badge.dart';
 import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
@@ -47,6 +48,7 @@ class ExpenseTable extends StatelessWidget {
   final ValueChanged<int> onToggleSelected;
   final VoidCallback? onToggleSelectAll;
   final bool allSelectableSelected;
+  final Set<int> possibleDuplicateIds;
 
   const ExpenseTable({
     super.key,
@@ -63,6 +65,7 @@ class ExpenseTable extends StatelessWidget {
     required this.onToggleSelected,
     this.onToggleSelectAll,
     this.allSelectableSelected = false,
+    this.possibleDuplicateIds = const {},
   });
 
   bool get _hasSelection => selectedIds.isNotEmpty;
@@ -152,6 +155,8 @@ class ExpenseTable extends StatelessWidget {
                     convertedAmountMinor: convertedMinor(expense),
                     selected: selectedIds.contains(expense.id),
                     selectionActive: _hasSelection,
+                    showPossibleDuplicate:
+                        possibleDuplicateIds.contains(expense.id),
                     onToggleSelected: () => onToggleSelected(expense.id),
                     onDelete: () => onDelete(expense.id),
                     onEdit: onEdit == null ? null : () => onEdit!(expense),
@@ -179,6 +184,7 @@ class ExpenseTableRow extends ConsumerWidget {
   final int? convertedAmountMinor;
   final bool selected;
   final bool selectionActive;
+  final bool showPossibleDuplicate;
   final VoidCallback onToggleSelected;
   final VoidCallback onDelete;
   final VoidCallback? onEdit;
@@ -192,6 +198,7 @@ class ExpenseTableRow extends ConsumerWidget {
     required this.convertedAmountMinor,
     required this.selected,
     required this.selectionActive,
+    this.showPossibleDuplicate = false,
     required this.onToggleSelected,
     required this.onDelete,
     this.onEdit,
@@ -228,14 +235,24 @@ class ExpenseTableRow extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  MoneyText(
-                    amountMinor: showConverted
-                        ? convertedAmountMinor!
-                        : expense.storedAmountMinor,
-                    currencyCode: showConverted
-                        ? displayCurrency!
-                        : expense.storedCurrencyCode,
-                    style: theme.textTheme.titleSmall,
+                  Row(
+                    children: [
+                      Flexible(
+                        child: MoneyText(
+                          amountMinor: showConverted
+                              ? convertedAmountMinor!
+                              : expense.storedAmountMinor,
+                          currencyCode: showConverted
+                              ? displayCurrency!
+                              : expense.storedCurrencyCode,
+                          style: theme.textTheme.titleSmall,
+                        ),
+                      ),
+                      if (showPossibleDuplicate) ...[
+                        const SizedBox(width: 4),
+                        const PossibleDuplicateBadge(size: 16),
+                      ],
+                    ],
                   ),
                   if (showConverted &&
                       expense.storedCurrencyCode.toUpperCase() !=

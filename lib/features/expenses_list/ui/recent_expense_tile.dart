@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:valtero/features/expenses_list/ui/possible_duplicate_badge.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/money_text.dart';
@@ -10,6 +11,7 @@ class RecentExpenseTile extends ConsumerWidget {
   final String? paymentLabel;
   final String? countryLabel;
   final String? tagsLabel;
+  final bool showPossibleDuplicate;
   final VoidCallback onTap;
 
   const RecentExpenseTile({
@@ -18,6 +20,7 @@ class RecentExpenseTile extends ConsumerWidget {
     required this.paymentLabel,
     required this.countryLabel,
     required this.tagsLabel,
+    this.showPossibleDuplicate = false,
     required this.onTap,
   });
 
@@ -36,10 +39,20 @@ class RecentExpenseTile extends ConsumerWidget {
       leading: expense.countryCode == null || expense.countryCode!.isEmpty
           ? null
           : FlagIcon.country(expense.countryCode, size: 28),
-      title: MoneyText(
-        amountMinor: expense.storedAmountMinor,
-        currencyCode: expense.storedCurrencyCode,
-        style: theme.textTheme.titleSmall,
+      title: Row(
+        children: [
+          Flexible(
+            child: MoneyText(
+              amountMinor: expense.storedAmountMinor,
+              currencyCode: expense.storedCurrencyCode,
+              style: theme.textTheme.titleSmall,
+            ),
+          ),
+          if (showPossibleDuplicate) ...[
+            const SizedBox(width: 6),
+            const PossibleDuplicateBadge(size: 16),
+          ],
+        ],
       ),
       subtitle: parts.isEmpty
           ? null

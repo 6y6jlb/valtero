@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
+import 'package:valtero/entities/expense/model/duplicate_matcher.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/database/database_provider.dart';
 import 'package:valtero/shared/utils/money.dart';
@@ -78,7 +79,23 @@ class AddExpenseController {
     return trimmed.toUpperCase();
   }
 
-  Future<int> save(AddExpenseInput input) async {
+  Future<List<Expense>> findPotentialDuplicates(
+    AddExpenseInput input, {
+    int? excludeId,
+  }) async {
+    final pool = await ref.read(appDatabaseProvider).getAllExpenses();
+    final key = fingerprintOf(
+      occurredAt: input.occurredAt,
+      originalAmountMinor: input.originalAmountMinor,
+      originalCurrencyCode: input.originalCurrencyCode,
+    );
+    return findMatches(pool: pool, fingerprint: key, excludeId: excludeId);
+  }
+
+  Future<int> save(
+    AddExpenseInput input, {
+    bool markUnique = false,
+  }) async {
     final db = ref.read(appDatabaseProvider);
     final resolved = await _resolveStored(input);
     final original = input.originalCurrencyCode.toUpperCase();
@@ -98,13 +115,18 @@ class AddExpenseController {
           input.note?.trim().isEmpty == true ? null : input.note?.trim(),
         ),
         createdAt: DateTime.now(),
+        duplicateDismissed: Value(markUnique),
       ),
     );
     await db.setExpenseTags(id, input.tagIds);
     return id;
   }
 
-  Future<void> update(int id, AddExpenseInput input) async {
+  Future<void> update(
+    int id,
+    AddExpenseInput input, {
+    bool markUnique = false,
+  }) async {
     final db = ref.read(appDatabaseProvider);
     final existing = await db.getExpenseById(id);
     if (existing == null) {
@@ -112,6 +134,21 @@ class AddExpenseController {
     }
     final resolved = await _resolveStored(input);
     final original = input.originalCurrencyCode.toUpperCase();
+
+    final oldKey = fingerprintOfExpense(existing);
+    final newKey = fingerprintOf(
+      occurredAt: input.occurredAt,
+      originalAmountMinor: input.originalAmountMinor,
+      originalCurrencyCode: original,
+    );
+    final fingerprintChanged = oldKey != newKey;
+
+    var dismissed = existing.duplicateDismissed;
+    if (markUnique) {
+      dismissed = true;
+    } else if (fingerprintChanged) {
+      dismissed = false;
+    }
 
     await db.updateExpenseRow(
       existing.copyWith(
@@ -127,6 +164,7 @@ class AddExpenseController {
         note: Value(
           input.note?.trim().isEmpty == true ? null : input.note?.trim(),
         ),
+        duplicateDismissed: dismissed,
       ),
     );
     await db.setExpenseTags(id, input.tagIds);
@@ -134,6 +172,16 @@ class AddExpenseController {
 
   Future<void> delete(int id) {
     return ref.read(appDatabaseProvider).deleteExpenseById(id);
+  }
+
+  Future<void> deleteMany(List<int> ids) async {
+    if (ids.isEmpty) return;
+    final db = ref.read(appDatabaseProvider);
+    await db.transaction(() async {
+      for (final id in ids) {
+        await db.deleteExpenseById(id);
+      }
+    });
   }
 }
 

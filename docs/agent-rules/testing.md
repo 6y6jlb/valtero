@@ -24,11 +24,22 @@ Guidelines for unit and feature tests in Valtero.
 4. Money stays in **integer minor units** in fixtures.
 5. When adding a pure helper or changing filter/money/rate logic in the same PR, add or extend a test.
 6. Schema / migration: add fixture upgrade tests for breaking `migrate_to_vN` changes. Never wipe user DB on upgrade.
+7. When a Drift / generated model gains a **required** field (e.g. new non-null column), update **all** hand-built `Expense(...)` / table-row fixtures across `test/` — not only the new feature’s tests.
+
+## After finishing a plan / feature
+
+Before declaring the work done (and before asking the user to commit):
+
+1. Run the **full** suite: `flutter test` (not only the new/related files).
+2. Fix every failure — including compile errors in unrelated fixtures broken by schema/API changes.
+3. Re-run `flutter test` until green.
+
+Targeted runs (`flutter test test/foo_test.dart`) are fine while iterating; the exit gate is the full suite.
 
 ## Running
 
 ```bash
 flutter test
-# or a single file:
+# or a single file while iterating:
 flutter test test/money_display_test.dart
 ```

@@ -86,6 +86,51 @@
   "dataSyncUnsupportedFormat": "Unsupported or invalid backup file",
   "dataSyncNewerSchema": "This backup needs a newer app version",
   "dataSyncIntegrationsNotTransferred": "API keys and Telegram credentials are not included in backups.",
+  "dataSyncImportDoneWithDuplicates": "Imported {expenses} expenses, {tags} tags, {payments} payment methods ({skipped} duplicates skipped)",
+  "@dataSyncImportDoneWithDuplicates": {
+    "placeholders": {
+      "expenses": {
+        "type": "int"
+      },
+      "tags": {
+        "type": "int"
+      },
+      "payments": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "dataSyncDuplicatesFoundTitle": "Possible duplicates found",
+  "dataSyncDuplicatesFoundHint": "These incoming expenses look like ones you already have (same day, amount, and currency). Choose how to handle each.",
+  "dataSyncMarkAsDuplicate": "Mark as duplicate",
+  "dataSyncMarkAsUnique": "Mark as unique",
+  "dataSyncMarkSelectedAsDuplicate": "Selected → duplicate",
+  "dataSyncMarkSelectedAsUnique": "Selected → unique",
+  "dataSyncMarkAllAsDuplicate": "All → duplicate",
+  "dataSyncMarkAllAsUnique": "All → unique",
+  "dataSyncContinueImport": "Continue import",
+  "dataSyncIncomingExpense": "Incoming",
+  "dataSyncExistingExpense": "Existing",
+  "possibleDuplicateTooltip": "Possible duplicate",
+  "possibleDuplicatesBannerTitle": "Possible duplicates ({count})",
+  "@possibleDuplicatesBannerTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "duplicateReviewSheetTitle": "Possible duplicates",
+  "duplicateMarkNotDuplicate": "Not a duplicate",
+  "duplicateConflictDialogTitle": "Similar expense found",
+  "duplicateConflictDialogHint": "An expense with the same day, amount, and currency already exists.",
+  "duplicateSaveAsUnique": "Save as unique",
+  "duplicateDeleteMatchAndSave": "Delete match and save",
+  "duplicateYourExpense": "Your expense",
+  "duplicateMatchingExpense": "Matching expense",
   "dashboardRestoreFromBackup": "Restore from backup",
   "selectCountry": "Select country",
   "addExpense": "Add expense",
@@ -526,9 +571,9 @@
   "guideSampleCountryGe": "Georgia",
   "guideSampleCountryTr": "Turkey",
   "guideSectionGettingStartedTitle": "Getting started",
-  "guideSectionGettingStartedBody": "Tap the + button at the bottom of the screen to open the add-expense form. Enter an amount and currency, optionally convert into a reporting currency, pick a country and category tags, and save. Tap an existing expense to edit it in the same form. Until then, the dashboard shows a sample chart with a link to this guide.",
+  "guideSectionGettingStartedBody": "Tap the + button at the bottom of the screen to open the add-expense form. Enter an amount and currency, optionally convert into a reporting currency, pick a country and category tags, and save. If another expense already has the same day, amount, and currency, you can mark yours as unique, delete the match, or cancel. Tap an existing expense to edit it in the same form. Until then, the dashboard shows a sample chart with a link to this guide.",
   "guideSectionExpenseTrackingTitle": "Expense tracking",
-  "guideSectionExpenseTrackingBody": "Each expense stores amount, currency, date, optional country (ISO), payment method, category tags, and note. The original amount and currency are always kept, even if you convert into a reporting currency for storage. On the expenses list, select several rows to delete them or change tags, country, or currency in bulk.",
+  "guideSectionExpenseTrackingBody": "Each expense stores amount, currency, date, optional country (ISO), payment method, category tags, and note. The original amount and currency are always kept, even if you convert into a reporting currency for storage. On the expenses list, select several rows to delete them or change tags, country, or currency in bulk. Possible duplicates (same day, original amount, and currency) show an alert badge; open the banner to delete a row or mark it as not a duplicate.",
   "guideSectionTagsTitle": "Tags",
   "guideSectionTagsBody": "Category tags label what you spent on (groceries, transport, …). Country is a separate field on the expense, not a tag. Payment is also separate (cash, card, crypto, or your own). Manage tags and payment methods in Settings.",
   "guideSectionChartsTitle": "Spending charts",
@@ -538,7 +583,7 @@
   "guideSectionExportTitle": "Export",
   "guideSectionExportBody": "Export expenses as CSV or JSON. Save a file, share it, or copy to the clipboard from the export menu or Settings → Export. Telegram appears as a destination only after you connect it under Integrations.",
   "guideSectionDataSyncTitle": "Backup & sync",
-  "guideSectionDataSyncBody": "Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file (on Android/iOS the share sheet lets you Save to Files / Downloads), then send it (email, Telegram as a document, cloud, USB). Import merges: existing expenses are kept and new data is added. Restore from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.",
+  "guideSectionDataSyncBody": "Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file (on Android/iOS the share sheet lets you Save to Files / Downloads), then send it (email, Telegram as a document, cloud, USB). Import merges: existing expenses are kept and new data is added. If incoming expenses look like ones you already have (same day, amount, and currency), you choose which to skip as duplicates and which to import as unique. Restore from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.",
   "guideSectionTelegramTitle": "Telegram sharing",
   "guideSectionTelegramBody": "Connect Telegram in Settings → Integrations, enter a bot token and chat id, test the connection, then send an export document from the export menu.",
   "guideSectionIntegrationsTitle": "Integrations",

@@ -9,8 +9,11 @@ import 'package:valtero/features/data_sync/model/backup_format.dart';
 import 'package:valtero/features/data_sync/model/data_sync_controller.dart';
 import 'package:valtero/features/data_sync/model/passphrase_generator.dart';
 import 'package:valtero/features/data_sync/ui/data_sync_passphrase_field.dart';
+import 'package:valtero/features/data_sync/ui/duplicate_import_resolution_dialog.dart';
+import 'package:valtero/entities/payment_method/model/payment_methods_provider.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/logging/logging_providers.dart';
+import 'package:valtero/shared/utils/payment_method_label.dart';
 import 'package:valtero/widgets/app_toast.dart';
 
 enum DataSyncTab { export, import }
@@ -191,20 +194,58 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
     }
     setState(() => _busy = true);
     try {
-      final report = await ref.read(dataSyncControllerProvider).importFromPath(
-            path: path,
-            passphrase: passphrase,
-            applySettings: _applySettings,
-          );
-      if (!mounted) return;
-      showAppToast(
-        context,
-        l10n.dataSyncImportDone(
-          report.expensesAdded,
-          report.tagsAdded,
-          report.paymentsAdded,
-        ),
+      final controller = ref.read(dataSyncControllerProvider);
+      final envelope = await controller.decryptFromPath(
+        path: path,
+        passphrase: passphrase,
       );
+      if (!mounted) return;
+
+      final conflicts = await controller.findDuplicateConflicts(envelope);
+      if (!mounted) return;
+
+      var skipClientIds = <String>{};
+      var markUniqueClientIds = <String>{};
+      if (conflicts.isNotEmpty) {
+        final payments =
+            ref.read(paymentMethodsStreamProvider).value ?? const [];
+        final paymentLabels = {
+          for (final m in payments)
+            m.id: localizedPaymentMethodLabel(context, m),
+        };
+        final resolution = await showDuplicateImportResolutionDialog(
+          context: context,
+          conflicts: conflicts,
+          paymentLabels: paymentLabels,
+        );
+        if (!mounted) return;
+        if (resolution == null) {
+          return;
+        }
+        skipClientIds = resolution.skipClientIds;
+        markUniqueClientIds = resolution.markUniqueClientIds;
+      }
+
+      final report = await controller.applyImport(
+        envelope: envelope,
+        applySettings: _applySettings,
+        skipClientIds: skipClientIds,
+        markUniqueClientIds: markUniqueClientIds,
+      );
+      if (!mounted) return;
+      final message = report.expensesSkippedDuplicate > 0
+          ? l10n.dataSyncImportDoneWithDuplicates(
+              report.expensesAdded,
+              report.tagsAdded,
+              report.paymentsAdded,
+              report.expensesSkippedDuplicate,
+            )
+          : l10n.dataSyncImportDone(
+              report.expensesAdded,
+              report.tagsAdded,
+              report.paymentsAdded,
+            );
+      showAppToast(context, message);
       Navigator.of(context).maybePop();
     } on BackupWrongPassphraseException {
       if (!mounted) return;

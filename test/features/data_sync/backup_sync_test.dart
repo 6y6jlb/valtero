@@ -249,6 +249,101 @@ void main() {
       final tagIds = await db.getTagIdsForExpense(expenses.first.id);
       expect(tagIds.length, 2);
     });
+
+    test('skipClientIds skips insert; forceUnique sets duplicateDismissed',
+        () async {
+      final occurred = DateTime.utc(2026, 2, 1);
+      final envelope = BackupEnvelope(
+        formatVersion: kBackupFormatVersion,
+        schemaVersion: kAppSchemaVersion,
+        exportedAt: DateTime.utc(2026, 2, 1),
+        appVersion: '1.0.0',
+        data: BackupPayloadData(
+          tags: const [],
+          paymentMethods: const [],
+          expenses: [
+            BackupExpenseData(
+              clientId: 'skip-me',
+              occurredAt: occurred,
+              originalAmountMinor: 100,
+              originalCurrencyCode: 'USD',
+              storedAmountMinor: 100,
+              storedCurrencyCode: 'USD',
+              rateUsed: null,
+              rateTimestamp: null,
+              paymentStableKey: null,
+              paymentName: null,
+              countryCode: null,
+              note: null,
+              createdAt: occurred,
+            ),
+            BackupExpenseData(
+              clientId: 'unique-me',
+              occurredAt: occurred,
+              originalAmountMinor: 200,
+              originalCurrencyCode: 'USD',
+              storedAmountMinor: 200,
+              storedCurrencyCode: 'USD',
+              rateUsed: null,
+              rateTimestamp: null,
+              paymentStableKey: null,
+              paymentName: null,
+              countryCode: null,
+              note: null,
+              createdAt: occurred,
+            ),
+            BackupExpenseData(
+              clientId: 'normal-me',
+              occurredAt: occurred,
+              originalAmountMinor: 300,
+              originalCurrencyCode: 'USD',
+              storedAmountMinor: 300,
+              storedCurrencyCode: 'USD',
+              rateUsed: null,
+              rateTimestamp: null,
+              paymentStableKey: null,
+              paymentName: null,
+              countryCode: null,
+              note: null,
+              createdAt: occurred,
+            ),
+          ],
+          expenseTags: const [],
+          exchangeRateOverrides: const [],
+          settings: BackupSettingsData(
+            reportingCurrencies: const ['USD'],
+            primaryCurrency: 'USD',
+            customCurrencyCodes: const [],
+            themeMode: 'system',
+            locale: 'system',
+            moneyDisplayFormat: 'localeCode',
+            dateDisplayFormat: 'isoYmd',
+            timeZoneId: 'system',
+            dismissedTagSuggestions: const [],
+          ),
+        ),
+      );
+
+      final report = await BackupImporter().importEnvelope(
+        db: db,
+        envelope: envelope,
+        currentSettings: AppSettings.initial(),
+        saveSettings: (_) async {},
+        skipClientIds: {'skip-me'},
+        forceUniqueClientIds: {'unique-me'},
+      );
+
+      expect(report.expensesAdded, 2);
+      expect(report.expensesSkippedDuplicate, 1);
+      final expenses = await db.getAllExpenses();
+      expect(expenses, hasLength(2));
+      final byAmount = {
+        for (final e in expenses) e.originalAmountMinor: e,
+      };
+      expect(byAmount[200]!.duplicateDismissed, isTrue);
+      expect(byAmount[300]!.duplicateDismissed, isFalse);
+      expect(byAmount.containsKey(100), isFalse);
+    });
   });
 
   group('BackupSnapshotBuilder', () {

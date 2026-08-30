@@ -44,6 +44,7 @@ Expense _expense({
     storedAmountMinor: amountMinor,
     storedCurrencyCode: currency,
     createdAt: at,
+    duplicateDismissed: false,
   );
 }
 

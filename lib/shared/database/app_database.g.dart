@@ -230,11 +230,11 @@ class Tag extends DataClass implements Insertable<Tag> {
   final bool isDefault;
   final int sortOrder;
 
-  /// `normal` | `country` | `trip`
+  /// `normal` (category). Legacy `country` / `trip` kinds are unused.
   final String kind;
   final String? countryCode;
 
-  /// Stable id for localized defaults/suggestions, e.g. `groceries`, `trip_USD`.
+  /// Stable id for localized defaults/suggestions, e.g. `groceries`.
   final String? stableKey;
   const Tag({
     required this.id,
@@ -1074,6 +1074,20 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _duplicateDismissedMeta =
+      const VerificationMeta('duplicateDismissed');
+  @override
+  late final GeneratedColumn<bool> duplicateDismissed = GeneratedColumn<bool>(
+    'duplicate_dismissed',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("duplicate_dismissed" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1089,6 +1103,7 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
     countryCode,
     note,
     createdAt,
+    duplicateDismissed,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1210,6 +1225,15 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
+    if (data.containsKey('duplicate_dismissed')) {
+      context.handle(
+        _duplicateDismissedMeta,
+        duplicateDismissed.isAcceptableOrUnknown(
+          data['duplicate_dismissed']!,
+          _duplicateDismissedMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1271,6 +1295,10 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
+      duplicateDismissed: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}duplicate_dismissed'],
+      )!,
     );
   }
 
@@ -1298,6 +1326,10 @@ class Expense extends DataClass implements Insertable<Expense> {
   final String? countryCode;
   final String? note;
   final DateTime createdAt;
+
+  /// User confirmed this expense is not a duplicate of others sharing
+  /// the same day + original amount + currency fingerprint.
+  final bool duplicateDismissed;
   const Expense({
     required this.id,
     required this.occurredAt,
@@ -1312,6 +1344,7 @@ class Expense extends DataClass implements Insertable<Expense> {
     this.countryCode,
     this.note,
     required this.createdAt,
+    required this.duplicateDismissed,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1341,6 +1374,7 @@ class Expense extends DataClass implements Insertable<Expense> {
       map['note'] = Variable<String>(note);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
+    map['duplicate_dismissed'] = Variable<bool>(duplicateDismissed);
     return map;
   }
 
@@ -1369,6 +1403,7 @@ class Expense extends DataClass implements Insertable<Expense> {
           : Value(countryCode),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
       createdAt: Value(createdAt),
+      duplicateDismissed: Value(duplicateDismissed),
     );
   }
 
@@ -1397,6 +1432,7 @@ class Expense extends DataClass implements Insertable<Expense> {
       countryCode: serializer.fromJson<String?>(json['countryCode']),
       note: serializer.fromJson<String?>(json['note']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      duplicateDismissed: serializer.fromJson<bool>(json['duplicateDismissed']),
     );
   }
   @override
@@ -1416,6 +1452,7 @@ class Expense extends DataClass implements Insertable<Expense> {
       'countryCode': serializer.toJson<String?>(countryCode),
       'note': serializer.toJson<String?>(note),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'duplicateDismissed': serializer.toJson<bool>(duplicateDismissed),
     };
   }
 
@@ -1433,6 +1470,7 @@ class Expense extends DataClass implements Insertable<Expense> {
     Value<String?> countryCode = const Value.absent(),
     Value<String?> note = const Value.absent(),
     DateTime? createdAt,
+    bool? duplicateDismissed,
   }) => Expense(
     id: id ?? this.id,
     occurredAt: occurredAt ?? this.occurredAt,
@@ -1451,6 +1489,7 @@ class Expense extends DataClass implements Insertable<Expense> {
     countryCode: countryCode.present ? countryCode.value : this.countryCode,
     note: note.present ? note.value : this.note,
     createdAt: createdAt ?? this.createdAt,
+    duplicateDismissed: duplicateDismissed ?? this.duplicateDismissed,
   );
   Expense copyWithCompanion(ExpensesCompanion data) {
     return Expense(
@@ -1483,6 +1522,9 @@ class Expense extends DataClass implements Insertable<Expense> {
           : this.countryCode,
       note: data.note.present ? data.note.value : this.note,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      duplicateDismissed: data.duplicateDismissed.present
+          ? data.duplicateDismissed.value
+          : this.duplicateDismissed,
     );
   }
 
@@ -1501,7 +1543,8 @@ class Expense extends DataClass implements Insertable<Expense> {
           ..write('paymentMethodId: $paymentMethodId, ')
           ..write('countryCode: $countryCode, ')
           ..write('note: $note, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('duplicateDismissed: $duplicateDismissed')
           ..write(')'))
         .toString();
   }
@@ -1521,6 +1564,7 @@ class Expense extends DataClass implements Insertable<Expense> {
     countryCode,
     note,
     createdAt,
+    duplicateDismissed,
   );
   @override
   bool operator ==(Object other) =>
@@ -1538,7 +1582,8 @@ class Expense extends DataClass implements Insertable<Expense> {
           other.paymentMethodId == this.paymentMethodId &&
           other.countryCode == this.countryCode &&
           other.note == this.note &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.duplicateDismissed == this.duplicateDismissed);
 }
 
 class ExpensesCompanion extends UpdateCompanion<Expense> {
@@ -1555,6 +1600,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
   final Value<String?> countryCode;
   final Value<String?> note;
   final Value<DateTime> createdAt;
+  final Value<bool> duplicateDismissed;
   const ExpensesCompanion({
     this.id = const Value.absent(),
     this.occurredAt = const Value.absent(),
@@ -1569,6 +1615,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     this.countryCode = const Value.absent(),
     this.note = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.duplicateDismissed = const Value.absent(),
   });
   ExpensesCompanion.insert({
     this.id = const Value.absent(),
@@ -1584,6 +1631,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     this.countryCode = const Value.absent(),
     this.note = const Value.absent(),
     required DateTime createdAt,
+    this.duplicateDismissed = const Value.absent(),
   }) : occurredAt = Value(occurredAt),
        originalAmountMinor = Value(originalAmountMinor),
        originalCurrencyCode = Value(originalCurrencyCode),
@@ -1604,6 +1652,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     Expression<String>? countryCode,
     Expression<String>? note,
     Expression<DateTime>? createdAt,
+    Expression<bool>? duplicateDismissed,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1622,6 +1671,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
       if (countryCode != null) 'country_code': countryCode,
       if (note != null) 'note': note,
       if (createdAt != null) 'created_at': createdAt,
+      if (duplicateDismissed != null) 'duplicate_dismissed': duplicateDismissed,
     });
   }
 
@@ -1639,6 +1689,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     Value<String?>? countryCode,
     Value<String?>? note,
     Value<DateTime>? createdAt,
+    Value<bool>? duplicateDismissed,
   }) {
     return ExpensesCompanion(
       id: id ?? this.id,
@@ -1654,6 +1705,7 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
       countryCode: countryCode ?? this.countryCode,
       note: note ?? this.note,
       createdAt: createdAt ?? this.createdAt,
+      duplicateDismissed: duplicateDismissed ?? this.duplicateDismissed,
     );
   }
 
@@ -1701,6 +1753,9 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (duplicateDismissed.present) {
+      map['duplicate_dismissed'] = Variable<bool>(duplicateDismissed.value);
+    }
     return map;
   }
 
@@ -1719,7 +1774,8 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
           ..write('paymentMethodId: $paymentMethodId, ')
           ..write('countryCode: $countryCode, ')
           ..write('note: $note, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('duplicateDismissed: $duplicateDismissed')
           ..write(')'))
         .toString();
   }
@@ -3186,6 +3242,7 @@ typedef $$ExpensesTableCreateCompanionBuilder =
       Value<String?> countryCode,
       Value<String?> note,
       required DateTime createdAt,
+      Value<bool> duplicateDismissed,
     });
 typedef $$ExpensesTableUpdateCompanionBuilder =
     ExpensesCompanion Function({
@@ -3202,6 +3259,7 @@ typedef $$ExpensesTableUpdateCompanionBuilder =
       Value<String?> countryCode,
       Value<String?> note,
       Value<DateTime> createdAt,
+      Value<bool> duplicateDismissed,
     });
 
 final class $$ExpensesTableReferences
@@ -3323,6 +3381,11 @@ class $$ExpensesTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get duplicateDismissed => $composableBuilder(
+    column: $table.duplicateDismissed,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3462,6 +3525,11 @@ class $$ExpensesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get duplicateDismissed => $composableBuilder(
+    column: $table.duplicateDismissed,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$TagsTableOrderingComposer get tagId {
     final $$TagsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -3564,6 +3632,11 @@ class $$ExpensesTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get duplicateDismissed => $composableBuilder(
+    column: $table.duplicateDismissed,
+    builder: (column) => column,
+  );
 
   $$TagsTableAnnotationComposer get tagId {
     final $$TagsTableAnnotationComposer composer = $composerBuilder(
@@ -3682,6 +3755,7 @@ class $$ExpensesTableTableManager
                 Value<String?> countryCode = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<bool> duplicateDismissed = const Value.absent(),
               }) => ExpensesCompanion(
                 id: id,
                 occurredAt: occurredAt,
@@ -3696,6 +3770,7 @@ class $$ExpensesTableTableManager
                 countryCode: countryCode,
                 note: note,
                 createdAt: createdAt,
+                duplicateDismissed: duplicateDismissed,
               ),
           createCompanionCallback:
               ({
@@ -3712,6 +3787,7 @@ class $$ExpensesTableTableManager
                 Value<String?> countryCode = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 required DateTime createdAt,
+                Value<bool> duplicateDismissed = const Value.absent(),
               }) => ExpensesCompanion.insert(
                 id: id,
                 occurredAt: occurredAt,
@@ -3726,6 +3802,7 @@ class $$ExpensesTableTableManager
                 countryCode: countryCode,
                 note: note,
                 createdAt: createdAt,
+                duplicateDismissed: duplicateDismissed,
               ),
           withReferenceMapper: (p0) => p0
               .map(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
+import 'package:valtero/features/expenses_list/model/duplicate_expenses_provider.dart';
 import 'package:valtero/features/expenses_list/ui/recent_expense_tile.dart';
 import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/database/app_database.dart';
@@ -33,6 +34,7 @@ class RecentOperationsList extends ConsumerWidget {
     final settings = ref.watch(appSettingsProvider).value;
     final timeZoneId = settings?.timeZoneId ?? kSystemTimeZoneId;
     final dateFormat = dateDisplayFormatFromName(settings?.dateDisplayFormat);
+    final dupState = ref.watch(duplicateExpensesProvider);
 
     final children = <Widget>[];
     String? lastDayKey;
@@ -84,6 +86,7 @@ class RecentOperationsList extends ConsumerWidget {
             expenseTags,
             tagLabels,
           ),
+          showPossibleDuplicate: dupState.isFlagged(expense.id),
           onTap: () => showAddExpenseSheet(context, expense: expense),
         ),
       );

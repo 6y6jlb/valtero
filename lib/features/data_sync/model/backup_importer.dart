@@ -7,12 +7,14 @@ class ImportReport {
   final int expensesAdded;
   final int tagsAdded;
   final int paymentsAdded;
+  final int expensesSkippedDuplicate;
   final bool settingsApplied;
 
   const ImportReport({
     required this.expensesAdded,
     required this.tagsAdded,
     required this.paymentsAdded,
+    this.expensesSkippedDuplicate = 0,
     this.settingsApplied = false,
   });
 }
@@ -25,6 +27,8 @@ class BackupImporter {
     required AppSettings currentSettings,
     required Future<void> Function(AppSettings updated) saveSettings,
     bool applySettings = false,
+    Set<String> skipClientIds = const {},
+    Set<String> forceUniqueClientIds = const {},
   }) async {
     envelope.validateForImport();
 
@@ -32,6 +36,7 @@ class BackupImporter {
     var tagsAdded = 0;
     var paymentsAdded = 0;
     var expensesAdded = 0;
+    var expensesSkippedDuplicate = 0;
 
     final existingTags = await db.watchTagsList();
     final existingMethods = await db.getAllPaymentMethods();
@@ -79,6 +84,11 @@ class BackupImporter {
     final localExpenseIdByClientId = <String, int>{};
 
     for (final expense in data.expenses) {
+      if (skipClientIds.contains(expense.clientId)) {
+        expensesSkippedDuplicate++;
+        continue;
+      }
+
       final paymentId = _lookupPaymentId(
         stableKey: expense.paymentStableKey,
         name: expense.paymentName,
@@ -86,6 +96,7 @@ class BackupImporter {
         paymentIdByName: paymentIdByName,
       );
 
+      final markUnique = forceUniqueClientIds.contains(expense.clientId);
       final newId = await db.insertExpense(
         ExpensesCompanion.insert(
           occurredAt: expense.occurredAt,
@@ -99,6 +110,9 @@ class BackupImporter {
           countryCode: Value(expense.countryCode),
           note: Value(expense.note),
           createdAt: expense.createdAt,
+          duplicateDismissed: Value(
+            markUnique || expense.duplicateDismissed,
+          ),
         ),
       );
       localExpenseIdByClientId[expense.clientId] = newId;
@@ -158,6 +172,7 @@ class BackupImporter {
       expensesAdded: expensesAdded,
       tagsAdded: tagsAdded,
       paymentsAdded: paymentsAdded,
+      expensesSkippedDuplicate: expensesSkippedDuplicate,
       settingsApplied: settingsApplied,
     );
   }

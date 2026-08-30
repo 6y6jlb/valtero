@@ -70,6 +70,7 @@ class BackupSnapshotBuilder {
           countryCode: expense.countryCode,
           note: expense.note,
           createdAt: expense.createdAt,
+          duplicateDismissed: expense.duplicateDismissed,
         ),
       );
 

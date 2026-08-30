@@ -86,6 +86,51 @@
   "dataSyncUnsupportedFormat": "Archivo de copia no válido o no compatible",
   "dataSyncNewerSchema": "Esta copia requiere una versión más nueva de la app",
   "dataSyncIntegrationsNotTransferred": "Las claves API y las credenciales de Telegram no se incluyen en las copias.",
+  "dataSyncImportDoneWithDuplicates": "Importados {expenses} gastos, {tags} etiquetas, {payments} métodos de pago ({skipped} duplicados omitidos)",
+  "@dataSyncImportDoneWithDuplicates": {
+    "placeholders": {
+      "expenses": {
+        "type": "int"
+      },
+      "tags": {
+        "type": "int"
+      },
+      "payments": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "dataSyncDuplicatesFoundTitle": "Posibles duplicados encontrados",
+  "dataSyncDuplicatesFoundHint": "Estos gastos entrantes se parecen a los que ya tienes (mismo día, importe y moneda). Elige cómo tratar cada uno.",
+  "dataSyncMarkAsDuplicate": "Marcar como duplicado",
+  "dataSyncMarkAsUnique": "Marcar como único",
+  "dataSyncMarkSelectedAsDuplicate": "Seleccionados → duplicados",
+  "dataSyncMarkSelectedAsUnique": "Seleccionados → únicos",
+  "dataSyncMarkAllAsDuplicate": "Todos → duplicados",
+  "dataSyncMarkAllAsUnique": "Todos → únicos",
+  "dataSyncContinueImport": "Continuar importación",
+  "dataSyncIncomingExpense": "Entrante",
+  "dataSyncExistingExpense": "Existente",
+  "possibleDuplicateTooltip": "Posible duplicado",
+  "possibleDuplicatesBannerTitle": "Posibles duplicados ({count})",
+  "@possibleDuplicatesBannerTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "duplicateReviewSheetTitle": "Posibles duplicados",
+  "duplicateMarkNotDuplicate": "No es un duplicado",
+  "duplicateConflictDialogTitle": "Gasto similar encontrado",
+  "duplicateConflictDialogHint": "Ya existe un gasto con el mismo día, importe y moneda.",
+  "duplicateSaveAsUnique": "Guardar como único",
+  "duplicateDeleteMatchAndSave": "Eliminar coincidencia y guardar",
+  "duplicateYourExpense": "Tu gasto",
+  "duplicateMatchingExpense": "Gasto coincidente",
   "dashboardRestoreFromBackup": "Restaurar desde copia",
   "selectCountry": "Seleccionar país",
   "addExpense": "Añadir gasto",
@@ -526,9 +571,9 @@
   "guideSampleCountryGe": "Georgia",
   "guideSampleCountryTr": "Turquía",
   "guideSectionGettingStartedTitle": "Primeros pasos",
-  "guideSectionGettingStartedBody": "Toca el botón + en la parte inferior para abrir el formulario de gasto. Introduce importe y moneda, opcionalmente convierte a una moneda de informe, elige país y categorías, y guarda. Toca un gasto existente para editarlo en el mismo formulario. Hasta entonces, el panel muestra un gráfico de ejemplo con enlace a esta guía.",
+  "guideSectionGettingStartedBody": "Toca el botón + en la parte inferior para abrir el formulario de gasto. Introduce importe y moneda, opcionalmente convierte a una moneda de informe, elige país y categorías, y guarda. Si ya existe un gasto con el mismo día, importe y moneda, puedes guardarlo como único, eliminar la coincidencia o cancelar. Toca un gasto existente para editarlo en el mismo formulario. Hasta entonces, el panel muestra un gráfico de ejemplo con enlace a esta guía.",
   "guideSectionExpenseTrackingTitle": "Seguimiento de gastos",
-  "guideSectionExpenseTrackingBody": "Cada gasto guarda importe, moneda, fecha, país opcional (ISO), método de pago, etiquetas de categoría y nota. El importe y la moneda originales siempre se conservan, aunque conviertas a una moneda de informe. En la lista de gastos puedes seleccionar varias filas para eliminarlas o cambiar etiquetas, país o moneda a la vez.",
+  "guideSectionExpenseTrackingBody": "Cada gasto guarda importe, moneda, fecha, país opcional (ISO), método de pago, etiquetas de categoría y nota. El importe y la moneda originales siempre se conservan, aunque conviertas a una moneda de informe. En la lista de gastos puedes seleccionar varias filas para eliminarlas o cambiar etiquetas, país o moneda a la vez. Los posibles duplicados (mismo día, importe original y moneda) muestran un aviso; abre el banner para eliminar una fila o marcarla como no duplicado.",
   "guideSectionTagsTitle": "Etiquetas",
   "guideSectionTagsBody": "Las categorías indican en qué gastaste (comida, transporte…). El país es un campo aparte del gasto, no una etiqueta. El pago también es aparte (efectivo, tarjeta, cripto o el tuyo). Gestiona etiquetas y métodos de pago en Ajustes.",
   "guideSectionChartsTitle": "Gráficos de gasto",
@@ -538,7 +583,7 @@
   "guideSectionExportTitle": "Exportar",
   "guideSectionExportBody": "Exporta gastos como CSV o JSON. Guarda un archivo, compártelo o cópialo al portapapeles desde el menú de exportación o Ajustes → Exportar. Telegram aparece como destino solo tras conectarlo en Integraciones.",
   "guideSectionDataSyncTitle": "Copia de seguridad y sincronización",
-  "guideSectionDataSyncBody": "Crea una copia cifrada de gastos, etiquetas, métodos de pago, tipos manuales y ajustes de visualización. Protégela con tu frase o una generada. Guarda el archivo (en Android/iOS la hoja de compartir permite Guardar en Archivos / Descargas) y envíalo (correo, Telegram como documento, nube, USB). La importación fusiona: se conservan los gastos existentes y se añaden datos nuevos. Restaura desde Ajustes → Copia de seguridad y sincronización, o desde el panel vacío. Las claves API y Telegram nunca se incluyen.",
+  "guideSectionDataSyncBody": "Crea una copia cifrada de gastos, etiquetas, métodos de pago, tipos manuales y ajustes de visualización. Protégela con tu frase o una generada. Guarda el archivo (en Android/iOS la hoja de compartir permite Guardar en Archivos / Descargas) y envíalo (correo, Telegram como documento, nube, USB). La importación fusiona: se conservan los gastos existentes y se añaden datos nuevos. Si los gastos entrantes se parecen a los que ya tienes (mismo día, importe y moneda), eliges cuáles omitir como duplicados y cuáles importar como únicos. Restaura desde Ajustes → Copia de seguridad y sincronización, o desde el panel vacío. Las claves API y Telegram nunca se incluyen.",
   "guideSectionTelegramTitle": "Compartir por Telegram",
   "guideSectionTelegramBody": "Conecta Telegram en Ajustes → Integraciones, introduce el token del bot y el id del chat, prueba la conexión y envía un documento desde el menú de exportación.",
   "guideSectionIntegrationsTitle": "Integraciones",

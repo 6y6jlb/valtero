@@ -33,7 +33,7 @@ Details: [docs/agent-rules/fsd-layers.md](docs/agent-rules/fsd-layers.md)
 
 - **Riverpod** for state (`AsyncNotifier` for Hive/Drift-backed state)
 - **Drift (SQLite)** for expenses, tags, exchange-rate cache/overrides (`sqlite3` ≥3.x bundles native SQLite via build hooks on Linux/Android/Windows)
-- **Schema version** SSOT: `kAppSchemaVersion`. Production baseline v5 — stepwise `migrate_to_vN` only; **never wipe** user DB on upgrade — see [drift-conventions.md](docs/agent-rules/drift-conventions.md). Same int goes into strict exchange envelopes as `schemaVersion`.
+- **Schema version** SSOT: `kAppSchemaVersion`. Production baseline v5 — stepwise `migrate_to_vN` only; **never wipe** user DB on upgrade — see [drift-conventions.md](docs/agent-rules/drift-conventions.md). Same int goes into strict exchange envelopes as `schemaVersion`. Current: **v6** adds `expenses.duplicateDismissed` for soft-duplicate UX.
 - **Hive CE** for `AppSettings` only (reporting currencies, API key, detection cache, theme/locale/timezone, integration credentials, debug logging flag)
 
 Details: [docs/agent-rules/riverpod-conventions.md](docs/agent-rules/riverpod-conventions.md), [docs/agent-rules/drift-conventions.md](docs/agent-rules/drift-conventions.md)
@@ -56,22 +56,23 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 
 ## Key domain flows
 
-1. **Add / edit expense** (same bottom sheet) → amount + currency → as-is or convert-to reporting currency (show live rate) → **payment method** → **country** (ISO on the expense, not a tag) → **category tags** → note/date → persist. Tap a row in lists/dashboard recent to edit.
-2. **Dashboard** → donut chart + filter bar → **last 10 expenses** + link to full list; entry points for add / tags / export; convert stored amounts to display currency via `RateResolver` in Dart
+1. **Add / edit expense** (same bottom sheet) → amount + currency → as-is or convert-to reporting currency (show live rate) → **payment method** → **country** (ISO on the expense, not a tag) → **category tags** → note/date → before persist, soft-check for **possible duplicates** (same calendar day + original amount + currency); conflict dialog offers save-as-unique / delete-match-and-save / cancel. Editing resets `duplicateDismissed` when the fingerprint changes. Tap a row in lists/dashboard recent to edit.
+2. **Dashboard** → donut chart + filter bar → **last 10 expenses** + link to full list; entry points for add / tags / export; convert stored amounts to display currency via `RateResolver` in Dart. Possible-duplicate alert badges on recent rows when soft matches exist.
 3. **Rates** → on launch if last refresh >24h, refresh in background; Settings → Currency sheet can force refresh / set manual rates / view all rates; ExchangeRate-API key is bound under **Settings → Integrations** (Frankfurter used when not connected)
 4. **Tag suggestions** → detect country/currency (ip-api.com, locale fallback) → suggest **category** tags (Tags sheet). Detected country primes the expense country field on create.
-5. **Export** → CSV/JSON (includes `countryCode` + payment) → save / share / copy; **Telegram** destination appears only when the Telegram integration is connected; **encrypted backup/sync** (Settings → Backup & sync, `.valterobackup`) embeds `formatVersion` + `schemaVersion` (`kAppSchemaVersion`) for merge import across devices; API keys / Telegram credentials are excluded
+5. **Export** → CSV/JSON (includes `countryCode` + payment) → save / share / copy; **Telegram** destination appears only when the Telegram integration is connected; **encrypted backup/sync** (Settings → Backup & sync, `.valterobackup`) embeds `formatVersion` + `schemaVersion` (`kAppSchemaVersion`) for merge import across devices; API keys / Telegram credentials are excluded. On import, soft-duplicate conflicts open a resolution sheet (skip as duplicate / import as unique) before merge.
 6. **Integrations** → Settings → Integrations lists optional services (`entities/integrations/`: Telegram, ExchangeRate-API). Each opens a config modal with Test connection / Save / Disconnect. Capability-gated UI (export menu Telegram items, rate source label) reads `isIntegrationConfiguredProvider` / `configuredExportIntegrationsProvider`
 7. **Debug & logs** → Settings → Debug & logs: toggle verbose debug breadcrumbs; **errors/warnings always written** to a redacted file log (`shared/logging/`); view / copy / share via system share sheet (clipboard fallback on Linux). Secrets never logged (`LogRedactor`)
+8. **Possible duplicates** → Expenses list shows an alert banner + per-row badges when 2+ non-dismissed expenses share day/amount/currency; review sheet lets the user delete a row or mark “not a duplicate” (`duplicateDismissed`)
 
 ## Navigation
 
 - Home: **Dashboard** (no bottom nav). If there are **no expenses yet**, Dashboard shows a **sample chart** labeled as an example, with a link to the **platform guide**; after the first expense, real chart data appears. The guide is also opened from Settings → Platform guide.
-- **Expenses**: full page via FAB / “Show expenses” (back arrow); filters via summary bar → modal sheet (same as dashboard); per-currency summary card with convert/info icons; empty placeholder when no expenses; add/edit stays a sheet (`+` FAB sticky bottom on Dashboard, Expenses, and Platform guide — **not** on Settings)
+- **Expenses**: full page via FAB / “Show expenses” (back arrow); filters via summary bar → modal sheet (same as dashboard); alert banner for possible duplicates when present; per-currency summary card with convert/info icons; empty placeholder when no expenses; add/edit stays a sheet (`+` FAB sticky bottom on Dashboard, Expenses, and Platform guide — **not** on Settings)
 - Settings via gear in the AppBar → full page with back arrow
-- Sheets (full window width): add/edit expense, tags, export, currency, appearance, rates list, filters, **integrations**, **debug logs**
+- Sheets (full window width): add/edit expense, tags, export, currency, appearance, rates list, filters, **integrations**, **debug logs**, **duplicate review**
 - Dashboard: one donut (shared [DonutBreakdownChart](lib/features/expenses_list/ui/donut_breakdown_chart.dart): amounts on segments, legend chips toggle visibility; tap segment → Expenses with filter); breakdown by **country** / payment / category / month / currency via shared [ChartBreakdownIcons](lib/features/expenses_list/ui/chart_breakdown_icons.dart); filter summary bar → full-screen sheet; recent 10 + “Show expenses”; FABs
-- Expenses list columns: date, amount, payment, country, tags; chart view uses the same donut; tap a segment applies that filter and switches to list
+- Expenses list columns: date, amount (optional possible-duplicate badge), payment, country, tags; chart view uses the same donut; tap a segment applies that filter and switches to list
 - AppBar shows live date/time in the selected timezone (default: auto-detected system zone)
 - Desktop default window size: **853×720** (≈⅔ of the previous 1280 width)
 
@@ -110,7 +111,7 @@ Details: [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md)
 5. If core flow or architecture changes, update this `AGENTS.md`
 6. If platform run/build/release flow changes, update `README.md` and the **App version** section here
 7. **If editing an agent rule**: update `docs/agent-rules/<topic>.md` first (source of truth). If a local `.cursor/rules/<topic>.mdc` mirror exists, update its body in the same pass. Never edit only the `.mdc`.
-
+8. **After finishing a plan / feature**: run full `flutter test` (not only new files), fix every failure including unrelated fixtures broken by schema changes, then re-run until green — see [testing.md](docs/agent-rules/testing.md)
 ## Topic rules (tool-agnostic)
 
 | File | Why it exists |
@@ -124,7 +125,7 @@ Details: [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md)
 | [docs/agent-rules/ui-component-size.md](docs/agent-rules/ui-component-size.md) | ≤ 500 lines per UI component; when/how to split |
 | [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md) | New packages: need / overlap / health + explicit user approve |
 | [docs/agent-rules/platform-guide.md](docs/agent-rules/platform-guide.md) | Keep in-app platform guide in sync with new capabilities |
-| [docs/agent-rules/testing.md](docs/agent-rules/testing.md) | Unit/feature tests with `flutter_test` + fakes |
+| [docs/agent-rules/testing.md](docs/agent-rules/testing.md) | Unit/feature tests; **full `flutter test` after finishing a plan** |
 
 ## Tool-specific rule files (gitignored)
 

@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/payment_method/model/payment_methods_provider.dart';
-import 'package:valtero/entities/payment_method/ui/payment_method_chip.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
 import 'package:valtero/entities/tag/model/tag_kind.dart';
-import 'package:valtero/entities/tag/ui/grouped_tag_picker.dart';
 import 'package:valtero/features/add_expense/model/add_expense_controller.dart';
 import 'package:valtero/features/add_expense/ui/add_expense_actions_bar.dart';
+import 'package:valtero/features/add_expense/ui/add_expense_meta_section.dart';
+import 'package:valtero/features/add_expense/ui/add_expense_save_flow.dart';
 import 'package:valtero/features/add_expense/ui/country_picker_dialog.dart';
 import 'package:valtero/features/manage_tags/model/manage_tags_controller.dart';
 import 'package:valtero/shared/consts/countries.dart';
@@ -18,7 +18,6 @@ import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/app_timezone.dart';
 import 'package:valtero/shared/utils/money.dart';
 import 'package:valtero/shared/utils/payment_method_label.dart';
-import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/currency_picker.dart';
 import 'package:valtero/widgets/date_text.dart';
 import 'package:valtero/widgets/flag_icon.dart';
@@ -137,6 +136,28 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
     });
   }
 
+  Future<void> _addTag() async {
+    final l10n = AppLocalizations.of(context)!;
+    final result = await showTagEditDialog(
+      context,
+      title: l10n.newTag,
+      initialName: _newTagController.text,
+      confirmLabel: l10n.add,
+    );
+    if (result == null || !mounted) return;
+    final id = await ref.read(manageTagsControllerProvider).addTag(
+          result.name,
+          colorValue: result.colorValue,
+        );
+    if (!mounted || id <= 0) return;
+    _newTagController.clear();
+    setState(() {
+      _tagIds
+        ..clear()
+        ..add(id);
+    });
+  }
+
   @override
   void dispose() {
     _amountController.dispose();
@@ -188,11 +209,24 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
         _targetCurrency!.toUpperCase() != _currency.toUpperCase() &&
         _rate == null) {
       await _offerSetRate();
+      if (!mounted) return;
       if (_rate == null) {
         setState(() => _error = l10n.rateUnavailable);
         return;
       }
     }
+    if (!mounted) return;
+    final tags = ref.read(tagsStreamProvider).value ?? const [];
+    final payments = ref.read(paymentMethodsStreamProvider).value ?? const [];
+    final tagLabels = {for (final t in tags) t.id: t.name};
+    final paymentLabels = {
+      for (final m in payments) m.id: localizedPaymentMethodLabel(context, m),
+    };
+    final draftPaymentLabel =
+        _paymentMethodId == null ? null : paymentLabels[_paymentMethodId!];
+    final draftTagsLabel = _tagIds.isEmpty
+        ? null
+        : _tagIds.map((id) => tagLabels[id] ?? '?').join(', ');
     final input = AddExpenseInput(
       originalAmountMinor: amount,
       originalCurrencyCode: _currency,
@@ -205,28 +239,21 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
       occurredAt: _occurredAt,
     );
     try {
-      final controller = ref.read(addExpenseControllerProvider);
-      if (_isEdit) {
-        await controller.update(widget.expense!.id, input);
-      } else {
-        await controller.save(input);
-      }
+      final saved = await saveExpenseWithDuplicateCheck(
+        context: context,
+        ref: ref,
+        input: input,
+        editing: widget.expense,
+        draftPaymentLabel: draftPaymentLabel,
+        draftTagsLabel: draftTagsLabel,
+      );
       if (!mounted) return;
+      if (!saved) return;
       if (!_isEdit) {
         _amountController.clear();
         _noteController.clear();
       }
       setState(() => _error = null);
-      final overlay = Overlay.of(context);
-      final theme = Theme.of(context);
-      if (Navigator.of(context).canPop()) {
-        Navigator.of(context).pop();
-      }
-      showAppToastOn(
-        overlay: overlay,
-        theme: theme,
-        message: l10n.save,
-      );
     } catch (_) {
       if (!mounted) return;
       setState(() => _error = l10n.rateUnavailable);
@@ -358,143 +385,22 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
                 ],
               ],
               const SizedBox(height: 8),
-              Card(
-                margin: EdgeInsets.zero,
-                child: ExpansionTile(
-                  initiallyExpanded: false,
-                  title: Text(l10n.paymentMethod),
-                  subtitle: Text(
-                    paymentSubtitle,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                  children: [
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        for (final method in paymentMethods)
-                          PaymentMethodChip(
-                            method: method,
-                            selected: _paymentMethodId == method.id,
-                            onTap: () {
-                              setState(() {
-                                _paymentMethodId =
-                                    _paymentMethodId == method.id
-                                        ? null
-                                        : method.id;
-                              });
-                            },
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 8),
-              Card(
-                margin: EdgeInsets.zero,
-                child: ExpansionTile(
-                  initiallyExpanded: true,
-                  title: Text(l10n.country),
-                  subtitle: Text(
-                    countrySubtitle,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                  children: [
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        ActionChip(
-                          avatar: const Icon(Icons.public, size: 18),
-                          label: Text(l10n.selectCountry),
-                          onPressed: _pickCountry,
-                        ),
-                        if (_countryCode != null)
-                          InputChip(
-                            avatar: FlagIcon.country(_countryCode!, size: 18),
-                            label: Text(
-                              countryDisplayName(
-                                _countryCode!,
-                                languageCode: lang,
-                              ),
-                            ),
-                            selected: true,
-                            onDeleted: _clearCountry,
-                            onPressed: _pickCountry,
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 8),
-              Card(
-                margin: EdgeInsets.zero,
-                child: ExpansionTile(
-                  initiallyExpanded: false,
-                  title: Text(l10n.tag),
-                  subtitle: Text(
-                    tagsSubtitle,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                  children: [
-                    GroupedTagPicker(
-                      tags: tags,
-                      selectedIds: _tagIds,
-                      singleSelectPerKind: true,
-                      onTagTap: (tag) => _toggleTag(tag, tagById),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _newTagController,
-                            decoration: InputDecoration(labelText: l10n.newTag),
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () async {
-                            final result = await showTagEditDialog(
-                              context,
-                              title: l10n.newTag,
-                              initialName: _newTagController.text,
-                              confirmLabel: l10n.add,
-                            );
-                            if (result == null) return;
-                            final id = await ref
-                                .read(manageTagsControllerProvider)
-                                .addTag(
-                                  result.name,
-                                  colorValue: result.colorValue,
-                                );
-                            if (id > 0) {
-                              _newTagController.clear();
-                              setState(() {
-                                _tagIds
-                                  ..clear()
-                                  ..add(id);
-                              });
-                            }
-                          },
-                          icon: const Icon(Icons.add),
-                          tooltip: l10n.addTag,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              AddExpenseMetaSection(
+                paymentMethods: paymentMethods,
+                paymentMethodId: _paymentMethodId,
+                paymentSubtitle: paymentSubtitle,
+                onPaymentMethodChanged: (id) =>
+                    setState(() => _paymentMethodId = id),
+                countryCode: _countryCode,
+                countrySubtitle: countrySubtitle,
+                onPickCountry: _pickCountry,
+                onClearCountry: _clearCountry,
+                tags: tags,
+                tagIds: _tagIds,
+                tagsSubtitle: tagsSubtitle,
+                onTagTap: (tag) => _toggleTag(tag, tagById),
+                newTagController: _newTagController,
+                onAddTag: _addTag,
               ),
               const SizedBox(height: 8),
               TextField(
