@@ -8,6 +8,20 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.4.3] - 2026-08-30
+
+### Fixed
+
+- Redact Google OAuth client ids, reverse-client schemes, and token shapes from
+  the shareable debug log; stop logging raw Android redirect URIs on sign-in.
+- Telegram connection test maps DNS / network failures to a clear UI message
+  and logs host/type without embedding the bot URL.
+
+### Changed
+
+- Telegram and ExchangeRate-API integrations: remove Save; successful Test
+  connection persists credentials (and refreshes rates for ExchangeRate-API).
+
 ## [1.4.2] - 2026-08-30
 
 ### Fixed

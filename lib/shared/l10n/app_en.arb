@@ -21,6 +21,7 @@
   "integrationDisconnect": "Disconnect",
   "connectionOk": "Connection successful",
   "connectionFailed": "Connection failed",
+  "connectionNetwork": "No network / DNS lookup failed. Check internet, VPN, or DNS and try again.",
   "connectionMissingFields": "Fill in all required fields",
   "connectionInvalidToken": "Bot token is invalid",
   "connectionInvalidChat": "Chat id is invalid or bot cannot access it",

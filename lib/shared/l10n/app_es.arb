@@ -21,6 +21,7 @@
   "integrationDisconnect": "Desconectar",
   "connectionOk": "Conexión correcta",
   "connectionFailed": "Error de conexión",
+  "connectionNetwork": "Sin red o falló la resolución DNS. Comprueba internet, VPN o DNS e inténtalo de nuevo.",
   "connectionMissingFields": "Completa todos los campos obligatorios",
   "connectionInvalidToken": "El token del bot no es válido",
   "connectionInvalidChat": "El chat id no es válido o el bot no tiene acceso",

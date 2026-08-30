@@ -72,6 +72,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get connectionFailed => 'Error de conexión';
 
   @override
+  String get connectionNetwork =>
+      'Sin red o falló la resolución DNS. Comprueba internet, VPN o DNS e inténtalo de nuevo.';
+
+  @override
   String get connectionMissingFields =>
       'Completa todos los campos obligatorios';
 

@@ -46,4 +46,28 @@ void main() {
     expect(out.contains('-99'), isFalse);
     expect(out.contains('[REDACTED]'), isTrue);
   });
+
+  test('redacts Google OAuth client id and reverse scheme', () {
+    const clientId =
+        '775039724829-rp7lbepuaetcrhg5cn31sgrtn8fj5i6o.apps.googleusercontent.com';
+    const scheme =
+        'com.googleusercontent.apps.775039724829-rp7lbepuaetcrhg5cn31sgrtn8fj5i6o';
+    final out = LogRedactor.redact(
+      'scheme=$scheme redirect=$scheme:/oauth2redirect client=$clientId',
+    );
+    expect(out.contains('775039724829'), isFalse);
+    expect(out.contains('rp7lbepuaetcrhg5cn31sgrtn8fj5i6o'), isFalse);
+    expect(out.contains('[REDACTED_GOOGLE_CLIENT_ID]'), isTrue);
+    expect(out.contains('com.googleusercontent.apps.[REDACTED]'), isTrue);
+  });
+
+  test('redacts Google access and refresh token shapes', () {
+    const access = 'ya29.a0AfB_byDfakeAccessTokenValue_123';
+    const refresh = '1//0fake-Refresh_Token-Value';
+    final out = LogRedactor.redact('access=$access refresh=$refresh');
+    expect(out.contains(access), isFalse);
+    expect(out.contains(refresh), isFalse);
+    expect(out.contains('[REDACTED_ACCESS_TOKEN]'), isTrue);
+    expect(out.contains('[REDACTED_REFRESH_TOKEN]'), isTrue);
+  });
 }

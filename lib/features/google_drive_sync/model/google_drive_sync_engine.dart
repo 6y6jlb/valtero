@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -210,12 +211,11 @@ class GoogleDriveSyncEngine {
     required bool includeFileScope,
   }) async {
     final integration = ref.read(googleDriveSyncIntegrationProvider);
-    final redirect = GoogleOAuthRedirect.forPlatform();
     // ignore: unawaited_futures
     ref.read(appLoggerProvider).debug(
           'Google Drive sign-in starting '
-          'scheme=${redirect.callbackUrlScheme} '
-          'redirect=${redirect.redirectUri}',
+          'platform=${_oauthPlatformLabel()} '
+          'useWebview=${GoogleOAuthRedirect.forPlatform().useWebview}',
         );
     try {
       final result = await integration.oauth.signIn(
@@ -254,6 +254,15 @@ class GoogleDriveSyncEngine {
           error: error,
           stackTrace: stackTrace,
         );
+  }
+
+  String _oauthPlatformLabel() {
+    if (Platform.isAndroid) return 'android';
+    if (Platform.isLinux) return 'linux';
+    if (Platform.isWindows) return 'windows';
+    if (Platform.isMacOS) return 'macos';
+    if (Platform.isIOS) return 'ios';
+    return 'other';
   }
 
   Future<GoogleDriveSyncResult> shareWithEmail(String email) async {

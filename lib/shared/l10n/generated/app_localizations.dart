@@ -228,6 +228,12 @@ abstract class AppLocalizations {
   /// **'Connection failed'**
   String get connectionFailed;
 
+  /// No description provided for @connectionNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'No network / DNS lookup failed. Check internet, VPN, or DNS and try again.'**
+  String get connectionNetwork;
+
   /// No description provided for @connectionMissingFields.
   ///
   /// In en, this message translates to:

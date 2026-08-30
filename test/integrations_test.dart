@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:valtero/entities/integrations/exchange_rate_api/model/exchange_rate_api_integration.dart';
@@ -124,6 +126,28 @@ void main() {
       );
       expect(result.success, isFalse);
       expect(result.messageKey, 'connectionInvalidToken');
+    });
+
+    test('testConnection maps DNS failure to connectionNetwork', () async {
+      final dio = Dio();
+      dio.httpClientAdapter = _FakeDioAdapter((options) async {
+        throw DioException(
+          requestOptions: options,
+          type: DioExceptionType.connectionError,
+          error: const SocketException(
+            "Failed host lookup: 'api.telegram.org'",
+          ),
+        );
+      });
+      final integration = TelegramIntegration(dio);
+      final result = await integration.testConnection(
+        AppSettings.initial().copyWith(
+          telegramBotToken: '1:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw',
+          telegramChatId: '42',
+        ),
+      );
+      expect(result.success, isFalse);
+      expect(result.messageKey, 'connectionNetwork');
     });
   });
 

@@ -45,6 +45,7 @@ String connectionMessage(AppLocalizations l10n, String messageKey) {
   return switch (messageKey) {
     'connectionOk' => l10n.connectionOk,
     'connectionFailed' => l10n.connectionFailed,
+    'connectionNetwork' => l10n.connectionNetwork,
     'connectionMissingFields' => l10n.connectionMissingFields,
     'connectionInvalidToken' => l10n.connectionInvalidToken,
     'connectionInvalidChat' => l10n.connectionInvalidChat,

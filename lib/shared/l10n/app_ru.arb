@@ -21,6 +21,7 @@
   "integrationDisconnect": "Отключить",
   "connectionOk": "Соединение успешно",
   "connectionFailed": "Не удалось подключиться",
+  "connectionNetwork": "Нет сети или не удалось разрешить DNS. Проверьте интернет, VPN или DNS и повторите.",
   "connectionMissingFields": "Заполните все обязательные поля",
   "connectionInvalidToken": "Неверный токен бота",
   "connectionInvalidChat": "Неверный chat id или бот не имеет доступа",

@@ -72,6 +72,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get connectionFailed => 'Не удалось подключиться';
 
   @override
+  String get connectionNetwork =>
+      'Нет сети или не удалось разрешить DNS. Проверьте интернет, VPN или DNS и повторите.';
+
+  @override
   String get connectionMissingFields => 'Заполните все обязательные поля';
 
   @override

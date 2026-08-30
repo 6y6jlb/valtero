@@ -18,6 +18,9 @@ class LogRedactor {
     'googledriverefreshtoken',
     'googledrivesyncpassphrase',
     'refreshtoken',
+    'accesstoken',
+    'clientid',
+    'client_id',
   };
 
   /// Telegram bot tokens look like `123456789:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw`
@@ -35,8 +38,26 @@ class LogRedactor {
     caseSensitive: false,
   );
 
+  /// Google OAuth client id: `123-abc.apps.googleusercontent.com`
+  static final _googleOAuthClientId = RegExp(
+    r'\d+-[a-z0-9]+\.apps\.googleusercontent\.com',
+    caseSensitive: false,
+  );
+
+  /// Android reverse-client-id scheme: `com.googleusercontent.apps.123-abc`
+  static final _googleReverseClientScheme = RegExp(
+    r'com\.googleusercontent\.apps\.\d+-[a-z0-9]+',
+    caseSensitive: false,
+  );
+
+  /// Google OAuth access tokens commonly start with `ya29.`
+  static final _googleAccessToken = RegExp(r'ya29\.[A-Za-z0-9._\-]+');
+
+  /// Google OAuth refresh tokens commonly start with `1//`
+  static final _googleRefreshToken = RegExp(r'1//[A-Za-z0-9_\-]+');
+
   static final _querySecret = RegExp(
-    r'([?&](?:token|api_key|apiKey|chat_id|chatId|password|passphrase|secret)=)[^&\s]+',
+    r'([?&](?:token|api_key|apiKey|chat_id|chatId|password|passphrase|secret|client_id|clientId|access_token|refresh_token)=)[^&\s]+',
     caseSensitive: false,
   );
 
@@ -51,6 +72,16 @@ class LogRedactor {
       _telegramBotPath,
       (m) => '${m[1]}[REDACTED_TOKEN]',
     );
+    out = out.replaceAll(
+      _googleOAuthClientId,
+      '[REDACTED_GOOGLE_CLIENT_ID]',
+    );
+    out = out.replaceAll(
+      _googleReverseClientScheme,
+      'com.googleusercontent.apps.[REDACTED]',
+    );
+    out = out.replaceAll(_googleAccessToken, '[REDACTED_ACCESS_TOKEN]');
+    out = out.replaceAll(_googleRefreshToken, '[REDACTED_REFRESH_TOKEN]');
     out = out.replaceAllMapped(
       _querySecret,
       (m) => '${m[1]}[REDACTED]',

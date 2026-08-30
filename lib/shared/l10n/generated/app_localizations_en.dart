@@ -72,6 +72,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get connectionFailed => 'Connection failed';
 
   @override
+  String get connectionNetwork =>
+      'No network / DNS lookup failed. Check internet, VPN, or DNS and try again.';
+
+  @override
   String get connectionMissingFields => 'Fill in all required fields';
 
   @override

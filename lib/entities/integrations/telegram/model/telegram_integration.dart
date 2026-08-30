@@ -52,13 +52,15 @@ class TelegramIntegration implements ExportDestinationIntegration {
       }
       return IntegrationTestResult.ok();
     } on DioException catch (e, st) {
+      // Log type/host only — DioException.toString() can embed the bot URL.
       // ignore: unawaited_futures
       _logger?.error(
-        'Telegram testConnection failed',
-        error: e,
+        'Telegram testConnection failed '
+        'type=${e.type.name} host=api.telegram.org',
+        error: e.error ?? e.message,
         stackTrace: st,
       );
-      return IntegrationTestResult.fail('connectionFailed');
+      return IntegrationTestResult.fail(_dioFailureKey(e));
     } catch (e, st) {
       // ignore: unawaited_futures
       _logger?.error(
@@ -68,6 +70,22 @@ class TelegramIntegration implements ExportDestinationIntegration {
       );
       return IntegrationTestResult.fail('connectionFailed');
     }
+  }
+
+  String _dioFailureKey(DioException e) {
+    switch (e.type) {
+      case DioExceptionType.connectionError:
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return 'connectionNetwork';
+      default:
+        break;
+    }
+    if (e.error is SocketException) {
+      return 'connectionNetwork';
+    }
+    return 'connectionFailed';
   }
 
   @override

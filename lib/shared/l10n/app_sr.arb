@@ -21,6 +21,7 @@
   "integrationDisconnect": "Prekini vezu",
   "connectionOk": "Veza uspešna",
   "connectionFailed": "Veza nije uspela",
+  "connectionNetwork": "Nema mreže ili DNS nije uspeo. Proveri internet, VPN ili DNS i pokušaj ponovo.",
   "connectionMissingFields": "Popunite sva obavezna polja",
   "connectionInvalidToken": "Token bota nije važeći",
   "connectionInvalidChat": "Chat id nije važeći ili bot nema pristup",

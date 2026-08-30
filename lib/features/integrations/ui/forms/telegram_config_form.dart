@@ -19,11 +19,10 @@ class _TelegramConfigFormState extends ConsumerState<TelegramConfigForm> {
   final _tokenController = TextEditingController();
   final _chatController = TextEditingController();
   bool _enabled = false;
-  bool _testing = false;
-  bool _saving = false;
+  bool _busy = false;
   String? _status;
   bool _statusOk = false;
-  String? _verifiedFingerprint;
+  String? _savedFingerprint;
 
   @override
   void initState() {
@@ -44,8 +43,7 @@ class _TelegramConfigFormState extends ConsumerState<TelegramConfigForm> {
         if (s.telegramEnabled &&
             s.telegramBotToken.trim().isNotEmpty &&
             s.telegramChatId.trim().isNotEmpty) {
-          // Already connected — treat saved values as verified for Save.
-          _verifiedFingerprint = _fingerprint(
+          _savedFingerprint = _fingerprint(
             s.telegramBotToken,
             s.telegramChatId,
           );
@@ -67,8 +65,8 @@ class _TelegramConfigFormState extends ConsumerState<TelegramConfigForm> {
   void _onFieldsChanged() {
     final fp = _fingerprint(_tokenController.text, _chatController.text);
     setState(() {
-      if (_verifiedFingerprint != null && _verifiedFingerprint != fp) {
-        _verifiedFingerprint = null;
+      if (_savedFingerprint != null && _savedFingerprint != fp) {
+        _savedFingerprint = null;
         _statusOk = false;
         _status = null;
       }
@@ -82,13 +80,6 @@ class _TelegramConfigFormState extends ConsumerState<TelegramConfigForm> {
       _tokenController.text.trim().isNotEmpty &&
       _chatController.text.trim().isNotEmpty;
 
-  bool get _draftVerified =>
-      _fieldsFilled &&
-      _verifiedFingerprint ==
-          _fingerprint(_tokenController.text, _chatController.text);
-
-  bool get _busy => _testing || _saving;
-
   AppSettings _draftFrom(AppSettings current) {
     return current.copyWith(
       telegramEnabled: _enabled,
@@ -97,44 +88,43 @@ class _TelegramConfigFormState extends ConsumerState<TelegramConfigForm> {
     );
   }
 
-  Future<void> _test() async {
+  /// Tests the connection and, on success, persists credentials.
+  Future<void> _testAndSave() async {
     final l10n = AppLocalizations.of(context)!;
     final current = ref.read(appSettingsProvider).value;
     if (current == null || !_fieldsFilled) return;
     setState(() {
-      _testing = true;
+      _busy = true;
       _status = null;
     });
     final result = await ref
         .read(telegramIntegrationProvider)
         .testConnection(_draftFrom(current));
     if (!mounted) return;
-    setState(() {
-      _testing = false;
-      _statusOk = result.success;
-      _status = connectionMessage(l10n, result.messageKey);
-      _verifiedFingerprint = result.success
-          ? _fingerprint(_tokenController.text, _chatController.text)
-          : null;
-    });
-  }
+    if (!result.success) {
+      setState(() {
+        _busy = false;
+        _statusOk = false;
+        _status = connectionMessage(l10n, result.messageKey);
+        _savedFingerprint = null;
+      });
+      return;
+    }
 
-  Future<void> _save() async {
-    final l10n = AppLocalizations.of(context)!;
-    if (!_draftVerified) return;
-    setState(() => _saving = true);
     final token = _tokenController.text.trim();
     final chatId = _chatController.text.trim();
-    final enable = _enabled || (token.isNotEmpty && chatId.isNotEmpty);
     await ref.read(appSettingsProvider.notifier).setTelegram(
-          enabled: enable,
+          enabled: true,
           botToken: token,
           chatId: chatId,
         );
     if (!mounted) return;
     setState(() {
-      _saving = false;
-      _enabled = enable;
+      _busy = false;
+      _enabled = true;
+      _statusOk = true;
+      _status = connectionMessage(l10n, result.messageKey);
+      _savedFingerprint = _fingerprint(token, chatId);
     });
     showAppToast(context, l10n.integrationSave);
   }
@@ -157,7 +147,7 @@ class _TelegramConfigFormState extends ConsumerState<TelegramConfigForm> {
       _chatController.clear();
       _status = null;
       _statusOk = false;
-      _verifiedFingerprint = null;
+      _savedFingerprint = null;
     });
     showAppToast(context, l10n.integrationDisconnect);
   }
@@ -170,7 +160,6 @@ class _TelegramConfigFormState extends ConsumerState<TelegramConfigForm> {
       isIntegrationConfiguredProvider(kTelegramIntegrationId),
     );
     final canTest = !_busy && _fieldsFilled;
-    final canSave = !_busy && _draftVerified;
     final canDisconnect = !_busy && connected;
 
     return Column(
@@ -200,18 +189,14 @@ class _TelegramConfigFormState extends ConsumerState<TelegramConfigForm> {
           runSpacing: 8,
           children: [
             FilledButton(
-              onPressed: canTest ? _test : null,
-              child: _testing
+              onPressed: canTest ? _testAndSave : null,
+              child: _busy
                   ? const SizedBox(
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : Text(l10n.integrationTestConnection),
-            ),
-            FilledButton.tonal(
-              onPressed: canSave ? _save : null,
-              child: Text(l10n.integrationSave),
             ),
             OutlinedButton(
               onPressed: canDisconnect ? _disconnect : null,

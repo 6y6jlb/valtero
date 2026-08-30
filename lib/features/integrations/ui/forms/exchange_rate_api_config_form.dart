@@ -19,11 +19,10 @@ class ExchangeRateApiConfigForm extends ConsumerStatefulWidget {
 class _ExchangeRateApiConfigFormState
     extends ConsumerState<ExchangeRateApiConfigForm> {
   final _apiKeyController = TextEditingController();
-  bool _testing = false;
-  bool _saving = false;
+  bool _busy = false;
   String? _status;
   bool _statusOk = false;
-  String? _verifiedKey;
+  String? _savedKey;
 
   @override
   void initState() {
@@ -36,8 +35,7 @@ class _ExchangeRateApiConfigFormState
       _apiKeyController.text = key;
       _apiKeyController.addListener(_onKeyChanged);
       setState(() {
-        // Already connected — treat saved key as verified for Save.
-        _verifiedKey = key.trim();
+        _savedKey = key.trim();
         _statusOk = true;
       });
     });
@@ -53,8 +51,8 @@ class _ExchangeRateApiConfigFormState
   void _onKeyChanged() {
     final key = _apiKeyController.text.trim();
     setState(() {
-      if (_verifiedKey != null && _verifiedKey != key) {
-        _verifiedKey = null;
+      if (_savedKey != null && _savedKey != key) {
+        _savedKey = null;
         _statusOk = false;
         _status = null;
       }
@@ -63,54 +61,35 @@ class _ExchangeRateApiConfigFormState
 
   bool get _keyFilled => _apiKeyController.text.trim().isNotEmpty;
 
-  bool get _keyVerified =>
-      _keyFilled && _verifiedKey == _apiKeyController.text.trim();
-
-  bool get _busy => _testing || _saving;
-
-  Future<void> _test() async {
+  /// Tests the API key and, on success, persists it and refreshes rates.
+  Future<void> _testAndSave() async {
     final l10n = AppLocalizations.of(context)!;
     if (!_keyFilled) return;
+    final key = _apiKeyController.text.trim();
     setState(() {
-      _testing = true;
+      _busy = true;
       _status = null;
     });
-    final result = await ref
-        .read(exchangeRateApiIntegrationProvider)
-        .testApiKey(_apiKeyController.text);
-    if (!mounted) return;
-    setState(() {
-      _testing = false;
-      _statusOk = result.success;
-      _status = connectionMessage(l10n, result.messageKey);
-      _verifiedKey = result.success ? _apiKeyController.text.trim() : null;
-    });
-  }
-
-  Future<void> _save() async {
-    final l10n = AppLocalizations.of(context)!;
-    if (!_keyVerified) return;
-    final key = _apiKeyController.text.trim();
-    setState(() => _saving = true);
     final result =
         await ref.read(exchangeRateApiIntegrationProvider).testApiKey(key);
+    if (!mounted) return;
     if (!result.success) {
-      if (!mounted) return;
       setState(() {
-        _saving = false;
+        _busy = false;
         _statusOk = false;
-        _verifiedKey = null;
+        _savedKey = null;
         _status = connectionMessage(l10n, result.messageKey);
       });
       return;
     }
+
     await ref.read(appSettingsProvider.notifier).setExchangeRateApiKey(key);
     await ref.read(rateResolverProvider).refreshIfStale(force: true);
     if (!mounted) return;
     setState(() {
-      _saving = false;
+      _busy = false;
       _statusOk = true;
-      _verifiedKey = key;
+      _savedKey = key;
       _status = l10n.keyValid;
     });
     showAppToast(context, l10n.integrationSave);
@@ -128,7 +107,7 @@ class _ExchangeRateApiConfigFormState
       _apiKeyController.clear();
       _status = null;
       _statusOk = false;
-      _verifiedKey = null;
+      _savedKey = null;
     });
     showAppToast(context, l10n.integrationDisconnect);
   }
@@ -141,7 +120,6 @@ class _ExchangeRateApiConfigFormState
       isIntegrationConfiguredProvider(kExchangeRateApiIntegrationId),
     );
     final canTest = !_busy && _keyFilled;
-    final canSave = !_busy && _keyVerified;
     final canDisconnect = !_busy && connected;
 
     return Column(
@@ -159,18 +137,14 @@ class _ExchangeRateApiConfigFormState
           runSpacing: 8,
           children: [
             FilledButton(
-              onPressed: canTest ? _test : null,
-              child: _testing
+              onPressed: canTest ? _testAndSave : null,
+              child: _busy
                   ? const SizedBox(
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : Text(l10n.integrationTestConnection),
-            ),
-            FilledButton.tonal(
-              onPressed: canSave ? _save : null,
-              child: Text(l10n.integrationSave),
             ),
             OutlinedButton(
               onPressed: canDisconnect ? _disconnect : null,

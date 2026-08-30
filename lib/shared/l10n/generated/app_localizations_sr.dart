@@ -72,6 +72,10 @@ class AppLocalizationsSr extends AppLocalizations {
   String get connectionFailed => 'Veza nije uspela';
 
   @override
+  String get connectionNetwork =>
+      'Nema mreže ili DNS nije uspeo. Proveri internet, VPN ili DNS i pokušaj ponovo.';
+
+  @override
   String get connectionMissingFields => 'Popunite sva obavezna polja';
 
   @override
