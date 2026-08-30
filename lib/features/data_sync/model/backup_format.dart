@@ -445,7 +445,11 @@ class BackupEnvelope {
       throw const BackupUnsupportedFormatException();
     }
     if (schemaVersion > localSchemaVersion) {
-      throw BackupNewerSchemaException(schemaVersion);
+      throw BackupNewerSchemaException(
+        schemaVersion,
+        appVersion: appVersion,
+        localSchemaVersion: localSchemaVersion,
+      );
     }
   }
 }
@@ -470,10 +474,18 @@ class BackupUnsupportedFormatException implements Exception {
 
 class BackupNewerSchemaException implements Exception {
   final int schemaVersion;
-  const BackupNewerSchemaException(this.schemaVersion);
+  final String? appVersion;
+  final int? localSchemaVersion;
+
+  const BackupNewerSchemaException(
+    this.schemaVersion, {
+    this.appVersion,
+    this.localSchemaVersion,
+  });
 
   @override
-  String toString() => 'BackupNewerSchemaException($schemaVersion)';
+  String toString() =>
+      'BackupNewerSchemaException($schemaVersion, appVersion: $appVersion)';
 }
 
 List<String> _stringList(dynamic value) {

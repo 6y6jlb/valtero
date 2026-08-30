@@ -207,6 +207,45 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     if (current == null) return;
     await _save(current.copyWith(debugLoggingEnabled: enabled));
   }
+
+  Future<void> setGoogleDriveSync({
+    bool? enabled,
+    String? accountEmail,
+    String? refreshToken,
+    String? syncPassphrase,
+    DateTime? lastSyncedAt,
+    bool clearLastSyncedAt = false,
+    String? appDataFileId,
+    String? sharedFileId,
+    List<String>? sharedWithEmails,
+  }) async {
+    final current = state.value;
+    if (current == null) return;
+    await _save(current.copyWith(
+      googleDriveSyncEnabled: enabled,
+      googleDriveAccountEmail: accountEmail,
+      googleDriveRefreshToken: refreshToken,
+      googleDriveSyncPassphrase: syncPassphrase,
+      googleDriveLastSyncedAt: lastSyncedAt,
+      clearGoogleDriveLastSyncedAt: clearLastSyncedAt,
+      googleDriveAppDataFileId: appDataFileId,
+      googleDriveSharedFileId: sharedFileId,
+      googleDriveSharedWithEmails: sharedWithEmails,
+    ));
+  }
+
+  Future<void> clearGoogleDriveSync() async {
+    await setGoogleDriveSync(
+      enabled: false,
+      accountEmail: '',
+      refreshToken: '',
+      syncPassphrase: '',
+      clearLastSyncedAt: true,
+      appDataFileId: '',
+      sharedFileId: '',
+      sharedWithEmails: const [],
+    );
+  }
 }
 
 final appSettingsProvider =

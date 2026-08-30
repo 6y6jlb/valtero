@@ -99,6 +99,90 @@ class AppLocalizationsEn extends AppLocalizations {
       'Fetch FX rates with an ExchangeRate-API key. Without it, Frankfurter (ECB) is used.';
 
   @override
+  String get integrationGoogleDriveSyncTitle => 'Google Drive Sync';
+
+  @override
+  String get integrationGoogleDriveSyncDescription =>
+      'Encrypted automatic sync between your devices via Google Drive. Google never sees your expenses — only ciphertext.';
+
+  @override
+  String get googleDriveSignIn => 'Sign in with Google';
+
+  @override
+  String get googleDriveSyncNow => 'Sync now';
+
+  @override
+  String get googleDriveSyncOk => 'Sync completed';
+
+  @override
+  String get googleDriveSyncPassphrase => 'Sync passphrase';
+
+  @override
+  String get googleDriveSyncPassphraseHint =>
+      'Used only on this device to encrypt data. Google never receives it. Use the same passphrase on every device.';
+
+  @override
+  String get googleDrivePassphraseTooShort =>
+      'Passphrase must be at least 8 characters';
+
+  @override
+  String get googleDriveWrongPassphrase =>
+      'Wrong sync passphrase for the remote backup';
+
+  @override
+  String get googleDriveMissingClientId =>
+      'Google OAuth client id is not configured. Build with --dart-define=GOOGLE_OAUTH_CLIENT_ID=…';
+
+  @override
+  String get googleDriveReauthRequired => 'Please sign in with Google again';
+
+  @override
+  String get googleDriveSignInFailed => 'Google sign-in failed';
+
+  @override
+  String googleDriveLastSynced(String when) {
+    return 'Last synced: $when';
+  }
+
+  @override
+  String get googleDriveSharedTitle => 'Shared sync (other Google accounts)';
+
+  @override
+  String get googleDriveSharedDescription =>
+      'Share the encrypted sync file with another person. Requires an extra Google permission (drive.file) and may need OAuth verification for public release.';
+
+  @override
+  String get googleDriveShareEmail => 'Collaborator email';
+
+  @override
+  String get googleDriveShareAdd => 'Share with email';
+
+  @override
+  String get googleDriveShareOk => 'Shared successfully';
+
+  @override
+  String get googleDriveShareFailed => 'Could not share the sync file';
+
+  @override
+  String get googleDriveInvalidEmail => 'Enter a valid email address';
+
+  @override
+  String get googleDriveRemoteNewerSchemaTitle => 'Update required to sync';
+
+  @override
+  String googleDriveRemoteNewerSchema(
+    int remoteSchema,
+    int localSchema,
+    String remoteApp,
+  ) {
+    return 'Cloud sync data was written by a newer app (schema $remoteSchema, app $remoteApp). This device is schema $localSchema. Sync was blocked so newer cloud data is not overwritten. Update the app, then try again.';
+  }
+
+  @override
+  String get googleDriveUnsupportedFormat =>
+      'Cloud sync file format is not supported by this app version';
+
+  @override
   String get telegramNotConnectedHint =>
       'Connect Telegram in Settings → Integrations to send exports there.';
 
@@ -1230,7 +1314,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideSectionDataSyncBody =>
-      'Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file (on Android/iOS the share sheet lets you Save to Files / Downloads), then send it (email, Telegram as a document, cloud, USB). Import merges: existing expenses are kept and new data is added. If incoming expenses look like ones you already have (same day, amount, and currency), you choose which to skip as duplicates and which to import as unique. Restore from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.';
+      'Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file (on Android/iOS the share sheet lets you Save to Files / Downloads), then send it (email, Telegram as a document, cloud, USB). Import merges: existing expenses are kept and new data is added. If incoming expenses look like ones you already have (same day, amount, and currency), you choose which to skip as duplicates and which to import as unique. Restore from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included. For automatic multi-device sync, connect Google Drive Sync under Settings → Integrations (same encryption; Google only stores ciphertext).';
 
   @override
   String get guideSectionTelegramTitle => 'Telegram sharing';
@@ -1244,7 +1328,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideSectionIntegrationsBody =>
-      'Optional services (Telegram, ExchangeRate-API, and future ones) live under Settings → Integrations. Each has its own form with a Test connection action. Features that depend on an integration appear only while it is connected.';
+      'Optional services (Telegram, ExchangeRate-API, Google Drive Sync) live under Settings → Integrations. Each has its own form with a Test connection action. Google Drive Sync encrypts a snapshot locally, stores it in your Drive appDataFolder, and pulls/merges on launch and after edits. Cross-account sharing uses a separate shared file and the drive.file permission. Features that depend on an integration appear only while it is connected.';
 
   @override
   String get guideSectionDebugTitle => 'Debug & logs';

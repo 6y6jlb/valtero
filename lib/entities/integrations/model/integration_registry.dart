@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
 import 'package:valtero/entities/integrations/exchange_rate_api/model/exchange_rate_api_integration.dart';
+import 'package:valtero/entities/integrations/google_drive_sync/model/google_drive_sync_integration.dart';
 import 'package:valtero/entities/integrations/model/app_integration.dart';
 import 'package:valtero/entities/integrations/model/export_destination_integration.dart';
 import 'package:valtero/entities/integrations/telegram/model/telegram_integration.dart';
@@ -16,11 +17,17 @@ final exchangeRateApiIntegrationProvider =
   return ExchangeRateApiIntegration(ref.watch(exchangeRateApiProvider));
 });
 
+final googleDriveSyncIntegrationProvider =
+    Provider<GoogleDriveSyncIntegration>((ref) {
+  return GoogleDriveSyncIntegration.fromDio(ref.watch(dioProvider));
+});
+
 /// All optional integrations shown in Settings → Integrations.
 final integrationsProvider = Provider<List<AppIntegration>>((ref) {
   return [
     ref.watch(telegramIntegrationProvider),
     ref.watch(exchangeRateApiIntegrationProvider),
+    ref.watch(googleDriveSyncIntegrationProvider),
   ];
 });
 

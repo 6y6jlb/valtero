@@ -29,6 +29,43 @@
   "integrationTelegramDescription": "Šalji izvoz troškova u Telegram chat preko bota.",
   "integrationExchangeRateApiTitle": "ExchangeRate-API",
   "integrationExchangeRateApiDescription": "Kursevi preko ExchangeRate-API ključa. Bez ključa koristi se Frankfurter (ECB).",
+  "integrationGoogleDriveSyncTitle": "Google Drive sinhronizacija",
+  "integrationGoogleDriveSyncDescription": "Šifrovana automatska sinhronizacija između uređaja preko Google Drive-a. Google ne vidi troškove — samo šifrovani sadržaj.",
+  "googleDriveSignIn": "Prijava preko Google-a",
+  "googleDriveSyncNow": "Sinhronizuj sada",
+  "googleDriveSyncOk": "Sinhronizacija završena",
+  "googleDriveSyncPassphrase": "Lozinka sinhronizacije",
+  "googleDriveSyncPassphraseHint": "Koristi se samo na uređaju za šifrovanje. Google je nikad ne dobija. Ista lozinka na svim uređajima.",
+  "googleDrivePassphraseTooShort": "Lozinka mora imati najmanje 8 karaktera",
+  "googleDriveWrongPassphrase": "Pogrešna lozinka za udaljenu rezervnu kopiju",
+  "googleDriveMissingClientId": "Nije podešen Google OAuth client id. Build sa --dart-define=GOOGLE_OAUTH_CLIENT_ID=…",
+  "googleDriveReauthRequired": "Prijavite se ponovo preko Google-a",
+  "googleDriveSignInFailed": "Prijava preko Google-a nije uspela",
+  "googleDriveLastSynced": "Poslednja sinhronizacija: {when}",
+  "@googleDriveLastSynced": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "googleDriveSharedTitle": "Zajednička sinhronizacija (drugi Google nalozi)",
+  "googleDriveSharedDescription": "Podeli šifrovani fajl sa drugom osobom. Zahteva dozvolu drive.file; javno izdanje može zahtevati OAuth verifikaciju.",
+  "googleDriveShareEmail": "Email saradnika",
+  "googleDriveShareAdd": "Podeli emailom",
+  "googleDriveShareOk": "Uspešno podeljeno",
+  "googleDriveShareFailed": "Nije moguće podeliti fajl",
+  "googleDriveInvalidEmail": "Unesite ispravan email",
+  "googleDriveRemoteNewerSchemaTitle": "Potrebno je ažuriranje aplikacije",
+  "googleDriveRemoteNewerSchema": "Podaci u oblaku su napisani novijom aplikacijom (šema {remoteSchema}, app {remoteApp}). Ovaj uređaj ima šemu {localSchema}. Sinhronizacija je zaustavljena da se ne bi pregazili noviji podaci. Ažurirajte aplikaciju i pokušajte ponovo.",
+  "@googleDriveRemoteNewerSchema": {
+    "placeholders": {
+      "remoteSchema": { "type": "int" },
+      "localSchema": { "type": "int" },
+      "remoteApp": { "type": "String" }
+    }
+  },
+  "googleDriveUnsupportedFormat": "Format fajla sinhronizacije nije podržan ovom verzijom aplikacije",
   "telegramNotConnectedHint": "Poveži Telegram u Podešavanja → Integracije da šalješ izvoz tamo.",
   "openTelegramIntegration": "Otvori Telegram podešavanja",
   "openExchangeRateApiIntegration": "Podesi ExchangeRate-API",
@@ -587,7 +624,7 @@
   "guideSectionTelegramTitle": "Deljenje preko Telegrama",
   "guideSectionTelegramBody": "Poveži Telegram u Podešavanja → Integracije, unesi token bota i chat id, proveri vezu, zatim pošalji dokument izvoza iz menija izvoza.",
   "guideSectionIntegrationsTitle": "Integracije",
-  "guideSectionIntegrationsBody": "Opcioni servisi (Telegram, ExchangeRate-API i budući) su u Podešavanja → Integracije. Svaki ima formu sa „Proveri vezu“. Zavisne stavke UI-ja se pojavljuju samo dok je integracija povezana.",
+  "guideSectionIntegrationsBody": "Opcioni servisi (Telegram, ExchangeRate-API, Google Drive sinhronizacija) su u Podešavanja → Integracije. Svaki ima formu. Google Drive Sync lokalno šifruje snimak, čuva ga u appDataFolder i sinhronizuje pri pokretanju i posle izmena. Deljenje između naloga koristi poseban fajl i dozvolu drive.file. Zavisne stavke UI-ja se pojavljuju samo dok je integracija povezana.",
   "guideSectionDebugTitle": "Otklanjanje grešaka i logovi",
   "guideSectionDebugBody": "U Podešavanja → Otklanjanje grešaka i logovi možeš uključiti detaljno logovanje. Greške se uvek beleže. Log možeš pregledati, kopirati ili poslati programeru; tajne se maskiraju.",
   "guideSectionFiltersTitle": "Filteri",

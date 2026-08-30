@@ -99,6 +99,92 @@ class AppLocalizationsSr extends AppLocalizations {
       'Kursevi preko ExchangeRate-API ključa. Bez ključa koristi se Frankfurter (ECB).';
 
   @override
+  String get integrationGoogleDriveSyncTitle => 'Google Drive sinhronizacija';
+
+  @override
+  String get integrationGoogleDriveSyncDescription =>
+      'Šifrovana automatska sinhronizacija između uređaja preko Google Drive-a. Google ne vidi troškove — samo šifrovani sadržaj.';
+
+  @override
+  String get googleDriveSignIn => 'Prijava preko Google-a';
+
+  @override
+  String get googleDriveSyncNow => 'Sinhronizuj sada';
+
+  @override
+  String get googleDriveSyncOk => 'Sinhronizacija završena';
+
+  @override
+  String get googleDriveSyncPassphrase => 'Lozinka sinhronizacije';
+
+  @override
+  String get googleDriveSyncPassphraseHint =>
+      'Koristi se samo na uređaju za šifrovanje. Google je nikad ne dobija. Ista lozinka na svim uređajima.';
+
+  @override
+  String get googleDrivePassphraseTooShort =>
+      'Lozinka mora imati najmanje 8 karaktera';
+
+  @override
+  String get googleDriveWrongPassphrase =>
+      'Pogrešna lozinka za udaljenu rezervnu kopiju';
+
+  @override
+  String get googleDriveMissingClientId =>
+      'Nije podešen Google OAuth client id. Build sa --dart-define=GOOGLE_OAUTH_CLIENT_ID=…';
+
+  @override
+  String get googleDriveReauthRequired => 'Prijavite se ponovo preko Google-a';
+
+  @override
+  String get googleDriveSignInFailed => 'Prijava preko Google-a nije uspela';
+
+  @override
+  String googleDriveLastSynced(String when) {
+    return 'Poslednja sinhronizacija: $when';
+  }
+
+  @override
+  String get googleDriveSharedTitle =>
+      'Zajednička sinhronizacija (drugi Google nalozi)';
+
+  @override
+  String get googleDriveSharedDescription =>
+      'Podeli šifrovani fajl sa drugom osobom. Zahteva dozvolu drive.file; javno izdanje može zahtevati OAuth verifikaciju.';
+
+  @override
+  String get googleDriveShareEmail => 'Email saradnika';
+
+  @override
+  String get googleDriveShareAdd => 'Podeli emailom';
+
+  @override
+  String get googleDriveShareOk => 'Uspešno podeljeno';
+
+  @override
+  String get googleDriveShareFailed => 'Nije moguće podeliti fajl';
+
+  @override
+  String get googleDriveInvalidEmail => 'Unesite ispravan email';
+
+  @override
+  String get googleDriveRemoteNewerSchemaTitle =>
+      'Potrebno je ažuriranje aplikacije';
+
+  @override
+  String googleDriveRemoteNewerSchema(
+    int remoteSchema,
+    int localSchema,
+    String remoteApp,
+  ) {
+    return 'Podaci u oblaku su napisani novijom aplikacijom (šema $remoteSchema, app $remoteApp). Ovaj uređaj ima šemu $localSchema. Sinhronizacija je zaustavljena da se ne bi pregazili noviji podaci. Ažurirajte aplikaciju i pokušajte ponovo.';
+  }
+
+  @override
+  String get googleDriveUnsupportedFormat =>
+      'Format fajla sinhronizacije nije podržan ovom verzijom aplikacije';
+
+  @override
   String get telegramNotConnectedHint =>
       'Poveži Telegram u Podešavanja → Integracije da šalješ izvoz tamo.';
 
@@ -1249,7 +1335,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get guideSectionIntegrationsBody =>
-      'Opcioni servisi (Telegram, ExchangeRate-API i budući) su u Podešavanja → Integracije. Svaki ima formu sa „Proveri vezu“. Zavisne stavke UI-ja se pojavljuju samo dok je integracija povezana.';
+      'Opcioni servisi (Telegram, ExchangeRate-API, Google Drive sinhronizacija) su u Podešavanja → Integracije. Svaki ima formu. Google Drive Sync lokalno šifruje snimak, čuva ga u appDataFolder i sinhronizuje pri pokretanju i posle izmena. Deljenje između naloga koristi poseban fajl i dozvolu drive.file. Zavisne stavke UI-ja se pojavljuju samo dok je integracija povezana.';
 
   @override
   String get guideSectionDebugTitle => 'Otklanjanje grešaka i logovi';

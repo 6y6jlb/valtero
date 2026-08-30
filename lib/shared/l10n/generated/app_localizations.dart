@@ -276,6 +276,148 @@ abstract class AppLocalizations {
   /// **'Fetch FX rates with an ExchangeRate-API key. Without it, Frankfurter (ECB) is used.'**
   String get integrationExchangeRateApiDescription;
 
+  /// No description provided for @integrationGoogleDriveSyncTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive Sync'**
+  String get integrationGoogleDriveSyncTitle;
+
+  /// No description provided for @integrationGoogleDriveSyncDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypted automatic sync between your devices via Google Drive. Google never sees your expenses — only ciphertext.'**
+  String get integrationGoogleDriveSyncDescription;
+
+  /// No description provided for @googleDriveSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google'**
+  String get googleDriveSignIn;
+
+  /// No description provided for @googleDriveSyncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get googleDriveSyncNow;
+
+  /// No description provided for @googleDriveSyncOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync completed'**
+  String get googleDriveSyncOk;
+
+  /// No description provided for @googleDriveSyncPassphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync passphrase'**
+  String get googleDriveSyncPassphrase;
+
+  /// No description provided for @googleDriveSyncPassphraseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Used only on this device to encrypt data. Google never receives it. Use the same passphrase on every device.'**
+  String get googleDriveSyncPassphraseHint;
+
+  /// No description provided for @googleDrivePassphraseTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase must be at least 8 characters'**
+  String get googleDrivePassphraseTooShort;
+
+  /// No description provided for @googleDriveWrongPassphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong sync passphrase for the remote backup'**
+  String get googleDriveWrongPassphrase;
+
+  /// No description provided for @googleDriveMissingClientId.
+  ///
+  /// In en, this message translates to:
+  /// **'Google OAuth client id is not configured. Build with --dart-define=GOOGLE_OAUTH_CLIENT_ID=…'**
+  String get googleDriveMissingClientId;
+
+  /// No description provided for @googleDriveReauthRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in with Google again'**
+  String get googleDriveReauthRequired;
+
+  /// No description provided for @googleDriveSignInFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Google sign-in failed'**
+  String get googleDriveSignInFailed;
+
+  /// No description provided for @googleDriveLastSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Last synced: {when}'**
+  String googleDriveLastSynced(String when);
+
+  /// No description provided for @googleDriveSharedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared sync (other Google accounts)'**
+  String get googleDriveSharedTitle;
+
+  /// No description provided for @googleDriveSharedDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the encrypted sync file with another person. Requires an extra Google permission (drive.file) and may need OAuth verification for public release.'**
+  String get googleDriveSharedDescription;
+
+  /// No description provided for @googleDriveShareEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Collaborator email'**
+  String get googleDriveShareEmail;
+
+  /// No description provided for @googleDriveShareAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Share with email'**
+  String get googleDriveShareAdd;
+
+  /// No description provided for @googleDriveShareOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared successfully'**
+  String get googleDriveShareOk;
+
+  /// No description provided for @googleDriveShareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not share the sync file'**
+  String get googleDriveShareFailed;
+
+  /// No description provided for @googleDriveInvalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address'**
+  String get googleDriveInvalidEmail;
+
+  /// No description provided for @googleDriveRemoteNewerSchemaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update required to sync'**
+  String get googleDriveRemoteNewerSchemaTitle;
+
+  /// No description provided for @googleDriveRemoteNewerSchema.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud sync data was written by a newer app (schema {remoteSchema}, app {remoteApp}). This device is schema {localSchema}. Sync was blocked so newer cloud data is not overwritten. Update the app, then try again.'**
+  String googleDriveRemoteNewerSchema(
+    int remoteSchema,
+    int localSchema,
+    String remoteApp,
+  );
+
+  /// No description provided for @googleDriveUnsupportedFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud sync file format is not supported by this app version'**
+  String get googleDriveUnsupportedFormat;
+
   /// No description provided for @telegramNotConnectedHint.
   ///
   /// In en, this message translates to:
@@ -2336,7 +2478,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionDataSyncBody.
   ///
   /// In en, this message translates to:
-  /// **'Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file (on Android/iOS the share sheet lets you Save to Files / Downloads), then send it (email, Telegram as a document, cloud, USB). Import merges: existing expenses are kept and new data is added. If incoming expenses look like ones you already have (same day, amount, and currency), you choose which to skip as duplicates and which to import as unique. Restore from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.'**
+  /// **'Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file (on Android/iOS the share sheet lets you Save to Files / Downloads), then send it (email, Telegram as a document, cloud, USB). Import merges: existing expenses are kept and new data is added. If incoming expenses look like ones you already have (same day, amount, and currency), you choose which to skip as duplicates and which to import as unique. Restore from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included. For automatic multi-device sync, connect Google Drive Sync under Settings → Integrations (same encryption; Google only stores ciphertext).'**
   String get guideSectionDataSyncBody;
 
   /// No description provided for @guideSectionTelegramTitle.
@@ -2360,7 +2502,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionIntegrationsBody.
   ///
   /// In en, this message translates to:
-  /// **'Optional services (Telegram, ExchangeRate-API, and future ones) live under Settings → Integrations. Each has its own form with a Test connection action. Features that depend on an integration appear only while it is connected.'**
+  /// **'Optional services (Telegram, ExchangeRate-API, Google Drive Sync) live under Settings → Integrations. Each has its own form with a Test connection action. Google Drive Sync encrypts a snapshot locally, stores it in your Drive appDataFolder, and pulls/merges on launch and after edits. Cross-account sharing uses a separate shared file and the drive.file permission. Features that depend on an integration appear only while it is connected.'**
   String get guideSectionIntegrationsBody;
 
   /// No description provided for @guideSectionDebugTitle.

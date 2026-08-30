@@ -60,10 +60,11 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 2. **Dashboard** → donut chart + filter bar → **last 10 expenses** + link to full list; entry points for add / tags / export; convert stored amounts to display currency via `RateResolver` in Dart. Possible-duplicate alert badges on recent rows when soft matches exist.
 3. **Rates** → on launch if last refresh >24h, refresh in background; Settings → Currency sheet can force refresh / set manual rates / view all rates; ExchangeRate-API key is bound under **Settings → Integrations** (Frankfurter used when not connected)
 4. **Tag suggestions** → detect country/currency (ip-api.com, locale fallback) → suggest **category** tags (Tags sheet). Detected country primes the expense country field on create.
-5. **Export** → CSV/JSON (includes `countryCode` + payment) → save / share / copy; **Telegram** destination appears only when the Telegram integration is connected; **encrypted backup/sync** (Settings → Backup & sync, `.valterobackup`) embeds `formatVersion` + `schemaVersion` (`kAppSchemaVersion`) for merge import across devices; API keys / Telegram credentials are excluded. On import, soft-duplicate conflicts open a resolution sheet (skip as duplicate / import as unique) before merge.
-6. **Integrations** → Settings → Integrations lists optional services (`entities/integrations/`: Telegram, ExchangeRate-API). Each opens a config modal with Test connection / Save / Disconnect. Capability-gated UI (export menu Telegram items, rate source label) reads `isIntegrationConfiguredProvider` / `configuredExportIntegrationsProvider`
-7. **Debug & logs** → Settings → Debug & logs: toggle verbose debug breadcrumbs; **errors/warnings always written** to a redacted file log (`shared/logging/`); view / copy / share via system share sheet (clipboard fallback on Linux). Secrets never logged (`LogRedactor`)
-8. **Possible duplicates** → Expenses list shows an alert banner + per-row badges when 2+ non-dismissed expenses share day/amount/currency; review sheet lets the user delete a row or mark “not a duplicate” (`duplicateDismissed`)
+5. **Export** → CSV/JSON (includes `countryCode` + payment) → save / share / copy; **Telegram** destination appears only when the Telegram integration is connected; **encrypted backup/sync** (Settings → Backup & sync, `.valterobackup`) embeds `formatVersion` + `schemaVersion` (`kAppSchemaVersion`) for merge import across devices; API keys / Telegram / Google Drive credentials are excluded. On import, soft-duplicate conflicts open a resolution sheet (skip as duplicate / import as unique) before merge.
+6. **Integrations** → Settings → Integrations lists optional services (`entities/integrations/`: Telegram, ExchangeRate-API, **Google Drive Sync**). Each opens a config modal with Test connection / Save / Disconnect. Capability-gated UI (export menu Telegram items, rate source label) reads `isIntegrationConfiguredProvider` / `configuredExportIntegrationsProvider`
+7. **Google Drive Sync** → optional E2EE sync: OAuth (`flutter_web_auth_2` + PKCE) → encrypted snapshot (same `BackupCrypto` / `.valterobackup` envelope) in Drive `appDataFolder`; lazy pull on launch + debounced push after local expense changes; sync passphrase stored only on-device (never sent to Google). Cross-account share creates a regular Drive file + `permissions.create` (needs `drive.file` scope; Google OAuth verification for >100 users). Build with `--dart-define=GOOGLE_OAUTH_CLIENT_ID=…`. Version gate: remote `schemaVersion` **older or equal** merges forward; **newer** remote schema blocks pull+push and shows an update-required alert (so a newer cloud snapshot is never overwritten).
+8. **Debug & logs** → Settings → Debug & logs: toggle verbose debug breadcrumbs; **errors/warnings always written** to a redacted file log (`shared/logging/`); view / copy / share via system share sheet (clipboard fallback on Linux). Secrets never logged (`LogRedactor`)
+9. **Possible duplicates** → Expenses list shows an alert banner + per-row badges when 2+ non-dismissed expenses share day/amount/currency; review sheet lets the user delete a row or mark “not a duplicate” (`duplicateDismissed`)
 
 ## Navigation
 
@@ -79,9 +80,10 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 ## App version
 
 - **SSOT**: repo-root `VERSION` (`semver+build`, e.g. `1.0.0+1`)
+- **Changelog**: root [`CHANGELOG.md`](CHANGELOG.md) (Keep a Changelog). On every **minor** or **major** bump, add an entry — see [docs/agent-rules/changelog.md](docs/agent-rules/changelog.md). Patch/build bumps are optional.
 - **Tooling**: `scripts/app_version.sh` / `.ps1` — `sync` writes `pubspec.yaml`; `flutter-args` emits `--build-name` / `--build-number` / `--dart-define=APP_VERSION=…`; `bump major|minor|patch` changes semver only, `bump build` increments `+N` (Android `versionCode`)
 - **Make**: `version-major` / `version-minor` / `version-patch` / `version-build`, or `version VERSION=x.y.z+n`; also `codegen` for Drift (`build_runner`) after clone / schema changes
-- **Make / release**: `run-*`, `build-*`, `release-*` sync + pass those flags so Linux / Windows / Android binaries and the in-app label match
+- **Make / release**: `run-*`, `build-*`, `release-*` sync + pass those flags so Linux / Windows / Android binaries and the in-app label match. For Google Drive Sync, also pass `--dart-define=GOOGLE_OAUTH_CLIENT_ID=…` (Desktop OAuth client; Android redirect `com.valtero.oauth:/oauth2redirect`, desktop loopback `http://localhost:43823/oauth2redirect`).
 - **UI**: `appVersionLabelProvider` reads compile-time `APP_VERSION` (shown in Settings when set via Make/release)
 
 ## Code style
@@ -112,6 +114,8 @@ Details: [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md)
 6. If platform run/build/release flow changes, update `README.md` and the **App version** section here
 7. **If editing an agent rule**: update `docs/agent-rules/<topic>.md` first (source of truth). If a local `.cursor/rules/<topic>.mdc` mirror exists, update its body in the same pass. Never edit only the `.mdc`.
 8. **After finishing a plan / feature**: run full `flutter test` (not only new files), fix every failure including unrelated fixtures broken by schema changes, then re-run until green — see [testing.md](docs/agent-rules/testing.md)
+9. **If bumping minor or major in `VERSION`**: update [`CHANGELOG.md`](CHANGELOG.md) in the same change set — see [changelog.md](docs/agent-rules/changelog.md)
+
 ## Topic rules (tool-agnostic)
 
 | File | Why it exists |
@@ -126,6 +130,7 @@ Details: [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md)
 | [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md) | New packages: need / overlap / health + explicit user approve |
 | [docs/agent-rules/platform-guide.md](docs/agent-rules/platform-guide.md) | Keep in-app platform guide in sync with new capabilities |
 | [docs/agent-rules/testing.md](docs/agent-rules/testing.md) | Unit/feature tests; **full `flutter test` after finishing a plan** |
+| [docs/agent-rules/changelog.md](docs/agent-rules/changelog.md) | Keep a Changelog; required on minor/major `VERSION` bumps |
 
 ## Tool-specific rule files (gitignored)
 
@@ -148,5 +153,6 @@ To generate Cursor mirrors once locally:
 | `dependencies` | `alwaysApply: true` |
 | `platform-guide` | `globs: lib/features/platform_guide/**,lib/pages/platform_guide/**` |
 | `testing` | `globs: test/**` |
+| `changelog` | `globs: CHANGELOG.md,VERSION,scripts/app_version.*` |
 
 Ask an agent: “Mirror `docs/agent-rules/*.md` into `.cursor/rules/*.mdc` with the frontmatter from AGENTS.md.”

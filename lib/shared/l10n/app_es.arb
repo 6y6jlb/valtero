@@ -29,6 +29,43 @@
   "integrationTelegramDescription": "Envía exportaciones de gastos a un chat de Telegram mediante un bot.",
   "integrationExchangeRateApiTitle": "ExchangeRate-API",
   "integrationExchangeRateApiDescription": "Obtén tipos de cambio con una clave de ExchangeRate-API. Sin ella se usa Frankfurter (BCE).",
+  "integrationGoogleDriveSyncTitle": "Sincronización con Google Drive",
+  "integrationGoogleDriveSyncDescription": "Sincronización automática cifrada entre dispositivos vía Google Drive. Google no ve tus gastos — solo el texto cifrado.",
+  "googleDriveSignIn": "Iniciar sesión con Google",
+  "googleDriveSyncNow": "Sincronizar ahora",
+  "googleDriveSyncOk": "Sincronización completada",
+  "googleDriveSyncPassphrase": "Frase de sincronización",
+  "googleDriveSyncPassphraseHint": "Solo se usa en este dispositivo para cifrar. Google nunca la recibe. Usa la misma frase en todos los dispositivos.",
+  "googleDrivePassphraseTooShort": "La frase debe tener al menos 8 caracteres",
+  "googleDriveWrongPassphrase": "Frase incorrecta para la copia remota",
+  "googleDriveMissingClientId": "Falta el client id de Google OAuth. Compila con --dart-define=GOOGLE_OAUTH_CLIENT_ID=…",
+  "googleDriveReauthRequired": "Vuelve a iniciar sesión con Google",
+  "googleDriveSignInFailed": "No se pudo iniciar sesión con Google",
+  "googleDriveLastSynced": "Última sincronización: {when}",
+  "@googleDriveLastSynced": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "googleDriveSharedTitle": "Sincronización compartida (otras cuentas de Google)",
+  "googleDriveSharedDescription": "Comparte el archivo cifrado con otra persona. Requiere el permiso drive.file; el lanzamiento público puede necesitar verificación OAuth.",
+  "googleDriveShareEmail": "Correo del colaborador",
+  "googleDriveShareAdd": "Compartir por correo",
+  "googleDriveShareOk": "Compartido correctamente",
+  "googleDriveShareFailed": "No se pudo compartir el archivo",
+  "googleDriveInvalidEmail": "Introduce un correo válido",
+  "googleDriveRemoteNewerSchemaTitle": "Actualiza la app para sincronizar",
+  "googleDriveRemoteNewerSchema": "Los datos en la nube los escribió una app más nueva (esquema {remoteSchema}, app {remoteApp}). Este dispositivo usa el esquema {localSchema}. La sincronización se detuvo para no sobrescribir datos más nuevos. Actualiza la app e inténtalo de nuevo.",
+  "@googleDriveRemoteNewerSchema": {
+    "placeholders": {
+      "remoteSchema": { "type": "int" },
+      "localSchema": { "type": "int" },
+      "remoteApp": { "type": "String" }
+    }
+  },
+  "googleDriveUnsupportedFormat": "El formato del archivo de sincronización no es compatible con esta versión",
   "telegramNotConnectedHint": "Conecta Telegram en Ajustes → Integraciones para enviar exportaciones allí.",
   "openTelegramIntegration": "Abrir ajustes de Telegram",
   "openExchangeRateApiIntegration": "Configurar ExchangeRate-API",
@@ -587,7 +624,7 @@
   "guideSectionTelegramTitle": "Compartir por Telegram",
   "guideSectionTelegramBody": "Conecta Telegram en Ajustes → Integraciones, introduce el token del bot y el id del chat, prueba la conexión y envía un documento desde el menú de exportación.",
   "guideSectionIntegrationsTitle": "Integraciones",
-  "guideSectionIntegrationsBody": "Los servicios opcionales (Telegram, ExchangeRate-API y futuros) están en Ajustes → Integraciones. Cada uno tiene su formulario con «Probar conexión». Las funciones dependientes solo aparecen mientras la integración esté conectada.",
+  "guideSectionIntegrationsBody": "Los servicios opcionales (Telegram, ExchangeRate-API, sincronización con Google Drive) están en Ajustes → Integraciones. Cada uno tiene su formulario. Google Drive Sync cifra una instantánea en el dispositivo, la guarda en appDataFolder y sincroniza al abrir y tras cambios. El uso compartido entre cuentas usa un archivo aparte y el permiso drive.file. Las funciones dependientes solo aparecen mientras la integración esté conectada.",
   "guideSectionDebugTitle": "Depuración y registros",
   "guideSectionDebugBody": "En Ajustes → Depuración y registros puedes activar el registro detallado. Los errores siempre se guardan. Puedes ver, copiar o compartir el archivo con un desarrollador; los secretos se ocultan.",
   "guideSectionFiltersTitle": "Filtros",

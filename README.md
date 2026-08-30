@@ -5,6 +5,8 @@ Multi-currency personal expense tracker (Flutter). Primary target: Linux; also W
 **App version (single source of truth):** [`VERSION`](VERSION) (`x.y.z+build`).  
 `make` / release scripts sync it into `pubspec.yaml` and pass `--build-name` / `--build-number` / `--dart-define=APP_VERSION=…` so Linux, Windows, and Android (and the in-app label in Settings) all get the same value.
 
+User-facing history: [`CHANGELOG.md`](CHANGELOG.md) (update on every **minor** / **major** bump).
+
 ```bash
 make version                     # show
 make version-major               # 1.2.3+5 → 2.0.0+5
@@ -207,6 +209,27 @@ make release-android TARGET_PLATFORM=android-arm64
 ```
 
 Install with `adb install -r dist/android/<file>.apk`. Replace debug signing in Gradle before publishing to a store.
+
+## Google Drive Sync (optional)
+
+Encrypted multi-device sync via Settings → Integrations → Google Drive Sync. Requires a Google Cloud OAuth client id at build/run time:
+
+```bash
+flutter run -d linux \
+  --dart-define=APP_VERSION="$(./scripts/app_version.sh print)" \
+  --dart-define=GOOGLE_OAUTH_CLIENT_ID=YOUR_CLIENT_ID.apps.googleusercontent.com
+```
+
+In [Google Cloud Console](https://console.cloud.google.com/apis/credentials):
+
+1. Enable **Google Drive API**.
+2. Create an OAuth client (Desktop app is enough for Linux/Windows loopback).
+3. Authorized redirect URIs:
+   - Desktop: `http://localhost:43823/oauth2redirect`
+   - Android: `com.valtero.oauth:/oauth2redirect` (also declared in `AndroidManifest.xml`)
+4. Scopes used: `drive.appdata` + `userinfo.email` (personal). Sharing across Google accounts also requests `drive.file` (sensitive — Google verification needed beyond ~100 test users).
+
+Data is encrypted on-device with the sync passphrase (Argon2id → AES-GCM, same format as `.valterobackup`); Google only stores ciphertext.
 
 ## Architecture
 

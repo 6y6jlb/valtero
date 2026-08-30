@@ -32,6 +32,16 @@ class AppSettings {
   /// When true, verbose debug breadcrumbs are written to the app log file.
   /// Error/warning logs are always written regardless of this flag.
   final bool debugLoggingEnabled;
+  /// Google Drive Sync (optional integration). Credentials stay on-device only.
+  final bool googleDriveSyncEnabled;
+  final String googleDriveAccountEmail;
+  final String googleDriveRefreshToken;
+  /// Local-only E2EE passphrase (never uploaded to Google).
+  final String googleDriveSyncPassphrase;
+  final DateTime? googleDriveLastSyncedAt;
+  final String googleDriveAppDataFileId;
+  final String googleDriveSharedFileId;
+  final List<String> googleDriveSharedWithEmails;
 
   const AppSettings({
     required this.reportingCurrencies,
@@ -58,6 +68,14 @@ class AppSettings {
     this.expensesListGroup = 'currency',
     this.expensesChartBreakdown = 'currency',
     this.debugLoggingEnabled = false,
+    this.googleDriveSyncEnabled = false,
+    this.googleDriveAccountEmail = '',
+    this.googleDriveRefreshToken = '',
+    this.googleDriveSyncPassphrase = '',
+    this.googleDriveLastSyncedAt,
+    this.googleDriveAppDataFileId = '',
+    this.googleDriveSharedFileId = '',
+    this.googleDriveSharedWithEmails = const [],
   });
 
   factory AppSettings.initial() {
@@ -96,6 +114,15 @@ class AppSettings {
     String? expensesListGroup,
     String? expensesChartBreakdown,
     bool? debugLoggingEnabled,
+    bool? googleDriveSyncEnabled,
+    String? googleDriveAccountEmail,
+    String? googleDriveRefreshToken,
+    String? googleDriveSyncPassphrase,
+    DateTime? googleDriveLastSyncedAt,
+    bool clearGoogleDriveLastSyncedAt = false,
+    String? googleDriveAppDataFileId,
+    String? googleDriveSharedFileId,
+    List<String>? googleDriveSharedWithEmails,
   }) {
     return AppSettings(
       reportingCurrencies: reportingCurrencies ?? this.reportingCurrencies,
@@ -129,6 +156,23 @@ class AppSettings {
       expensesChartBreakdown:
           expensesChartBreakdown ?? this.expensesChartBreakdown,
       debugLoggingEnabled: debugLoggingEnabled ?? this.debugLoggingEnabled,
+      googleDriveSyncEnabled:
+          googleDriveSyncEnabled ?? this.googleDriveSyncEnabled,
+      googleDriveAccountEmail:
+          googleDriveAccountEmail ?? this.googleDriveAccountEmail,
+      googleDriveRefreshToken:
+          googleDriveRefreshToken ?? this.googleDriveRefreshToken,
+      googleDriveSyncPassphrase:
+          googleDriveSyncPassphrase ?? this.googleDriveSyncPassphrase,
+      googleDriveLastSyncedAt: clearGoogleDriveLastSyncedAt
+          ? null
+          : (googleDriveLastSyncedAt ?? this.googleDriveLastSyncedAt),
+      googleDriveAppDataFileId:
+          googleDriveAppDataFileId ?? this.googleDriveAppDataFileId,
+      googleDriveSharedFileId:
+          googleDriveSharedFileId ?? this.googleDriveSharedFileId,
+      googleDriveSharedWithEmails:
+          googleDriveSharedWithEmails ?? this.googleDriveSharedWithEmails,
     );
   }
 
@@ -157,6 +201,14 @@ class AppSettings {
         'expensesListGroup': expensesListGroup,
         'expensesChartBreakdown': expensesChartBreakdown,
         'debugLoggingEnabled': debugLoggingEnabled,
+        'googleDriveSyncEnabled': googleDriveSyncEnabled,
+        'googleDriveAccountEmail': googleDriveAccountEmail,
+        'googleDriveRefreshToken': googleDriveRefreshToken,
+        'googleDriveSyncPassphrase': googleDriveSyncPassphrase,
+        'googleDriveLastSyncedAt': googleDriveLastSyncedAt?.toIso8601String(),
+        'googleDriveAppDataFileId': googleDriveAppDataFileId,
+        'googleDriveSharedFileId': googleDriveSharedFileId,
+        'googleDriveSharedWithEmails': googleDriveSharedWithEmails,
       };
 
   factory AppSettings.fromJson(Map<dynamic, dynamic> json) {
@@ -199,6 +251,22 @@ class AppSettings {
       expensesChartBreakdown:
           json['expensesChartBreakdown'] as String? ?? 'currency',
       debugLoggingEnabled: json['debugLoggingEnabled'] as bool? ?? false,
+      googleDriveSyncEnabled: json['googleDriveSyncEnabled'] as bool? ?? false,
+      googleDriveAccountEmail: json['googleDriveAccountEmail'] as String? ?? '',
+      googleDriveRefreshToken: json['googleDriveRefreshToken'] as String? ?? '',
+      googleDriveSyncPassphrase:
+          json['googleDriveSyncPassphrase'] as String? ?? '',
+      googleDriveLastSyncedAt: json['googleDriveLastSyncedAt'] != null
+          ? DateTime.tryParse(json['googleDriveLastSyncedAt'] as String)
+          : null,
+      googleDriveAppDataFileId:
+          json['googleDriveAppDataFileId'] as String? ?? '',
+      googleDriveSharedFileId: json['googleDriveSharedFileId'] as String? ?? '',
+      googleDriveSharedWithEmails:
+          (json['googleDriveSharedWithEmails'] as List<dynamic>?)
+                  ?.map((e) => e.toString())
+                  .toList() ??
+              const [],
     );
   }
 }

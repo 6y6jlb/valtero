@@ -99,6 +99,91 @@ class AppLocalizationsRu extends AppLocalizations {
       'Курсы через ключ ExchangeRate-API. Без ключа используется Frankfurter (ECB).';
 
   @override
+  String get integrationGoogleDriveSyncTitle => 'Синхронизация Google Drive';
+
+  @override
+  String get integrationGoogleDriveSyncDescription =>
+      'Зашифрованная автоматическая синхронизация между устройствами через Google Drive. Google не видит расходы — только шифротекст.';
+
+  @override
+  String get googleDriveSignIn => 'Войти через Google';
+
+  @override
+  String get googleDriveSyncNow => 'Синхронизировать';
+
+  @override
+  String get googleDriveSyncOk => 'Синхронизация завершена';
+
+  @override
+  String get googleDriveSyncPassphrase => 'Пароль синхронизации';
+
+  @override
+  String get googleDriveSyncPassphraseHint =>
+      'Используется только на устройстве для шифрования. Google его не получает. На всех устройствах должен быть один и тот же пароль.';
+
+  @override
+  String get googleDrivePassphraseTooShort =>
+      'Пароль должен быть не короче 8 символов';
+
+  @override
+  String get googleDriveWrongPassphrase =>
+      'Неверный пароль для удалённой копии';
+
+  @override
+  String get googleDriveMissingClientId =>
+      'Не задан Google OAuth client id. Соберите с --dart-define=GOOGLE_OAUTH_CLIENT_ID=…';
+
+  @override
+  String get googleDriveReauthRequired => 'Войдите в Google снова';
+
+  @override
+  String get googleDriveSignInFailed => 'Не удалось войти в Google';
+
+  @override
+  String googleDriveLastSynced(String when) {
+    return 'Последняя синхронизация: $when';
+  }
+
+  @override
+  String get googleDriveSharedTitle =>
+      'Общая синхронизация (другие аккаунты Google)';
+
+  @override
+  String get googleDriveSharedDescription =>
+      'Расшарить зашифрованный файл с другим человеком. Нужно дополнительное разрешение Google (drive.file); для публичного релиза может потребоваться верификация OAuth.';
+
+  @override
+  String get googleDriveShareEmail => 'Email участника';
+
+  @override
+  String get googleDriveShareAdd => 'Поделиться';
+
+  @override
+  String get googleDriveShareOk => 'Доступ выдан';
+
+  @override
+  String get googleDriveShareFailed => 'Не удалось расшарить файл';
+
+  @override
+  String get googleDriveInvalidEmail => 'Введите корректный email';
+
+  @override
+  String get googleDriveRemoteNewerSchemaTitle => 'Нужно обновить приложение';
+
+  @override
+  String googleDriveRemoteNewerSchema(
+    int remoteSchema,
+    int localSchema,
+    String remoteApp,
+  ) {
+    return 'Облачный снимок создан более новой версией приложения (схема $remoteSchema, приложение $remoteApp). На этом устройстве схема $localSchema. Синхронизация остановлена, чтобы не перезаписать новые данные. Обновите приложение и повторите попытку.';
+  }
+
+  @override
+  String get googleDriveUnsupportedFormat =>
+      'Формат файла облачной синхронизации не поддерживается этой версией приложения';
+
+  @override
   String get telegramNotConnectedHint =>
       'Подключите Telegram в Настройки → Интеграции, чтобы отправлять экспорт туда.';
 
@@ -1250,7 +1335,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get guideSectionIntegrationsBody =>
-      'Опциональные сервисы (Telegram, ExchangeRate-API и будущие) живут в Настройки → Интеграции. У каждой свой форма с кнопкой «Проверить соединение». Зависимые пункты UI появляются только пока интеграция подключена.';
+      'Опциональные сервисы (Telegram, ExchangeRate-API, синхронизация Google Drive) живут в Настройки → Интеграции. У каждой свой форма. Google Drive Sync шифрует снимок локально, кладёт его в appDataFolder и подтягивает/сливает при запуске и после правок. Общий доступ между аккаунтами — отдельный файл и разрешение drive.file. Зависимые пункты UI появляются только пока интеграция подключена.';
 
   @override
   String get guideSectionDebugTitle => 'Отладка и логи';

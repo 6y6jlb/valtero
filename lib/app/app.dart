@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
+import 'package:valtero/features/google_drive_sync/model/google_drive_sync_scheduler.dart';
 import 'package:valtero/features/manage_tags/model/manage_tags_controller.dart';
 import 'package:valtero/features/manage_payment_methods/model/manage_payment_methods_controller.dart';
 import 'package:valtero/features/tag_suggestions/model/country_detection.dart';
@@ -35,6 +36,7 @@ class _AppState extends ConsumerState<App> {
     }
     // ignore: unawaited_futures
     ref.read(rateResolverProvider).refreshIfStale();
+    ref.read(googleDriveSyncSchedulerProvider).start();
   }
 
   @override

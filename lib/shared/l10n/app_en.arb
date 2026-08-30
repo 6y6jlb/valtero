@@ -29,6 +29,43 @@
   "integrationTelegramDescription": "Send expense exports to a Telegram chat via bot.",
   "integrationExchangeRateApiTitle": "ExchangeRate-API",
   "integrationExchangeRateApiDescription": "Fetch FX rates with an ExchangeRate-API key. Without it, Frankfurter (ECB) is used.",
+  "integrationGoogleDriveSyncTitle": "Google Drive Sync",
+  "integrationGoogleDriveSyncDescription": "Encrypted automatic sync between your devices via Google Drive. Google never sees your expenses — only ciphertext.",
+  "googleDriveSignIn": "Sign in with Google",
+  "googleDriveSyncNow": "Sync now",
+  "googleDriveSyncOk": "Sync completed",
+  "googleDriveSyncPassphrase": "Sync passphrase",
+  "googleDriveSyncPassphraseHint": "Used only on this device to encrypt data. Google never receives it. Use the same passphrase on every device.",
+  "googleDrivePassphraseTooShort": "Passphrase must be at least 8 characters",
+  "googleDriveWrongPassphrase": "Wrong sync passphrase for the remote backup",
+  "googleDriveMissingClientId": "Google OAuth client id is not configured. Build with --dart-define=GOOGLE_OAUTH_CLIENT_ID=…",
+  "googleDriveReauthRequired": "Please sign in with Google again",
+  "googleDriveSignInFailed": "Google sign-in failed",
+  "googleDriveLastSynced": "Last synced: {when}",
+  "@googleDriveLastSynced": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "googleDriveSharedTitle": "Shared sync (other Google accounts)",
+  "googleDriveSharedDescription": "Share the encrypted sync file with another person. Requires an extra Google permission (drive.file) and may need OAuth verification for public release.",
+  "googleDriveShareEmail": "Collaborator email",
+  "googleDriveShareAdd": "Share with email",
+  "googleDriveShareOk": "Shared successfully",
+  "googleDriveShareFailed": "Could not share the sync file",
+  "googleDriveInvalidEmail": "Enter a valid email address",
+  "googleDriveRemoteNewerSchemaTitle": "Update required to sync",
+  "googleDriveRemoteNewerSchema": "Cloud sync data was written by a newer app (schema {remoteSchema}, app {remoteApp}). This device is schema {localSchema}. Sync was blocked so newer cloud data is not overwritten. Update the app, then try again.",
+  "@googleDriveRemoteNewerSchema": {
+    "placeholders": {
+      "remoteSchema": { "type": "int" },
+      "localSchema": { "type": "int" },
+      "remoteApp": { "type": "String" }
+    }
+  },
+  "googleDriveUnsupportedFormat": "Cloud sync file format is not supported by this app version",
   "telegramNotConnectedHint": "Connect Telegram in Settings → Integrations to send exports there.",
   "openTelegramIntegration": "Open Telegram settings",
   "openExchangeRateApiIntegration": "Configure ExchangeRate-API",
@@ -583,11 +620,11 @@
   "guideSectionExportTitle": "Export",
   "guideSectionExportBody": "Export expenses as CSV or JSON. Save a file, share it, or copy to the clipboard from the export menu or Settings → Export. Telegram appears as a destination only after you connect it under Integrations.",
   "guideSectionDataSyncTitle": "Backup & sync",
-  "guideSectionDataSyncBody": "Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file (on Android/iOS the share sheet lets you Save to Files / Downloads), then send it (email, Telegram as a document, cloud, USB). Import merges: existing expenses are kept and new data is added. If incoming expenses look like ones you already have (same day, amount, and currency), you choose which to skip as duplicates and which to import as unique. Restore from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included.",
+  "guideSectionDataSyncBody": "Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file (on Android/iOS the share sheet lets you Save to Files / Downloads), then send it (email, Telegram as a document, cloud, USB). Import merges: existing expenses are kept and new data is added. If incoming expenses look like ones you already have (same day, amount, and currency), you choose which to skip as duplicates and which to import as unique. Restore from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included. For automatic multi-device sync, connect Google Drive Sync under Settings → Integrations (same encryption; Google only stores ciphertext).",
   "guideSectionTelegramTitle": "Telegram sharing",
   "guideSectionTelegramBody": "Connect Telegram in Settings → Integrations, enter a bot token and chat id, test the connection, then send an export document from the export menu.",
   "guideSectionIntegrationsTitle": "Integrations",
-  "guideSectionIntegrationsBody": "Optional services (Telegram, ExchangeRate-API, and future ones) live under Settings → Integrations. Each has its own form with a Test connection action. Features that depend on an integration appear only while it is connected.",
+  "guideSectionIntegrationsBody": "Optional services (Telegram, ExchangeRate-API, Google Drive Sync) live under Settings → Integrations. Each has its own form with a Test connection action. Google Drive Sync encrypts a snapshot locally, stores it in your Drive appDataFolder, and pulls/merges on launch and after edits. Cross-account sharing uses a separate shared file and the drive.file permission. Features that depend on an integration appear only while it is connected.",
   "guideSectionDebugTitle": "Debug & logs",
   "guideSectionDebugBody": "Settings → Debug & logs can turn on verbose logging. Errors are always recorded. You can view, copy, or share the log file with a developer; secrets are redacted.",
   "guideSectionFiltersTitle": "Filters",

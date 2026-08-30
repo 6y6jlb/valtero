@@ -59,12 +59,12 @@ void main() {
   });
 
   group('BackupEnvelope', () {
-    test('refuses newer schemaVersion', () {
+    test('refuses newer schemaVersion and keeps remote appVersion', () {
       final envelope = BackupEnvelope(
         formatVersion: kBackupFormatVersion,
         schemaVersion: kAppSchemaVersion + 1,
         exportedAt: DateTime.utc(2026, 1, 1),
-        appVersion: null,
+        appVersion: '9.9.9',
         data: BackupPayloadData(
           tags: const [],
           paymentMethods: const [],
@@ -86,8 +86,45 @@ void main() {
       );
       expect(
         () => envelope.validateForImport(),
-        throwsA(isA<BackupNewerSchemaException>()),
+        throwsA(
+          isA<BackupNewerSchemaException>()
+              .having((e) => e.schemaVersion, 'schema', kAppSchemaVersion + 1)
+              .having((e) => e.appVersion, 'app', '9.9.9')
+              .having(
+                (e) => e.localSchemaVersion,
+                'local',
+                kAppSchemaVersion,
+              ),
+        ),
       );
+    });
+
+    test('accepts older schemaVersion for forward-compatible merge', () {
+      final envelope = BackupEnvelope(
+        formatVersion: kBackupFormatVersion,
+        schemaVersion: kAppSchemaVersion - 1,
+        exportedAt: DateTime.utc(2026, 1, 1),
+        appVersion: '1.0.0',
+        data: BackupPayloadData(
+          tags: const [],
+          paymentMethods: const [],
+          expenses: const [],
+          expenseTags: const [],
+          exchangeRateOverrides: const [],
+          settings: BackupSettingsData(
+            reportingCurrencies: const ['USD'],
+            primaryCurrency: 'USD',
+            customCurrencyCodes: const [],
+            themeMode: 'system',
+            locale: 'system',
+            moneyDisplayFormat: 'localeCode',
+            dateDisplayFormat: 'isoYmd',
+            timeZoneId: 'system',
+            dismissedTagSuggestions: const [],
+          ),
+        ),
+      );
+      expect(() => envelope.validateForImport(), returnsNormally);
     });
 
     test('refuses unknown formatVersion', () {
@@ -366,6 +403,8 @@ void main() {
         exchangeRateApiKey: 'secret-key',
         telegramBotToken: 'bot-token',
         telegramChatId: 'chat-id',
+        googleDriveRefreshToken: 'gdrive-refresh',
+        googleDriveSyncPassphrase: 'gdrive-pass',
       );
       final envelope = await BackupSnapshotBuilder().build(
         db: db,
@@ -377,6 +416,8 @@ void main() {
       expect(encoded.contains('secret-key'), isFalse);
       expect(encoded.contains('bot-token'), isFalse);
       expect(encoded.contains('chat-id'), isFalse);
+      expect(encoded.contains('gdrive-refresh'), isFalse);
+      expect(encoded.contains('gdrive-pass'), isFalse);
       expect(envelope.data.expenses, hasLength(1));
       expect(envelope.data.expenses.first.clientId, 'e1');
     });

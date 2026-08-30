@@ -15,6 +15,9 @@ class LogRedactor {
     'password',
     'secret',
     'authorization',
+    'googledriverefreshtoken',
+    'googledrivesyncpassphrase',
+    'refreshtoken',
   };
 
   /// Telegram bot tokens look like `123456789:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw`

@@ -100,6 +100,93 @@ class AppLocalizationsEs extends AppLocalizations {
       'Obtén tipos de cambio con una clave de ExchangeRate-API. Sin ella se usa Frankfurter (BCE).';
 
   @override
+  String get integrationGoogleDriveSyncTitle =>
+      'Sincronización con Google Drive';
+
+  @override
+  String get integrationGoogleDriveSyncDescription =>
+      'Sincronización automática cifrada entre dispositivos vía Google Drive. Google no ve tus gastos — solo el texto cifrado.';
+
+  @override
+  String get googleDriveSignIn => 'Iniciar sesión con Google';
+
+  @override
+  String get googleDriveSyncNow => 'Sincronizar ahora';
+
+  @override
+  String get googleDriveSyncOk => 'Sincronización completada';
+
+  @override
+  String get googleDriveSyncPassphrase => 'Frase de sincronización';
+
+  @override
+  String get googleDriveSyncPassphraseHint =>
+      'Solo se usa en este dispositivo para cifrar. Google nunca la recibe. Usa la misma frase en todos los dispositivos.';
+
+  @override
+  String get googleDrivePassphraseTooShort =>
+      'La frase debe tener al menos 8 caracteres';
+
+  @override
+  String get googleDriveWrongPassphrase =>
+      'Frase incorrecta para la copia remota';
+
+  @override
+  String get googleDriveMissingClientId =>
+      'Falta el client id de Google OAuth. Compila con --dart-define=GOOGLE_OAUTH_CLIENT_ID=…';
+
+  @override
+  String get googleDriveReauthRequired => 'Vuelve a iniciar sesión con Google';
+
+  @override
+  String get googleDriveSignInFailed => 'No se pudo iniciar sesión con Google';
+
+  @override
+  String googleDriveLastSynced(String when) {
+    return 'Última sincronización: $when';
+  }
+
+  @override
+  String get googleDriveSharedTitle =>
+      'Sincronización compartida (otras cuentas de Google)';
+
+  @override
+  String get googleDriveSharedDescription =>
+      'Comparte el archivo cifrado con otra persona. Requiere el permiso drive.file; el lanzamiento público puede necesitar verificación OAuth.';
+
+  @override
+  String get googleDriveShareEmail => 'Correo del colaborador';
+
+  @override
+  String get googleDriveShareAdd => 'Compartir por correo';
+
+  @override
+  String get googleDriveShareOk => 'Compartido correctamente';
+
+  @override
+  String get googleDriveShareFailed => 'No se pudo compartir el archivo';
+
+  @override
+  String get googleDriveInvalidEmail => 'Introduce un correo válido';
+
+  @override
+  String get googleDriveRemoteNewerSchemaTitle =>
+      'Actualiza la app para sincronizar';
+
+  @override
+  String googleDriveRemoteNewerSchema(
+    int remoteSchema,
+    int localSchema,
+    String remoteApp,
+  ) {
+    return 'Los datos en la nube los escribió una app más nueva (esquema $remoteSchema, app $remoteApp). Este dispositivo usa el esquema $localSchema. La sincronización se detuvo para no sobrescribir datos más nuevos. Actualiza la app e inténtalo de nuevo.';
+  }
+
+  @override
+  String get googleDriveUnsupportedFormat =>
+      'El formato del archivo de sincronización no es compatible con esta versión';
+
+  @override
   String get telegramNotConnectedHint =>
       'Conecta Telegram en Ajustes → Integraciones para enviar exportaciones allí.';
 
@@ -1248,7 +1335,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guideSectionIntegrationsBody =>
-      'Los servicios opcionales (Telegram, ExchangeRate-API y futuros) están en Ajustes → Integraciones. Cada uno tiene su formulario con «Probar conexión». Las funciones dependientes solo aparecen mientras la integración esté conectada.';
+      'Los servicios opcionales (Telegram, ExchangeRate-API, sincronización con Google Drive) están en Ajustes → Integraciones. Cada uno tiene su formulario. Google Drive Sync cifra una instantánea en el dispositivo, la guarda en appDataFolder y sincroniza al abrir y tras cambios. El uso compartido entre cuentas usa un archivo aparte y el permiso drive.file. Las funciones dependientes solo aparecen mientras la integración esté conectada.';
 
   @override
   String get guideSectionDebugTitle => 'Depuración y registros';
