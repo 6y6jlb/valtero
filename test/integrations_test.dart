@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:valtero/entities/integrations/exchange_rate_api/model/exchange_rate_api_integration.dart';
+import 'package:valtero/entities/integrations/frankfurter/model/frankfurter_integration.dart';
 import 'package:valtero/entities/integrations/telegram/model/telegram_integration.dart';
 import 'package:valtero/entities/exchange_rate/model/exchange_rate_provider.dart';
 import 'package:valtero/shared/settings/app_settings.dart';
@@ -173,4 +174,65 @@ void main() {
       expect((await ok.testApiKey('')).messageKey, 'connectionMissingFields');
     });
   });
+
+  group('FrankfurterIntegration', () {
+    test('isConfigured is always true', () {
+      final integration = FrankfurterIntegration(
+        _FakeRateProvider(valid: true),
+      );
+      expect(integration.isConfigured(AppSettings.initial()), isTrue);
+    });
+
+    test('testConnection succeeds when rates return', () async {
+      final integration = FrankfurterIntegration(
+        _FakeFrankfurterProvider(ok: true),
+      );
+      final result =
+          await integration.testConnection(AppSettings.initial());
+      expect(result.success, isTrue);
+    });
+
+    test('testConnection maps DNS failure to connectionNetwork', () async {
+      final integration = FrankfurterIntegration(
+        _FakeFrankfurterProvider(throwNetwork: true),
+      );
+      final result =
+          await integration.testConnection(AppSettings.initial());
+      expect(result.success, isFalse);
+      expect(result.messageKey, 'connectionNetwork');
+    });
+  });
+}
+
+class _FakeFrankfurterProvider implements ExchangeRateProvider {
+  _FakeFrankfurterProvider({this.ok = true, this.throwNetwork = false});
+
+  final bool ok;
+  final bool throwNetwork;
+
+  @override
+  String get id => 'frankfurter';
+
+  @override
+  bool get requiresApiKey => false;
+
+  @override
+  Future<Map<String, double>> fetchRates({
+    required String base,
+    required List<String> targets,
+    String? apiKey,
+  }) async {
+    if (throwNetwork) {
+      throw DioException(
+        requestOptions: RequestOptions(path: '/v1/latest'),
+        type: DioExceptionType.connectionError,
+        error: const SocketException("Failed host lookup: 'api.frankfurter.dev'"),
+      );
+    }
+    if (!ok) return {};
+    return {for (final t in targets) t.toUpperCase(): 1.1};
+  }
+
+  @override
+  Future<bool> validateApiKey(String apiKey) async => true;
 }

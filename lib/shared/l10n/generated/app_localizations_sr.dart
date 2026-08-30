@@ -89,6 +89,12 @@ class AppLocalizationsSr extends AppLocalizations {
   String get connectionInvalidKey => 'API ključ nije važeći';
 
   @override
+  String get showSecret => 'Prikaži';
+
+  @override
+  String get hideSecret => 'Sakrij';
+
+  @override
   String get integrationTelegramTitle => 'Telegram';
 
   @override
@@ -96,11 +102,22 @@ class AppLocalizationsSr extends AppLocalizations {
       'Šalji izvoz troškova u Telegram chat preko bota.';
 
   @override
+  String get integrationFrankfurterTitle => 'Frankfurter';
+
+  @override
+  String get integrationFrankfurterDescription =>
+      'Besplatni ECB kursevi (bez API ključa). Koriste se automatski ako ExchangeRate-API nije povezan.';
+
+  @override
+  String get integrationFrankfurterHint =>
+      'Ugrađeni rezervni izvor. Provera api.frankfurter.dev — ako padne, kursevi se neće osvežiti dok mreža/DNS ne proradi. Samo valute iz ECB skupa.';
+
+  @override
   String get integrationExchangeRateApiTitle => 'ExchangeRate-API';
 
   @override
   String get integrationExchangeRateApiDescription =>
-      'Kursevi preko ExchangeRate-API ključa. Bez ključa koristi se Frankfurter (ECB).';
+      'Kursevi preko ključa sa exchangerate-api.com (API v6). Ključevi sa exchangeratesapi.io ne rade. Bez ključa koristi se Frankfurter (ECB).';
 
   @override
   String get integrationGoogleDriveSyncTitle => 'Google Drive sinhronizacija';
@@ -145,6 +162,10 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get googleDriveAuthCanceled => 'Prijava preko Google-a je otkazana';
+
+  @override
+  String get googleDriveAccessDenied =>
+      'Google je odbio pristup. Dozvoli Drive dozvole i pokušaj ponovo.';
 
   @override
   String get googleDriveAndroidCustomUriHint =>
@@ -1346,7 +1367,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get guideSectionIntegrationsBody =>
-      'Opcioni servisi (Telegram, ExchangeRate-API, Google Drive sinhronizacija) su u Podešavanja → Integracije. Svaki ima formu. Google Drive Sync lokalno šifruje snimak, čuva ga u appDataFolder i sinhronizuje pri pokretanju i posle izmena. Deljenje između naloga koristi poseban fajl i dozvolu drive.file. Zavisne stavke UI-ja se pojavljuju samo dok je integracija povezana.';
+      'Opcioni servisi (Telegram, Frankfurter, ExchangeRate-API, Google Drive sinhronizacija) su u Podešavanja → Integracije. Svaki ima formu. Frankfurter je ugrađen (ECB kursevi, bez ključa) i koristi se kada ExchangeRate-API nije povezan. Google Drive Sync lokalno šifruje snimak, čuva ga u appDataFolder i sinhronizuje pri pokretanju i posle izmena. Deljenje između naloga koristi poseban fajl i dozvolu drive.file. Zavisne stavke UI-ja se pojavljuju samo dok je integracija povezana.';
 
   @override
   String get guideSectionDebugTitle => 'Otklanjanje grešaka i logovi';

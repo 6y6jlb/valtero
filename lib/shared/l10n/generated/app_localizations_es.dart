@@ -90,6 +90,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get connectionInvalidKey => 'La clave API no es válida';
 
   @override
+  String get showSecret => 'Mostrar';
+
+  @override
+  String get hideSecret => 'Ocultar';
+
+  @override
   String get integrationTelegramTitle => 'Telegram';
 
   @override
@@ -97,11 +103,22 @@ class AppLocalizationsEs extends AppLocalizations {
       'Envía exportaciones de gastos a un chat de Telegram mediante un bot.';
 
   @override
+  String get integrationFrankfurterTitle => 'Frankfurter';
+
+  @override
+  String get integrationFrankfurterDescription =>
+      'Tipos BCE gratuitos (sin clave API). Se usan automáticamente si ExchangeRate-API no está conectado.';
+
+  @override
+  String get integrationFrankfurterHint =>
+      'Reserva integrada. Prueba api.frankfurter.dev: si falla, los tipos no se actualizarán hasta que la red/DNS funcione. Solo monedas del conjunto BCE.';
+
+  @override
   String get integrationExchangeRateApiTitle => 'ExchangeRate-API';
 
   @override
   String get integrationExchangeRateApiDescription =>
-      'Obtén tipos de cambio con una clave de ExchangeRate-API. Sin ella se usa Frankfurter (BCE).';
+      'Tipos de cambio con una clave de exchangerate-api.com (API v6). Las claves de exchangeratesapi.io no sirven. Sin clave se usa Frankfurter (BCE).';
 
   @override
   String get integrationGoogleDriveSyncTitle =>
@@ -148,6 +165,10 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get googleDriveAuthCanceled =>
       'Se canceló el inicio de sesión con Google';
+
+  @override
+  String get googleDriveAccessDenied =>
+      'Se denegó el acceso de Google. Concede permisos de Drive e inténtalo de nuevo.';
 
   @override
   String get googleDriveAndroidCustomUriHint =>
@@ -1347,7 +1368,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guideSectionIntegrationsBody =>
-      'Los servicios opcionales (Telegram, ExchangeRate-API, sincronización con Google Drive) están en Ajustes → Integraciones. Cada uno tiene su formulario. Google Drive Sync cifra una instantánea en el dispositivo, la guarda en appDataFolder y sincroniza al abrir y tras cambios. El uso compartido entre cuentas usa un archivo aparte y el permiso drive.file. Las funciones dependientes solo aparecen mientras la integración esté conectada.';
+      'Los servicios opcionales (Telegram, Frankfurter, ExchangeRate-API, sincronización con Google Drive) están en Ajustes → Integraciones. Cada uno tiene su formulario. Frankfurter está integrado (tipos BCE, sin clave) y se usa si ExchangeRate-API no está conectado. Google Drive Sync cifra una instantánea en el dispositivo, la guarda en appDataFolder y sincroniza al abrir y tras cambios. El uso compartido entre cuentas usa un archivo aparte y el permiso drive.file. Las funciones dependientes solo aparecen mientras la integración esté conectada.';
 
   @override
   String get guideSectionDebugTitle => 'Depuración y registros';

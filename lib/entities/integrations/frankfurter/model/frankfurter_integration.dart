@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:valtero/entities/exchange_rate/model/exchange_rate_provider.dart';
 import 'package:valtero/entities/integrations/model/app_integration.dart';
@@ -5,58 +7,41 @@ import 'package:valtero/entities/integrations/model/integration_test_result.dart
 import 'package:valtero/shared/logging/app_logger.dart';
 import 'package:valtero/shared/settings/app_settings.dart';
 
-const kExchangeRateApiIntegrationId = 'exchangerate_api';
+const kFrankfurterIntegrationId = 'frankfurter';
 
-/// Official signup / dashboard for keys used by this app
-/// (`v6.exchangerate-api.com` — not exchangeratesapi.io).
-const kExchangeRateApiSignupUrl = 'https://www.exchangerate-api.com/';
+/// Free ECB rates via [api.frankfurter.dev](https://api.frankfurter.dev).
+/// Built-in fallback when ExchangeRate-API is not connected — no credentials.
+class FrankfurterIntegration implements AppIntegration {
+  FrankfurterIntegration(this._provider, {AppLogger? logger}) : _logger = logger;
 
-class ExchangeRateApiIntegration implements AppIntegration {
   final ExchangeRateProvider _provider;
   final AppLogger? _logger;
 
-  ExchangeRateApiIntegration(this._provider, {AppLogger? logger})
-      : _logger = logger;
-
   @override
-  String get id => kExchangeRateApiIntegrationId;
+  String get id => kFrankfurterIntegrationId;
 
+  /// Always available — no opt-in credentials.
   @override
-  bool isConfigured(AppSettings settings) {
-    final key = settings.exchangeRateApiKey?.trim();
-    return key != null && key.isNotEmpty;
-  }
+  bool isConfigured(AppSettings settings) => true;
 
   @override
   Future<IntegrationTestResult> testConnection(AppSettings settings) async {
-    final key = settings.exchangeRateApiKey?.trim() ?? '';
-    if (key.isEmpty) {
-      return IntegrationTestResult.fail('connectionMissingFields');
-    }
-    return testApiKey(key);
-  }
-
-  /// Probe with an unsaved key typed in the config form.
-  Future<IntegrationTestResult> testApiKey(String apiKey) async {
-    final key = apiKey.trim();
-    if (key.isEmpty) {
-      return IntegrationTestResult.fail('connectionMissingFields');
-    }
     try {
-      final ok = await _provider.validateApiKey(key);
-      if (!ok) {
+      final rates = await _provider.fetchRates(
+        base: 'EUR',
+        targets: const ['USD'],
+      );
+      if (rates['USD'] == null) {
         // ignore: unawaited_futures
-        _logger?.warning(
-          'ExchangeRate-API key rejected by v6.exchangerate-api.com',
-        );
-        return IntegrationTestResult.fail('connectionInvalidKey');
+        _logger?.warning('Frankfurter testConnection: empty USD rate');
+        return IntegrationTestResult.fail('connectionFailed');
       }
       return IntegrationTestResult.ok();
     } on DioException catch (e, st) {
       // ignore: unawaited_futures
       _logger?.error(
-        'ExchangeRate-API test failed type=${e.type.name} '
-        'host=v6.exchangerate-api.com',
+        'Frankfurter testConnection failed type=${e.type.name} '
+        'host=api.frankfurter.dev',
         error: e.error ?? e.message,
         stackTrace: st,
       );
@@ -64,7 +49,7 @@ class ExchangeRateApiIntegration implements AppIntegration {
     } catch (e, st) {
       // ignore: unawaited_futures
       _logger?.error(
-        'ExchangeRate-API test failed',
+        'Frankfurter testConnection failed',
         error: e,
         stackTrace: st,
       );
@@ -81,6 +66,9 @@ class ExchangeRateApiIntegration implements AppIntegration {
         return 'connectionNetwork';
       default:
         break;
+    }
+    if (e.error is SocketException) {
+      return 'connectionNetwork';
     }
     return 'connectionFailed';
   }

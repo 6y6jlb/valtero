@@ -27,7 +27,7 @@ MoneyText(amountMinor: storedMinor, currencyCode: 'USD');
 ## Rate resolution (`RateResolver.getRate`)
 
 1. Active keyed provider (ExchangeRate-API) cache/fresh fetch — only when the ExchangeRate-API **integration** is connected (API key in Settings → Integrations)
-2. Frankfurter (no key)  
+2. Frankfurter (no key; always listed under Integrations as a built-in connected source)  
 3. Manual row in `ExchangeRates`  
 4. `null` → UI asks the user to enter a rate manually
 

@@ -7,6 +7,7 @@ import 'package:valtero/features/integrations/model/integration_ui_meta.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/widgets/app_toast.dart';
+import 'package:valtero/widgets/secret_text_field.dart';
 
 class ExchangeRateApiConfigForm extends ConsumerStatefulWidget {
   const ExchangeRateApiConfigForm({super.key});
@@ -125,10 +126,10 @@ class _ExchangeRateApiConfigFormState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        TextField(
+        SecretTextField(
           controller: _apiKeyController,
-          decoration: InputDecoration(labelText: l10n.apiKey),
-          obscureText: true,
+          labelText: l10n.apiKey,
+          helperText: kExchangeRateApiSignupUrl,
           enabled: !_busy,
         ),
         const SizedBox(height: 16),

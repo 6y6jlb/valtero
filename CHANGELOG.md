@@ -8,6 +8,25 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.4.4] - 2026-08-30
+
+### Added
+
+- Frankfurter listed under Settings → Integrations (built-in ECB rates, Test
+  connection, no credentials); Currency sheet links to it when it is the active
+  source.
+- Shared `SecretTextField` with a lock prefix to show/hide secrets for Telegram
+  bot token, ExchangeRate-API key, Google Drive passphrase, and Backup & sync
+  passphrases.
+
+### Fixed
+
+- ExchangeRate-API test no longer reports DNS/network failures as an invalid
+  key; clarify that keys must come from exchangerate-api.com (not
+  exchangeratesapi.io / APILayer).
+- Google Drive sign-in maps network token exchange failures and access denied
+  to clearer messages.
+
 ## [1.4.3] - 2026-08-30
 
 ### Fixed

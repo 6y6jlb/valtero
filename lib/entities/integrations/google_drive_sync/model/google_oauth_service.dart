@@ -205,6 +205,15 @@ class GoogleOAuthService {
   String _dioErrorKey(DioException e) {
     final status = e.response?.statusCode;
     if (status == 400 || status == 401) return 'invalid_grant';
+    switch (e.type) {
+      case DioExceptionType.connectionError:
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return 'network_error';
+      default:
+        break;
+    }
     return 'token_exchange_failed';
   }
 

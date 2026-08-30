@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/integrations/exchange_rate_api/model/exchange_rate_api_integration.dart';
+import 'package:valtero/entities/integrations/frankfurter/model/frankfurter_integration.dart';
 import 'package:valtero/entities/integrations/google_drive_sync/model/google_drive_sync_integration.dart';
 import 'package:valtero/entities/integrations/model/app_integration.dart';
 import 'package:valtero/entities/integrations/telegram/model/telegram_integration.dart';
 import 'package:valtero/features/integrations/model/integration_ui_meta.dart';
 import 'package:valtero/features/google_drive_sync/ui/google_drive_sync_config_form.dart';
 import 'package:valtero/features/integrations/ui/forms/exchange_rate_api_config_form.dart';
+import 'package:valtero/features/integrations/ui/forms/frankfurter_config_form.dart';
 import 'package:valtero/features/integrations/ui/forms/telegram_config_form.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
@@ -59,6 +61,7 @@ class IntegrationConfigModal extends ConsumerWidget {
         const SizedBox(height: 20),
         switch (integration.id) {
           kTelegramIntegrationId => const TelegramConfigForm(),
+          kFrankfurterIntegrationId => const FrankfurterConfigForm(),
           kExchangeRateApiIntegrationId => const ExchangeRateApiConfigForm(),
           kGoogleDriveSyncIntegrationId => const GoogleDriveSyncConfigForm(),
           _ => Text(integration.id),

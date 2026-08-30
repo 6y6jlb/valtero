@@ -7,6 +7,7 @@ import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/widgets/app_toast.dart';
+import 'package:valtero/widgets/secret_text_field.dart';
 
 class TelegramConfigForm extends ConsumerStatefulWidget {
   const TelegramConfigForm({super.key});
@@ -171,10 +172,9 @@ class _TelegramConfigFormState extends ConsumerState<TelegramConfigForm> {
           value: _enabled,
           onChanged: _busy ? null : (v) => setState(() => _enabled = v),
         ),
-        TextField(
+        SecretTextField(
           controller: _tokenController,
-          decoration: InputDecoration(labelText: l10n.telegramBotToken),
-          obscureText: true,
+          labelText: l10n.telegramBotToken,
           enabled: !_busy,
         ),
         const SizedBox(height: 8),

@@ -89,6 +89,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get connectionInvalidKey => 'Неверный API-ключ';
 
   @override
+  String get showSecret => 'Показать';
+
+  @override
+  String get hideSecret => 'Скрыть';
+
+  @override
   String get integrationTelegramTitle => 'Telegram';
 
   @override
@@ -96,11 +102,22 @@ class AppLocalizationsRu extends AppLocalizations {
       'Отправка экспорта расходов в чат Telegram через бота.';
 
   @override
+  String get integrationFrankfurterTitle => 'Frankfurter';
+
+  @override
+  String get integrationFrankfurterDescription =>
+      'Бесплатные курсы ECB (без API-ключа). Используются автоматически, если ExchangeRate-API не подключён.';
+
+  @override
+  String get integrationFrankfurterHint =>
+      'Встроенный запасной источник. Проверка api.frankfurter.dev — если она падает, курсы не обновятся, пока не заработает сеть/DNS. Только валюты из набора ECB.';
+
+  @override
   String get integrationExchangeRateApiTitle => 'ExchangeRate-API';
 
   @override
   String get integrationExchangeRateApiDescription =>
-      'Курсы через ключ ExchangeRate-API. Без ключа используется Frankfurter (ECB).';
+      'Курсы через ключ с exchangerate-api.com (API v6). Ключи с exchangeratesapi.io не подойдут. Без ключа используется Frankfurter (ECB).';
 
   @override
   String get integrationGoogleDriveSyncTitle => 'Синхронизация Google Drive';
@@ -145,6 +162,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get googleDriveAuthCanceled => 'Вход через Google отменён';
+
+  @override
+  String get googleDriveAccessDenied =>
+      'Доступ Google отклонён. Разрешите права Drive и повторите вход.';
 
   @override
   String get googleDriveAndroidCustomUriHint =>
@@ -1346,7 +1367,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get guideSectionIntegrationsBody =>
-      'Опциональные сервисы (Telegram, ExchangeRate-API, синхронизация Google Drive) живут в Настройки → Интеграции. У каждой свой форма. Google Drive Sync шифрует снимок локально, кладёт его в appDataFolder и подтягивает/сливает при запуске и после правок. Общий доступ между аккаунтами — отдельный файл и разрешение drive.file. Зависимые пункты UI появляются только пока интеграция подключена.';
+      'Опциональные сервисы (Telegram, Frankfurter, ExchangeRate-API, синхронизация Google Drive) живут в Настройки → Интеграции. У каждой свой форма. Frankfurter встроен (курсы ECB, без ключа) и используется, если ExchangeRate-API не подключён. Google Drive Sync шифрует снимок локально, кладёт его в appDataFolder и подтягивает/сливает при запуске и после правок. Общий доступ между аккаунтами — отдельный файл и разрешение drive.file. Зависимые пункты UI появляются только пока интеграция подключена.';
 
   @override
   String get guideSectionDebugTitle => 'Отладка и логи';

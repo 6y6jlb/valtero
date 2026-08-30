@@ -89,6 +89,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get connectionInvalidKey => 'API key is invalid';
 
   @override
+  String get showSecret => 'Show';
+
+  @override
+  String get hideSecret => 'Hide';
+
+  @override
   String get integrationTelegramTitle => 'Telegram';
 
   @override
@@ -96,11 +102,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'Send expense exports to a Telegram chat via bot.';
 
   @override
+  String get integrationFrankfurterTitle => 'Frankfurter';
+
+  @override
+  String get integrationFrankfurterDescription =>
+      'Free ECB exchange rates (no API key). Used automatically when ExchangeRate-API is not connected.';
+
+  @override
+  String get integrationFrankfurterHint =>
+      'Built-in fallback. Probe api.frankfurter.dev — if this fails, rates cannot refresh until network/DNS works. Coverage is the ECB currency set only.';
+
+  @override
   String get integrationExchangeRateApiTitle => 'ExchangeRate-API';
 
   @override
   String get integrationExchangeRateApiDescription =>
-      'Fetch FX rates with an ExchangeRate-API key. Without it, Frankfurter (ECB) is used.';
+      'Fetch FX rates with a key from exchangerate-api.com (v6 API). Keys from exchangeratesapi.io will not work. Without a key, Frankfurter (ECB) is used.';
 
   @override
   String get integrationGoogleDriveSyncTitle => 'Google Drive Sync';
@@ -145,6 +162,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get googleDriveAuthCanceled => 'Google sign-in was canceled';
+
+  @override
+  String get googleDriveAccessDenied =>
+      'Google access was denied. Allow Drive permissions and try again.';
 
   @override
   String get googleDriveAndroidCustomUriHint =>
@@ -1339,7 +1360,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideSectionIntegrationsBody =>
-      'Optional services (Telegram, ExchangeRate-API, Google Drive Sync) live under Settings → Integrations. Each has its own form with a Test connection action. Google Drive Sync encrypts a snapshot locally, stores it in your Drive appDataFolder, and pulls/merges on launch and after edits. Cross-account sharing uses a separate shared file and the drive.file permission. Features that depend on an integration appear only while it is connected.';
+      'Optional services (Telegram, Frankfurter, ExchangeRate-API, Google Drive Sync) live under Settings → Integrations. Each has its own form. Frankfurter is built-in (ECB rates, no key) and used when ExchangeRate-API is not connected. Google Drive Sync encrypts a snapshot locally, stores it in your Drive appDataFolder, and pulls/merges on launch and after edits. Cross-account sharing uses a separate shared file and the drive.file permission. Features that depend on an integration appear only while it is connected.';
 
   @override
   String get guideSectionDebugTitle => 'Debug & logs';

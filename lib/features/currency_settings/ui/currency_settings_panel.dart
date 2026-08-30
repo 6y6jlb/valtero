@@ -129,6 +129,17 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
               spacing: 8,
               runSpacing: 8,
               children: [
+                if (!apiConnected)
+                  OutlinedButton(
+                    onPressed: () async {
+                      await showIntegrationConfigSheet(
+                        context,
+                        integration:
+                            ref.read(frankfurterIntegrationProvider),
+                      );
+                    },
+                    child: Text(l10n.integrationFrankfurterTitle),
+                  ),
                 OutlinedButton(
                   onPressed: () async {
                     await showIntegrationConfigSheet(

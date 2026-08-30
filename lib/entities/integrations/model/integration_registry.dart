@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
 import 'package:valtero/entities/integrations/exchange_rate_api/model/exchange_rate_api_integration.dart';
+import 'package:valtero/entities/integrations/frankfurter/model/frankfurter_integration.dart';
 import 'package:valtero/entities/integrations/google_drive_sync/model/google_drive_sync_integration.dart';
 import 'package:valtero/entities/integrations/model/app_integration.dart';
 import 'package:valtero/entities/integrations/model/export_destination_integration.dart';
@@ -16,9 +17,19 @@ final telegramIntegrationProvider = Provider<TelegramIntegration>((ref) {
   );
 });
 
+final frankfurterIntegrationProvider = Provider<FrankfurterIntegration>((ref) {
+  return FrankfurterIntegration(
+    ref.watch(frankfurterProvider),
+    logger: ref.watch(appLoggerProvider),
+  );
+});
+
 final exchangeRateApiIntegrationProvider =
     Provider<ExchangeRateApiIntegration>((ref) {
-  return ExchangeRateApiIntegration(ref.watch(exchangeRateApiProvider));
+  return ExchangeRateApiIntegration(
+    ref.watch(exchangeRateApiProvider),
+    logger: ref.watch(appLoggerProvider),
+  );
 });
 
 final googleDriveSyncIntegrationProvider =
@@ -33,6 +44,7 @@ final googleDriveSyncIntegrationProvider =
 final integrationsProvider = Provider<List<AppIntegration>>((ref) {
   return [
     ref.watch(telegramIntegrationProvider),
+    ref.watch(frankfurterIntegrationProvider),
     ref.watch(exchangeRateApiIntegrationProvider),
     ref.watch(googleDriveSyncIntegrationProvider),
   ];

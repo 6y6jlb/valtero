@@ -258,6 +258,18 @@ abstract class AppLocalizations {
   /// **'API key is invalid'**
   String get connectionInvalidKey;
 
+  /// No description provided for @showSecret.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get showSecret;
+
+  /// No description provided for @hideSecret.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get hideSecret;
+
   /// No description provided for @integrationTelegramTitle.
   ///
   /// In en, this message translates to:
@@ -270,6 +282,24 @@ abstract class AppLocalizations {
   /// **'Send expense exports to a Telegram chat via bot.'**
   String get integrationTelegramDescription;
 
+  /// No description provided for @integrationFrankfurterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Frankfurter'**
+  String get integrationFrankfurterTitle;
+
+  /// No description provided for @integrationFrankfurterDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Free ECB exchange rates (no API key). Used automatically when ExchangeRate-API is not connected.'**
+  String get integrationFrankfurterDescription;
+
+  /// No description provided for @integrationFrankfurterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in fallback. Probe api.frankfurter.dev — if this fails, rates cannot refresh until network/DNS works. Coverage is the ECB currency set only.'**
+  String get integrationFrankfurterHint;
+
   /// No description provided for @integrationExchangeRateApiTitle.
   ///
   /// In en, this message translates to:
@@ -279,7 +309,7 @@ abstract class AppLocalizations {
   /// No description provided for @integrationExchangeRateApiDescription.
   ///
   /// In en, this message translates to:
-  /// **'Fetch FX rates with an ExchangeRate-API key. Without it, Frankfurter (ECB) is used.'**
+  /// **'Fetch FX rates with a key from exchangerate-api.com (v6 API). Keys from exchangeratesapi.io will not work. Without a key, Frankfurter (ECB) is used.'**
   String get integrationExchangeRateApiDescription;
 
   /// No description provided for @integrationGoogleDriveSyncTitle.
@@ -359,6 +389,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Google sign-in was canceled'**
   String get googleDriveAuthCanceled;
+
+  /// No description provided for @googleDriveAccessDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Google access was denied. Allow Drive permissions and try again.'**
+  String get googleDriveAccessDenied;
 
   /// No description provided for @googleDriveAndroidCustomUriHint.
   ///
@@ -2520,7 +2556,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionIntegrationsBody.
   ///
   /// In en, this message translates to:
-  /// **'Optional services (Telegram, ExchangeRate-API, Google Drive Sync) live under Settings → Integrations. Each has its own form with a Test connection action. Google Drive Sync encrypts a snapshot locally, stores it in your Drive appDataFolder, and pulls/merges on launch and after edits. Cross-account sharing uses a separate shared file and the drive.file permission. Features that depend on an integration appear only while it is connected.'**
+  /// **'Optional services (Telegram, Frankfurter, ExchangeRate-API, Google Drive Sync) live under Settings → Integrations. Each has its own form. Frankfurter is built-in (ECB rates, no key) and used when ExchangeRate-API is not connected. Google Drive Sync encrypts a snapshot locally, stores it in your Drive appDataFolder, and pulls/merges on launch and after edits. Cross-account sharing uses a separate shared file and the drive.file permission. Features that depend on an integration appear only while it is connected.'**
   String get guideSectionIntegrationsBody;
 
   /// No description provided for @guideSectionDebugTitle.

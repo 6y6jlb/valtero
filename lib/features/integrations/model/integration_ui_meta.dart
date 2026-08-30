@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/entities/integrations/exchange_rate_api/model/exchange_rate_api_integration.dart';
+import 'package:valtero/entities/integrations/frankfurter/model/frankfurter_integration.dart';
 import 'package:valtero/entities/integrations/google_drive_sync/model/google_drive_sync_integration.dart';
 import 'package:valtero/entities/integrations/telegram/model/telegram_integration.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
@@ -22,6 +23,11 @@ IntegrationUiMeta integrationUiMeta(String id) {
         icon: Icons.send_outlined,
         title: (l10n) => l10n.integrationTelegramTitle,
         description: (l10n) => l10n.integrationTelegramDescription,
+      ),
+    kFrankfurterIntegrationId => IntegrationUiMeta(
+        icon: Icons.account_balance_outlined,
+        title: (l10n) => l10n.integrationFrankfurterTitle,
+        description: (l10n) => l10n.integrationFrankfurterDescription,
       ),
     kExchangeRateApiIntegrationId => IntegrationUiMeta(
         icon: Icons.currency_exchange,

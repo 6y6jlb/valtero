@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:valtero/entities/exchange_rate/model/exchange_rate_provider.dart';
 
@@ -49,8 +51,22 @@ class ExchangeRateApiProvider implements ExchangeRateProvider {
         'https://v6.exchangerate-api.com/v6/$key/latest/USD',
       );
       return response.data?['result'] == 'success';
-    } catch (_) {
+    } on DioException catch (e) {
+      // Let callers distinguish DNS/offline from a rejected key.
+      if (_isNetworkFailure(e)) rethrow;
       return false;
+    }
+  }
+
+  static bool _isNetworkFailure(DioException e) {
+    switch (e.type) {
+      case DioExceptionType.connectionError:
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return true;
+      default:
+        return e.error is SocketException;
     }
   }
 }

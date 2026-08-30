@@ -12,6 +12,7 @@ import 'package:valtero/features/integrations/model/integration_ui_meta.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/widgets/app_toast.dart';
+import 'package:valtero/widgets/secret_text_field.dart';
 
 class GoogleDriveSyncConfigForm extends ConsumerStatefulWidget {
   const GoogleDriveSyncConfigForm({super.key});
@@ -25,7 +26,7 @@ class _GoogleDriveSyncConfigFormState
     extends ConsumerState<GoogleDriveSyncConfigForm> {
   final _passphraseController = TextEditingController();
   final _shareEmailController = TextEditingController();
-  bool _obscurePassphrase = true;
+  final _passphraseFieldKey = GlobalKey<SecretTextFieldState>();
   bool _busy = false;
   String? _status;
   bool _statusOk = false;
@@ -75,8 +76,9 @@ class _GoogleDriveSyncConfigFormState
       'missing_client_id' => l10n.googleDriveMissingClientId,
       'missing_refresh_token' => l10n.googleDriveReauthRequired,
       'not_configured' => l10n.connectionMissingFields,
-      'network_error' => l10n.connectionFailed,
+      'network_error' => l10n.connectionNetwork,
       'auth_canceled' => l10n.googleDriveAuthCanceled,
+      'auth_access_denied' => l10n.googleDriveAccessDenied,
       'sign_in_failed' ||
       'auth_timeout' ||
       'invalid_redirect_scheme' ||
@@ -312,26 +314,12 @@ class _GoogleDriveSyncConfigFormState
             ),
           const SizedBox(height: 12),
         ],
-        TextField(
+        SecretTextField(
+          key: _passphraseFieldKey,
           controller: _passphraseController,
-          obscureText: _obscurePassphrase,
+          labelText: l10n.googleDriveSyncPassphrase,
+          helperText: l10n.googleDriveSyncPassphraseHint,
           enabled: !_busy,
-          decoration: InputDecoration(
-            labelText: l10n.googleDriveSyncPassphrase,
-            helperText: l10n.googleDriveSyncPassphraseHint,
-            suffixIcon: IconButton(
-              tooltip: _obscurePassphrase
-                  ? l10n.dataSyncShowPassphrase
-                  : l10n.dataSyncHidePassphrase,
-              onPressed: _busy
-                  ? null
-                  : () =>
-                      setState(() => _obscurePassphrase = !_obscurePassphrase),
-              icon: Icon(
-                _obscurePassphrase ? Icons.visibility : Icons.visibility_off,
-              ),
-            ),
-          ),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -344,6 +332,7 @@ class _GoogleDriveSyncConfigFormState
                   : () {
                       final phrase = generatePassphrase();
                       setState(() => _passphraseController.text = phrase);
+                      _passphraseFieldKey.currentState?.reveal();
                     },
               child: Text(l10n.dataSyncGenerateShort),
             ),
