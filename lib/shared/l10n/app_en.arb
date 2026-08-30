@@ -41,6 +41,8 @@
   "googleDriveMissingClientId": "Google OAuth client id is not configured. Copy local.oauth.env.example to local.oauth.env and set GOOGLE_OAUTH_CLIENT_ID_DESKTOP / _ANDROID, then rebuild (make run-*).",
   "googleDriveReauthRequired": "Please sign in with Google again",
   "googleDriveSignInFailed": "Google sign-in failed",
+  "googleDriveAuthCanceled": "Google sign-in was canceled",
+  "googleDriveAndroidCustomUriHint": "On Android, open Google Cloud Console → your Android OAuth client → Advanced settings and enable “Custom URI scheme”, then try again. Google blocks this redirect by default on new Android clients.",
   "googleDriveLastSynced": "Last synced: {when}",
   "@googleDriveLastSynced": {
     "placeholders": {

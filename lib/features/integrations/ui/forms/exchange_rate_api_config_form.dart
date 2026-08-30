@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
+import 'package:valtero/entities/integrations/exchange_rate_api/model/exchange_rate_api_integration.dart';
 import 'package:valtero/entities/integrations/model/integration_registry.dart';
 import 'package:valtero/features/integrations/model/integration_ui_meta.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
@@ -22,24 +23,54 @@ class _ExchangeRateApiConfigFormState
   bool _saving = false;
   String? _status;
   bool _statusOk = false;
+  String? _verifiedKey;
 
   @override
   void initState() {
     super.initState();
+    _apiKeyController.addListener(_onKeyChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final key = ref.read(appSettingsProvider).value?.exchangeRateApiKey;
-      if (key != null) _apiKeyController.text = key;
+      if (key == null || key.isEmpty) return;
+      _apiKeyController.removeListener(_onKeyChanged);
+      _apiKeyController.text = key;
+      _apiKeyController.addListener(_onKeyChanged);
+      setState(() {
+        // Already connected — treat saved key as verified for Save.
+        _verifiedKey = key.trim();
+        _statusOk = true;
+      });
     });
   }
 
   @override
   void dispose() {
+    _apiKeyController.removeListener(_onKeyChanged);
     _apiKeyController.dispose();
     super.dispose();
   }
 
+  void _onKeyChanged() {
+    final key = _apiKeyController.text.trim();
+    setState(() {
+      if (_verifiedKey != null && _verifiedKey != key) {
+        _verifiedKey = null;
+        _statusOk = false;
+        _status = null;
+      }
+    });
+  }
+
+  bool get _keyFilled => _apiKeyController.text.trim().isNotEmpty;
+
+  bool get _keyVerified =>
+      _keyFilled && _verifiedKey == _apiKeyController.text.trim();
+
+  bool get _busy => _testing || _saving;
+
   Future<void> _test() async {
     final l10n = AppLocalizations.of(context)!;
+    if (!_keyFilled) return;
     setState(() {
       _testing = true;
       _status = null;
@@ -52,11 +83,13 @@ class _ExchangeRateApiConfigFormState
       _testing = false;
       _statusOk = result.success;
       _status = connectionMessage(l10n, result.messageKey);
+      _verifiedKey = result.success ? _apiKeyController.text.trim() : null;
     });
   }
 
   Future<void> _save() async {
     final l10n = AppLocalizations.of(context)!;
+    if (!_keyVerified) return;
     final key = _apiKeyController.text.trim();
     setState(() => _saving = true);
     final result =
@@ -66,6 +99,7 @@ class _ExchangeRateApiConfigFormState
       setState(() {
         _saving = false;
         _statusOk = false;
+        _verifiedKey = null;
         _status = connectionMessage(l10n, result.messageKey);
       });
       return;
@@ -76,6 +110,7 @@ class _ExchangeRateApiConfigFormState
     setState(() {
       _saving = false;
       _statusOk = true;
+      _verifiedKey = key;
       _status = l10n.keyValid;
     });
     showAppToast(context, l10n.integrationSave);
@@ -83,11 +118,17 @@ class _ExchangeRateApiConfigFormState
 
   Future<void> _disconnect() async {
     final l10n = AppLocalizations.of(context)!;
+    final connected = ref.read(
+      isIntegrationConfiguredProvider(kExchangeRateApiIntegrationId),
+    );
+    if (!connected) return;
     await ref.read(appSettingsProvider.notifier).setExchangeRateApiKey(null);
     if (!mounted) return;
     setState(() {
       _apiKeyController.clear();
       _status = null;
+      _statusOk = false;
+      _verifiedKey = null;
     });
     showAppToast(context, l10n.integrationDisconnect);
   }
@@ -96,6 +137,12 @@ class _ExchangeRateApiConfigFormState
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final connected = ref.watch(
+      isIntegrationConfiguredProvider(kExchangeRateApiIntegrationId),
+    );
+    final canTest = !_busy && _keyFilled;
+    final canSave = !_busy && _keyVerified;
+    final canDisconnect = !_busy && connected;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -104,6 +151,7 @@ class _ExchangeRateApiConfigFormState
           controller: _apiKeyController,
           decoration: InputDecoration(labelText: l10n.apiKey),
           obscureText: true,
+          enabled: !_busy,
         ),
         const SizedBox(height: 16),
         Wrap(
@@ -111,7 +159,7 @@ class _ExchangeRateApiConfigFormState
           runSpacing: 8,
           children: [
             FilledButton(
-              onPressed: _testing ? null : _test,
+              onPressed: canTest ? _test : null,
               child: _testing
                   ? const SizedBox(
                       width: 18,
@@ -121,11 +169,11 @@ class _ExchangeRateApiConfigFormState
                   : Text(l10n.integrationTestConnection),
             ),
             FilledButton.tonal(
-              onPressed: _saving ? null : _save,
+              onPressed: canSave ? _save : null,
               child: Text(l10n.integrationSave),
             ),
             OutlinedButton(
-              onPressed: _disconnect,
+              onPressed: canDisconnect ? _disconnect : null,
               child: Text(l10n.integrationDisconnect),
             ),
           ],

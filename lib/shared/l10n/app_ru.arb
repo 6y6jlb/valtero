@@ -41,6 +41,8 @@
   "googleDriveMissingClientId": "Не задан Google OAuth client id. Скопируйте local.oauth.env.example → local.oauth.env, укажите GOOGLE_OAUTH_CLIENT_ID_DESKTOP / _ANDROID и пересоберите (make run-*).",
   "googleDriveReauthRequired": "Войдите в Google снова",
   "googleDriveSignInFailed": "Не удалось войти в Google",
+  "googleDriveAuthCanceled": "Вход через Google отменён",
+  "googleDriveAndroidCustomUriHint": "На Android откройте Google Cloud Console → Android OAuth-клиент → Advanced settings и включите «Custom URI scheme», затем повторите вход. Для новых Android-клиентов Google по умолчанию блокирует этот redirect.",
   "googleDriveLastSynced": "Последняя синхронизация: {when}",
   "@googleDriveLastSynced": {
     "placeholders": {

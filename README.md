@@ -258,7 +258,10 @@ make android-sha1-release \
 
      Paste that client id into `GOOGLE_OAUTH_CLIENT_ID_ANDROID`.  
      Android redirect uses Google’s reverse client-id scheme  
-     `com.googleusercontent.apps.<prefix>:/oauth2redirect` (wired in Manifest via Gradle).
+     `com.googleusercontent.apps.<prefix>:/oauth2redirect` (wired in Manifest via Gradle).  
+     **Required:** on that Android OAuth client open **Advanced settings** and enable  
+     **Custom URI scheme**. New Android clients reject this redirect by default  
+     (`Error 400: invalid_request` / “Custom URI scheme is not enabled for your Android client”).
 
 4. Scopes: `drive.appdata` + `userinfo.email` (personal). Cross-account share also uses `drive.file` (sensitive — verification for >~100 OAuth testers in production).
 

@@ -348,6 +348,18 @@ abstract class AppLocalizations {
   /// **'Google sign-in failed'**
   String get googleDriveSignInFailed;
 
+  /// No description provided for @googleDriveAuthCanceled.
+  ///
+  /// In en, this message translates to:
+  /// **'Google sign-in was canceled'**
+  String get googleDriveAuthCanceled;
+
+  /// No description provided for @googleDriveAndroidCustomUriHint.
+  ///
+  /// In en, this message translates to:
+  /// **'On Android, open Google Cloud Console → your Android OAuth client → Advanced settings and enable “Custom URI scheme”, then try again. Google blocks this redirect by default on new Android clients.'**
+  String get googleDriveAndroidCustomUriHint;
+
   /// No description provided for @googleDriveLastSynced.
   ///
   /// In en, this message translates to:

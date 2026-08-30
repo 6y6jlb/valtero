@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:valtero/entities/integrations/google_drive_sync/model/google_oauth_config.dart';
 import 'package:valtero/entities/integrations/google_drive_sync/model/google_oauth_tokens.dart';
@@ -43,19 +44,40 @@ class GoogleOAuthService {
       },
     );
 
-    final resultUrl = await FlutterWebAuth2.authenticate(
-      url: authUri.toString(),
-      callbackUrlScheme: redirect.callbackUrlScheme,
-      options: FlutterWebAuth2Options(
-        useWebview: redirect.useWebview,
-        timeout: 300,
-      ),
-    );
+    late final String resultUrl;
+    try {
+      resultUrl = await FlutterWebAuth2.authenticate(
+        url: authUri.toString(),
+        callbackUrlScheme: redirect.callbackUrlScheme,
+        options: FlutterWebAuth2Options(
+          useWebview: redirect.useWebview,
+          timeout: 300,
+        ),
+      );
+    } on PlatformException catch (e) {
+      throw GoogleOAuthException(
+        _platformAuthErrorKey(e),
+        detail: e.message,
+      );
+    } on ArgumentError catch (e) {
+      throw GoogleOAuthException(
+        'invalid_redirect_scheme',
+        detail: e.message,
+      );
+    } catch (e) {
+      throw GoogleOAuthException(
+        'sign_in_failed',
+        detail: e.toString(),
+      );
+    }
 
     final returned = Uri.parse(resultUrl);
     final error = returned.queryParameters['error'];
     if (error != null && error.isNotEmpty) {
-      throw GoogleOAuthException('auth_$error');
+      throw GoogleOAuthException(
+        'auth_$error',
+        detail: returned.queryParameters['error_description'],
+      );
     }
     final code = returned.queryParameters['code'];
     if (code == null || code.isEmpty) {
@@ -112,7 +134,7 @@ class GoogleOAuthService {
       }
       return tokens;
     } on DioException catch (e) {
-      throw GoogleOAuthException(_dioErrorKey(e));
+      throw GoogleOAuthException(_dioErrorKey(e), detail: e.message);
     }
   }
 
@@ -158,7 +180,7 @@ class GoogleOAuthService {
       }
       return GoogleOAuthTokens.fromJson(data);
     } on DioException catch (e) {
-      throw GoogleOAuthException(_dioErrorKey(e));
+      throw GoogleOAuthException(_dioErrorKey(e), detail: e.message);
     }
   }
 
@@ -185,6 +207,18 @@ class GoogleOAuthService {
     if (status == 400 || status == 401) return 'invalid_grant';
     return 'token_exchange_failed';
   }
+
+  /// Maps Custom Tab / browser auth cancellations and platform failures.
+  String _platformAuthErrorKey(PlatformException e) {
+    final code = (e.code).toLowerCase();
+    if (code.contains('cancel') || code.contains('dismiss')) {
+      return 'auth_canceled';
+    }
+    if (code.contains('timeout')) {
+      return 'auth_timeout';
+    }
+    return 'sign_in_failed';
+  }
 }
 
 class GoogleOAuthSignInResult {
@@ -199,8 +233,15 @@ class GoogleOAuthSignInResult {
 
 class GoogleOAuthException implements Exception {
   final String code;
-  const GoogleOAuthException(this.code);
+  final String? detail;
+
+  const GoogleOAuthException(this.code, {this.detail});
 
   @override
-  String toString() => 'GoogleOAuthException($code)';
+  String toString() {
+    if (detail == null || detail!.isEmpty) {
+      return 'GoogleOAuthException($code)';
+    }
+    return 'GoogleOAuthException($code, $detail)';
+  }
 }

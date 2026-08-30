@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/integrations/google_drive_sync/model/google_drive_rest_client.dart';
+import 'package:valtero/entities/integrations/google_drive_sync/model/google_oauth_config.dart';
 import 'package:valtero/entities/integrations/google_drive_sync/model/google_oauth_service.dart';
 import 'package:valtero/entities/integrations/google_drive_sync/model/google_oauth_tokens.dart';
 import 'package:valtero/entities/integrations/model/integration_registry.dart';
@@ -11,6 +12,7 @@ import 'package:valtero/features/data_sync/model/backup_format.dart';
 import 'package:valtero/features/data_sync/model/data_sync_controller.dart';
 import 'package:valtero/shared/database/database_provider.dart';
 import 'package:valtero/shared/database/schema_version.dart';
+import 'package:valtero/shared/logging/logging_providers.dart';
 import 'package:valtero/shared/settings/app_settings.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/app_version_provider.dart';
@@ -186,11 +188,18 @@ class GoogleDriveSyncEngine {
       );
     } on BackupUnsupportedFormatException {
       return const GoogleDriveSyncResult.fail('unsupported_format');
-    } on GoogleOAuthException catch (e) {
+    } on GoogleOAuthException catch (e, st) {
+      _logError(
+        'Google Drive sync OAuth failed code=${e.code}',
+        error: e,
+        stackTrace: st,
+      );
       return GoogleDriveSyncResult.fail(e.code);
-    } on DioException {
+    } on DioException catch (e, st) {
+      _logError('Google Drive sync network failed', error: e, stackTrace: st);
       return const GoogleDriveSyncResult.fail('network_error');
-    } catch (_) {
+    } catch (e, st) {
+      _logError('Google Drive sync failed', error: e, stackTrace: st);
       return const GoogleDriveSyncResult.fail('sync_failed');
     }
   }
@@ -201,12 +210,20 @@ class GoogleDriveSyncEngine {
     required bool includeFileScope,
   }) async {
     final integration = ref.read(googleDriveSyncIntegrationProvider);
+    final redirect = GoogleOAuthRedirect.forPlatform();
+    // ignore: unawaited_futures
+    ref.read(appLoggerProvider).debug(
+          'Google Drive sign-in starting '
+          'scheme=${redirect.callbackUrlScheme} '
+          'redirect=${redirect.redirectUri}',
+        );
     try {
       final result = await integration.oauth.signIn(
         includeFileScope: includeFileScope,
       );
       final refresh = result.tokens.refreshToken?.trim() ?? '';
       if (refresh.isEmpty) {
+        _logError('Google Drive sign-in missing refresh token');
         return const GoogleDriveSyncResult.fail('missing_refresh_token');
       }
       _cachedTokens = result.tokens;
@@ -217,11 +234,26 @@ class GoogleDriveSyncEngine {
             syncPassphrase: passphrase.trim(),
           );
       return syncNow();
-    } on GoogleOAuthException catch (e) {
+    } on GoogleOAuthException catch (e, st) {
+      _logError(
+        'Google Drive sign-in failed code=${e.code}',
+        error: e,
+        stackTrace: st,
+      );
       return GoogleDriveSyncResult.fail(e.code);
-    } catch (_) {
+    } catch (e, st) {
+      _logError('Google Drive sign-in failed', error: e, stackTrace: st);
       return const GoogleDriveSyncResult.fail('sign_in_failed');
     }
+  }
+
+  void _logError(String message, {Object? error, StackTrace? stackTrace}) {
+    // ignore: unawaited_futures
+    ref.read(appLoggerProvider).error(
+          message,
+          error: error,
+          stackTrace: stackTrace,
+        );
   }
 
   Future<GoogleDriveSyncResult> shareWithEmail(String email) async {
@@ -284,11 +316,18 @@ class GoogleDriveSyncEngine {
             sharedWithEmails: emails,
           );
       return const GoogleDriveSyncResult.ok(messageKey: 'shareOk');
-    } on GoogleOAuthException catch (e) {
+    } on GoogleOAuthException catch (e, st) {
+      _logError(
+        'Google Drive share OAuth failed code=${e.code}',
+        error: e,
+        stackTrace: st,
+      );
       return GoogleDriveSyncResult.fail(e.code);
-    } on DioException {
+    } on DioException catch (e, st) {
+      _logError('Google Drive share network failed', error: e, stackTrace: st);
       return const GoogleDriveSyncResult.fail('share_failed');
-    } catch (_) {
+    } catch (e, st) {
+      _logError('Google Drive share failed', error: e, stackTrace: st);
       return const GoogleDriveSyncResult.fail('share_failed');
     }
   }

@@ -8,6 +8,21 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.4.2] - 2026-08-30
+
+### Fixed
+
+- Integration failures (Telegram test, Google Drive sign-in/sync) are written to
+  the debug log file instead of being swallowed as UI-only status codes.
+- Android Google Drive OAuth: document and surface the required **Custom URI
+  scheme** Advanced setting (Google’s default blocks reverse-client-id redirects).
+
+### Changed
+
+- Integration config actions are disabled until required fields are filled,
+  credentials are verified (Save), or the integration is already connected
+  (Disconnect); Google Drive Sign-in / Share / Copy follow the same rules.
+
 ## [1.4.1] - 2026-08-30
 
 ### Changed

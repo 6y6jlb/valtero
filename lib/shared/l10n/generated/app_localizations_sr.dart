@@ -140,6 +140,13 @@ class AppLocalizationsSr extends AppLocalizations {
   String get googleDriveSignInFailed => 'Prijava preko Google-a nije uspela';
 
   @override
+  String get googleDriveAuthCanceled => 'Prijava preko Google-a je otkazana';
+
+  @override
+  String get googleDriveAndroidCustomUriHint =>
+      'Na Androidu otvori Google Cloud Console → Android OAuth klijent → Advanced settings i uključi „Custom URI scheme“, pa pokušaj ponovo. Google po podrazumevanom blokira ovaj redirect za nove Android klijente.';
+
+  @override
   String googleDriveLastSynced(String when) {
     return 'Poslednja sinhronizacija: $when';
   }

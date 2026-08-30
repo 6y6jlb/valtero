@@ -140,6 +140,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get googleDriveSignInFailed => 'Не удалось войти в Google';
 
   @override
+  String get googleDriveAuthCanceled => 'Вход через Google отменён';
+
+  @override
+  String get googleDriveAndroidCustomUriHint =>
+      'На Android откройте Google Cloud Console → Android OAuth-клиент → Advanced settings и включите «Custom URI scheme», затем повторите вход. Для новых Android-клиентов Google по умолчанию блокирует этот redirect.';
+
+  @override
   String googleDriveLastSynced(String when) {
     return 'Последняя синхронизация: $when';
   }

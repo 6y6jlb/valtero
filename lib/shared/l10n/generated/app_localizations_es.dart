@@ -142,6 +142,14 @@ class AppLocalizationsEs extends AppLocalizations {
   String get googleDriveSignInFailed => 'No se pudo iniciar sesión con Google';
 
   @override
+  String get googleDriveAuthCanceled =>
+      'Se canceló el inicio de sesión con Google';
+
+  @override
+  String get googleDriveAndroidCustomUriHint =>
+      'En Android, abre Google Cloud Console → tu cliente OAuth de Android → Advanced settings y activa “Custom URI scheme”, luego inténtalo de nuevo. Google bloquea este redirect por defecto en clientes Android nuevos.';
+
+  @override
   String googleDriveLastSynced(String when) {
     return 'Última sincronización: $when';
   }

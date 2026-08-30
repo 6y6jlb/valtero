@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,6 +33,8 @@ class _GoogleDriveSyncConfigFormState
   @override
   void initState() {
     super.initState();
+    _passphraseController.addListener(_onFieldsChanged);
+    _shareEmailController.addListener(_onFieldsChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final s = ref.read(appSettingsProvider).value;
       if (s == null) return;
@@ -42,13 +46,25 @@ class _GoogleDriveSyncConfigFormState
 
   @override
   void dispose() {
+    _passphraseController.removeListener(_onFieldsChanged);
+    _shareEmailController.removeListener(_onFieldsChanged);
     _passphraseController.dispose();
     _shareEmailController.dispose();
     super.dispose();
   }
 
+  void _onFieldsChanged() => setState(() {});
+
+  bool get _passphraseReady => _passphraseController.text.trim().length >= 8;
+
+  bool get _shareEmailReady {
+    final email = _shareEmailController.text.trim().toLowerCase();
+    return email.isNotEmpty && email.contains('@');
+  }
+
   String _syncMessage(AppLocalizations l10n, GoogleDriveSyncResult result) {
-    return switch (result.messageKey) {
+    final key = result.messageKey;
+    final base = switch (key) {
       'syncOk' => l10n.googleDriveSyncOk,
       'connectionOk' => l10n.connectionOk,
       'connectionFailed' => l10n.connectionFailed,
@@ -60,7 +76,12 @@ class _GoogleDriveSyncConfigFormState
       'missing_refresh_token' => l10n.googleDriveReauthRequired,
       'not_configured' => l10n.connectionMissingFields,
       'network_error' => l10n.connectionFailed,
-      'sign_in_failed' => l10n.googleDriveSignInFailed,
+      'auth_canceled' => l10n.googleDriveAuthCanceled,
+      'sign_in_failed' ||
+      'auth_timeout' ||
+      'invalid_redirect_scheme' ||
+      'token_exchange_failed' =>
+        l10n.googleDriveSignInFailed,
       'share_failed' => l10n.googleDriveShareFailed,
       'invalid_email' => l10n.googleDriveInvalidEmail,
       'remote_newer_schema' => l10n.googleDriveRemoteNewerSchema(
@@ -71,8 +92,24 @@ class _GoogleDriveSyncConfigFormState
               : '—',
         ),
       'unsupported_format' => l10n.googleDriveUnsupportedFormat,
-      _ => connectionMessage(l10n, result.messageKey ?? 'connectionFailed'),
+      _ => key != null && key.startsWith('auth_')
+          ? l10n.googleDriveSignInFailed
+          : connectionMessage(l10n, key ?? 'connectionFailed'),
     };
+    if (!result.success &&
+        Platform.isAndroid &&
+        _isLikelyAndroidOAuthConfigFailure(key)) {
+      return '$base\n\n${l10n.googleDriveAndroidCustomUriHint}';
+    }
+    return base;
+  }
+
+  bool _isLikelyAndroidOAuthConfigFailure(String? key) {
+    if (key == null) return false;
+    return key == 'sign_in_failed' ||
+        key == 'auth_canceled' ||
+        key == 'invalid_redirect_scheme' ||
+        key.startsWith('auth_');
   }
 
   Future<void> _showResultFeedback(
@@ -278,6 +315,7 @@ class _GoogleDriveSyncConfigFormState
         TextField(
           controller: _passphraseController,
           obscureText: _obscurePassphrase,
+          enabled: !_busy,
           decoration: InputDecoration(
             labelText: l10n.googleDriveSyncPassphrase,
             helperText: l10n.googleDriveSyncPassphraseHint,
@@ -285,8 +323,10 @@ class _GoogleDriveSyncConfigFormState
               tooltip: _obscurePassphrase
                   ? l10n.dataSyncShowPassphrase
                   : l10n.dataSyncHidePassphrase,
-              onPressed: () =>
-                  setState(() => _obscurePassphrase = !_obscurePassphrase),
+              onPressed: _busy
+                  ? null
+                  : () =>
+                      setState(() => _obscurePassphrase = !_obscurePassphrase),
               icon: Icon(
                 _obscurePassphrase ? Icons.visibility : Icons.visibility_off,
               ),
@@ -308,11 +348,10 @@ class _GoogleDriveSyncConfigFormState
               child: Text(l10n.dataSyncGenerateShort),
             ),
             OutlinedButton(
-              onPressed: _busy
+              onPressed: _busy || _passphraseController.text.isEmpty
                   ? null
                   : () async {
                       final text = _passphraseController.text;
-                      if (text.isEmpty) return;
                       await Clipboard.setData(ClipboardData(text: text));
                       if (!context.mounted) return;
                       showAppToast(context, l10n.copiedToClipboard);
@@ -328,7 +367,11 @@ class _GoogleDriveSyncConfigFormState
           children: [
             if (!connected)
               FilledButton(
-                onPressed: _busy ? null : _signIn,
+                onPressed: _busy ||
+                        !isGoogleOAuthClientConfigured ||
+                        !_passphraseReady
+                    ? null
+                    : _signIn,
                 child: _busy
                     ? const SizedBox(
                         width: 18,
@@ -370,6 +413,7 @@ class _GoogleDriveSyncConfigFormState
           TextField(
             controller: _shareEmailController,
             keyboardType: TextInputType.emailAddress,
+            enabled: !_busy,
             decoration: InputDecoration(
               labelText: l10n.googleDriveShareEmail,
             ),
@@ -378,7 +422,7 @@ class _GoogleDriveSyncConfigFormState
           Align(
             alignment: Alignment.centerLeft,
             child: FilledButton.tonal(
-              onPressed: _busy ? null : _share,
+              onPressed: _busy || !_shareEmailReady ? null : _share,
               child: Text(l10n.googleDriveShareAdd),
             ),
           ),
