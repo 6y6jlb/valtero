@@ -38,7 +38,7 @@
   "googleDriveSyncPassphraseHint": "Solo se usa en este dispositivo para cifrar. Google nunca la recibe. Usa la misma frase en todos los dispositivos.",
   "googleDrivePassphraseTooShort": "La frase debe tener al menos 8 caracteres",
   "googleDriveWrongPassphrase": "Frase incorrecta para la copia remota",
-  "googleDriveMissingClientId": "Falta el client id de Google OAuth. Compila con --dart-define=GOOGLE_OAUTH_CLIENT_ID=…",
+  "googleDriveMissingClientId": "Falta el client id de Google OAuth. Copia local.oauth.env.example a local.oauth.env, pon GOOGLE_OAUTH_CLIENT_ID_DESKTOP / _ANDROID y vuelve a compilar (make run-*).",
   "googleDriveReauthRequired": "Vuelve a iniciar sesión con Google",
   "googleDriveSignInFailed": "No se pudo iniciar sesión con Google",
   "googleDriveLastSynced": "Última sincronización: {when}",

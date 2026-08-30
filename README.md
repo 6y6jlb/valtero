@@ -212,22 +212,55 @@ Install with `adb install -r dist/android/<file>.apk`. Replace debug signing in 
 
 ## Google Drive Sync (optional)
 
-Encrypted multi-device sync via Settings → Integrations → Google Drive Sync. Requires a Google Cloud OAuth client id at build/run time:
+Encrypted multi-device sync via Settings → Integrations → Google Drive Sync.
+
+### Local OAuth client ids (`local.oauth.env`)
+
+1. Copy the example file (gitignored target — never commit secrets/client ids you want private):
 
 ```bash
-flutter run -d linux \
-  --dart-define=APP_VERSION="$(./scripts/app_version.sh print)" \
-  --dart-define=GOOGLE_OAUTH_CLIENT_ID=YOUR_CLIENT_ID.apps.googleusercontent.com
+cp local.oauth.env.example local.oauth.env
 ```
+
+2. Fill only the platforms you need:
+
+```bash
+GOOGLE_OAUTH_CLIENT_ID_DESKTOP=….apps.googleusercontent.com   # Linux / Windows
+GOOGLE_OAUTH_CLIENT_ID_ANDROID=….apps.googleusercontent.com  # Android
+```
+
+Empty keys are ignored. Make / release scripts pass non-empty values as `--dart-define=…`.
+
+3. Run / build as usual — no manual dart-define:
+
+```bash
+make run-linux
+make run-android
+make release-android
+```
+
+### Google Cloud setup
 
 In [Google Cloud Console](https://console.cloud.google.com/apis/credentials):
 
 1. Enable **Google Drive API**.
-2. Create an OAuth client (Desktop app is enough for Linux/Windows loopback).
-3. Authorized redirect URIs:
-   - Desktop: `http://localhost:43823/oauth2redirect`
-   - Android: `com.valtero.oauth:/oauth2redirect` (also declared in `AndroidManifest.xml`)
-4. Scopes used: `drive.appdata` + `userinfo.email` (personal). Sharing across Google accounts also requests `drive.file` (sensitive — Google verification needed beyond ~100 test users).
+2. OAuth consent screen → **Testing** + your account in Test users.
+3. Create OAuth clients:
+   - **Desktop app** → paste into `GOOGLE_OAUTH_CLIENT_ID_DESKTOP`  
+     Redirect (loopback): `http://localhost:43823/oauth2redirect`
+   - **Android** → package `com.valtero.valtero`, SHA-1 from:
+
+```bash
+make android-sha1                    # debug keystore
+make android-sha1-release \
+  KEYSTORE=/path/to/upload.jks ALIAS=upload STOREPASS='…'
+```
+
+     Paste that client id into `GOOGLE_OAUTH_CLIENT_ID_ANDROID`.  
+     Android redirect uses Google’s reverse client-id scheme  
+     `com.googleusercontent.apps.<prefix>:/oauth2redirect` (wired in Manifest via Gradle).
+
+4. Scopes: `drive.appdata` + `userinfo.email` (personal). Cross-account share also uses `drive.file` (sensitive — verification for >~100 OAuth testers in production).
 
 Data is encrypted on-device with the sync passphrase (Argon2id → AES-GCM, same format as `.valterobackup`); Google only stores ciphertext.
 

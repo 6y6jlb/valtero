@@ -38,7 +38,7 @@
   "googleDriveSyncPassphraseHint": "Koristi se samo na uređaju za šifrovanje. Google je nikad ne dobija. Ista lozinka na svim uređajima.",
   "googleDrivePassphraseTooShort": "Lozinka mora imati najmanje 8 karaktera",
   "googleDriveWrongPassphrase": "Pogrešna lozinka za udaljenu rezervnu kopiju",
-  "googleDriveMissingClientId": "Nije podešen Google OAuth client id. Build sa --dart-define=GOOGLE_OAUTH_CLIENT_ID=…",
+  "googleDriveMissingClientId": "Nije podešen Google OAuth client id. Kopiraj local.oauth.env.example u local.oauth.env, postavi GOOGLE_OAUTH_CLIENT_ID_DESKTOP / _ANDROID i ponovo builduj (make run-*).",
   "googleDriveReauthRequired": "Prijavite se ponovo preko Google-a",
   "googleDriveSignInFailed": "Prijava preko Google-a nije uspela",
   "googleDriveLastSynced": "Poslednja sinhronizacija: {when}",

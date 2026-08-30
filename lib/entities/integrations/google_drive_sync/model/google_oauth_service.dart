@@ -21,12 +21,12 @@ class GoogleOAuthService {
     required bool includeFileScope,
     String? clientId,
   }) async {
-    final id = (clientId ?? kGoogleOAuthClientId).trim();
+    final id = (clientId ?? googleOAuthClientIdForPlatform()).trim();
     if (id.isEmpty) {
       throw const GoogleOAuthException('missing_client_id');
     }
 
-    final redirect = GoogleOAuthRedirect.forPlatform();
+    final redirect = GoogleOAuthRedirect.forPlatform(clientId: id);
     final verifier = _randomUrlSafe(64);
     final challenge = await _codeChallenge(verifier);
 
@@ -79,7 +79,7 @@ class GoogleOAuthService {
     required String refreshToken,
     String? clientId,
   }) async {
-    final id = (clientId ?? kGoogleOAuthClientId).trim();
+    final id = (clientId ?? googleOAuthClientIdForPlatform()).trim();
     if (id.isEmpty) {
       throw const GoogleOAuthException('missing_client_id');
     }

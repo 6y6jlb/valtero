@@ -131,7 +131,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get googleDriveMissingClientId =>
-      'Nije podešen Google OAuth client id. Build sa --dart-define=GOOGLE_OAUTH_CLIENT_ID=…';
+      'Nije podešen Google OAuth client id. Kopiraj local.oauth.env.example u local.oauth.env, postavi GOOGLE_OAUTH_CLIENT_ID_DESKTOP / _ANDROID i ponovo builduj (make run-*).';
 
   @override
   String get googleDriveReauthRequired => 'Prijavite se ponovo preko Google-a';

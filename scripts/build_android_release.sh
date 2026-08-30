@@ -74,6 +74,9 @@ dist_file_stem() {
 APP_VERSION="$("$VERSION_SCRIPT" print)"
 # shellcheck disable=SC2046
 read -r -a FLUTTER_VERSION_ARGS < <("$VERSION_SCRIPT" flutter-args)
+OAUTH_DEFINES="$("$PROJECT_ROOT/scripts/oauth_dart_defines.sh" "$PROJECT_ROOT/local.oauth.env" || true)"
+# shellcheck disable=SC2206
+OAUTH_ARGS=( $OAUTH_DEFINES )
 
 DIST_STEM="$(dist_file_stem "$FOLDER_STYLE" "$APP_VERSION")"
 DIST_ROOT="$PROJECT_ROOT/dist/android"
@@ -81,6 +84,9 @@ DIST_APK="$DIST_ROOT/${DIST_STEM}.apk"
 SOURCE_APK="$PROJECT_ROOT/build/app/outputs/flutter-apk/app-release.apk"
 
 BUILD_ARGS=(build apk --release "${FLUTTER_VERSION_ARGS[@]}")
+if [[ ${#OAUTH_ARGS[@]} -gt 0 ]]; then
+  BUILD_ARGS+=("${OAUTH_ARGS[@]}")
+fi
 if [[ -n "$TARGET_PLATFORM" ]]; then
   BUILD_ARGS+=(--target-platform "$TARGET_PLATFORM")
 fi

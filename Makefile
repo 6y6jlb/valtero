@@ -31,7 +31,14 @@ endif
 	pub-get doctor codegen \
 	run-linux run-windows run-android \
 	build-linux build-windows build-android \
-	release-linux release-windows release-android
+	release-linux release-windows release-android \
+	android-sha1 android-sha1-release
+
+OAUTH_ENV ?= local.oauth.env
+KEYSTORE ?=
+ALIAS ?=
+STOREPASS ?=
+KEYPASS ?=
 
 help:
 	@echo 'Valtero make targets'
@@ -46,20 +53,26 @@ help:
 	@echo '  make pub-get                 flutter pub get'
 	@echo '  make codegen                 dart run build_runner (Drift)'
 	@echo '  make doctor                  flutter doctor'
-	@echo '  make run-linux               flutter run -d linux (+ APP_VERSION define)'
-	@echo '  make run-windows             flutter run -d windows (+ APP_VERSION define)'
-	@echo '  make run-android             flutter run -d android (+ APP_VERSION define)'
-	@echo '  make build-linux             flutter build linux --release (+ version)'
-	@echo '  make build-windows           flutter build windows --release (+ version)'
-	@echo '  make build-android           flutter build apk --release (+ version)'
+	@echo '  make run-linux               flutter run -d linux (+ APP_VERSION + local.oauth.env)'
+	@echo '  make run-windows             flutter run -d windows (+ APP_VERSION + local.oauth.env)'
+	@echo '  make run-android             flutter run -d android (+ APP_VERSION + local.oauth.env)'
+	@echo '  make build-linux             flutter build linux --release (+ version + oauth)'
+	@echo '  make build-windows           flutter build windows --release (+ version + oauth)'
+	@echo '  make build-android           flutter build apk --release (+ version + oauth)'
 	@echo '  make release-linux           scripts/build_linux_release.sh to dist/linux/'
 	@echo '  make release-windows         scripts/build_windows_release.ps1 to dist/windows/'
 	@echo '  make release-android         scripts/build_android_release.sh to dist/android/'
+	@echo '  make android-sha1            print debug keystore SHA-1 (Google Android OAuth)'
+	@echo '  make android-sha1-release    print release keystore SHA-1 (KEYSTORE ALIAS STOREPASS)'
 	@echo ''
 	@echo 'Variables:'
 	@echo '  VERSION=1.2.0+3                     (with make version)'
 	@echo '  FOLDER_STYLE=Version Date VersionDate   (default: VersionDate)'
 	@echo '  TARGET_PLATFORM=android-arm64           (android release only)'
+	@echo '  OAUTH_ENV=local.oauth.env               (optional Google OAuth client ids)'
+	@echo '  KEYSTORE= ALIAS= STOREPASS=             (android-sha1-release)'
+	@echo ''
+	@echo 'OAuth: copy local.oauth.env.example → local.oauth.env (gitignored).'
 	@echo ''
 	@echo Current app version:
 	@$(VERSION_SCRIPT) print
@@ -95,6 +108,20 @@ doctor:
 codegen:
 	dart run build_runner build --delete-conflicting-outputs
 
+android-sha1:
+	./scripts/android_sha1.sh debug
+
+android-sha1-release:
+ifeq ($(KEYSTORE)$(ALIAS)$(STOREPASS),)
+	@echo 'Usage: make android-sha1-release KEYSTORE=/path/to.jks ALIAS=upload STOREPASS=…' >&2
+	@exit 1
+endif
+	./scripts/android_sha1.sh release \
+		--keystore '$(KEYSTORE)' \
+		--alias '$(ALIAS)' \
+		--storepass '$(STOREPASS)' \
+		$(if $(KEYPASS),--keypass '$(KEYPASS)',)
+
 # cmd.exe (default Make shell on Windows) has no POSIX $(); expand version
 # flags via PowerShell. Unix Make uses bash-style command substitution.
 ifeq ($(OS),Windows_NT)
@@ -104,40 +131,40 @@ run-linux: sync-version
 	@exit 1
 
 run-windows: sync-version
-	powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "flutter run -d windows $$((& '.\scripts\app_version.ps1' dart-define-args) -split '\s+')"
+	powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "flutter run -d windows $$([string]::Join(' ', ((.& '.\scripts\app_version.ps1' dart-define-args) -split '\s+' | Where-Object { $$_ }), ((.& '.\scripts\oauth_dart_defines.ps1' -EnvFile '$(OAUTH_ENV)') -split '\s+' | Where-Object { $$_ })))"
 
 run-android: sync-version
-	powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "flutter run -d android $$((& '.\scripts\app_version.ps1' dart-define-args) -split '\s+')"
+	powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "flutter run -d android $$([string]::Join(' ', ((.& '.\scripts\app_version.ps1' dart-define-args) -split '\s+' | Where-Object { $$_ }), ((.& '.\scripts\oauth_dart_defines.ps1' -EnvFile '$(OAUTH_ENV)') -split '\s+' | Where-Object { $$_ })))"
 
 build-linux: sync-version
 	@echo build-linux must be run on Linux.
 	@exit 1
 
 build-windows: sync-version
-	powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "flutter build windows --release $$((& '.\scripts\app_version.ps1' flutter-args) -split '\s+')"
+	powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "flutter build windows --release $$([string]::Join(' ', ((.& '.\scripts\app_version.ps1' flutter-args) -split '\s+' | Where-Object { $$_ }), ((.& '.\scripts\oauth_dart_defines.ps1' -EnvFile '$(OAUTH_ENV)') -split '\s+' | Where-Object { $$_ })))"
 
 build-android: sync-version
-	powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "flutter build apk --release $$((& '.\scripts\app_version.ps1' flutter-args) -split '\s+')"
+	powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "flutter build apk --release $$([string]::Join(' ', ((.& '.\scripts\app_version.ps1' flutter-args) -split '\s+' | Where-Object { $$_ }), ((.& '.\scripts\oauth_dart_defines.ps1' -EnvFile '$(OAUTH_ENV)') -split '\s+' | Where-Object { $$_ })))"
 
 else
 
 run-linux: sync-version
-	flutter run -d linux $$($(VERSION_SCRIPT) dart-define-args)
+	flutter run -d linux $$($(VERSION_SCRIPT) dart-define-args) $$(./scripts/oauth_dart_defines.sh "$(OAUTH_ENV)")
 
 run-windows: sync-version
-	flutter run -d windows $$($(VERSION_SCRIPT) dart-define-args)
+	flutter run -d windows $$($(VERSION_SCRIPT) dart-define-args) $$(./scripts/oauth_dart_defines.sh "$(OAUTH_ENV)")
 
 run-android: sync-version
-	flutter run -d android $$($(VERSION_SCRIPT) dart-define-args)
+	flutter run -d android $$($(VERSION_SCRIPT) dart-define-args) $$(./scripts/oauth_dart_defines.sh "$(OAUTH_ENV)")
 
 build-linux: sync-version
-	flutter build linux --release $$($(VERSION_SCRIPT) flutter-args)
+	flutter build linux --release $$($(VERSION_SCRIPT) flutter-args) $$(./scripts/oauth_dart_defines.sh "$(OAUTH_ENV)")
 
 build-windows: sync-version
-	flutter build windows --release $$($(VERSION_SCRIPT) flutter-args)
+	flutter build windows --release $$($(VERSION_SCRIPT) flutter-args) $$(./scripts/oauth_dart_defines.sh "$(OAUTH_ENV)")
 
 build-android: sync-version
-	flutter build apk --release $$($(VERSION_SCRIPT) flutter-args)
+	flutter build apk --release $$($(VERSION_SCRIPT) flutter-args) $$(./scripts/oauth_dart_defines.sh "$(OAUTH_ENV)")
 
 endif
 

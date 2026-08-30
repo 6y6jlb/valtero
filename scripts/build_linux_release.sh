@@ -75,6 +75,9 @@ dist_folder_name() {
 APP_VERSION="$("$VERSION_SCRIPT" print)"
 # shellcheck disable=SC2046
 read -r -a FLUTTER_VERSION_ARGS < <("$VERSION_SCRIPT" flutter-args)
+OAUTH_DEFINES="$("$PROJECT_ROOT/scripts/oauth_dart_defines.sh" "$PROJECT_ROOT/local.oauth.env" || true)"
+# shellcheck disable=SC2206
+OAUTH_ARGS=( $OAUTH_DEFINES )
 
 DIST_FOLDER_NAME="$(dist_folder_name "$FOLDER_STYLE" "$APP_VERSION")"
 DIST_ROOT="$PROJECT_ROOT/dist/linux"
@@ -86,13 +89,13 @@ echo "Using Flutter: $(command -v flutter)"
 echo "App version: $APP_VERSION (from VERSION)"
 echo "Folder style: $FOLDER_STYLE"
 echo "Linux arch: $ARCH"
-echo "Running: flutter build linux --release ${FLUTTER_VERSION_ARGS[*]}"
+echo "Running: flutter build linux --release ${FLUTTER_VERSION_ARGS[*]} ${OAUTH_ARGS[*]}"
 
 # Flutter may skip creating this when no package ships Dart FFI native assets;
 # CMake still expects the path unless linux/CMakeLists.txt guards with EXISTS.
 mkdir -p "$PROJECT_ROOT/build/native_assets/linux"
 
-flutter build linux --release "${FLUTTER_VERSION_ARGS[@]}"
+flutter build linux --release "${FLUTTER_VERSION_ARGS[@]}" ${OAUTH_ARGS[@]+"${OAUTH_ARGS[@]}"}
 
 if [[ ! -x "$BINARY_PATH" ]]; then
   echo "Build finished but executable not found at: $BINARY_PATH" >&2

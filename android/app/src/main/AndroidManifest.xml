@@ -26,8 +26,8 @@
             </intent-filter>
         </activity>
         <!-- OAuth callback for Google Drive Sync (flutter_web_auth_2).
-             Scheme is the reverse client id: com.googleusercontent.apps.<id-prefix>.
-             Replace YOUR_GOOGLE_OAUTH_REVERSE_SCHEME when shipping a signed build. -->
+             Scheme is injected from local.oauth.env → GOOGLE_OAUTH_CLIENT_ID_ANDROID
+             as com.googleusercontent.apps.<client-id-prefix> (see app/build.gradle.kts). -->
         <activity
             android:name="com.linusu.flutter_web_auth_2.CallbackActivity"
             android:exported="true"
@@ -36,7 +36,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="com.valtero.oauth" />
+                <data android:scheme="${googleOAuthRedirectScheme}" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

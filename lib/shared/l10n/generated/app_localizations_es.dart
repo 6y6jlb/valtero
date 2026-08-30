@@ -133,7 +133,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get googleDriveMissingClientId =>
-      'Falta el client id de Google OAuth. Compila con --dart-define=GOOGLE_OAUTH_CLIENT_ID=…';
+      'Falta el client id de Google OAuth. Copia local.oauth.env.example a local.oauth.env, pon GOOGLE_OAUTH_CLIENT_ID_DESKTOP / _ANDROID y vuelve a compilar (make run-*).';
 
   @override
   String get googleDriveReauthRequired => 'Vuelve a iniciar sesión con Google';

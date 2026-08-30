@@ -222,4 +222,15 @@ void main() {
       expect(shared, contains(kGoogleDriveFileScope));
     });
   });
+
+  group('googleOAuthReverseClientIdScheme', () {
+    test('builds com.googleusercontent.apps.<prefix>', () {
+      expect(
+        googleOAuthReverseClientIdScheme(
+          '123-abc.apps.googleusercontent.com',
+        ),
+        'com.googleusercontent.apps.123-abc',
+      );
+    });
+  });
 }

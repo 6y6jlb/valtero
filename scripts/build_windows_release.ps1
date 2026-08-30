@@ -61,7 +61,13 @@ if (-not $FlutterBat -or -not (Test-Path $FlutterBat)) {
 
 & $VersionScript sync | Out-Host
 $AppVersion = (& $VersionScript print).Trim()
-$FlutterVersionArgs = ((& $VersionScript flutter-args).Trim() -split '\s+')
+$FlutterVersionArgs = @(((& $VersionScript flutter-args).Trim() -split '\s+' | Where-Object { $_ }))
+$OauthDefinesRaw = & (Join-Path $ProjectRoot 'scripts\oauth_dart_defines.ps1') -EnvFile (Join-Path $ProjectRoot 'local.oauth.env')
+$OauthArgs = @()
+if ($OauthDefinesRaw) {
+  $OauthArgs = @(($OauthDefinesRaw.Trim() -split '\s+' | Where-Object { $_ }))
+}
+$AllArgs = @($FlutterVersionArgs + $OauthArgs)
 
 $DistFolderName = Get-DistFolderName -Style $FolderStyle -AppVersion $AppVersion
 $DistRoot = Join-Path $ProjectRoot 'dist\windows'
@@ -70,13 +76,13 @@ $DistDir = Join-Path $DistRoot $DistFolderName
 Write-Host "Using Flutter: $FlutterBat"
 Write-Host "App version: $AppVersion (from VERSION)"
 Write-Host "Folder style: $FolderStyle"
-Write-Host "Running: flutter build windows --release $($FlutterVersionArgs -join ' ')"
+Write-Host "Running: flutter build windows --release $($AllArgs -join ' ')"
 
 # Flutter may skip creating this when no package ships Dart FFI native assets;
 # CMake still expects the path unless windows/CMakeLists.txt guards with EXISTS.
 New-Item -ItemType Directory -Force -Path (Join-Path $ProjectRoot 'build\native_assets\windows') | Out-Null
 
-& $FlutterBat build windows --release @FlutterVersionArgs
+& $FlutterBat build windows --release @AllArgs
 if ($LASTEXITCODE -ne 0) {
   exit $LASTEXITCODE
 }

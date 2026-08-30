@@ -44,3 +44,6 @@ app.*.map.json
 # Cursor tool-specific (regenerate from docs/agent-rules — see AGENTS.md)
 .cursor/
 .docs/
+
+# Local secrets / machine-specific OAuth client ids (see local.oauth.env.example)
+local.oauth.env

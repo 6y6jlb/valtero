@@ -38,7 +38,7 @@
   "googleDriveSyncPassphraseHint": "Used only on this device to encrypt data. Google never receives it. Use the same passphrase on every device.",
   "googleDrivePassphraseTooShort": "Passphrase must be at least 8 characters",
   "googleDriveWrongPassphrase": "Wrong sync passphrase for the remote backup",
-  "googleDriveMissingClientId": "Google OAuth client id is not configured. Build with --dart-define=GOOGLE_OAUTH_CLIENT_ID=…",
+  "googleDriveMissingClientId": "Google OAuth client id is not configured. Copy local.oauth.env.example to local.oauth.env and set GOOGLE_OAUTH_CLIENT_ID_DESKTOP / _ANDROID, then rebuild (make run-*).",
   "googleDriveReauthRequired": "Please sign in with Google again",
   "googleDriveSignInFailed": "Google sign-in failed",
   "googleDriveLastSynced": "Last synced: {when}",

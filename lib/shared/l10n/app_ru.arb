@@ -38,7 +38,7 @@
   "googleDriveSyncPassphraseHint": "Используется только на устройстве для шифрования. Google его не получает. На всех устройствах должен быть один и тот же пароль.",
   "googleDrivePassphraseTooShort": "Пароль должен быть не короче 8 символов",
   "googleDriveWrongPassphrase": "Неверный пароль для удалённой копии",
-  "googleDriveMissingClientId": "Не задан Google OAuth client id. Соберите с --dart-define=GOOGLE_OAUTH_CLIENT_ID=…",
+  "googleDriveMissingClientId": "Не задан Google OAuth client id. Скопируйте local.oauth.env.example → local.oauth.env, укажите GOOGLE_OAUTH_CLIENT_ID_DESKTOP / _ANDROID и пересоберите (make run-*).",
   "googleDriveReauthRequired": "Войдите в Google снова",
   "googleDriveSignInFailed": "Не удалось войти в Google",
   "googleDriveLastSynced": "Последняя синхронизация: {when}",
