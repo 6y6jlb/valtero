@@ -8,22 +8,16 @@ import 'package:valtero/features/data_sync/model/backup_crypto.dart';
 import 'package:valtero/features/data_sync/model/backup_format.dart';
 import 'package:valtero/features/data_sync/model/data_sync_controller.dart';
 import 'package:valtero/features/data_sync/model/passphrase_generator.dart';
-import 'package:valtero/widgets/passphrase_text_field.dart';
 import 'package:valtero/features/data_sync/ui/duplicate_import_resolution_dialog.dart';
-import 'package:valtero/entities/integrations/google_drive_sync/model/google_drive_sync_integration.dart';
-import 'package:valtero/entities/integrations/model/integration_registry.dart';
 import 'package:valtero/entities/payment_method/model/payment_methods_provider.dart';
 import 'package:valtero/features/google_drive_sync/model/google_drive_sync_engine.dart';
-import 'package:valtero/features/google_drive_sync/model/google_drive_sync_messages.dart';
-import 'package:valtero/features/integrations/model/integration_ui_meta.dart';
-import 'package:valtero/features/integrations/ui/integration_config_modal.dart';
+import 'package:valtero/features/google_drive_sync/ui/google_drive_sync_quick_card.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/logging/logging_providers.dart';
-import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/payment_method_label.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
 import 'package:valtero/widgets/app_toast.dart';
-import 'package:valtero/widgets/action_success_status_icon.dart';
+import 'package:valtero/widgets/passphrase_text_field.dart';
 
 enum DataSyncTab { export, import }
 
@@ -282,61 +276,15 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
     }
   }
 
-  Future<void> _syncGoogleDrive() async {
-    final l10n = AppLocalizations.of(context)!;
-    setState(() => _busy = true);
-    try {
-      final result =
-          await ref.read(googleDriveSyncControllerProvider.notifier).syncNow();
-      if (!mounted) return;
-      if (result.success) {
-        setState(() {});
-        return;
-      }
-      final message = googleDriveSyncResultMessage(l10n, result);
-      if (result.messageKey == 'remote_newer_schema') {
-        await showDialog<void>(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: Text(l10n.googleDriveRemoteNewerSchemaTitle),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: Text(MaterialLocalizations.of(ctx).okButtonLabel),
-              ),
-            ],
-          ),
-        );
-        return;
-      }
-      showAppToast(context, message);
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  Future<void> _openGoogleDriveIntegration() async {
-    final integrations = ref.read(integrationsProvider);
-    final integration = integrations.firstWhere(
-      (i) => i.id == kGoogleDriveSyncIntegrationId,
-    );
-    await showIntegrationConfigSheet(context, integration: integration);
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final scrollController = PrimaryScrollController.maybeOf(context);
     final fileSelected = _pickedPath != null;
-    final settings = ref.watch(appSettingsProvider).value;
-    final googleDriveConnected = settings != null &&
-        ref.watch(
-          isIntegrationConfiguredProvider(kGoogleDriveSyncIntegrationId),
-        );
-    final googleDriveMeta = integrationUiMeta(kGoogleDriveSyncIntegrationId);
-    final lastGoogleDriveSync = settings?.googleDriveLastSyncedAt;
+    final driveSyncing = ref.watch(googleDriveSyncControllerProvider).status ==
+        GoogleDriveSyncStatus.syncing;
+    final panelBusy = _busy || driveSyncing;
 
     return ListView(
       controller: scrollController,
@@ -373,75 +321,7 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
           ),
         ),
         const SizedBox(height: 16),
-        Card(
-          margin: EdgeInsets.zero,
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      googleDriveMeta.icon,
-                      color: theme.colorScheme.primary,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        googleDriveMeta.title(l10n),
-                        style: theme.textTheme.titleSmall,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.dataSyncGoogleDriveHint,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                if (googleDriveConnected) ...[
-                  if (settings.googleDriveAccountEmail.isNotEmpty)
-                    Text(
-                      settings.googleDriveAccountEmail,
-                      style: theme.textTheme.bodySmall,
-                    ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      FilledButton(
-                        onPressed: _busy ? null : _syncGoogleDrive,
-                        child: Text(l10n.googleDriveSyncNow),
-                      ),
-                      if (lastGoogleDriveSync != null && !_busy)
-                        ActionSuccessStatusIcon(
-                          completedAt: lastGoogleDriveSync,
-                          tooltip: l10n.googleDriveSyncStatusHint,
-                        ),
-                      TextButton(
-                        onPressed: _busy ? null : _openGoogleDriveIntegration,
-                        child: Text(l10n.dataSyncGoogleDriveManage),
-                      ),
-                    ],
-                  ),
-                ] else
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: TextButton(
-                      onPressed: _busy ? null : _openGoogleDriveIntegration,
-                      child: Text(l10n.dataSyncGoogleDriveSetup),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
+        GoogleDriveSyncQuickCard(actionsEnabled: !_busy),
         const SizedBox(height: 16),
         SegmentedButton<DataSyncTab>(
           segments: [
@@ -455,7 +335,7 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
             ),
           ],
           selected: {_tab},
-          onSelectionChanged: _busy
+          onSelectionChanged: panelBusy
               ? null
               : (s) => setState(() => _tab = s.first),
         ),
@@ -478,7 +358,7 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
           PassphraseTextField(
             controller: _exportPassphrase,
             labelText: l10n.dataSyncPassphrase,
-            enabled: !_busy,
+            enabled: !panelBusy,
             showGenerate: true,
             showCopy: true,
             initiallyObscured: false,
@@ -489,7 +369,7 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
             children: [
               Expanded(
                 child: FilledButton(
-                  onPressed: _busy ? null : _exportSave,
+                  onPressed: panelBusy ? null : _exportSave,
                   child: Text(l10n.saveFile),
                 ),
               ),
@@ -497,7 +377,7 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
               IconButton.filledTonal(
                 tooltip: l10n.share,
                 onPressed:
-                    (_busy || _exportedPath == null) ? null : _exportShare,
+                    (panelBusy || _exportedPath == null) ? null : _exportShare,
                 icon: const Icon(Icons.share_outlined),
               ),
             ],
@@ -506,7 +386,7 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
           PassphraseTextField(
             controller: _importPassphrase,
             labelText: l10n.dataSyncPassphrase,
-            enabled: !_busy,
+            enabled: !panelBusy,
             showCopy: false,
           ),
           const SizedBox(height: 8),
@@ -516,7 +396,7 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
             subtitle: Text(l10n.dataSyncApplyAppearanceHint),
             value: _applySettings,
             onChanged:
-                _busy ? null : (v) => setState(() => _applySettings = v),
+                panelBusy ? null : (v) => setState(() => _applySettings = v),
           ),
           const SizedBox(height: 16),
           Text(
@@ -532,7 +412,7 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
                 tooltip: fileSelected
                     ? '${l10n.dataSyncFileSelected}: ${p.basename(_pickedPath!)}'
                     : l10n.dataSyncChooseFile,
-                onPressed: _busy ? null : _pickFile,
+                onPressed: panelBusy ? null : _pickFile,
                 style: fileSelected
                     ? IconButton.styleFrom(
                         foregroundColor: theme.colorScheme.primary,
@@ -547,7 +427,7 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
               const SizedBox(width: 8),
               Expanded(
                 child: FilledButton(
-                  onPressed: (_busy || !fileSelected) ? null : _import,
+                  onPressed: (panelBusy || !fileSelected) ? null : _import,
                   child: Text(l10n.dataSyncImportFromFile),
                 ),
               ),

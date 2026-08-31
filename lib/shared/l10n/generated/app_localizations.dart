@@ -1875,6 +1875,18 @@ abstract class AppLocalizations {
   /// **'About the chart'**
   String get chartHelpTitle;
 
+  /// No description provided for @chartTypeDonut.
+  ///
+  /// In en, this message translates to:
+  /// **'Donut chart'**
+  String get chartTypeDonut;
+
+  /// No description provided for @chartTypeColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Column chart'**
+  String get chartTypeColumn;
+
   /// No description provided for @chartHelpBody.
   ///
   /// In en, this message translates to:

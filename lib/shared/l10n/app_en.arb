@@ -496,6 +496,8 @@
     }
   },
   "chartHelpTitle": "About the chart",
+  "chartTypeDonut": "Donut chart",
+  "chartTypeColumn": "Column chart",
   "chartHelpBody": "The chart includes expenses in all currencies. When an exchange rate is missing, amounts are shown in their original currency. Totals may mix currencies until rates are set.",
   "expensesSummaryHelpTitle": "About expenses summary",
   "expensesSummaryHelpBody": "Totals are grouped by stored currency. Use the convert button to display list amounts in one currency; the converted total shows how many expenses could be converted.",

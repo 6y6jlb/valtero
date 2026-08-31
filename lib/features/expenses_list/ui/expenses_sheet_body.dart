@@ -71,6 +71,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
   late ExpenseListQuery _applied;
   ExpenseListViewMode _view = ExpenseListViewMode.list;
   ExpenseChartBreakdown _chartBreakdown = ExpenseChartBreakdown.currency;
+  ExpenseChartType _chartType = ExpenseChartType.donut;
   int _visibleCount = _kListInitial;
   bool _loadMoreScheduled = false;
   String? _displayCurrency;
@@ -99,9 +100,11 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
     final view = expensesViewModeFromSettings(settings);
     final group = expensesGroupFromSettings(settings);
     final chart = expensesChartBreakdownFromSettings(settings);
+    final chartType = expensesChartTypeFromSettings(settings);
     setState(() {
       _view = view;
       _chartBreakdown = chart;
+      _chartType = chartType;
       if (view == ExpenseListViewMode.grouping) {
         _applied = _applied.copyWith(group: group);
       } else if (view == ExpenseListViewMode.list) {
@@ -125,6 +128,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
     ExpenseListViewMode? view,
     ExpenseListGroup? group,
     ExpenseChartBreakdown? chartBreakdown,
+    ExpenseChartType? chartType,
   }) {
     final nextView = view ?? _view;
     final nextGroup = group ??
@@ -132,12 +136,14 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
             ? ExpenseListGroup.currency
             : _applied.group);
     final nextChart = chartBreakdown ?? _chartBreakdown;
+    final nextChartType = chartType ?? _chartType;
     ref.read(appSettingsProvider.notifier).setExpensesListDisplay(
           view: nextView.name,
           group: nextGroup == ExpenseListGroup.none
               ? ExpenseListGroup.currency.name
               : nextGroup.name,
           chartBreakdown: nextChart.name,
+          chartType: nextChartType.name,
         );
   }
 
@@ -720,9 +726,14 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                                     ),
                                     primaryCurrency: summaryCurrency,
                                     chartBreakdown: _chartBreakdown,
+                                    chartType: _chartType,
                                     onChartBreakdownChanged: (b) {
                                       setState(() => _chartBreakdown = b);
                                       _persistDisplayPrefs(chartBreakdown: b);
+                                    },
+                                    onChartTypeChanged: (t) {
+                                      setState(() => _chartType = t);
+                                      _persistDisplayPrefs(chartType: t);
                                     },
                                     onSegmentTap: _applyChartSegmentFilter,
                                   ),

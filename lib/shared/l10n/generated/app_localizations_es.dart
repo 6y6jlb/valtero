@@ -1012,6 +1012,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get chartHelpTitle => 'Acerca del gráfico';
 
   @override
+  String get chartTypeDonut => 'Gráfico de dona';
+
+  @override
+  String get chartTypeColumn => 'Gráfico de columnas';
+
+  @override
   String get chartHelpBody =>
       'El gráfico incluye gastos en todas las monedas. Si falta un tipo de cambio, los importes se muestran en su moneda original. Los totales pueden mezclar monedas hasta que se definan los tipos de cambio.';
 

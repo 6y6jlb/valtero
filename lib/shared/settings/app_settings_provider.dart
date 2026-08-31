@@ -192,6 +192,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     String? view,
     String? group,
     String? chartBreakdown,
+    String? chartType,
   }) async {
     final current = state.value;
     if (current == null) return;
@@ -199,6 +200,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       expensesListView: view,
       expensesListGroup: group,
       expensesChartBreakdown: chartBreakdown,
+      expensesChartType: chartType,
     ));
   }
 

@@ -3,17 +3,19 @@ import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/model/expense_chart_aggregator.dart';
 import 'package:valtero/features/expenses_list/model/expense_chart_drill_down.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
+import 'package:valtero/features/expenses_list/ui/breakdown_chart_view.dart';
 import 'package:valtero/features/expenses_list/ui/chart_breakdown_icons.dart';
-import 'package:valtero/features/expenses_list/ui/donut_breakdown_chart.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/feature_help_sheet.dart';
 
-/// Expenses-list chart view: loads slices then renders [DonutBreakdownChart].
+/// Expenses-list chart view: loads slices then renders [BreakdownChartView].
 class ExpenseChart extends StatelessWidget {
   final Future<ExpenseChartAggregation> future;
   final String primaryCurrency;
   final ExpenseChartBreakdown chartBreakdown;
+  final ExpenseChartType chartType;
   final ValueChanged<ExpenseChartBreakdown> onChartBreakdownChanged;
+  final ValueChanged<ExpenseChartType> onChartTypeChanged;
   final ValueChanged<DonutChartSlice>? onSegmentTap;
 
   const ExpenseChart({
@@ -21,7 +23,9 @@ class ExpenseChart extends StatelessWidget {
     required this.future,
     required this.primaryCurrency,
     required this.chartBreakdown,
+    required this.chartType,
     required this.onChartBreakdownChanged,
+    required this.onChartTypeChanged,
     this.onSegmentTap,
   });
 
@@ -68,13 +72,15 @@ class ExpenseChart extends StatelessWidget {
                     ],
                   ),
                 ),
-              DonutBreakdownChart(
+              BreakdownChartView(
                 key: ValueKey(
                   '${chartBreakdown.name}_'
                   '${slices.map((s) => s.key).join('|')}',
                 ),
                 slices: slices,
                 displayCurrency: primaryCurrency,
+                chartType: chartType,
+                onChartTypeChanged: onChartTypeChanged,
                 hideCenterTotal: missingRates > 0 ||
                     chartBreakdown == ExpenseChartBreakdown.currency,
                 hideSegmentAmounts: hideSegmentAmounts,

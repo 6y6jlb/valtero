@@ -20,6 +20,8 @@ class PlatformGuideSection extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       child: ExpansionTile(
         initiallyExpanded: false,
+        shape: const Border(),
+        collapsedShape: const Border(),
         leading: icon == null
             ? null
             : Icon(icon, color: theme.colorScheme.primary),

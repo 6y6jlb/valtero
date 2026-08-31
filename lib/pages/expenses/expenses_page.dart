@@ -4,6 +4,7 @@ import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_selection.dart';
 import 'package:valtero/features/expenses_list/ui/expense_bulk_fab_actions.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_sheet.dart';
+import 'package:valtero/features/google_drive_sync/ui/google_drive_sync_app_bar_button.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/app_timezone.dart';
@@ -35,6 +36,9 @@ class ExpensesPage extends ConsumerWidget {
     return AppPageScaffold(
       appBar: AppBar(
         title: Text(l10n.navExpenses),
+        actions: const [
+          GoogleDriveSyncAppBarButton(),
+        ],
       ),
       addExpenseHeroTag: 'expenses_add_expense',
       extraFabs: [

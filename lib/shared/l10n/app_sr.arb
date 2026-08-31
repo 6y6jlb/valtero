@@ -496,6 +496,8 @@
     }
   },
   "chartHelpTitle": "O grafikonu",
+  "chartTypeDonut": "Kružni grafikon",
+  "chartTypeColumn": "Stubičasti grafikon",
   "chartHelpBody": "Grafikon uključuje troškove u svim valutama. Kada kurs nedostaje, iznosi se prikazuju u originalnoj valuti. Ukupni iznosi mogu mešati valute dok kursevi nisu postavljeni.",
   "expensesSummaryHelpTitle": "O rezimeu troškova",
   "expensesSummaryHelpBody": "Ukupni iznosi su grupisani po sačuvanoj valuti. Dugme za konverziju prikazuje iznose u listi u jednoj valuti; konvertovani ukupni iznos pokazuje koliko troškova je bilo moguće preračunati.",

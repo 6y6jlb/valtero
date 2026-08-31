@@ -14,6 +14,7 @@ class DonutBreakdownChart extends ConsumerStatefulWidget {
   final bool showTotal;
   final bool hideCenterTotal;
   final bool hideSegmentAmounts;
+  final bool showLegend;
   final double chartHeight;
   final double sectionRadius;
   final String? emptyMessage;
@@ -26,6 +27,7 @@ class DonutBreakdownChart extends ConsumerStatefulWidget {
     this.showTotal = true,
     this.hideCenterTotal = false,
     this.hideSegmentAmounts = false,
+    this.showLegend = true,
     this.chartHeight = 260,
     this.sectionRadius = 72,
     this.emptyMessage,
@@ -143,7 +145,7 @@ class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
                   ),
                 ),
         ),
-        if (all.isNotEmpty) ...[
+        if (widget.showLegend && all.isNotEmpty) ...[
           const SizedBox(height: 8),
           Wrap(
             spacing: 10,

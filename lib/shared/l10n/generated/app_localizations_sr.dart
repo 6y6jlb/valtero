@@ -1009,6 +1009,12 @@ class AppLocalizationsSr extends AppLocalizations {
   String get chartHelpTitle => 'O grafikonu';
 
   @override
+  String get chartTypeDonut => 'Kružni grafikon';
+
+  @override
+  String get chartTypeColumn => 'Stubičasti grafikon';
+
+  @override
   String get chartHelpBody =>
       'Grafikon uključuje troškove u svim valutama. Kada kurs nedostaje, iznosi se prikazuju u originalnoj valuti. Ukupni iznosi mogu mešati valute dok kursevi nisu postavljeni.';
 

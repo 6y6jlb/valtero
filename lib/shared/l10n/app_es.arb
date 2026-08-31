@@ -496,6 +496,8 @@
     }
   },
   "chartHelpTitle": "Acerca del gráfico",
+  "chartTypeDonut": "Gráfico de dona",
+  "chartTypeColumn": "Gráfico de columnas",
   "chartHelpBody": "El gráfico incluye gastos en todas las monedas. Si falta un tipo de cambio, los importes se muestran en su moneda original. Los totales pueden mezclar monedas hasta que se definan los tipos de cambio.",
   "expensesSummaryHelpTitle": "Acerca del resumen de gastos",
   "expensesSummaryHelpBody": "Los totales se agrupan por moneda almacenada. Usa el botón de conversión para mostrar los importes de la lista en una moneda; el total convertido indica cuántos gastos se pudieron convertir.",

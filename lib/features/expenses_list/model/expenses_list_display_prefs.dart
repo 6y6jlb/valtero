@@ -25,3 +25,7 @@ ExpenseListGroup expensesGroupFromSettings(AppSettings settings) {
 ExpenseChartBreakdown expensesChartBreakdownFromSettings(AppSettings settings) {
   return expenseChartBreakdownFromName(settings.expensesChartBreakdown);
 }
+
+ExpenseChartType expensesChartTypeFromSettings(AppSettings settings) {
+  return expenseChartTypeFromName(settings.expensesChartType);
+}

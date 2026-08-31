@@ -8,6 +8,29 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.4.8] - 2026-08-31
+
+### Added
+
+- Dashboard and expenses chart: **column** view alongside donut; type toggle
+  overlays the chart (top-right) without growing the block; choice persisted.
+- AppBar Google Drive sync icon on Dashboard and Expenses (primary when
+  connected, muted when not); opens a quick sync sheet with the same Sync now /
+  setup actions as Backup & sync.
+
+### Changed
+
+- Dashboard page split into thin orchestrator + `DashboardBody` + sample-slice
+  helper (FSD-friendly, ≤500-line UI files).
+- ExpansionTile sections (add expense meta, platform guide) no longer show
+  expanded divider borders.
+- Tags and export removed from Dashboard AppBar (remain under Settings).
+
+### Fixed
+
+- Backup & sync: Google Drive actions respect panel busy state; local
+  export/import disabled while Drive sync is running (and the reverse).
+
 ## [1.4.7] - 2026-08-31
 
 ### Added

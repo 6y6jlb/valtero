@@ -1002,6 +1002,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartHelpTitle => 'About the chart';
 
   @override
+  String get chartTypeDonut => 'Donut chart';
+
+  @override
+  String get chartTypeColumn => 'Column chart';
+
+  @override
   String get chartHelpBody =>
       'The chart includes expenses in all currencies. When an exchange rate is missing, amounts are shown in their original currency. Totals may mix currencies until rates are set.';
 

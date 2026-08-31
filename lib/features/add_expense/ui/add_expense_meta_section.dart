@@ -56,6 +56,8 @@ class AddExpenseMetaSection extends StatelessWidget {
           margin: EdgeInsets.zero,
           child: ExpansionTile(
             initiallyExpanded: false,
+            shape: const Border(),
+            collapsedShape: const Border(),
             title: Text(l10n.paymentMethod),
             subtitle: Text(paymentSubtitle, style: subtitleStyle),
             childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -84,6 +86,8 @@ class AddExpenseMetaSection extends StatelessWidget {
           margin: EdgeInsets.zero,
           child: ExpansionTile(
             initiallyExpanded: true,
+            shape: const Border(),
+            collapsedShape: const Border(),
             title: Text(l10n.country),
             subtitle: Text(countrySubtitle, style: subtitleStyle),
             childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -121,6 +125,8 @@ class AddExpenseMetaSection extends StatelessWidget {
           margin: EdgeInsets.zero,
           child: ExpansionTile(
             initiallyExpanded: false,
+            shape: const Border(),
+            collapsedShape: const Border(),
             title: Text(l10n.tag),
             subtitle: Text(tagsSubtitle, style: subtitleStyle),
             childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),

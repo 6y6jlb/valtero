@@ -1009,6 +1009,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get chartHelpTitle => 'О графике';
 
   @override
+  String get chartTypeDonut => 'Круговая диаграмма';
+
+  @override
+  String get chartTypeColumn => 'Столбчатая диаграмма';
+
+  @override
   String get chartHelpBody =>
       'На графике учитываются траты во всех валютах. Если курс не указан, суммы показываются в исходной валюте. Итоги могут смешивать валюты, пока курсы не заданы.';
 

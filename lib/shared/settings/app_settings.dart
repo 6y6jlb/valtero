@@ -29,6 +29,8 @@ class AppSettings {
   final String expensesListGroup;
   /// Persisted chart breakdown on expenses list / dashboard donut.
   final String expensesChartBreakdown;
+  /// Persisted chart shape: `donut` | `column`.
+  final String expensesChartType;
   /// When true, verbose debug breadcrumbs are written to the app log file.
   /// Error/warning logs are always written regardless of this flag.
   final bool debugLoggingEnabled;
@@ -69,6 +71,7 @@ class AppSettings {
     this.expensesListView = 'list',
     this.expensesListGroup = 'currency',
     this.expensesChartBreakdown = 'currency',
+    this.expensesChartType = 'donut',
     this.debugLoggingEnabled = false,
     this.googleDriveSyncEnabled = false,
     this.googleDriveAccountEmail = '',
@@ -116,6 +119,7 @@ class AppSettings {
     String? expensesListView,
     String? expensesListGroup,
     String? expensesChartBreakdown,
+    String? expensesChartType,
     bool? debugLoggingEnabled,
     bool? googleDriveSyncEnabled,
     String? googleDriveAccountEmail,
@@ -159,6 +163,7 @@ class AppSettings {
       expensesListGroup: expensesListGroup ?? this.expensesListGroup,
       expensesChartBreakdown:
           expensesChartBreakdown ?? this.expensesChartBreakdown,
+      expensesChartType: expensesChartType ?? this.expensesChartType,
       debugLoggingEnabled: debugLoggingEnabled ?? this.debugLoggingEnabled,
       googleDriveSyncEnabled:
           googleDriveSyncEnabled ?? this.googleDriveSyncEnabled,
@@ -205,6 +210,7 @@ class AppSettings {
         'expensesListView': expensesListView,
         'expensesListGroup': expensesListGroup,
         'expensesChartBreakdown': expensesChartBreakdown,
+        'expensesChartType': expensesChartType,
         'debugLoggingEnabled': debugLoggingEnabled,
         'googleDriveSyncEnabled': googleDriveSyncEnabled,
         'googleDriveAccountEmail': googleDriveAccountEmail,
@@ -256,6 +262,7 @@ class AppSettings {
       expensesListGroup: json['expensesListGroup'] as String? ?? 'currency',
       expensesChartBreakdown:
           json['expensesChartBreakdown'] as String? ?? 'currency',
+      expensesChartType: json['expensesChartType'] as String? ?? 'donut',
       debugLoggingEnabled: json['debugLoggingEnabled'] as bool? ?? false,
       googleDriveSyncEnabled: json['googleDriveSyncEnabled'] as bool? ?? false,
       googleDriveAccountEmail: json['googleDriveAccountEmail'] as String? ?? '',
