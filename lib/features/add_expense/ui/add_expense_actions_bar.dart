@@ -19,12 +19,11 @@ class AddExpenseActionsBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
 
     return SafeArea(
       top: false,
       child: Padding(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, 8 + bottomInset),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         child: Row(
           children: [
             if (isEdit && expenseId != null) ...[

@@ -421,5 +421,31 @@ void main() {
       expect(envelope.data.expenses, hasLength(1));
       expect(envelope.data.expenses.first.clientId, 'e1');
     });
+
+    test('includes Google Drive shared-sync metadata without secrets', () async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+
+      final settings = AppSettings.initial().copyWith(
+        googleDriveSharedWithEmails: const ['collab@example.com'],
+        googleDriveSharedFileId: 'shared-file-123',
+        googleDriveRefreshToken: 'gdrive-refresh',
+      );
+      final envelope = await BackupSnapshotBuilder().build(
+        db: db,
+        settings: settings,
+      );
+
+      expect(
+        envelope.data.settings.googleDriveSharedWithEmails,
+        ['collab@example.com'],
+      );
+      expect(envelope.data.settings.googleDriveSharedFileId, 'shared-file-123');
+
+      final encoded = jsonEncode(envelope.toJson());
+      expect(encoded.contains('collab@example.com'), isTrue);
+      expect(encoded.contains('shared-file-123'), isTrue);
+      expect(encoded.contains('gdrive-refresh'), isFalse);
+    });
   });
 }

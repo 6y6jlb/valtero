@@ -6,6 +6,7 @@ import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/database/database_provider.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/set_manual_rate_sheet.dart';
 
@@ -30,7 +31,7 @@ class RatesSheetBody extends ConsumerStatefulWidget {
 class _RatesSheetBodyState extends ConsumerState<RatesSheetBody> {
   bool _refreshing = false;
   String? _refreshingPair;
-  String? _status;
+  String? _bulkFetchStatus;
 
   String _sourceLabel(AppLocalizations l10n, String source) {
     return switch (source) {
@@ -53,7 +54,7 @@ class _RatesSheetBodyState extends ConsumerState<RatesSheetBody> {
   Future<void> _refreshAll() async {
     setState(() {
       _refreshing = true;
-      _status = null;
+      _bulkFetchStatus = null;
     });
     final resolver = ref.read(rateResolverProvider);
     final l10n = AppLocalizations.of(context)!;
@@ -62,7 +63,7 @@ class _RatesSheetBodyState extends ConsumerState<RatesSheetBody> {
       final minutes = cooldown.inMinutes.clamp(1, 60);
       setState(() {
         _refreshing = false;
-        _status = l10n.ratesFetchCooldown(minutes);
+        _bulkFetchStatus = l10n.ratesFetchCooldown(minutes);
       });
       return;
     }
@@ -75,47 +76,44 @@ class _RatesSheetBodyState extends ConsumerState<RatesSheetBody> {
       if (!mounted) return;
       setState(() {
         _refreshing = false;
-        _status = l10n.fetchAllRatesDone(count, serviceLabel);
+        _bulkFetchStatus = null;
       });
+      showAppToast(context, l10n.fetchAllRatesDone(count, serviceLabel));
     } on RatesCooldownException catch (e) {
       if (!mounted) return;
       final minutes = e.remaining.inMinutes.clamp(1, 60);
       setState(() {
         _refreshing = false;
-        _status = l10n.ratesFetchCooldown(minutes);
+        _bulkFetchStatus = l10n.ratesFetchCooldown(minutes);
       });
     } catch (_) {
       if (!mounted) return;
       setState(() {
         _refreshing = false;
-        _status = l10n.connectionFailed;
+        _bulkFetchStatus = l10n.connectionFailed;
       });
     }
   }
 
   Future<void> _refreshPair(String base, String target) async {
     final key = '$base-$target';
-    setState(() {
-      _refreshingPair = key;
-      _status = null;
-    });
+    setState(() => _refreshingPair = key);
     final l10n = AppLocalizations.of(context)!;
     try {
       final rate = await ref
           .read(rateResolverProvider)
           .forceRefreshRate(base, target);
       if (!mounted) return;
-      setState(() {
-        _refreshingPair = null;
-        _status = rate == null ? l10n.connectionFailed : l10n.ratesRefreshed;
-      });
+      setState(() => _refreshingPair = null);
+      showAppToast(
+        context,
+        rate == null ? l10n.connectionFailed : l10n.ratesRefreshed,
+      );
     } on RatesCooldownException catch (e) {
       if (!mounted) return;
       final minutes = e.remaining.inMinutes.clamp(1, 60);
-      setState(() {
-        _refreshingPair = null;
-        _status = l10n.ratesFetchCooldown(minutes);
-      });
+      setState(() => _refreshingPair = null);
+      showAppToast(context, l10n.ratesFetchCooldown(minutes));
     }
   }
 
@@ -185,9 +183,14 @@ class _RatesSheetBodyState extends ConsumerState<RatesSheetBody> {
                         ),
                       ],
                     ),
-                    if (_status != null) ...[
+                    if (_bulkFetchStatus != null) ...[
                       const SizedBox(height: 8),
-                      Text(_status!),
+                      Text(
+                        _bulkFetchStatus!,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                      ),
                     ],
                   ],
                 ),

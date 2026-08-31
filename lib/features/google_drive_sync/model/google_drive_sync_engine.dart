@@ -250,6 +250,10 @@ class GoogleDriveSyncEngine {
                     .read(appSettingsProvider.notifier)
                     .updateSettings(updated),
               );
+          await _mergeGoogleDriveMetadataFromEnvelope(
+            envelope: envelope,
+            settings: ref.read(appSettingsProvider).value ?? settings,
+          );
           ref.invalidate(appSettingsProvider);
         }
 
@@ -532,6 +536,49 @@ class GoogleDriveSyncEngine {
     AppSettings settings,
   ) async {
     return drive.findAppDataSyncFile(accessToken);
+  }
+
+  /// Merges non-secret Google Drive sync metadata from a pulled snapshot.
+  Future<void> _mergeGoogleDriveMetadataFromEnvelope({
+    required BackupEnvelope envelope,
+    required AppSettings settings,
+  }) async {
+    if (settings.googleDriveSyncRole == kGoogleDriveSyncRoleJoined) {
+      return;
+    }
+
+    final remote = envelope.data.settings;
+    final remoteEmails = remote.googleDriveSharedWithEmails
+        .map((e) => e.trim().toLowerCase())
+        .where((e) => e.isNotEmpty && e.contains('@'));
+    final remoteSharedId = remote.googleDriveSharedFileId.trim();
+
+    final mergedEmails = {
+      ...settings.googleDriveSharedWithEmails.map((e) => e.toLowerCase()),
+      ...remoteEmails,
+    }.toList()
+      ..sort();
+
+    final localSharedId = settings.googleDriveSharedFileId.trim();
+    final mergedSharedId =
+        localSharedId.isNotEmpty ? localSharedId : remoteSharedId;
+
+    final emailsChanged = mergedEmails.length !=
+            settings.googleDriveSharedWithEmails.length ||
+        !mergedEmails.every(
+          settings.googleDriveSharedWithEmails
+              .map((e) => e.toLowerCase())
+              .contains,
+        );
+    final sharedIdChanged =
+        mergedSharedId.isNotEmpty && mergedSharedId != localSharedId;
+
+    if (!emailsChanged && !sharedIdChanged) return;
+
+    await ref.read(appSettingsProvider.notifier).setGoogleDriveSync(
+          sharedWithEmails: mergedEmails,
+          sharedFileId: sharedIdChanged ? mergedSharedId : null,
+        );
   }
 
   Future<String> _buildEncryptedSnapshot(

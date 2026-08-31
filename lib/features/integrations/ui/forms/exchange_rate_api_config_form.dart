@@ -22,7 +22,6 @@ class _ExchangeRateApiConfigFormState
   final _apiKeyController = TextEditingController();
   bool _busy = false;
   String? _status;
-  bool _statusOk = false;
   String? _savedKey;
 
   @override
@@ -37,7 +36,6 @@ class _ExchangeRateApiConfigFormState
       _apiKeyController.addListener(_onKeyChanged);
       setState(() {
         _savedKey = key.trim();
-        _statusOk = true;
       });
     });
   }
@@ -54,13 +52,21 @@ class _ExchangeRateApiConfigFormState
     setState(() {
       if (_savedKey != null && _savedKey != key) {
         _savedKey = null;
-        _statusOk = false;
         _status = null;
       }
     });
   }
 
   bool get _keyFilled => _apiKeyController.text.trim().isNotEmpty;
+
+  bool get _credentialsVerified =>
+      _savedKey != null && _savedKey == _apiKeyController.text.trim();
+
+  Future<void> _setUseApiProvider(bool enabled) async {
+    await ref.read(appSettingsProvider.notifier).setActiveRateProviderId(
+          enabled ? 'exchangerate_api' : 'frankfurter',
+        );
+  }
 
   /// Tests the API key and, on success, persists it and refreshes rates.
   Future<void> _testAndSave() async {
@@ -77,7 +83,6 @@ class _ExchangeRateApiConfigFormState
     if (!result.success) {
       setState(() {
         _busy = false;
-        _statusOk = false;
         _savedKey = null;
         _status = connectionMessage(l10n, result.messageKey);
       });
@@ -89,11 +94,10 @@ class _ExchangeRateApiConfigFormState
     if (!mounted) return;
     setState(() {
       _busy = false;
-      _statusOk = true;
       _savedKey = key;
-      _status = l10n.keyValid;
+      _status = null;
     });
-    showAppToast(context, l10n.integrationSave);
+    showAppToast(context, l10n.keyValid);
   }
 
   Future<void> _disconnect() async {
@@ -107,7 +111,6 @@ class _ExchangeRateApiConfigFormState
     setState(() {
       _apiKeyController.clear();
       _status = null;
-      _statusOk = false;
       _savedKey = null;
     });
     showAppToast(context, l10n.integrationDisconnect);
@@ -120,12 +123,22 @@ class _ExchangeRateApiConfigFormState
     final connected = ref.watch(
       isIntegrationConfiguredProvider(kExchangeRateApiIntegrationId),
     );
+    final settings = ref.watch(appSettingsProvider).value;
+    final useApi = _credentialsVerified &&
+        settings?.activeRateProviderId == 'exchangerate_api';
+    final canToggleEnabled = !_busy && _credentialsVerified;
     final canTest = !_busy && _keyFilled;
     final canDisconnect = !_busy && connected;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(l10n.exchangeRateApiEnabled),
+          value: useApi,
+          onChanged: canToggleEnabled ? _setUseApiProvider : null,
+        ),
         SecretTextField(
           controller: _apiKeyController,
           labelText: l10n.apiKey,
@@ -154,13 +167,11 @@ class _ExchangeRateApiConfigFormState
           ],
         ),
         if (_status != null) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Text(
             _status!,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: _statusOk
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.error,
+              color: theme.colorScheme.error,
             ),
           ),
         ],

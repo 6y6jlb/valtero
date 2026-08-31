@@ -75,6 +75,10 @@ class BackupSettingsData {
   final String dateDisplayFormat;
   final String timeZoneId;
   final List<String> dismissedTagSuggestions;
+  /// Collaborator emails for Google Drive shared sync (non-secret metadata).
+  final List<String> googleDriveSharedWithEmails;
+  /// Drive file id for cross-account shared sync (non-secret metadata).
+  final String googleDriveSharedFileId;
 
   const BackupSettingsData({
     required this.reportingCurrencies,
@@ -86,6 +90,8 @@ class BackupSettingsData {
     required this.dateDisplayFormat,
     required this.timeZoneId,
     required this.dismissedTagSuggestions,
+    this.googleDriveSharedWithEmails = const [],
+    this.googleDriveSharedFileId = '',
   });
 
   Map<String, dynamic> toJson() => {
@@ -98,6 +104,10 @@ class BackupSettingsData {
         'dateDisplayFormat': dateDisplayFormat,
         'timeZoneId': timeZoneId,
         'dismissedTagSuggestions': dismissedTagSuggestions,
+        if (googleDriveSharedWithEmails.isNotEmpty)
+          'googleDriveSharedWithEmails': googleDriveSharedWithEmails,
+        if (googleDriveSharedFileId.isNotEmpty)
+          'googleDriveSharedFileId': googleDriveSharedFileId,
       };
 
   factory BackupSettingsData.fromJson(Map<String, dynamic> json) {
@@ -111,6 +121,10 @@ class BackupSettingsData {
       dateDisplayFormat: json['dateDisplayFormat'] as String? ?? 'isoYmd',
       timeZoneId: json['timeZoneId'] as String? ?? 'system',
       dismissedTagSuggestions: _stringList(json['dismissedTagSuggestions']),
+      googleDriveSharedWithEmails:
+          _stringList(json['googleDriveSharedWithEmails']),
+      googleDriveSharedFileId:
+          json['googleDriveSharedFileId'] as String? ?? '',
     );
   }
 }

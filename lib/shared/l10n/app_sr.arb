@@ -35,6 +35,7 @@
   "integrationFrankfurterHint": "Ugrađeni rezervni izvor. Provera api.frankfurter.dev — ako padne, kursevi se neće osvežiti dok mreža/DNS ne proradi. Samo valute iz ECB skupa.",
   "integrationExchangeRateApiTitle": "ExchangeRate-API",
   "integrationExchangeRateApiDescription": "Kursevi preko ključa sa exchangerate-api.com (API v6). Ključevi sa exchangeratesapi.io ne rade. Bez ključa koristi se Frankfurter (ECB).",
+  "exchangeRateApiEnabled": "Koristi ExchangeRate-API za kurseve",
   "integrationGoogleDriveSyncTitle": "Google Drive sinhronizacija",
   "integrationGoogleDriveSyncDescription": "Šifrovana automatska sinhronizacija između uređaja preko Google Drive-a. Google ne vidi troškove — samo šifrovani sadržaj.",
   "googleDriveSignIn": "Prijava preko Google-a",
@@ -59,6 +60,33 @@
       }
     }
   },
+  "relativeTimeJustNow": "Upravo sada",
+  "relativeTimeMinutesAgo": "pre {count} min",
+  "@relativeTimeMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "relativeTimeHoursAgo": "pre {count} h",
+  "@relativeTimeHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "relativeTimeDaysAgo": "pre {count} d",
+  "@relativeTimeDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "googleDriveSyncStatusHint": "Vreme poslednje sinhronizacije",
+  "actionSuccessStatusHint": "Vreme poslednje akcije",
   "googleDriveSharedTitle": "Zajednička sinhronizacija (drugi Google nalozi)",
   "googleDriveSharedDescription": "Podeli šifrovani fajl sa drugom osobom. Zahteva dozvolu drive.file; javno izdanje može zahtevati OAuth verifikaciju.",
   "googleDriveShareEmail": "Email saradnika",
@@ -208,6 +236,9 @@
   "dataSyncUnsupportedFormat": "Nepodržan ili nevažeći fajl rezervne kopije",
   "dataSyncNewerSchema": "Ova kopija zahteva noviju verziju aplikacije",
   "dataSyncIntegrationsNotTransferred": "API ključevi i Telegram podaci nisu uključeni u rezervne kopije.",
+  "dataSyncGoogleDriveHint": "Možete i automatsku šifrovanu sinhronizaciju preko Google Drive-a — rezervne kopije se ažuriraju između uređaja bez ručne razmene fajlova.",
+  "dataSyncGoogleDriveSetup": "Poveži Google Drive Sync",
+  "dataSyncGoogleDriveManage": "Otvori podešavanja Google Drive Sync",
   "dataSyncImportDoneWithDuplicates": "Uvezeno {expenses} troškova, {tags} oznaka, {payments} načina plaćanja (preskočeno duplikata: {skipped})",
   "@dataSyncImportDoneWithDuplicates": {
     "placeholders": {
@@ -258,6 +289,7 @@
   "addExpense": "Dodaj trošak",
   "editExpense": "Izmeni trošak",
   "amount": "Iznos",
+  "amountRequired": "Unesite ispravan iznos",
   "currency": "Valuta",
   "saveAsIs": "Sačuvaj kako jeste",
   "convertTo": "Konvertuj u",

@@ -120,6 +120,9 @@ class AppLocalizationsSr extends AppLocalizations {
       'Kursevi preko ključa sa exchangerate-api.com (API v6). Ključevi sa exchangeratesapi.io ne rade. Bez ključa koristi se Frankfurter (ECB).';
 
   @override
+  String get exchangeRateApiEnabled => 'Koristi ExchangeRate-API za kurseve';
+
+  @override
   String get integrationGoogleDriveSyncTitle => 'Google Drive sinhronizacija';
 
   @override
@@ -179,6 +182,30 @@ class AppLocalizationsSr extends AppLocalizations {
   String googleDriveLastSynced(String when) {
     return 'Poslednja sinhronizacija: $when';
   }
+
+  @override
+  String get relativeTimeJustNow => 'Upravo sada';
+
+  @override
+  String relativeTimeMinutesAgo(int count) {
+    return 'pre $count min';
+  }
+
+  @override
+  String relativeTimeHoursAgo(int count) {
+    return 'pre $count h';
+  }
+
+  @override
+  String relativeTimeDaysAgo(int count) {
+    return 'pre $count d';
+  }
+
+  @override
+  String get googleDriveSyncStatusHint => 'Vreme poslednje sinhronizacije';
+
+  @override
+  String get actionSuccessStatusHint => 'Vreme poslednje akcije';
 
   @override
   String get googleDriveSharedTitle =>
@@ -456,6 +483,17 @@ class AppLocalizationsSr extends AppLocalizations {
       'API ključevi i Telegram podaci nisu uključeni u rezervne kopije.';
 
   @override
+  String get dataSyncGoogleDriveHint =>
+      'Možete i automatsku šifrovanu sinhronizaciju preko Google Drive-a — rezervne kopije se ažuriraju između uređaja bez ručne razmene fajlova.';
+
+  @override
+  String get dataSyncGoogleDriveSetup => 'Poveži Google Drive Sync';
+
+  @override
+  String get dataSyncGoogleDriveManage =>
+      'Otvori podešavanja Google Drive Sync';
+
+  @override
   String dataSyncImportDoneWithDuplicates(
     int expenses,
     int tags,
@@ -546,6 +584,9 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get amount => 'Iznos';
+
+  @override
+  String get amountRequired => 'Unesite ispravan iznos';
 
   @override
   String get currency => 'Valuta';

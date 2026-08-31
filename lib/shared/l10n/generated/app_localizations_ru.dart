@@ -120,6 +120,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Курсы через ключ с exchangerate-api.com (API v6). Ключи с exchangeratesapi.io не подойдут. Без ключа используется Frankfurter (ECB).';
 
   @override
+  String get exchangeRateApiEnabled =>
+      'Использовать ExchangeRate-API для курсов';
+
+  @override
   String get integrationGoogleDriveSyncTitle => 'Синхронизация Google Drive';
 
   @override
@@ -179,6 +183,30 @@ class AppLocalizationsRu extends AppLocalizations {
   String googleDriveLastSynced(String when) {
     return 'Последняя синхронизация: $when';
   }
+
+  @override
+  String get relativeTimeJustNow => 'Только что';
+
+  @override
+  String relativeTimeMinutesAgo(int count) {
+    return '$count мин назад';
+  }
+
+  @override
+  String relativeTimeHoursAgo(int count) {
+    return '$count ч назад';
+  }
+
+  @override
+  String relativeTimeDaysAgo(int count) {
+    return '$count д назад';
+  }
+
+  @override
+  String get googleDriveSyncStatusHint => 'Время последней синхронизации';
+
+  @override
+  String get actionSuccessStatusHint => 'Время последнего действия';
 
   @override
   String get googleDriveSharedTitle =>
@@ -456,6 +484,16 @@ class AppLocalizationsRu extends AppLocalizations {
       'API-ключи и данные Telegram в резервную копию не входят.';
 
   @override
+  String get dataSyncGoogleDriveHint =>
+      'Также можно включить автоматическую зашифрованную синхронизацию через Google Drive — без ручного обмена файлами между устройствами.';
+
+  @override
+  String get dataSyncGoogleDriveSetup => 'Подключить Google Drive Sync';
+
+  @override
+  String get dataSyncGoogleDriveManage => 'Открыть настройки Google Drive Sync';
+
+  @override
   String dataSyncImportDoneWithDuplicates(
     int expenses,
     int tags,
@@ -546,6 +584,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get amount => 'Сумма';
+
+  @override
+  String get amountRequired => 'Введите корректную сумму';
 
   @override
   String get currency => 'Валюта';

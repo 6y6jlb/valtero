@@ -121,6 +121,9 @@ class AppLocalizationsEs extends AppLocalizations {
       'Tipos de cambio con una clave de exchangerate-api.com (API v6). Las claves de exchangeratesapi.io no sirven. Sin clave se usa Frankfurter (BCE).';
 
   @override
+  String get exchangeRateApiEnabled => 'Usar ExchangeRate-API para los tipos';
+
+  @override
   String get integrationGoogleDriveSyncTitle =>
       'Sincronización con Google Drive';
 
@@ -182,6 +185,30 @@ class AppLocalizationsEs extends AppLocalizations {
   String googleDriveLastSynced(String when) {
     return 'Última sincronización: $when';
   }
+
+  @override
+  String get relativeTimeJustNow => 'Justo ahora';
+
+  @override
+  String relativeTimeMinutesAgo(int count) {
+    return 'hace $count min';
+  }
+
+  @override
+  String relativeTimeHoursAgo(int count) {
+    return 'hace $count h';
+  }
+
+  @override
+  String relativeTimeDaysAgo(int count) {
+    return 'hace $count d';
+  }
+
+  @override
+  String get googleDriveSyncStatusHint => 'Hora de la última sincronización';
+
+  @override
+  String get actionSuccessStatusHint => 'Hora de la última acción';
 
   @override
   String get googleDriveSharedTitle =>
@@ -461,6 +488,16 @@ class AppLocalizationsEs extends AppLocalizations {
       'Las claves API y las credenciales de Telegram no se incluyen en las copias.';
 
   @override
+  String get dataSyncGoogleDriveHint =>
+      'También puedes activar la sincronización cifrada automática con Google Drive — las copias se actualizan entre dispositivos sin intercambiar archivos manualmente.';
+
+  @override
+  String get dataSyncGoogleDriveSetup => 'Conectar Google Drive Sync';
+
+  @override
+  String get dataSyncGoogleDriveManage => 'Abrir ajustes de Google Drive Sync';
+
+  @override
   String dataSyncImportDoneWithDuplicates(
     int expenses,
     int tags,
@@ -551,6 +588,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get amount => 'Importe';
+
+  @override
+  String get amountRequired => 'Introduce un importe válido';
 
   @override
   String get currency => 'Moneda';

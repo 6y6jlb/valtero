@@ -35,6 +35,7 @@
   "integrationFrankfurterHint": "Built-in fallback. Probe api.frankfurter.dev — if this fails, rates cannot refresh until network/DNS works. Coverage is the ECB currency set only.",
   "integrationExchangeRateApiTitle": "ExchangeRate-API",
   "integrationExchangeRateApiDescription": "Fetch FX rates with a key from exchangerate-api.com (v6 API). Keys from exchangeratesapi.io will not work. Without a key, Frankfurter (ECB) is used.",
+  "exchangeRateApiEnabled": "Use ExchangeRate-API for rates",
   "integrationGoogleDriveSyncTitle": "Google Drive Sync",
   "integrationGoogleDriveSyncDescription": "Encrypted automatic sync between your devices via Google Drive. Google never sees your expenses — only ciphertext.",
   "googleDriveSignIn": "Sign in with Google",
@@ -59,6 +60,33 @@
       }
     }
   },
+  "relativeTimeJustNow": "Just now",
+  "relativeTimeMinutesAgo": "{count} min ago",
+  "@relativeTimeMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "relativeTimeHoursAgo": "{count} h ago",
+  "@relativeTimeHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "relativeTimeDaysAgo": "{count} d ago",
+  "@relativeTimeDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "googleDriveSyncStatusHint": "Last sync time",
+  "actionSuccessStatusHint": "Last action time",
   "googleDriveSharedTitle": "Shared sync (other Google accounts)",
   "googleDriveSharedDescription": "Share the encrypted sync file with another person. Requires an extra Google permission (drive.file) and may need OAuth verification for public release.",
   "googleDriveShareEmail": "Collaborator email",
@@ -208,6 +236,9 @@
   "dataSyncUnsupportedFormat": "Unsupported or invalid backup file",
   "dataSyncNewerSchema": "This backup needs a newer app version",
   "dataSyncIntegrationsNotTransferred": "API keys and Telegram credentials are not included in backups.",
+  "dataSyncGoogleDriveHint": "You can also enable automatic encrypted sync via Google Drive — backups update across devices without manual file exchange.",
+  "dataSyncGoogleDriveSetup": "Connect Google Drive Sync",
+  "dataSyncGoogleDriveManage": "Open Google Drive Sync settings",
   "dataSyncImportDoneWithDuplicates": "Imported {expenses} expenses, {tags} tags, {payments} payment methods ({skipped} duplicates skipped)",
   "@dataSyncImportDoneWithDuplicates": {
     "placeholders": {
@@ -258,6 +289,7 @@
   "addExpense": "Add expense",
   "editExpense": "Edit expense",
   "amount": "Amount",
+  "amountRequired": "Enter a valid amount",
   "currency": "Currency",
   "saveAsIs": "Save as-is",
   "convertTo": "Convert to",

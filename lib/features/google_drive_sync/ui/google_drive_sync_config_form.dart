@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/integrations/google_drive_sync/model/google_drive_sync_integration.dart';
@@ -8,11 +6,13 @@ import 'package:valtero/entities/integrations/model/integration_registry.dart';
 import 'package:valtero/features/data_sync/model/passphrase_generator.dart';
 import 'package:valtero/widgets/passphrase_text_field.dart';
 import 'package:valtero/features/google_drive_sync/model/google_drive_sync_engine.dart';
+import 'package:valtero/features/google_drive_sync/model/google_drive_sync_messages.dart';
 import 'package:valtero/features/google_drive_sync/ui/google_drive_join_sheet.dart';
 import 'package:valtero/features/integrations/model/integration_ui_meta.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/widgets/app_toast.dart';
+import 'package:valtero/widgets/action_success_status_icon.dart';
 
 class GoogleDriveSyncConfigForm extends ConsumerStatefulWidget {
   const GoogleDriveSyncConfigForm({super.key});
@@ -28,7 +28,6 @@ class _GoogleDriveSyncConfigFormState
   final _shareEmailController = TextEditingController();
   bool _busy = false;
   String? _status;
-  bool _statusOk = false;
 
   @override
   void initState() {
@@ -62,70 +61,15 @@ class _GoogleDriveSyncConfigFormState
     return email.isNotEmpty && email.contains('@');
   }
 
-  String _syncMessage(AppLocalizations l10n, GoogleDriveSyncResult result) {
-    final key = result.messageKey;
-    final base = switch (key) {
-      'syncOk' => l10n.googleDriveSyncOk,
-      'connectionOk' => l10n.connectionOk,
-      'connectionFailed' => l10n.connectionFailed,
-      'connectionMissingFields' => l10n.connectionMissingFields,
-      'connectionMissingClientId' => l10n.googleDriveMissingClientId,
-      'connectionInvalidToken' => l10n.googleDriveReauthRequired,
-      'wrong_passphrase' => l10n.googleDriveWrongPassphrase,
-      'missing_client_id' => l10n.googleDriveMissingClientId,
-      'missing_client_secret' ||
-      'invalid_client' =>
-        l10n.googleDriveMissingClientSecret,
-      'invalid_grant' => l10n.googleDriveReauthRequired,
-      'missing_refresh_token' => l10n.googleDriveReauthRequired,
-      'not_configured' => l10n.connectionMissingFields,
-      'network_error' => l10n.connectionNetwork,
-      'auth_canceled' => l10n.googleDriveAuthCanceled,
-      'auth_access_denied' => l10n.googleDriveAccessDenied,
-      'sign_in_failed' ||
-      'auth_timeout' ||
-      'invalid_redirect_scheme' ||
-      'token_exchange_failed' =>
-        l10n.googleDriveSignInFailed,
-      'share_failed' => l10n.googleDriveShareFailed,
-      'invalid_email' => l10n.googleDriveInvalidEmail,
-      'remote_newer_schema' => l10n.googleDriveRemoteNewerSchema(
-          result.remoteSchemaVersion ?? 0,
-          result.localSchemaVersion ?? 0,
-          result.remoteAppVersion?.trim().isNotEmpty == true
-              ? result.remoteAppVersion!
-              : '—',
-        ),
-      'unsupported_format' => l10n.googleDriveUnsupportedFormat,
-      _ => key != null && key.startsWith('auth_')
-          ? l10n.googleDriveSignInFailed
-          : connectionMessage(l10n, key ?? 'connectionFailed'),
-    };
-    if (!result.success &&
-        Platform.isAndroid &&
-        _isLikelyAndroidOAuthConfigFailure(key)) {
-      return '$base\n\n${l10n.googleDriveAndroidCustomUriHint}';
-    }
-    return base;
-  }
-
-  bool _isLikelyAndroidOAuthConfigFailure(String? key) {
-    if (key == null) return false;
-    return key == 'sign_in_failed' ||
-        key == 'auth_canceled' ||
-        key == 'invalid_redirect_scheme' ||
-        key.startsWith('auth_');
-  }
-
   Future<void> _showResultFeedback(
     AppLocalizations l10n,
     GoogleDriveSyncResult result,
   ) async {
-    final message = _syncMessage(l10n, result);
-    setState(() {
-      _statusOk = result.success;
-      _status = message;
-    });
+    final message = googleDriveSyncResultMessage(
+      l10n,
+      result,
+      includeAndroidOAuthHint: true,
+    );
     if (!result.success && result.messageKey == 'remote_newer_schema') {
       if (!mounted) return;
       await showDialog<void>(
@@ -144,8 +88,15 @@ class _GoogleDriveSyncConfigFormState
       return;
     }
     if (result.success) {
-      showAppToast(context, l10n.googleDriveSyncOk);
+      if (result.messageKey == 'syncOk') {
+        setState(() => _status = null);
+        return;
+      }
+      setState(() => _status = null);
+      showAppToast(context, message);
+      return;
     }
+    setState(() => _status = message);
   }
 
   /// Returns false if the user cancelled a passphrase-change confirmation.
@@ -180,18 +131,12 @@ class _GoogleDriveSyncConfigFormState
   Future<void> _signIn() async {
     final l10n = AppLocalizations.of(context)!;
     if (!isGoogleOAuthClientConfigured) {
-      setState(() {
-        _statusOk = false;
-        _status = l10n.googleDriveMissingClientId;
-      });
+      setState(() => _status = l10n.googleDriveMissingClientId);
       return;
     }
     final passphrase = _passphraseController.text.trim();
     if (passphrase.length < 8) {
-      setState(() {
-        _statusOk = false;
-        _status = l10n.googleDrivePassphraseTooShort;
-      });
+      setState(() => _status = l10n.googleDrivePassphraseTooShort);
       return;
     }
     setState(() {
@@ -247,8 +192,15 @@ class _GoogleDriveSyncConfigFormState
     if (!mounted) return;
     setState(() {
       _busy = false;
-      _statusOk = result.success;
-      _status = connectionMessage(l10n, result.messageKey);
+      if (result.success) {
+        _status = null;
+        showAppToast(
+          context,
+          connectionMessage(l10n, result.messageKey),
+        );
+      } else {
+        _status = connectionMessage(l10n, result.messageKey);
+      }
     });
   }
 
@@ -276,10 +228,12 @@ class _GoogleDriveSyncConfigFormState
     if (!mounted) return;
     setState(() {
       _busy = false;
-      _statusOk = result.success;
-      _status = result.success
-          ? l10n.googleDriveShareOk
-          : _syncMessage(l10n, result);
+      if (result.success) {
+        _status = null;
+        showAppToast(context, l10n.googleDriveShareOk);
+      } else {
+        _status = googleDriveSyncResultMessage(l10n, result);
+      }
     });
     if (result.success) {
       _shareEmailController.clear();
@@ -327,7 +281,7 @@ class _GoogleDriveSyncConfigFormState
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Text(
-                _syncMessage(
+                googleDriveSyncResultMessage(
                   l10n,
                   GoogleDriveSyncResult.fail(
                     'remote_newer_schema',
@@ -359,11 +313,6 @@ class _GoogleDriveSyncConfigFormState
                   : l10n.integrationConnected,
             ),
           ),
-          if (lastSynced != null)
-            Text(
-              l10n.googleDriveLastSynced(lastSynced.toLocal().toString()),
-              style: theme.textTheme.bodySmall,
-            ),
           const SizedBox(height: 12),
         ],
         PassphraseTextField(
@@ -383,6 +332,7 @@ class _GoogleDriveSyncConfigFormState
         Wrap(
           spacing: 8,
           runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             if (!connected) ...[
               FilledButton(
@@ -410,6 +360,11 @@ class _GoogleDriveSyncConfigFormState
                 onPressed: _busy ? null : _syncNow,
                 child: Text(l10n.googleDriveSyncNow),
               ),
+              if (lastSynced != null && !_busy)
+                ActionSuccessStatusIcon(
+                  completedAt: lastSynced,
+                  tooltip: l10n.googleDriveSyncStatusHint,
+                ),
               FilledButton.tonal(
                 onPressed: _busy ? null : _test,
                 child: Text(l10n.integrationTestConnection),
@@ -425,6 +380,15 @@ class _GoogleDriveSyncConfigFormState
             ],
           ],
         ),
+        if (_status != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            _status!,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.error,
+            ),
+          ),
+        ],
         if (connected && !isJoined) ...[
           const SizedBox(height: 24),
           Text(
@@ -465,17 +429,6 @@ class _GoogleDriveSyncConfigFormState
               ],
             ),
           ],
-        ],
-        if (_status != null) ...[
-          const SizedBox(height: 12),
-          Text(
-            _status!,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: _statusOk
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.error,
-            ),
-          ),
         ],
       ],
     );

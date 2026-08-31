@@ -4,6 +4,7 @@ import 'package:valtero/entities/integrations/model/integration_registry.dart';
 import 'package:valtero/features/integrations/model/integration_ui_meta.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
+import 'package:valtero/widgets/app_toast.dart';
 
 /// Built-in free rate source: test reachability only (no credentials).
 class FrankfurterConfigForm extends ConsumerStatefulWidget {
@@ -17,7 +18,6 @@ class FrankfurterConfigForm extends ConsumerStatefulWidget {
 class _FrankfurterConfigFormState extends ConsumerState<FrankfurterConfigForm> {
   bool _busy = false;
   String? _status;
-  bool _statusOk = false;
 
   Future<void> _test() async {
     final l10n = AppLocalizations.of(context)!;
@@ -31,11 +31,14 @@ class _FrankfurterConfigFormState extends ConsumerState<FrankfurterConfigForm> {
         .read(frankfurterIntegrationProvider)
         .testConnection(settings);
     if (!mounted) return;
+    final message = connectionMessage(l10n, result.messageKey);
     setState(() {
       _busy = false;
-      _statusOk = result.success;
-      _status = connectionMessage(l10n, result.messageKey);
+      _status = result.success ? null : message;
     });
+    if (result.success) {
+      showAppToast(context, message);
+    }
   }
 
   @override
@@ -67,13 +70,11 @@ class _FrankfurterConfigFormState extends ConsumerState<FrankfurterConfigForm> {
           ),
         ),
         if (_status != null) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Text(
             _status!,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: _statusOk
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.error,
+              color: theme.colorScheme.error,
             ),
           ),
         ],

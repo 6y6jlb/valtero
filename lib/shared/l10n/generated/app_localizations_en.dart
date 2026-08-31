@@ -120,6 +120,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Fetch FX rates with a key from exchangerate-api.com (v6 API). Keys from exchangeratesapi.io will not work. Without a key, Frankfurter (ECB) is used.';
 
   @override
+  String get exchangeRateApiEnabled => 'Use ExchangeRate-API for rates';
+
+  @override
   String get integrationGoogleDriveSyncTitle => 'Google Drive Sync';
 
   @override
@@ -179,6 +182,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String googleDriveLastSynced(String when) {
     return 'Last synced: $when';
   }
+
+  @override
+  String get relativeTimeJustNow => 'Just now';
+
+  @override
+  String relativeTimeMinutesAgo(int count) {
+    return '$count min ago';
+  }
+
+  @override
+  String relativeTimeHoursAgo(int count) {
+    return '$count h ago';
+  }
+
+  @override
+  String relativeTimeDaysAgo(int count) {
+    return '$count d ago';
+  }
+
+  @override
+  String get googleDriveSyncStatusHint => 'Last sync time';
+
+  @override
+  String get actionSuccessStatusHint => 'Last action time';
 
   @override
   String get googleDriveSharedTitle => 'Shared sync (other Google accounts)';
@@ -451,6 +478,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'API keys and Telegram credentials are not included in backups.';
 
   @override
+  String get dataSyncGoogleDriveHint =>
+      'You can also enable automatic encrypted sync via Google Drive — backups update across devices without manual file exchange.';
+
+  @override
+  String get dataSyncGoogleDriveSetup => 'Connect Google Drive Sync';
+
+  @override
+  String get dataSyncGoogleDriveManage => 'Open Google Drive Sync settings';
+
+  @override
   String dataSyncImportDoneWithDuplicates(
     int expenses,
     int tags,
@@ -541,6 +578,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get amount => 'Amount';
+
+  @override
+  String get amountRequired => 'Enter a valid amount';
 
   @override
   String get currency => 'Currency';

@@ -22,6 +22,7 @@ import 'package:valtero/widgets/currency_picker.dart';
 import 'package:valtero/widgets/date_text.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/set_manual_rate_sheet.dart';
+import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/tag_color_picker.dart';
 
 class AddExpenseForm extends ConsumerStatefulWidget {
@@ -47,7 +48,6 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
   DateTime _occurredAt = DateTime.now();
   double? _rate;
   bool _loadingRate = false;
-  String? _error;
   bool _primed = false;
 
   bool get _isEdit => widget.expense != null;
@@ -177,7 +177,6 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
     if (!mounted || rate == null) return;
     setState(() {
       _rate = rate;
-      _error = null;
     });
   }
 
@@ -201,7 +200,7 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
     final l10n = AppLocalizations.of(context)!;
     final amount = Money.parseMajorToMinor(_amountController.text);
     if (amount <= 0) {
-      setState(() => _error = l10n.amount);
+      showAppToast(context, l10n.amountRequired);
       return;
     }
     if (_convert &&
@@ -211,7 +210,7 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
       await _offerSetRate();
       if (!mounted) return;
       if (_rate == null) {
-        setState(() => _error = l10n.rateUnavailable);
+        showAppToast(context, l10n.rateUnavailable);
         return;
       }
     }
@@ -253,10 +252,9 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
         _amountController.clear();
         _noteController.clear();
       }
-      setState(() => _error = null);
     } catch (_) {
       if (!mounted) return;
-      setState(() => _error = l10n.rateUnavailable);
+      showAppToast(context, l10n.rateUnavailable);
       if (retrying) return;
       await _offerSetRate();
       if (_rate != null) {
@@ -439,11 +437,6 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
                   }
                 },
               ),
-              if (_error != null)
-                Text(
-                  _error!,
-                  style: TextStyle(color: theme.colorScheme.error),
-                ),
             ],
           ),
         ),

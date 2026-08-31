@@ -110,6 +110,9 @@ class BackupSnapshotBuilder {
       timeZoneId: settings.timeZoneId,
       dismissedTagSuggestions:
           List<String>.from(settings.dismissedTagSuggestions),
+      googleDriveSharedWithEmails:
+          List<String>.from(settings.googleDriveSharedWithEmails),
+      googleDriveSharedFileId: settings.googleDriveSharedFileId,
     );
 
     return BackupEnvelope(

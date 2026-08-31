@@ -312,6 +312,12 @@ abstract class AppLocalizations {
   /// **'Fetch FX rates with a key from exchangerate-api.com (v6 API). Keys from exchangeratesapi.io will not work. Without a key, Frankfurter (ECB) is used.'**
   String get integrationExchangeRateApiDescription;
 
+  /// No description provided for @exchangeRateApiEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Use ExchangeRate-API for rates'**
+  String get exchangeRateApiEnabled;
+
   /// No description provided for @integrationGoogleDriveSyncTitle.
   ///
   /// In en, this message translates to:
@@ -413,6 +419,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Last synced: {when}'**
   String googleDriveLastSynced(String when);
+
+  /// No description provided for @relativeTimeJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get relativeTimeJustNow;
+
+  /// No description provided for @relativeTimeMinutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min ago'**
+  String relativeTimeMinutesAgo(int count);
+
+  /// No description provided for @relativeTimeHoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} h ago'**
+  String relativeTimeHoursAgo(int count);
+
+  /// No description provided for @relativeTimeDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} d ago'**
+  String relativeTimeDaysAgo(int count);
+
+  /// No description provided for @googleDriveSyncStatusHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Last sync time'**
+  String get googleDriveSyncStatusHint;
+
+  /// No description provided for @actionSuccessStatusHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Last action time'**
+  String get actionSuccessStatusHint;
 
   /// No description provided for @googleDriveSharedTitle.
   ///
@@ -880,6 +922,24 @@ abstract class AppLocalizations {
   /// **'API keys and Telegram credentials are not included in backups.'**
   String get dataSyncIntegrationsNotTransferred;
 
+  /// No description provided for @dataSyncGoogleDriveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can also enable automatic encrypted sync via Google Drive — backups update across devices without manual file exchange.'**
+  String get dataSyncGoogleDriveHint;
+
+  /// No description provided for @dataSyncGoogleDriveSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Google Drive Sync'**
+  String get dataSyncGoogleDriveSetup;
+
+  /// No description provided for @dataSyncGoogleDriveManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Google Drive Sync settings'**
+  String get dataSyncGoogleDriveManage;
+
   /// No description provided for @dataSyncImportDoneWithDuplicates.
   ///
   /// In en, this message translates to:
@@ -1046,6 +1106,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Amount'**
   String get amount;
+
+  /// No description provided for @amountRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid amount'**
+  String get amountRequired;
 
   /// No description provided for @currency.
   ///

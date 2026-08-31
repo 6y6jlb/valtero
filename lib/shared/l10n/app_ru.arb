@@ -35,6 +35,7 @@
   "integrationFrankfurterHint": "Встроенный запасной источник. Проверка api.frankfurter.dev — если она падает, курсы не обновятся, пока не заработает сеть/DNS. Только валюты из набора ECB.",
   "integrationExchangeRateApiTitle": "ExchangeRate-API",
   "integrationExchangeRateApiDescription": "Курсы через ключ с exchangerate-api.com (API v6). Ключи с exchangeratesapi.io не подойдут. Без ключа используется Frankfurter (ECB).",
+  "exchangeRateApiEnabled": "Использовать ExchangeRate-API для курсов",
   "integrationGoogleDriveSyncTitle": "Синхронизация Google Drive",
   "integrationGoogleDriveSyncDescription": "Зашифрованная автоматическая синхронизация между устройствами через Google Drive. Google не видит расходы — только шифротекст.",
   "googleDriveSignIn": "Войти через Google",
@@ -59,6 +60,33 @@
       }
     }
   },
+  "relativeTimeJustNow": "Только что",
+  "relativeTimeMinutesAgo": "{count} мин назад",
+  "@relativeTimeMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "relativeTimeHoursAgo": "{count} ч назад",
+  "@relativeTimeHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "relativeTimeDaysAgo": "{count} д назад",
+  "@relativeTimeDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "googleDriveSyncStatusHint": "Время последней синхронизации",
+  "actionSuccessStatusHint": "Время последнего действия",
   "googleDriveSharedTitle": "Общая синхронизация (другие аккаунты Google)",
   "googleDriveSharedDescription": "Расшарить зашифрованный файл с другим человеком. Нужно дополнительное разрешение Google (drive.file); для публичного релиза может потребоваться верификация OAuth.",
   "googleDriveShareEmail": "Email участника",
@@ -208,6 +236,9 @@
   "dataSyncUnsupportedFormat": "Неподдерживаемый или повреждённый файл резервной копии",
   "dataSyncNewerSchema": "Для этой копии нужна более новая версия приложения",
   "dataSyncIntegrationsNotTransferred": "API-ключи и данные Telegram в резервную копию не входят.",
+  "dataSyncGoogleDriveHint": "Также можно включить автоматическую зашифрованную синхронизацию через Google Drive — без ручного обмена файлами между устройствами.",
+  "dataSyncGoogleDriveSetup": "Подключить Google Drive Sync",
+  "dataSyncGoogleDriveManage": "Открыть настройки Google Drive Sync",
   "dataSyncImportDoneWithDuplicates": "Импортировано: {expenses} трат, {tags} тегов, {payments} способов оплаты (пропущено дублей: {skipped})",
   "@dataSyncImportDoneWithDuplicates": {
     "placeholders": {
@@ -258,6 +289,7 @@
   "addExpense": "Добавить трату",
   "editExpense": "Изменить трату",
   "amount": "Сумма",
+  "amountRequired": "Введите корректную сумму",
   "currency": "Валюта",
   "saveAsIs": "Сохранить как есть",
   "convertTo": "Сконвертировать в",

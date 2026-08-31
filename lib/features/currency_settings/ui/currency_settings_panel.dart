@@ -10,6 +10,7 @@ import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/currency_label.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/currency_picker.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/set_manual_rate_sheet.dart';
@@ -30,7 +31,7 @@ class CurrencySettingsPanel extends ConsumerStatefulWidget {
 }
 
 class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
-  String? _status;
+  String? _fetchStatus;
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +159,7 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
                     if (cooldown != null) {
                       final minutes = cooldown.inMinutes.clamp(1, 60);
                       setState(
-                        () => _status = l10n.ratesFetchCooldown(minutes),
+                        () => _fetchStatus = l10n.ratesFetchCooldown(minutes),
                       );
                       return;
                     }
@@ -169,21 +170,20 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
                     try {
                       final count = await resolver.refreshAllRates();
                       if (!mounted) return;
-                      setState(
-                        () => _status = l10n.fetchAllRatesDone(
-                          count,
-                          serviceLabel,
-                        ),
+                      setState(() => _fetchStatus = null);
+                      showAppToast(
+                        context,
+                        l10n.fetchAllRatesDone(count, serviceLabel),
                       );
                     } on RatesCooldownException catch (e) {
                       if (!mounted) return;
                       final minutes = e.remaining.inMinutes.clamp(1, 60);
                       setState(
-                        () => _status = l10n.ratesFetchCooldown(minutes),
+                        () => _fetchStatus = l10n.ratesFetchCooldown(minutes),
                       );
                     } catch (_) {
                       if (!mounted) return;
-                      setState(() => _status = l10n.connectionFailed);
+                      setState(() => _fetchStatus = l10n.connectionFailed);
                     }
                   },
                   icon: const Icon(Icons.cloud_download_outlined),
@@ -201,9 +201,14 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
                 ),
               ],
             ),
-            if (_status != null) ...[
+            if (_fetchStatus != null) ...[
               const SizedBox(height: 8),
-              Text(_status!),
+              Text(
+                _fetchStatus!,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+              ),
             ],
             const SizedBox(height: 24),
             Text(l10n.manualRates, style: Theme.of(context).textTheme.titleMedium),
@@ -215,7 +220,7 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
                   allowPickPair: true,
                 );
                 if (!mounted || rate == null) return;
-                setState(() => _status = l10n.save);
+                setState(() {});
               },
               icon: const Icon(Icons.add),
               label: Text(l10n.addRate),

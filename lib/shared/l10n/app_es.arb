@@ -35,6 +35,7 @@
   "integrationFrankfurterHint": "Reserva integrada. Prueba api.frankfurter.dev: si falla, los tipos no se actualizarán hasta que la red/DNS funcione. Solo monedas del conjunto BCE.",
   "integrationExchangeRateApiTitle": "ExchangeRate-API",
   "integrationExchangeRateApiDescription": "Tipos de cambio con una clave de exchangerate-api.com (API v6). Las claves de exchangeratesapi.io no sirven. Sin clave se usa Frankfurter (BCE).",
+  "exchangeRateApiEnabled": "Usar ExchangeRate-API para los tipos",
   "integrationGoogleDriveSyncTitle": "Sincronización con Google Drive",
   "integrationGoogleDriveSyncDescription": "Sincronización automática cifrada entre dispositivos vía Google Drive. Google no ve tus gastos — solo el texto cifrado.",
   "googleDriveSignIn": "Iniciar sesión con Google",
@@ -59,6 +60,33 @@
       }
     }
   },
+  "relativeTimeJustNow": "Justo ahora",
+  "relativeTimeMinutesAgo": "hace {count} min",
+  "@relativeTimeMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "relativeTimeHoursAgo": "hace {count} h",
+  "@relativeTimeHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "relativeTimeDaysAgo": "hace {count} d",
+  "@relativeTimeDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "googleDriveSyncStatusHint": "Hora de la última sincronización",
+  "actionSuccessStatusHint": "Hora de la última acción",
   "googleDriveSharedTitle": "Sincronización compartida (otras cuentas de Google)",
   "googleDriveSharedDescription": "Comparte el archivo cifrado con otra persona. Requiere el permiso drive.file; el lanzamiento público puede necesitar verificación OAuth.",
   "googleDriveShareEmail": "Correo del colaborador",
@@ -208,6 +236,9 @@
   "dataSyncUnsupportedFormat": "Archivo de copia no válido o no compatible",
   "dataSyncNewerSchema": "Esta copia requiere una versión más nueva de la app",
   "dataSyncIntegrationsNotTransferred": "Las claves API y las credenciales de Telegram no se incluyen en las copias.",
+  "dataSyncGoogleDriveHint": "También puedes activar la sincronización cifrada automática con Google Drive — las copias se actualizan entre dispositivos sin intercambiar archivos manualmente.",
+  "dataSyncGoogleDriveSetup": "Conectar Google Drive Sync",
+  "dataSyncGoogleDriveManage": "Abrir ajustes de Google Drive Sync",
   "dataSyncImportDoneWithDuplicates": "Importados {expenses} gastos, {tags} etiquetas, {payments} métodos de pago ({skipped} duplicados omitidos)",
   "@dataSyncImportDoneWithDuplicates": {
     "placeholders": {
@@ -258,6 +289,7 @@
   "addExpense": "Añadir gasto",
   "editExpense": "Editar gasto",
   "amount": "Importe",
+  "amountRequired": "Introduce un importe válido",
   "currency": "Moneda",
   "saveAsIs": "Guardar tal cual",
   "convertTo": "Convertir a",

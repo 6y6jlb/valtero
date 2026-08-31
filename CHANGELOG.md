@@ -8,6 +8,35 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.4.7] - 2026-08-31
+
+### Added
+
+- Backup & sync: Google Drive card with link to Integrations, **Sync now**, and a
+  success checkmark showing last sync time (tap for relative time).
+- Shared `ActionSuccessStatusIcon` and relative-time labels (en / ru / es / sr).
+- ExchangeRate-API integration: **Enable** switch (active only after a successful
+  connection test, same pattern as Telegram).
+- Backup envelope metadata syncs Google Drive collaborator emails and shared file
+  id across devices on pull-merge.
+- Validation string `amountRequired` for empty/invalid expense amounts.
+
+### Changed
+
+- Modal sheets: keyboard-aware height from full screen; bottom scroll padding
+  includes system safe area (fixes collaborator block under Android nav).
+- Sync success feedback moved from bottom banner to icon beside action buttons
+  (Google Drive integration + Backup & sync).
+- Integration forms: success toasts near actions; errors under buttons; Telegram
+  enable requires verified credentials, not just filled fields.
+
+### Fixed
+
+- Add-expense modal no longer double-applies keyboard inset on the action bar.
+- Backup & sync **Sync now** shows specific error messages (passphrase, re-auth,
+  newer schema, etc.) instead of generic connection failed.
+- Manual rate add no longer shows misleading “Save” toast.
+
 ## [1.4.6] - 2026-08-30
 
 ### Added

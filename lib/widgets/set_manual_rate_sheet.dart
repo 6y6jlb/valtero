@@ -7,6 +7,7 @@ import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/currency_label.dart';
 import 'package:valtero/widgets/currency_picker.dart';
 import 'package:valtero/widgets/flag_icon.dart';
+import 'package:valtero/widgets/app_modal_sheet.dart';
 
 /// Prompt to enter a manual FX rate.
 /// Returns the saved rate, or `null` if cancelled.
@@ -17,28 +18,17 @@ Future<double?> showSetManualRateSheet(
   double? initialRate,
   bool allowPickPair = false,
 }) {
-  return showModalBottomSheet<double>(
+  return showAppModalSheet<double>(
     context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
-    showDragHandle: true,
-    constraints: BoxConstraints(
-      maxWidth: MediaQuery.sizeOf(context).width,
-      minWidth: MediaQuery.sizeOf(context).width,
+    initialChildSize: 0.55,
+    minChildSize: 0.35,
+    maxChildSize: 0.92,
+    child: _SetManualRateBody(
+      initialBase: base,
+      initialTarget: target,
+      initialRate: initialRate,
+      allowPickPair: allowPickPair || base == null || target == null,
     ),
-    builder: (context) {
-      return Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.viewInsetsOf(context).bottom,
-        ),
-        child: _SetManualRateBody(
-          initialBase: base,
-          initialTarget: target,
-          initialRate: initialRate,
-          allowPickPair: allowPickPair || base == null || target == null,
-        ),
-      );
-    },
   );
 }
 
@@ -165,13 +155,16 @@ class _SetManualRateBodyState extends ConsumerState<_SetManualRateBody> {
     final serviceLabel = serviceId == 'exchangerate_api'
         ? l10n.rateSourceApi
         : l10n.rateSourceFrankfurter;
+    final scrollController = PrimaryScrollController.maybeOf(context);
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+    return ListView(
+      controller: scrollController,
+      padding: appModalScrollPadding(context),
+      children: [
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
           Text(
             l10n.setManualRateTitle,
             style: Theme.of(context).textTheme.titleLarge,
@@ -267,7 +260,8 @@ class _SetManualRateBodyState extends ConsumerState<_SetManualRateBody> {
             ],
           ),
         ],
-      ),
+        ),
+      ],
     );
   }
 }

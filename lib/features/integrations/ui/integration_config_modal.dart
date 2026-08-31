@@ -43,7 +43,7 @@ class IntegrationConfigModal extends ConsumerWidget {
 
     return ListView(
       controller: scrollController,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      padding: appModalScrollPadding(context),
       children: [
         Row(
           children: [
