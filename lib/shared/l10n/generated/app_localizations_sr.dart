@@ -1533,4 +1533,62 @@ class AppLocalizationsSr extends AppLocalizations {
   @override
   String get guideSectionFiltersBody =>
       'Filtrirajte po periodu, valuti, oznakama i plaćanju na kontrolnoj tabli i stranici troškova. Oba koriste kompaktnu traku sažetka koja otvara filtere u celoekranskom listu. Primetite ili obrišite filtere u bilo kom trenutku.';
+
+  @override
+  String get guideSectionVoiceExpenseTitle => 'Glasovni unos troškova';
+
+  @override
+  String get guideSectionVoiceExpenseBody =>
+      'Na Androidu otvorite Dodaj trošak i dodirnite mikrofon. Govorite po šablonu iznos → valuta → kategorija → plaćanje (primer: kafa 350 dinara kartica). Pregledajte prepoznato, zatim Kreiraj da popunite formular, ili Otkaži da ostane prazan. Audio i transkript se ne čuvaju; u logove ulaze samo greške. Koristi sistemsko prepoznavanje govora; jezik diktiranja nije ograničen jezikom interfejsa. Nije dostupno na Linuxu i Windowsu.';
+
+  @override
+  String get voiceExpenseMicTooltip => 'Diktiraj trošak';
+
+  @override
+  String get voiceExpenseTitle => 'Diktiraj trošak';
+
+  @override
+  String get voiceExpenseInitializing => 'Pokretanje mikrofona…';
+
+  @override
+  String get voiceExpenseListening => 'Slušam…';
+
+  @override
+  String get voiceExpenseSpeakHint => 'Izgovorite iznos i detalje';
+
+  @override
+  String get voiceExpensePatternHint =>
+      'Šablon: iznos → valuta → kategorija → plaćanje';
+
+  @override
+  String get voiceExpensePatternExample => 'Primer: kafa 350 dinara kartica';
+
+  @override
+  String get voiceExpensePrivacyNote =>
+      'Audio i transkript se ne čuvaju. U logove ulaze samo greške prepoznavanja.';
+
+  @override
+  String get voiceExpenseHeardLabel => 'Čuto';
+
+  @override
+  String get voiceExpenseDoneListening => 'Gotovo';
+
+  @override
+  String get voiceExpenseRecognized => 'Prepoznato';
+
+  @override
+  String get voiceExpenseNotDetected => 'Nije otkriveno';
+
+  @override
+  String get voiceExpenseCreate => 'Kreiraj';
+
+  @override
+  String get voiceExpenseRetry => 'Pokušaj ponovo';
+
+  @override
+  String get voiceExpenseUnavailable =>
+      'Prepoznavanje govora nije dostupno. Proverite dozvolu za mikrofon.';
+
+  @override
+  String get voiceExpenseEmpty => 'Ništa nije prepoznato. Pokušajte ponovo.';
 }

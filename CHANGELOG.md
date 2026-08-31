@@ -8,6 +8,22 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-08-31
+
+### Added
+
+- **Android:** voice expense dictation — microphone on the add-expense sheet
+  opens a capture sheet with a speak pattern hint (amount → currency →
+  category → payment). Speech is parsed on-device (`speech_to_text`), reviewed,
+  then applied to form fields (or cancelled). Recognition language follows
+  device locales. Audio and transcript are not stored; only recognition errors
+  may appear in app logs (without spoken text). Unavailable on Linux/Windows.
+
+### Fixed
+
+- Save on the add/edit expense sheet stays disabled until a valid amount is
+  entered.
+
 ## [1.4.10] - 2026-08-31
 
 ### Added

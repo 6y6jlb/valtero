@@ -90,6 +90,11 @@ class PlatformGuideBody extends StatelessWidget {
           title: l10n.guideSectionFiltersTitle,
           body: l10n.guideSectionFiltersBody,
         ),
+        PlatformGuideSection(
+          icon: Icons.mic_outlined,
+          title: l10n.guideSectionVoiceExpenseTitle,
+          body: l10n.guideSectionVoiceExpenseBody,
+        ),
       ],
     );
   }

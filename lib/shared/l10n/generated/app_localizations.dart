@@ -2822,6 +2822,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Filter by period, currency, tags, and payment on the dashboard and expenses page. Both use a compact summary bar that opens filters in a full-screen sheet. Apply or clear filters anytime.'**
   String get guideSectionFiltersBody;
+
+  /// No description provided for @guideSectionVoiceExpenseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice expense input'**
+  String get guideSectionVoiceExpenseTitle;
+
+  /// No description provided for @guideSectionVoiceExpenseBody.
+  ///
+  /// In en, this message translates to:
+  /// **'On Android, open Add expense and tap the microphone. Speak using the pattern amount → currency → category → payment (example: coffee 350 rubles card). Review what was recognized, then Create to fill the form fields, or Cancel to leave them empty. Audio and transcript are not stored (note is not auto-filled from speech); only recognition errors may appear in debug logs. Recognition uses the device speech engine and works in languages installed on the phone — not limited to the app UI language. Unavailable on Linux and Windows.'**
+  String get guideSectionVoiceExpenseBody;
+
+  /// No description provided for @voiceExpenseMicTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Dictate expense'**
+  String get voiceExpenseMicTooltip;
+
+  /// No description provided for @voiceExpenseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dictate expense'**
+  String get voiceExpenseTitle;
+
+  /// No description provided for @voiceExpenseInitializing.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting microphone…'**
+  String get voiceExpenseInitializing;
+
+  /// No description provided for @voiceExpenseListening.
+  ///
+  /// In en, this message translates to:
+  /// **'Listening…'**
+  String get voiceExpenseListening;
+
+  /// No description provided for @voiceExpenseSpeakHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Say the amount and details'**
+  String get voiceExpenseSpeakHint;
+
+  /// No description provided for @voiceExpensePatternHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pattern: amount → currency → category → payment'**
+  String get voiceExpensePatternHint;
+
+  /// No description provided for @voiceExpensePatternExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: coffee 350 rubles card'**
+  String get voiceExpensePatternExample;
+
+  /// No description provided for @voiceExpensePrivacyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio and transcript are not stored. Only recognition errors may appear in debug logs.'**
+  String get voiceExpensePrivacyNote;
+
+  /// No description provided for @voiceExpenseHeardLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Heard'**
+  String get voiceExpenseHeardLabel;
+
+  /// No description provided for @voiceExpenseDoneListening.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get voiceExpenseDoneListening;
+
+  /// No description provided for @voiceExpenseRecognized.
+  ///
+  /// In en, this message translates to:
+  /// **'Recognized'**
+  String get voiceExpenseRecognized;
+
+  /// No description provided for @voiceExpenseNotDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not detected'**
+  String get voiceExpenseNotDetected;
+
+  /// No description provided for @voiceExpenseCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get voiceExpenseCreate;
+
+  /// No description provided for @voiceExpenseRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get voiceExpenseRetry;
+
+  /// No description provided for @voiceExpenseUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Speech recognition is unavailable. Check microphone permission.'**
+  String get voiceExpenseUnavailable;
+
+  /// No description provided for @voiceExpenseEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing was recognized. Try again.'**
+  String get voiceExpenseEmpty;
 }
 
 class _AppLocalizationsDelegate

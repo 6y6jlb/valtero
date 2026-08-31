@@ -8,12 +8,14 @@ class AddExpenseActionsBar extends ConsumerWidget {
   final bool isEdit;
   final int? expenseId;
   final VoidCallback onSave;
+  final bool canSave;
 
   const AddExpenseActionsBar({
     super.key,
     required this.isEdit,
     required this.expenseId,
     required this.onSave,
+    this.canSave = true,
   });
 
   @override
@@ -41,7 +43,7 @@ class AddExpenseActionsBar extends ConsumerWidget {
             ],
             Expanded(
               child: FilledButton(
-                onPressed: onSave,
+                onPressed: canSave ? onSave : null,
                 child: Text(l10n.save),
               ),
             ),

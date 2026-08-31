@@ -10,6 +10,9 @@ import 'package:valtero/features/add_expense/ui/add_expense_meta_section.dart';
 import 'package:valtero/features/add_expense/ui/add_expense_save_flow.dart';
 import 'package:valtero/features/add_expense/ui/country_picker_dialog.dart';
 import 'package:valtero/features/manage_tags/model/manage_tags_controller.dart';
+import 'package:valtero/features/voice_expense/model/voice_expense_draft.dart';
+import 'package:valtero/features/voice_expense/ui/voice_expense_capture_sheet.dart';
+import 'package:valtero/features/voice_expense/ui/voice_expense_mic_button.dart';
 import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/database/database_provider.dart';
@@ -18,6 +21,7 @@ import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/app_timezone.dart';
 import 'package:valtero/shared/utils/money.dart';
 import 'package:valtero/shared/utils/payment_method_label.dart';
+import 'package:valtero/shared/utils/platform_support.dart';
 import 'package:valtero/widgets/currency_picker.dart';
 import 'package:valtero/widgets/date_text.dart';
 import 'package:valtero/widgets/flag_icon.dart';
@@ -51,10 +55,14 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
   bool _primed = false;
 
   bool get _isEdit => widget.expense != null;
+  bool get _canSave => Money.parseMajorToMinor(_amountController.text) > 0;
 
   @override
   void initState() {
     super.initState();
+    _amountController.addListener(() {
+      if (mounted) setState(() {});
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) => _primeDefaults());
   }
 
@@ -156,6 +164,33 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
         ..clear()
         ..add(id);
     });
+  }
+
+  Future<void> _dictateExpense() async {
+    final draft = await showVoiceExpenseCaptureSheet(context);
+    if (!mounted || draft == null) return;
+    _applyVoiceDraft(draft);
+  }
+
+  void _applyVoiceDraft(VoiceExpenseDraft draft) {
+    setState(() {
+      if (draft.hasAmount) {
+        _amountController.text = Money.formatMinor(draft.amountMinor!);
+      }
+      if (draft.currencyCode != null && draft.currencyCode!.isNotEmpty) {
+        _currency = draft.currencyCode!.toUpperCase();
+      }
+      if (draft.tagId != null) {
+        _tagIds
+          ..clear()
+          ..add(draft.tagId!);
+      }
+      if (draft.paymentMethodId != null) {
+        _paymentMethodId = draft.paymentMethodId;
+      }
+      // Transcript is not persisted into the note — audio/STT stay ephemeral.
+    });
+    if (_convert) _refreshRate();
   }
 
   @override
@@ -298,9 +333,17 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
             controller: scrollController,
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             children: [
-              Text(
-                _isEdit ? l10n.editExpense : l10n.addExpense,
-                style: theme.textTheme.titleLarge,
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _isEdit ? l10n.editExpense : l10n.addExpense,
+                      style: theme.textTheme.titleLarge,
+                    ),
+                  ),
+                  if (!_isEdit && isVoiceInputSupported)
+                    VoiceExpenseMicButton(onPressed: _dictateExpense),
+                ],
               ),
               const SizedBox(height: 16),
               TextField(
@@ -444,6 +487,7 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
           isEdit: _isEdit,
           expenseId: widget.expense?.id,
           onSave: _save,
+          canSave: _canSave,
         ),
       ],
     );

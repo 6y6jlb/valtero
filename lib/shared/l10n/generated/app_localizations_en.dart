@@ -1524,4 +1524,62 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guideSectionFiltersBody =>
       'Filter by period, currency, tags, and payment on the dashboard and expenses page. Both use a compact summary bar that opens filters in a full-screen sheet. Apply or clear filters anytime.';
+
+  @override
+  String get guideSectionVoiceExpenseTitle => 'Voice expense input';
+
+  @override
+  String get guideSectionVoiceExpenseBody =>
+      'On Android, open Add expense and tap the microphone. Speak using the pattern amount → currency → category → payment (example: coffee 350 rubles card). Review what was recognized, then Create to fill the form fields, or Cancel to leave them empty. Audio and transcript are not stored (note is not auto-filled from speech); only recognition errors may appear in debug logs. Recognition uses the device speech engine and works in languages installed on the phone — not limited to the app UI language. Unavailable on Linux and Windows.';
+
+  @override
+  String get voiceExpenseMicTooltip => 'Dictate expense';
+
+  @override
+  String get voiceExpenseTitle => 'Dictate expense';
+
+  @override
+  String get voiceExpenseInitializing => 'Starting microphone…';
+
+  @override
+  String get voiceExpenseListening => 'Listening…';
+
+  @override
+  String get voiceExpenseSpeakHint => 'Say the amount and details';
+
+  @override
+  String get voiceExpensePatternHint =>
+      'Pattern: amount → currency → category → payment';
+
+  @override
+  String get voiceExpensePatternExample => 'Example: coffee 350 rubles card';
+
+  @override
+  String get voiceExpensePrivacyNote =>
+      'Audio and transcript are not stored. Only recognition errors may appear in debug logs.';
+
+  @override
+  String get voiceExpenseHeardLabel => 'Heard';
+
+  @override
+  String get voiceExpenseDoneListening => 'Done';
+
+  @override
+  String get voiceExpenseRecognized => 'Recognized';
+
+  @override
+  String get voiceExpenseNotDetected => 'Not detected';
+
+  @override
+  String get voiceExpenseCreate => 'Create';
+
+  @override
+  String get voiceExpenseRetry => 'Try again';
+
+  @override
+  String get voiceExpenseUnavailable =>
+      'Speech recognition is unavailable. Check microphone permission.';
+
+  @override
+  String get voiceExpenseEmpty => 'Nothing was recognized. Try again.';
 }

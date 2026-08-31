@@ -2,6 +2,8 @@
     <!-- Needed for FX rates, Telegram, Google OAuth/Drive, and VPN split-tunnel
          app lists that filter packages by INTERNET permission. -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Android-only voice expense input (speech_to_text). -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <application
         android:label="valtero"
         android:name="${applicationName}"
@@ -57,6 +59,10 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- Package visibility for on-device / system speech recognition (API 30+). -->
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
         </intent>
     </queries>
 </manifest>

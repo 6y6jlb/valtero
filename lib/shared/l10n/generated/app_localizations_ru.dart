@@ -1534,4 +1534,62 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get guideSectionFiltersBody =>
       'Фильтруйте по периоду, валюте, тегам и оплате на дашборде и в списке трат. Оба экрана показывают компактную полосу сводки, которая открывает фильтры в полноэкранном листе. Применяйте или сбрасывайте фильтры в любой момент.';
+
+  @override
+  String get guideSectionVoiceExpenseTitle => 'Голосовой ввод трат';
+
+  @override
+  String get guideSectionVoiceExpenseBody =>
+      'На Android откройте «Добавить трату» и нажмите микрофон. Говорите по паттерну сумма → валюта → категория → оплата (пример: кофе 350 рублей карта). Проверьте распознанное, затем «Создать» — поля формы заполнятся, или «Отмена» — останутся пустыми. Аудио и расшифровку не сохраняем (заметка из речи не заполняется); в логи попадают только ошибки распознавания. Используется системное распознавание речи телефона; язык диктовки не ограничен языком интерфейса приложения. На Linux и Windows недоступно.';
+
+  @override
+  String get voiceExpenseMicTooltip => 'Надиктовать трату';
+
+  @override
+  String get voiceExpenseTitle => 'Надиктовать трату';
+
+  @override
+  String get voiceExpenseInitializing => 'Запуск микрофона…';
+
+  @override
+  String get voiceExpenseListening => 'Слушаю…';
+
+  @override
+  String get voiceExpenseSpeakHint => 'Назовите сумму и детали';
+
+  @override
+  String get voiceExpensePatternHint =>
+      'Паттерн: сумма → валюта → категория → оплата';
+
+  @override
+  String get voiceExpensePatternExample => 'Пример: кофе 350 рублей карта';
+
+  @override
+  String get voiceExpensePrivacyNote =>
+      'Аудио и расшифровку не сохраняем. В логи попадают только ошибки распознавания.';
+
+  @override
+  String get voiceExpenseHeardLabel => 'Услышано';
+
+  @override
+  String get voiceExpenseDoneListening => 'Готово';
+
+  @override
+  String get voiceExpenseRecognized => 'Распознано';
+
+  @override
+  String get voiceExpenseNotDetected => 'Не определено';
+
+  @override
+  String get voiceExpenseCreate => 'Создать';
+
+  @override
+  String get voiceExpenseRetry => 'Ещё раз';
+
+  @override
+  String get voiceExpenseUnavailable =>
+      'Распознавание речи недоступно. Проверьте разрешение микрофона.';
+
+  @override
+  String get voiceExpenseEmpty => 'Ничего не распознано. Попробуйте ещё раз.';
 }
