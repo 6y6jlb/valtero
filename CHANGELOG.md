@@ -17,6 +17,10 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 - AppBar Google Drive sync icon on Dashboard and Expenses (primary when
   connected, muted when not); opens a quick sync sheet with the same Sync now /
   setup actions as Backup & sync.
+- Shared `AppFilledButton` / tonal / outlined / text with stable-size busy
+  spinner (no button resize while loading).
+- Agent rule: DRY — same pattern in more than two places must be extracted
+  ([docs/agent-rules/dry.md](docs/agent-rules/dry.md)).
 
 ### Changed
 
@@ -25,6 +29,8 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 - ExpansionTile sections (add expense meta, platform guide) no longer show
   expanded divider borders.
 - Tags and export removed from Dashboard AppBar (remain under Settings).
+- Integration / Backup & sync / Google Drive action buttons use app busy
+  buttons; AppBar sync icon shows a spinner while syncing.
 
 ### Fixed
 

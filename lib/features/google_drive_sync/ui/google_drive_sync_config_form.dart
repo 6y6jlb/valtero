@@ -13,6 +13,7 @@ import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/action_success_status_icon.dart';
+import 'package:valtero/widgets/app_button.dart';
 
 class GoogleDriveSyncConfigForm extends ConsumerStatefulWidget {
   const GoogleDriveSyncConfigForm({super.key});
@@ -26,8 +27,10 @@ class _GoogleDriveSyncConfigFormState
     extends ConsumerState<GoogleDriveSyncConfigForm> {
   final _passphraseController = TextEditingController();
   final _shareEmailController = TextEditingController();
-  bool _busy = false;
+  String? _busyAction;
   String? _status;
+
+  bool get _busy => _busyAction != null;
 
   @override
   void initState() {
@@ -140,7 +143,7 @@ class _GoogleDriveSyncConfigFormState
       return;
     }
     setState(() {
-      _busy = true;
+      _busyAction = 'signIn';
       _status = null;
     });
     final result = await ref.read(googleDriveSyncEngineProvider).connectAndSync(
@@ -148,7 +151,7 @@ class _GoogleDriveSyncConfigFormState
           includeFileScope: false,
         );
     if (!mounted) return;
-    setState(() => _busy = false);
+    setState(() => _busyAction = null);
     await _showResultFeedback(l10n, result);
   }
 
@@ -168,13 +171,13 @@ class _GoogleDriveSyncConfigFormState
           );
     }
     setState(() {
-      _busy = true;
+      _busyAction = 'sync';
       _status = null;
     });
     final result =
         await ref.read(googleDriveSyncControllerProvider.notifier).syncNow();
     if (!mounted) return;
-    setState(() => _busy = false);
+    setState(() => _busyAction = null);
     await _showResultFeedback(l10n, result);
   }
 
@@ -183,7 +186,7 @@ class _GoogleDriveSyncConfigFormState
     final current = ref.read(appSettingsProvider).value;
     if (current == null) return;
     setState(() {
-      _busy = true;
+      _busyAction = 'test';
       _status = null;
     });
     final result = await ref
@@ -191,7 +194,7 @@ class _GoogleDriveSyncConfigFormState
         .testConnection(current);
     if (!mounted) return;
     setState(() {
-      _busy = false;
+      _busyAction = null;
       if (result.success) {
         _status = null;
         showAppToast(
@@ -219,7 +222,7 @@ class _GoogleDriveSyncConfigFormState
   Future<void> _share() async {
     final l10n = AppLocalizations.of(context)!;
     setState(() {
-      _busy = true;
+      _busyAction = 'share';
       _status = null;
     });
     final result = await ref
@@ -227,7 +230,7 @@ class _GoogleDriveSyncConfigFormState
         .shareWithEmail(_shareEmailController.text);
     if (!mounted) return;
     setState(() {
-      _busy = false;
+      _busyAction = null;
       if (result.success) {
         _status = null;
         showAppToast(context, l10n.googleDriveShareOk);
@@ -335,47 +338,43 @@ class _GoogleDriveSyncConfigFormState
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             if (!connected) ...[
-              FilledButton(
-                onPressed: _busy ||
-                        !isGoogleOAuthClientConfigured ||
-                        !_passphraseReady
-                    ? null
-                    : _signIn,
-                child: _busy
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(l10n.googleDriveSignIn),
+              AppFilledButton(
+                label: l10n.googleDriveSignIn,
+                busy: _busyAction == 'signIn',
+                onPressed: !_busy &&
+                        isGoogleOAuthClientConfigured &&
+                        _passphraseReady
+                    ? _signIn
+                    : null,
               ),
-              OutlinedButton(
-                onPressed:
-                    _busy || !isGoogleOAuthClientConfigured ? null : _joinShared,
-                child: Text(l10n.googleDriveJoinShared),
+              AppOutlinedButton(
+                label: l10n.googleDriveJoinShared,
+                onPressed: _busy || !isGoogleOAuthClientConfigured
+                    ? null
+                    : _joinShared,
               ),
             ],
             if (connected) ...[
-              FilledButton(
+              AppFilledButton(
+                label: l10n.googleDriveSyncNow,
+                busy: _busyAction == 'sync',
                 onPressed: _busy ? null : _syncNow,
-                child: Text(l10n.googleDriveSyncNow),
               ),
               if (lastSynced != null && !_busy)
                 ActionSuccessStatusIcon(
                   completedAt: lastSynced,
                   tooltip: l10n.googleDriveSyncStatusHint,
                 ),
-              FilledButton.tonal(
+              AppFilledButton.tonal(
+                label: l10n.integrationTestConnection,
+                busy: _busyAction == 'test',
                 onPressed: _busy ? null : _test,
-                child: Text(l10n.integrationTestConnection),
               ),
-              OutlinedButton(
+              AppOutlinedButton(
+                label: isJoined
+                    ? l10n.googleDriveLeaveShared
+                    : l10n.integrationDisconnect,
                 onPressed: _busy ? null : _disconnect,
-                child: Text(
-                  isJoined
-                      ? l10n.googleDriveLeaveShared
-                      : l10n.integrationDisconnect,
-                ),
               ),
             ],
           ],
@@ -414,9 +413,10 @@ class _GoogleDriveSyncConfigFormState
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerLeft,
-            child: FilledButton.tonal(
+            child: AppFilledButton.tonal(
+              label: l10n.googleDriveShareAdd,
+              busy: _busyAction == 'share',
               onPressed: _busy || !_shareEmailReady ? null : _share,
-              child: Text(l10n.googleDriveShareAdd),
             ),
           ),
           if (sharedWith.isNotEmpty) ...[

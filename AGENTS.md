@@ -93,8 +93,9 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 - PascalCase classes, camelCase members, `_` prefix for private
 - **Do not** put the product name (`Valtero`) in file or class names — use role names (`AppPageScaffold`, not `ValteroPageScaffold`)
 - UI component files: **≤ 500 lines** (one screen/sheet/widget per file); split private sub-widgets into sibling `ui/` files and pure logic into `model/`
+- **DRY**: the same pattern in **more than 2 places** → extract a shared helper/widget (see [dry.md](docs/agent-rules/dry.md)); e.g. `AppFilledButton` instead of re-wiring busy spinners
 
-Details: [docs/agent-rules/naming.md](docs/agent-rules/naming.md), [docs/agent-rules/ui-component-size.md](docs/agent-rules/ui-component-size.md)
+Details: [docs/agent-rules/naming.md](docs/agent-rules/naming.md), [docs/agent-rules/ui-component-size.md](docs/agent-rules/ui-component-size.md), [docs/agent-rules/dry.md](docs/agent-rules/dry.md)
 
 ## New dependencies
 
@@ -126,6 +127,7 @@ Details: [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md)
 | [docs/agent-rules/riverpod-conventions.md](docs/agent-rules/riverpod-conventions.md) | Provider placement and `AsyncNotifier` pattern |
 | [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md) | No hardcoded UI strings; en/ru/es/sr ARB |
 | [docs/agent-rules/naming.md](docs/agent-rules/naming.md) | No product name in file/class identifiers; intent-based names |
+| [docs/agent-rules/dry.md](docs/agent-rules/dry.md) | Same pattern in **>2** places → extract shared helper/widget |
 | [docs/agent-rules/ui-component-size.md](docs/agent-rules/ui-component-size.md) | ≤ 500 lines per UI component; when/how to split |
 | [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md) | New packages: need / overlap / health + explicit user approve |
 | [docs/agent-rules/platform-guide.md](docs/agent-rules/platform-guide.md) | Keep in-app platform guide in sync with new capabilities |
@@ -149,6 +151,7 @@ To generate Cursor mirrors once locally:
 | `riverpod-conventions` | `globs: lib/**/model/**,lib/shared/settings/**` |
 | `l10n-strings` | `globs: lib/**/*.dart,lib/shared/l10n/**` |
 | `naming` | `alwaysApply: true` |
+| `dry` | `alwaysApply: true` |
 | `ui-component-size` | `globs: lib/**/ui/**,lib/pages/**,lib/widgets/**` |
 | `dependencies` | `alwaysApply: true` |
 | `platform-guide` | `globs: lib/features/platform_guide/**,lib/pages/platform_guide/**` |

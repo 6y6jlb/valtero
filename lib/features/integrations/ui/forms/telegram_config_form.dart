@@ -6,6 +6,7 @@ import 'package:valtero/features/integrations/model/integration_ui_meta.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
+import 'package:valtero/widgets/app_button.dart';
 import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/secret_text_field.dart';
 
@@ -194,15 +195,10 @@ class _TelegramConfigFormState extends ConsumerState<TelegramConfigForm> {
           spacing: 8,
           runSpacing: 8,
           children: [
-            FilledButton(
+            AppFilledButton(
+              label: l10n.integrationTestConnection,
+              busy: _busy,
               onPressed: canTest ? _testAndSave : null,
-              child: _busy
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(l10n.integrationTestConnection),
             ),
             OutlinedButton(
               onPressed: canDisconnect ? _disconnect : null,

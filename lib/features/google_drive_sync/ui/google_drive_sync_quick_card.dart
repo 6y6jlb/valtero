@@ -9,6 +9,7 @@ import 'package:valtero/features/integrations/ui/integration_config_modal.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/widgets/action_success_status_icon.dart';
+import 'package:valtero/widgets/app_button.dart';
 import 'package:valtero/widgets/app_toast.dart';
 
 /// Google Drive sync status + Sync now / setup actions (Backup & sync card).
@@ -86,7 +87,8 @@ class _GoogleDriveSyncQuickCardState
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final settings = ref.watch(appSettingsProvider).value;
+    final settingsAsync = ref.watch(appSettingsProvider);
+    final settings = settingsAsync.value;
     final connected = settings != null &&
         ref.watch(
           isIntegrationConfiguredProvider(kGoogleDriveSyncIntegrationId),
@@ -95,7 +97,25 @@ class _GoogleDriveSyncQuickCardState
     final lastSynced = settings?.googleDriveLastSyncedAt;
     final syncing = ref.watch(googleDriveSyncControllerProvider).status ==
         GoogleDriveSyncStatus.syncing;
-    final blocked = _isBlocked(syncing: syncing);
+
+    if (settingsAsync.isLoading && settings == null) {
+      return Card(
+        margin: EdgeInsets.zero,
+        child: SizedBox(
+          height: 132,
+          child: Center(
+            child: SizedBox(
+              width: 28,
+              height: 28,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
     return Card(
       margin: EdgeInsets.zero,
@@ -114,6 +134,15 @@ class _GoogleDriveSyncQuickCardState
                     style: theme.textTheme.titleSmall,
                   ),
                 ),
+                if (syncing)
+                  SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
               ],
             ),
             const SizedBox(height: 8),
@@ -136,27 +165,36 @@ class _GoogleDriveSyncQuickCardState
                 runSpacing: 8,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  FilledButton(
-                    onPressed: blocked ? null : _syncGoogleDrive,
-                    child: Text(l10n.googleDriveSyncNow),
+                  AppFilledButton(
+                    label: l10n.googleDriveSyncNow,
+                    busy: syncing,
+                    onPressed: widget.actionsEnabled && !_openingIntegration
+                        ? _syncGoogleDrive
+                        : null,
                   ),
                   if (lastSynced != null && !syncing)
                     ActionSuccessStatusIcon(
                       completedAt: lastSynced,
                       tooltip: l10n.googleDriveSyncStatusHint,
                     ),
-                  TextButton(
-                    onPressed: blocked ? null : _openGoogleDriveIntegration,
-                    child: Text(l10n.dataSyncGoogleDriveManage),
+                  AppTextButton(
+                    label: l10n.dataSyncGoogleDriveManage,
+                    busy: _openingIntegration,
+                    onPressed: widget.actionsEnabled && !syncing
+                        ? _openGoogleDriveIntegration
+                        : null,
                   ),
                 ],
               ),
             ] else
               Align(
                 alignment: Alignment.centerLeft,
-                child: TextButton(
-                  onPressed: blocked ? null : _openGoogleDriveIntegration,
-                  child: Text(l10n.dataSyncGoogleDriveSetup),
+                child: AppTextButton(
+                  label: l10n.dataSyncGoogleDriveSetup,
+                  busy: _openingIntegration,
+                  onPressed: widget.actionsEnabled && !syncing
+                      ? _openGoogleDriveIntegration
+                      : null,
                 ),
               ),
           ],

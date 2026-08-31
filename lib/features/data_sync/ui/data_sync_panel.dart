@@ -15,6 +15,7 @@ import 'package:valtero/features/google_drive_sync/ui/google_drive_sync_quick_ca
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/logging/logging_providers.dart';
 import 'package:valtero/shared/utils/payment_method_label.dart';
+import 'package:valtero/widgets/app_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
 import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/passphrase_text_field.dart';
@@ -368,9 +369,10 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
           Row(
             children: [
               Expanded(
-                child: FilledButton(
+                child: AppFilledButton(
+                  label: l10n.saveFile,
+                  busy: _busy && _tab == DataSyncTab.export,
                   onPressed: panelBusy ? null : _exportSave,
-                  child: Text(l10n.saveFile),
                 ),
               ),
               const SizedBox(width: 8),
@@ -426,9 +428,10 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: FilledButton(
+                child: AppFilledButton(
+                  label: l10n.dataSyncImportFromFile,
+                  busy: _busy && _tab == DataSyncTab.import,
                   onPressed: (panelBusy || !fileSelected) ? null : _import,
-                  child: Text(l10n.dataSyncImportFromFile),
                 ),
               ),
             ],
