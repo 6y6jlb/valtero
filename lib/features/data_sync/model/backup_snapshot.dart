@@ -16,7 +16,7 @@ class BackupSnapshotBuilder {
     final expenses = await db.getAllExpenses();
     final tagIdsByExpense =
         await db.getTagIdsByExpenseIds(expenses.map((e) => e.id).toList());
-    final manualRates = await db.getManualExchangeRates();
+    final allRates = await db.getAllExchangeRates();
 
     final tagById = {for (final t in tags) t.id: t};
     final methodById = {for (final m in methods) m.id: m};
@@ -88,13 +88,14 @@ class BackupSnapshotBuilder {
       }
     }
 
-    final overrides = manualRates
+    final overrides = allRates
         .map(
           (r) => BackupExchangeRateOverrideData(
             baseCurrencyCode: r.baseCurrencyCode,
             targetCurrencyCode: r.targetCurrencyCode,
             rate: r.rate,
             fetchedAt: r.fetchedAt,
+            source: r.source,
           ),
         )
         .toList();
@@ -113,6 +114,7 @@ class BackupSnapshotBuilder {
       googleDriveSharedWithEmails:
           List<String>.from(settings.googleDriveSharedWithEmails),
       googleDriveSharedFileId: settings.googleDriveSharedFileId,
+      lastRateRefreshAt: settings.lastRateRefreshAt,
     );
 
     return BackupEnvelope(

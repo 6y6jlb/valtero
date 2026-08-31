@@ -31,6 +31,16 @@ MoneyText(amountMinor: storedMinor, currencyCode: 'USD');
 3. Manual row in `ExchangeRates`  
 4. `null` → UI asks the user to enter a rate manually
 
+## Rate cache sync & cooldown
+
+- Encrypted backup / Google Drive sync includes **all** Drift rate rows (provider
+  cache + manual) plus Hive `lastRateRefreshAt`.
+- On merge: per `(base, target, source)` keep the row with the **newer**
+  `fetchedAt`; take **max** of local/remote `lastRateRefreshAt` so the shared
+  **1 hour** network-fetch cooldown (`kRateNetworkFetchCooldown`) applies across
+  devices after one of them refreshed.
+- Launch still uses a separate **24h** staleness gate (`refreshIfStale`).
+
 ## Expense persistence
 
 Always persist:

@@ -15,6 +15,7 @@ class GoogleDriveSyncScheduler {
   final Ref ref;
   Timer? _debounce;
   StreamSubscription<dynamic>? _expenseSub;
+  StreamSubscription<dynamic>? _ratesSub;
   bool _started = false;
   bool _syncing = false;
 
@@ -26,6 +27,7 @@ class GoogleDriveSyncScheduler {
 
     final db = ref.read(appDatabaseProvider);
     _expenseSub = db.watchExpenses().listen((_) => schedulePush());
+    _ratesSub = db.watchAllExchangeRates().listen((_) => schedulePush());
   }
 
   void schedulePush() {
@@ -58,6 +60,7 @@ class GoogleDriveSyncScheduler {
   void dispose() {
     _debounce?.cancel();
     _expenseSub?.cancel();
+    _ratesSub?.cancel();
   }
 }
 

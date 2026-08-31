@@ -326,6 +326,29 @@ class AppDatabase extends _$AppDatabase {
     }
   }
 
+  /// Like [upsertRate], but keeps the local row when it is strictly newer.
+  Future<bool> upsertRateIfNewer({
+    required String base,
+    required String target,
+    required String source,
+    required double rate,
+    required DateTime fetchedAt,
+  }) async {
+    final existing =
+        await getRateRow(base: base, target: target, source: source);
+    if (existing != null && !fetchedAt.isAfter(existing.fetchedAt)) {
+      return false;
+    }
+    await upsertRate(
+      base: base,
+      target: target,
+      source: source,
+      rate: rate,
+      fetchedAt: fetchedAt,
+    );
+    return true;
+  }
+
   Future<List<String>> distinctStoredCurrencies() async {
     final rows = await select(expenses).get();
     return rows.map((e) => e.storedCurrencyCode).toSet().toList()..sort();

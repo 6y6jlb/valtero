@@ -381,6 +381,136 @@ void main() {
       expect(byAmount[300]!.duplicateDismissed, isFalse);
       expect(byAmount.containsKey(100), isFalse);
     });
+
+    test('rates merge LWW by fetchedAt and max lastRateRefreshAt', () async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+
+      final older = DateTime.utc(2026, 3, 1, 10);
+      final newer = DateTime.utc(2026, 3, 1, 12);
+      final localRefresh = DateTime.utc(2026, 3, 1, 11);
+      final remoteRefresh = DateTime.utc(2026, 3, 1, 13);
+
+      await db.upsertRate(
+        base: 'USD',
+        target: 'EUR',
+        source: 'frankfurter',
+        rate: 0.9,
+        fetchedAt: newer,
+      );
+      await db.upsertRate(
+        base: 'USD',
+        target: 'GBP',
+        source: 'frankfurter',
+        rate: 0.7,
+        fetchedAt: older,
+      );
+
+      final envelope = BackupEnvelope(
+        formatVersion: kBackupFormatVersion,
+        schemaVersion: kAppSchemaVersion,
+        exportedAt: DateTime.utc(2026, 3, 1),
+        appVersion: '1.0.0',
+        data: BackupPayloadData(
+          tags: const [],
+          paymentMethods: const [],
+          expenses: const [],
+          expenseTags: const [],
+          exchangeRateOverrides: [
+            BackupExchangeRateOverrideData(
+              baseCurrencyCode: 'USD',
+              targetCurrencyCode: 'EUR',
+              rate: 0.8,
+              fetchedAt: older,
+              source: 'frankfurter',
+            ),
+            BackupExchangeRateOverrideData(
+              baseCurrencyCode: 'USD',
+              targetCurrencyCode: 'GBP',
+              rate: 0.75,
+              fetchedAt: newer,
+              source: 'frankfurter',
+            ),
+            BackupExchangeRateOverrideData(
+              baseCurrencyCode: 'USD',
+              targetCurrencyCode: 'JPY',
+              rate: 150,
+              fetchedAt: newer,
+              source: 'frankfurter',
+            ),
+          ],
+          settings: BackupSettingsData(
+            reportingCurrencies: const ['USD'],
+            primaryCurrency: 'USD',
+            customCurrencyCodes: const [],
+            themeMode: 'system',
+            locale: 'system',
+            moneyDisplayFormat: 'localeCode',
+            dateDisplayFormat: 'isoYmd',
+            timeZoneId: 'system',
+            dismissedTagSuggestions: const [],
+            lastRateRefreshAt: remoteRefresh,
+          ),
+        ),
+      );
+
+      AppSettings? saved;
+      await BackupImporter().importEnvelope(
+        db: db,
+        envelope: envelope,
+        currentSettings:
+            AppSettings.initial().copyWith(lastRateRefreshAt: localRefresh),
+        applySettings: false,
+        saveSettings: (s) async {
+          saved = s;
+        },
+      );
+
+      final eur = await db.getRateRow(
+        base: 'USD',
+        target: 'EUR',
+        source: 'frankfurter',
+      );
+      expect(eur?.rate, 0.9);
+      expect(eur!.fetchedAt.isAtSameMomentAs(newer), isTrue);
+
+      final gbp = await db.getRateRow(
+        base: 'USD',
+        target: 'GBP',
+        source: 'frankfurter',
+      );
+      expect(gbp?.rate, 0.75);
+      expect(gbp!.fetchedAt.isAtSameMomentAs(newer), isTrue);
+
+      final jpy = await db.getRateRow(
+        base: 'USD',
+        target: 'JPY',
+        source: 'frankfurter',
+      );
+      expect(jpy?.rate, 150);
+
+      expect(saved!.lastRateRefreshAt!.isAtSameMomentAs(remoteRefresh), isTrue);
+    });
+
+    test('snapshot exports provider rates and lastRateRefreshAt', () async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final at = DateTime.utc(2026, 3, 2, 8);
+      await db.upsertRate(
+        base: 'EUR',
+        target: 'USD',
+        source: 'frankfurter',
+        rate: 1.1,
+        fetchedAt: at,
+      );
+      final envelope = await BackupSnapshotBuilder().build(
+        db: db,
+        settings: AppSettings.initial().copyWith(lastRateRefreshAt: at),
+      );
+      expect(envelope.data.exchangeRateOverrides, hasLength(1));
+      expect(envelope.data.exchangeRateOverrides.first.source, 'frankfurter');
+      expect(envelope.data.settings.lastRateRefreshAt, at);
+    });
   });
 
   group('BackupSnapshotBuilder', () {

@@ -8,6 +8,24 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.4.10] - 2026-08-31
+
+### Added
+
+- Encrypted backup / Google Drive sync now includes **all** cached exchange
+  rates (not only manual overrides) plus `lastRateRefreshAt`, so devices share
+  rates and the **1h** network-fetch cooldown (newer `fetchedAt` wins; cooldown
+  uses the later timestamp).
+
+### Fixed
+
+- Android: long modal sheets (e.g. rates list) can scroll again — removed the
+  locked `DraggableScrollableSheet` wrapper that swallowed touch drags.
+
+### Changed
+
+- Google Drive debounced push also runs after exchange-rate DB changes.
+
 ## [1.4.9] - 2026-08-31
 
 ### Added

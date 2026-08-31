@@ -79,6 +79,8 @@ class BackupSettingsData {
   final List<String> googleDriveSharedWithEmails;
   /// Drive file id for cross-account shared sync (non-secret metadata).
   final String googleDriveSharedFileId;
+  /// Last network rate fetch time (shared cooldown across devices).
+  final DateTime? lastRateRefreshAt;
 
   const BackupSettingsData({
     required this.reportingCurrencies,
@@ -92,6 +94,7 @@ class BackupSettingsData {
     required this.dismissedTagSuggestions,
     this.googleDriveSharedWithEmails = const [],
     this.googleDriveSharedFileId = '',
+    this.lastRateRefreshAt,
   });
 
   Map<String, dynamic> toJson() => {
@@ -108,6 +111,8 @@ class BackupSettingsData {
           'googleDriveSharedWithEmails': googleDriveSharedWithEmails,
         if (googleDriveSharedFileId.isNotEmpty)
           'googleDriveSharedFileId': googleDriveSharedFileId,
+        if (lastRateRefreshAt != null)
+          'lastRateRefreshAt': lastRateRefreshAt!.toIso8601String(),
       };
 
   factory BackupSettingsData.fromJson(Map<String, dynamic> json) {
@@ -125,6 +130,9 @@ class BackupSettingsData {
           _stringList(json['googleDriveSharedWithEmails']),
       googleDriveSharedFileId:
           json['googleDriveSharedFileId'] as String? ?? '',
+      lastRateRefreshAt: json['lastRateRefreshAt'] != null
+          ? DateTime.tryParse(json['lastRateRefreshAt'] as String)
+          : null,
     );
   }
 }
@@ -318,12 +326,15 @@ class BackupExchangeRateOverrideData {
   final String targetCurrencyCode;
   final double rate;
   final DateTime fetchedAt;
+  /// `manual` | `frankfurter` | `exchangerate_api` (legacy backups omit → manual).
+  final String source;
 
   const BackupExchangeRateOverrideData({
     required this.baseCurrencyCode,
     required this.targetCurrencyCode,
     required this.rate,
     required this.fetchedAt,
+    this.source = 'manual',
   });
 
   Map<String, dynamic> toJson() => {
@@ -331,7 +342,7 @@ class BackupExchangeRateOverrideData {
         'targetCurrencyCode': targetCurrencyCode,
         'rate': rate,
         'fetchedAt': fetchedAt.toIso8601String(),
-        'source': 'manual',
+        'source': source,
       };
 
   factory BackupExchangeRateOverrideData.fromJson(Map<String, dynamic> json) {
@@ -339,11 +350,13 @@ class BackupExchangeRateOverrideData {
     if (fetchedAt == null) {
       throw const BackupUnsupportedFormatException();
     }
+    final source = (json['source'] as String?)?.trim();
     return BackupExchangeRateOverrideData(
       baseCurrencyCode: json['baseCurrencyCode'] as String? ?? '',
       targetCurrencyCode: json['targetCurrencyCode'] as String? ?? '',
       rate: (json['rate'] as num?)?.toDouble() ?? 0,
       fetchedAt: fetchedAt,
+      source: (source == null || source.isEmpty) ? 'manual' : source,
     );
   }
 }

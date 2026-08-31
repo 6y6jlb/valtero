@@ -37,7 +37,7 @@ Future<T?> showAppModalSheet<T>({
   );
 }
 
-class _AppModalSheetBody extends StatelessWidget {
+class _AppModalSheetBody extends StatefulWidget {
   final double width;
   final double initialChildSize;
   final double minChildSize;
@@ -53,6 +53,19 @@ class _AppModalSheetBody extends StatelessWidget {
   });
 
   @override
+  State<_AppModalSheetBody> createState() => _AppModalSheetBodyState();
+}
+
+class _AppModalSheetBodyState extends State<_AppModalSheetBody> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final screenHeight = mediaQuery.size.height;
@@ -64,9 +77,9 @@ class _AppModalSheetBody extends StatelessWidget {
     final fullUsableHeight = screenHeight - topInset;
     final aboveKeyboard = fullUsableHeight - keyboardHeight;
 
-    final minHeight = fullUsableHeight * minChildSize;
-    final maxHeight = fullUsableHeight * maxChildSize;
-    final preferredHeight = fullUsableHeight * initialChildSize;
+    final minHeight = fullUsableHeight * widget.minChildSize;
+    final maxHeight = fullUsableHeight * widget.maxChildSize;
+    final preferredHeight = fullUsableHeight * widget.initialChildSize;
 
     // When the keyboard is open, never enforce [minChildSize] — it is a fraction
     // of full screen and would push content under the keyboard with padding.
@@ -82,21 +95,15 @@ class _AppModalSheetBody extends StatelessWidget {
         duration: const Duration(milliseconds: 100),
         curve: Curves.easeOut,
         height: sheetHeight,
-        width: width,
-        child: DraggableScrollableSheet(
-          expand: true,
-          initialChildSize: 1.0,
-          minChildSize: 1.0,
-          maxChildSize: 1.0,
-          builder: (context, scrollController) {
-            return Material(
-              color: Theme.of(context).colorScheme.surface,
-              child: PrimaryScrollController(
-                controller: scrollController,
-                child: child,
-              ),
-            );
-          },
+        width: widget.width,
+        // Plain PrimaryScrollController — a locked DraggableScrollableSheet
+        // eats Android touch drags when min=max=1.0.
+        child: Material(
+          color: Theme.of(context).colorScheme.surface,
+          child: PrimaryScrollController(
+            controller: _scrollController,
+            child: widget.child,
+          ),
         ),
       ),
     );

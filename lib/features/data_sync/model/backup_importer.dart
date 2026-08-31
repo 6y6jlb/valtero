@@ -141,14 +141,22 @@ class BackupImporter {
       if (rate.baseCurrencyCode.isEmpty || rate.targetCurrencyCode.isEmpty) {
         continue;
       }
-      await db.upsertRate(
+      final source =
+          rate.source.trim().isEmpty ? 'manual' : rate.source.trim();
+      await db.upsertRateIfNewer(
         base: rate.baseCurrencyCode,
         target: rate.targetCurrencyCode,
-        source: 'manual',
+        source: source,
         rate: rate.rate,
         fetchedAt: rate.fetchedAt,
       );
     }
+
+    // Shared network-fetch cooldown: always take the later timestamp, even
+    // when the rest of settings are not applied (Drive sync path).
+    final remoteRefresh = data.settings.lastRateRefreshAt;
+    final localRefresh = currentSettings.lastRateRefreshAt;
+    final mergedRefresh = _laterDateTime(localRefresh, remoteRefresh);
 
     var settingsApplied = false;
     if (applySettings) {
@@ -163,9 +171,16 @@ class BackupImporter {
         dateDisplayFormat: s.dateDisplayFormat,
         timeZoneId: s.timeZoneId,
         dismissedTagSuggestions: s.dismissedTagSuggestions,
+        lastRateRefreshAt: mergedRefresh,
+        clearLastRateRefreshAt: mergedRefresh == null,
       );
       await saveSettings(updated);
       settingsApplied = true;
+    } else if (mergedRefresh != null &&
+        (localRefresh == null || mergedRefresh.isAfter(localRefresh))) {
+      await saveSettings(
+        currentSettings.copyWith(lastRateRefreshAt: mergedRefresh),
+      );
     }
 
     return ImportReport(
@@ -175,6 +190,12 @@ class BackupImporter {
       expensesSkippedDuplicate: expensesSkippedDuplicate,
       settingsApplied: settingsApplied,
     );
+  }
+
+  static DateTime? _laterDateTime(DateTime? a, DateTime? b) {
+    if (a == null) return b;
+    if (b == null) return a;
+    return a.isAfter(b) ? a : b;
   }
 
   Future<_ResolvedId> _resolveOrCreateTag({
