@@ -530,6 +530,9 @@
     }
   },
   "chartByMonth": "Месяцы",
+  "chartByDay": "Дни",
+  "chartByWeek": "Недели",
+  "chartByDate": "По дате",
   "chartByCurrency": "Валюта",
   "chartByYear": "Годы",
   "filterTags": "Фильтр тегов",

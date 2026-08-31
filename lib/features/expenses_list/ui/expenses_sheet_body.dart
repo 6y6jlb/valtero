@@ -71,6 +71,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
   late ExpenseListQuery _applied;
   ExpenseListViewMode _view = ExpenseListViewMode.list;
   ExpenseChartBreakdown _chartBreakdown = ExpenseChartBreakdown.currency;
+  ExpenseChartBreakdown _chartDatePeriod = ExpenseChartBreakdown.month;
   ExpenseChartType _chartType = ExpenseChartType.donut;
   int _visibleCount = _kListInitial;
   bool _loadMoreScheduled = false;
@@ -101,10 +102,12 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
     final group = expensesGroupFromSettings(settings);
     final chart = expensesChartBreakdownFromSettings(settings);
     final chartType = expensesChartTypeFromSettings(settings);
+    final datePeriod = expensesChartDatePeriodFromSettings(settings);
     setState(() {
       _view = view;
       _chartBreakdown = chart;
       _chartType = chartType;
+      _chartDatePeriod = datePeriod;
       if (view == ExpenseListViewMode.grouping) {
         _applied = _applied.copyWith(group: group);
       } else if (view == ExpenseListViewMode.list) {
@@ -129,6 +132,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
     ExpenseListGroup? group,
     ExpenseChartBreakdown? chartBreakdown,
     ExpenseChartType? chartType,
+    ExpenseChartBreakdown? chartDatePeriod,
   }) {
     final nextView = view ?? _view;
     final nextGroup = group ??
@@ -137,6 +141,8 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
             : _applied.group);
     final nextChart = chartBreakdown ?? _chartBreakdown;
     final nextChartType = chartType ?? _chartType;
+    final nextDatePeriod = chartDatePeriod ??
+        (isDateChartBreakdown(nextChart) ? nextChart : _chartDatePeriod);
     ref.read(appSettingsProvider.notifier).setExpensesListDisplay(
           view: nextView.name,
           group: nextGroup == ExpenseListGroup.none
@@ -144,6 +150,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
               : nextGroup.name,
           chartBreakdown: nextChart.name,
           chartType: nextChartType.name,
+          chartDatePeriod: nextDatePeriod.name,
         );
   }
 
@@ -728,8 +735,17 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                                     chartBreakdown: _chartBreakdown,
                                     chartType: _chartType,
                                     onChartBreakdownChanged: (b) {
-                                      setState(() => _chartBreakdown = b);
-                                      _persistDisplayPrefs(chartBreakdown: b);
+                                      setState(() {
+                                        _chartBreakdown = b;
+                                        if (isDateChartBreakdown(b)) {
+                                          _chartDatePeriod = b;
+                                        }
+                                      });
+                                      _persistDisplayPrefs(
+                                        chartBreakdown: b,
+                                        chartDatePeriod:
+                                            isDateChartBreakdown(b) ? b : null,
+                                      );
                                     },
                                     onChartTypeChanged: (t) {
                                       setState(() => _chartType = t);

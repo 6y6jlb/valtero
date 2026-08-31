@@ -204,6 +204,16 @@ Future<ExpenseChartAggregation> aggregateExpensesForChart({
         labels[key] = key;
         colors[key] ??= chartColorAt(key.hashCode);
         sliceCurrencies[key] = key;
+      case ExpenseChartBreakdown.day:
+        final key = calendarDayKey(expense.occurredAt, timeZoneId);
+        amounts[key] = (amounts[key] ?? 0) + amount;
+        labels[key] = key;
+        colors[key] ??= chartColorAt(amounts.length);
+      case ExpenseChartBreakdown.week:
+        final key = calendarWeekKey(expense.occurredAt, timeZoneId);
+        amounts[key] = (amounts[key] ?? 0) + amount;
+        labels[key] = key;
+        colors[key] ??= chartColorAt(amounts.length);
       case ExpenseChartBreakdown.month:
         final key = calendarMonthKey(expense.occurredAt, timeZoneId);
         amounts[key] = (amounts[key] ?? 0) + amount;

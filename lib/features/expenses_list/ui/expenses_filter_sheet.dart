@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
+import 'package:valtero/features/expenses_list/ui/expense_currency_filter_dialog.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_filter_form.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
@@ -74,16 +75,21 @@ class _ExpensesFilterSheetBodyState extends State<_ExpensesFilterSheetBody> {
         const SizedBox(height: 16),
         ExpensesFilterForm(
           draft: _draft,
-          currencyOptions: widget.currencyOptions,
           onPickPeriod: () async {
             final next = await widget.onPickPeriod(_draft);
             if (next != null && mounted) setState(() => _draft = next);
           },
-          onCurrencyChanged: (v) {
+          onPickCurrency: () async {
+            final picked = await showExpenseCurrencyFilterDialog(
+              context,
+              currencyOptions: widget.currencyOptions,
+              initialSelection: _draft.currencyCode,
+            );
+            if (picked == null || !mounted) return;
             setState(() {
-              _draft = v == null
+              _draft = picked.code == null
                   ? _draft.copyWith(clearCurrencyCode: true)
-                  : _draft.copyWith(currencyCode: v);
+                  : _draft.copyWith(currencyCode: picked.code);
             });
           },
           onPickTags: () async {

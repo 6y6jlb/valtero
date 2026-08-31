@@ -25,6 +25,26 @@ void main() {
       expect(q?.countryCodes, {'RU'});
     });
 
+    test('day slice sets from/to to that calendar day', () {
+      final q = expenseChartDrillDownQuery(
+        base: base,
+        breakdown: ExpenseChartBreakdown.day,
+        sliceKey: '2026-03-15',
+      );
+      expect(q?.from, DateTime(2026, 3, 15));
+      expect(q?.to, DateTime(2026, 3, 15));
+    });
+
+    test('week slice sets Monday through Sunday', () {
+      final q = expenseChartDrillDownQuery(
+        base: base,
+        breakdown: ExpenseChartBreakdown.week,
+        sliceKey: '2026-03-09',
+      );
+      expect(q?.from, DateTime(2026, 3, 9));
+      expect(q?.to, DateTime(2026, 3, 15));
+    });
+
     test('legacy tagCountry name maps to country breakdown', () {
       expect(
         expenseChartBreakdownFromName('tagCountry'),

@@ -57,6 +57,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   void _changeBreakdown(ExpenseChartBreakdown next) {
     ref.read(appSettingsProvider.notifier).setExpensesListDisplay(
           chartBreakdown: next.name,
+          chartDatePeriod:
+              isDateChartBreakdown(next) ? next.name : null,
         );
   }
 

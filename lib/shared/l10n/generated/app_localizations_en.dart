@@ -1091,6 +1091,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartByMonth => 'Months';
 
   @override
+  String get chartByDay => 'Days';
+
+  @override
+  String get chartByWeek => 'Weeks';
+
+  @override
+  String get chartByDate => 'By date';
+
+  @override
   String get chartByCurrency => 'Currency';
 
   @override

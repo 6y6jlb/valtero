@@ -530,6 +530,9 @@
     }
   },
   "chartByMonth": "Meses",
+  "chartByDay": "Días",
+  "chartByWeek": "Semanas",
+  "chartByDate": "Por fecha",
   "chartByCurrency": "Moneda",
   "chartByYear": "Años",
   "filterTags": "Filtrar etiquetas",

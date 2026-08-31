@@ -1098,6 +1098,15 @@ class AppLocalizationsSr extends AppLocalizations {
   String get chartByMonth => 'Meseci';
 
   @override
+  String get chartByDay => 'Dani';
+
+  @override
+  String get chartByWeek => 'Nedelje';
+
+  @override
+  String get chartByDate => 'Po datumu';
+
+  @override
   String get chartByCurrency => 'Valuta';
 
   @override

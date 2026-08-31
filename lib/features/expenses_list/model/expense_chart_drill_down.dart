@@ -23,6 +23,25 @@ ExpenseListQuery? expenseChartDrillDownQuery({
       final id = int.tryParse(sliceKey.replaceFirst('pay_', ''));
       if (id == null) return null;
       return base.copyWith(paymentMethodIds: {id});
+    case ExpenseChartBreakdown.day:
+      final parts = sliceKey.split('-');
+      if (parts.length != 3) return null;
+      final year = int.tryParse(parts[0]);
+      final month = int.tryParse(parts[1]);
+      final day = int.tryParse(parts[2]);
+      if (year == null || month == null || day == null) return null;
+      final from = DateTime(year, month, day);
+      return base.copyWith(from: from, to: from);
+    case ExpenseChartBreakdown.week:
+      final parts = sliceKey.split('-');
+      if (parts.length != 3) return null;
+      final year = int.tryParse(parts[0]);
+      final month = int.tryParse(parts[1]);
+      final day = int.tryParse(parts[2]);
+      if (year == null || month == null || day == null) return null;
+      final from = DateTime(year, month, day);
+      final to = from.add(const Duration(days: 6));
+      return base.copyWith(from: from, to: to);
     case ExpenseChartBreakdown.month:
       final parts = sliceKey.split('-');
       if (parts.length != 2) return null;

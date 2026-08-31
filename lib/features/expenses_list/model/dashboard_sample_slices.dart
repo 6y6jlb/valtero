@@ -74,6 +74,59 @@ List<DonutChartSlice> dashboardSampleSlices(
           color: chartColorAt(2),
         ),
       ];
+    case ExpenseChartBreakdown.day:
+      String dayKey(DateTime d) =>
+          '${d.year}-${d.month.toString().padLeft(2, '0')}-'
+          '${d.day.toString().padLeft(2, '0')}';
+      return [
+        DonutChartSlice(
+          key: dayKey(clock.subtract(const Duration(days: 2))),
+          label: dayKey(clock.subtract(const Duration(days: 2))),
+          amountMinor: 90000,
+          color: chartColorAt(0),
+        ),
+        DonutChartSlice(
+          key: dayKey(clock.subtract(const Duration(days: 1))),
+          label: dayKey(clock.subtract(const Duration(days: 1))),
+          amountMinor: 140000,
+          color: chartColorAt(1),
+        ),
+        DonutChartSlice(
+          key: dayKey(clock),
+          label: dayKey(clock),
+          amountMinor: 110000,
+          color: chartColorAt(2),
+        ),
+      ];
+    case ExpenseChartBreakdown.week:
+      DateTime mondayOf(DateTime d) =>
+          DateTime(d.year, d.month, d.day)
+              .subtract(Duration(days: d.weekday - DateTime.monday));
+      String weekKey(DateTime d) {
+        final m = mondayOf(d);
+        return '${m.year}-${m.month.toString().padLeft(2, '0')}-'
+            '${m.day.toString().padLeft(2, '0')}';
+      }
+      return [
+        DonutChartSlice(
+          key: weekKey(clock.subtract(const Duration(days: 14))),
+          label: weekKey(clock.subtract(const Duration(days: 14))),
+          amountMinor: 310000,
+          color: chartColorAt(0),
+        ),
+        DonutChartSlice(
+          key: weekKey(clock.subtract(const Duration(days: 7))),
+          label: weekKey(clock.subtract(const Duration(days: 7))),
+          amountMinor: 450000,
+          color: chartColorAt(1),
+        ),
+        DonutChartSlice(
+          key: weekKey(clock),
+          label: weekKey(clock),
+          amountMinor: 280000,
+          color: chartColorAt(2),
+        ),
+      ];
     case ExpenseChartBreakdown.month:
       String monthKey(DateTime d) =>
           '${d.year}-${d.month.toString().padLeft(2, '0')}';

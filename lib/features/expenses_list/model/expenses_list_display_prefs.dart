@@ -29,3 +29,7 @@ ExpenseChartBreakdown expensesChartBreakdownFromSettings(AppSettings settings) {
 ExpenseChartType expensesChartTypeFromSettings(AppSettings settings) {
   return expenseChartTypeFromName(settings.expensesChartType);
 }
+
+ExpenseChartBreakdown expensesChartDatePeriodFromSettings(AppSettings settings) {
+  return expenseChartDatePeriodFromName(settings.expensesChartDatePeriod);
+}

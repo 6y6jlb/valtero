@@ -8,6 +8,21 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.4.9] - 2026-08-31
+
+### Added
+
+- Chart breakdown by **day** and **week** (alongside month/year); choice is
+  persisted with other list display prefs.
+- Filter currency and expenses listing view / group / sort open in bottom sheets
+  (same pattern as tags and payment filters).
+
+### Changed
+
+- Chart type icons live in one block (country, payment, tags, day, week, month,
+  year, currency); when they do not fit on one line they wrap into two balanced
+  rows (e.g. 4 + 4).
+
 ## [1.4.8] - 2026-08-31
 
 ### Added

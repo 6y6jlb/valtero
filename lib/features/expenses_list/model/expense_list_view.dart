@@ -19,9 +19,31 @@ enum ExpenseChartBreakdown {
   country,
   payment,
   tagCustom,
+  day,
+  week,
   month,
   year,
   currency,
+}
+
+/// True when the chart groups expenses by calendar day / week / month / year.
+bool isDateChartBreakdown(ExpenseChartBreakdown breakdown) {
+  return switch (breakdown) {
+    ExpenseChartBreakdown.day ||
+    ExpenseChartBreakdown.week ||
+    ExpenseChartBreakdown.month ||
+    ExpenseChartBreakdown.year =>
+      true,
+    _ => false,
+  };
+}
+
+/// Maps a stored date-period name to day|week|month|year (default month).
+ExpenseChartBreakdown expenseChartDatePeriodFromName(String? name) {
+  final parsed = expenseChartBreakdownFromName(name);
+  return isDateChartBreakdown(parsed)
+      ? parsed
+      : ExpenseChartBreakdown.month;
 }
 
 TagKind? tagKindFromChartBreakdown(ExpenseChartBreakdown breakdown) {

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/utils/date_period.dart';
-import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/period_picker.dart';
 
 const _filterHeight = 56.0;
@@ -12,9 +11,8 @@ const _filterColumns = 2;
 /// Period / currency / tags / payment filter controls.
 class ExpensesFilterForm extends StatelessWidget {
   final ExpenseListQuery draft;
-  final List<String> currencyOptions;
   final VoidCallback onPickPeriod;
-  final ValueChanged<String?> onCurrencyChanged;
+  final VoidCallback onPickCurrency;
   final VoidCallback onPickTags;
   final VoidCallback onPickPayment;
   final VoidCallback onApply;
@@ -29,9 +27,8 @@ class ExpensesFilterForm extends StatelessWidget {
   const ExpensesFilterForm({
     super.key,
     required this.draft,
-    required this.currencyOptions,
     required this.onPickPeriod,
-    required this.onCurrencyChanged,
+    required this.onPickCurrency,
     required this.onPickTags,
     required this.onPickPayment,
     required this.onApply,
@@ -108,31 +105,11 @@ class ExpensesFilterForm extends StatelessWidget {
                   ),
                 ),
                 cell(
-                  DropdownButtonFormField<String?>(
-                    // ignore: deprecated_member_use
-                    value: draft.currencyCode,
-                    isExpanded: true,
-                    isDense: true,
-                    iconSize: 20,
-                    style: theme.textTheme.bodyMedium,
+                  ExpensesFilterOutlineButton(
+                    value: currencyLabel,
+                    icon: Icons.currency_exchange,
                     decoration: _decoration(theme, l10n.filterCurrency),
-                    selectedItemBuilder: (context) => [
-                      Text(l10n.all, overflow: TextOverflow.ellipsis),
-                      for (final code in currencyOptions)
-                        Text(code, overflow: TextOverflow.ellipsis),
-                    ],
-                    items: [
-                      DropdownMenuItem<String?>(
-                        value: null,
-                        child: Text(l10n.all),
-                      ),
-                      for (final code in currencyOptions)
-                        DropdownMenuItem<String?>(
-                          value: code,
-                          child: CurrencyCodeLabel(code, compact: true),
-                        ),
-                    ],
-                    onChanged: onCurrencyChanged,
+                    onTap: onPickCurrency,
                   ),
                 ),
                 cell(

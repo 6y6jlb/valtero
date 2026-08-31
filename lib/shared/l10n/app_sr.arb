@@ -530,6 +530,9 @@
     }
   },
   "chartByMonth": "Meseci",
+  "chartByDay": "Dani",
+  "chartByWeek": "Nedelje",
+  "chartByDate": "Po datumu",
   "chartByCurrency": "Valuta",
   "chartByYear": "Godine",
   "filterTags": "Filter oznaka",

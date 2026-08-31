@@ -143,6 +143,16 @@ String calendarDayKey(DateTime instant, String timeZoneId) {
   return '${z.year}-$m-$d';
 }
 
+/// Monday of the calendar week containing [instant], as `YYYY-MM-DD`.
+String calendarWeekKey(DateTime instant, String timeZoneId) {
+  final z = zonedFromInstant(instant, timeZoneId);
+  final monday = DateTime(z.year, z.month, z.day)
+      .subtract(Duration(days: z.weekday - DateTime.monday));
+  final m = monday.month.toString().padLeft(2, '0');
+  final d = monday.day.toString().padLeft(2, '0');
+  return '${monday.year}-$m-$d';
+}
+
 /// Calendar month key `YYYY-MM` in [timeZoneId].
 String calendarMonthKey(DateTime instant, String timeZoneId) {
   final z = zonedFromInstant(instant, timeZoneId);

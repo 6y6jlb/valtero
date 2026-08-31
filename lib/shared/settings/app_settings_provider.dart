@@ -193,6 +193,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     String? group,
     String? chartBreakdown,
     String? chartType,
+    String? chartDatePeriod,
   }) async {
     final current = state.value;
     if (current == null) return;
@@ -201,6 +202,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       expensesListGroup: group,
       expensesChartBreakdown: chartBreakdown,
       expensesChartType: chartType,
+      expensesChartDatePeriod: chartDatePeriod,
     ));
   }
 

@@ -149,7 +149,6 @@ class _DashboardBodyState extends State<DashboardBody> {
           ChartBreakdownIcons(
             selected: widget.breakdown,
             onChanged: widget.onBreakdownChanged,
-            showYear: false,
           ),
           if (expenseChartBreakdownUsesTagKind(widget.breakdown) ||
               expenseChartBreakdownUsesPayment(widget.breakdown)) ...[

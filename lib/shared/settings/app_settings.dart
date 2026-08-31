@@ -31,6 +31,8 @@ class AppSettings {
   final String expensesChartBreakdown;
   /// Persisted chart shape: `donut` | `column`.
   final String expensesChartType;
+  /// Last date-chart period: `day` | `week` | `month` | `year`.
+  final String expensesChartDatePeriod;
   /// When true, verbose debug breadcrumbs are written to the app log file.
   /// Error/warning logs are always written regardless of this flag.
   final bool debugLoggingEnabled;
@@ -72,6 +74,7 @@ class AppSettings {
     this.expensesListGroup = 'currency',
     this.expensesChartBreakdown = 'currency',
     this.expensesChartType = 'donut',
+    this.expensesChartDatePeriod = 'month',
     this.debugLoggingEnabled = false,
     this.googleDriveSyncEnabled = false,
     this.googleDriveAccountEmail = '',
@@ -120,6 +123,7 @@ class AppSettings {
     String? expensesListGroup,
     String? expensesChartBreakdown,
     String? expensesChartType,
+    String? expensesChartDatePeriod,
     bool? debugLoggingEnabled,
     bool? googleDriveSyncEnabled,
     String? googleDriveAccountEmail,
@@ -164,6 +168,8 @@ class AppSettings {
       expensesChartBreakdown:
           expensesChartBreakdown ?? this.expensesChartBreakdown,
       expensesChartType: expensesChartType ?? this.expensesChartType,
+      expensesChartDatePeriod:
+          expensesChartDatePeriod ?? this.expensesChartDatePeriod,
       debugLoggingEnabled: debugLoggingEnabled ?? this.debugLoggingEnabled,
       googleDriveSyncEnabled:
           googleDriveSyncEnabled ?? this.googleDriveSyncEnabled,
@@ -211,6 +217,7 @@ class AppSettings {
         'expensesListGroup': expensesListGroup,
         'expensesChartBreakdown': expensesChartBreakdown,
         'expensesChartType': expensesChartType,
+        'expensesChartDatePeriod': expensesChartDatePeriod,
         'debugLoggingEnabled': debugLoggingEnabled,
         'googleDriveSyncEnabled': googleDriveSyncEnabled,
         'googleDriveAccountEmail': googleDriveAccountEmail,
@@ -263,6 +270,18 @@ class AppSettings {
       expensesChartBreakdown:
           json['expensesChartBreakdown'] as String? ?? 'currency',
       expensesChartType: json['expensesChartType'] as String? ?? 'donut',
+      expensesChartDatePeriod: () {
+        final stored = json['expensesChartDatePeriod'] as String?;
+        if (stored != null && stored.isNotEmpty) return stored;
+        final breakdown = json['expensesChartBreakdown'] as String? ?? '';
+        if (breakdown == 'day' ||
+            breakdown == 'week' ||
+            breakdown == 'month' ||
+            breakdown == 'year') {
+          return breakdown;
+        }
+        return 'month';
+      }(),
       debugLoggingEnabled: json['debugLoggingEnabled'] as bool? ?? false,
       googleDriveSyncEnabled: json['googleDriveSyncEnabled'] as bool? ?? false,
       googleDriveAccountEmail: json['googleDriveAccountEmail'] as String? ?? '',

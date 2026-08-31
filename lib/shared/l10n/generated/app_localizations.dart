@@ -2037,6 +2037,24 @@ abstract class AppLocalizations {
   /// **'Months'**
   String get chartByMonth;
 
+  /// No description provided for @chartByDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get chartByDay;
+
+  /// No description provided for @chartByWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Weeks'**
+  String get chartByWeek;
+
+  /// No description provided for @chartByDate.
+  ///
+  /// In en, this message translates to:
+  /// **'By date'**
+  String get chartByDate;
+
   /// No description provided for @chartByCurrency.
   ///
   /// In en, this message translates to:

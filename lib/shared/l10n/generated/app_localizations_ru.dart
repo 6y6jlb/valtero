@@ -1098,6 +1098,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get chartByMonth => 'Месяцы';
 
   @override
+  String get chartByDay => 'Дни';
+
+  @override
+  String get chartByWeek => 'Недели';
+
+  @override
+  String get chartByDate => 'По дате';
+
+  @override
   String get chartByCurrency => 'Валюта';
 
   @override
