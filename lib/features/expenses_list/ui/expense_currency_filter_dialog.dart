@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 
 /// Result of currency filter sheet. [code] null means “all currencies”.
@@ -27,7 +32,7 @@ Future<ExpenseCurrencyFilterPick?> showExpenseCurrencyFilterDialog(
   );
 }
 
-class _ExpenseCurrencyFilterSheet extends StatelessWidget {
+class _ExpenseCurrencyFilterSheet extends StatefulWidget {
   final List<String> currencyOptions;
   final String? initialSelection;
 
@@ -37,45 +42,59 @@ class _ExpenseCurrencyFilterSheet extends StatelessWidget {
   });
 
   @override
+  State<_ExpenseCurrencyFilterSheet> createState() =>
+      _ExpenseCurrencyFilterSheetState();
+}
+
+class _ExpenseCurrencyFilterSheetState extends State<_ExpenseCurrencyFilterSheet> {
+  late String? _selected;
+
+  @override
+  void initState() {
+    super.initState();
+    _selected = widget.initialSelection;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    return ListView(
-      padding: appModalScrollPadding(
-        context,
-        base: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+    return AppSheetScaffold(
+      header: AppSheetHeader(title: l10n.filterCurrency),
+      contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      actions: AppSheetActionsBar(
+        children: [
+          AppTextButton(
+            onPressed: () => setState(() => _selected = null),
+            label: l10n.clearFilters,
+          ),
+          AppCloseIconButton(onPressed: () => Navigator.pop(context)),
+          AppFilledButton(
+            onPressed: () =>
+                Navigator.pop(context, ExpenseCurrencyFilterPick(_selected)),
+            icon: Icons.check,
+            label: l10n.ok,
+          ),
+        ],
       ),
       children: [
-        Text(
-          l10n.filterCurrency,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
         ListTile(
           contentPadding: EdgeInsets.zero,
           title: Text(l10n.all),
-          trailing: initialSelection == null
+          trailing: _selected == null
               ? Icon(Icons.check, color: theme.colorScheme.primary)
               : null,
-          onTap: () => Navigator.pop(
-            context,
-            const ExpenseCurrencyFilterPick(null),
-          ),
+          onTap: () => setState(() => _selected = null),
         ),
-        for (final code in currencyOptions)
+        for (final code in widget.currencyOptions)
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: FlagIcon.currency(code, size: 28),
             title: Text(code),
-            trailing: initialSelection == code
+            trailing: _selected == code
                 ? Icon(Icons.check, color: theme.colorScheme.primary)
                 : null,
-            onTap: () => Navigator.pop(
-              context,
-              ExpenseCurrencyFilterPick(code),
-            ),
+            onTap: () => setState(() => _selected = code),
           ),
       ],
     );

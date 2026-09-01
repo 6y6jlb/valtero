@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:valtero/entities/payment_method/ui/payment_method_chip.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 
 Future<Set<int>?> showExpensePaymentFilterDialog(
   BuildContext context, {
@@ -35,7 +40,8 @@ class _ExpensePaymentFilterSheet extends StatefulWidget {
       _ExpensePaymentFilterSheetState();
 }
 
-class _ExpensePaymentFilterSheetState extends State<_ExpensePaymentFilterSheet> {
+class _ExpensePaymentFilterSheetState
+    extends State<_ExpensePaymentFilterSheet> {
   late Set<int> _selected;
 
   @override
@@ -47,16 +53,24 @@ class _ExpensePaymentFilterSheetState extends State<_ExpensePaymentFilterSheet> 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+    return AppSheetScaffold(
+      header: AppSheetHeader(title: l10n.filterPayment),
+      contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      actions: AppSheetActionsBar(
+        children: [
+          AppTextButton(
+            onPressed: () => setState(() => _selected.clear()),
+            label: l10n.clearFilters,
+          ),
+          AppCloseIconButton(onPressed: () => Navigator.pop(context)),
+          AppFilledButton(
+            onPressed: () => Navigator.pop(context, Set<int>.from(_selected)),
+            icon: Icons.check,
+            label: l10n.ok,
+          ),
+        ],
+      ),
       children: [
-        Text(
-          l10n.filterPayment,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-        ),
-        const SizedBox(height: 12),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -75,25 +89,6 @@ class _ExpensePaymentFilterSheetState extends State<_ExpensePaymentFilterSheet> 
                   });
                 },
               ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            TextButton(
-              onPressed: () => setState(() => _selected.clear()),
-              child: Text(l10n.clearFilters),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
-            ),
-            const SizedBox(width: 8),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, Set<int>.from(_selected)),
-              child: Text(MaterialLocalizations.of(context).okButtonLabel),
-            ),
           ],
         ),
       ],

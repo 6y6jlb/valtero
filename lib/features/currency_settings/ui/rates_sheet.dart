@@ -5,7 +5,9 @@ import 'package:valtero/entities/exchange_rate/model/rate_resolver.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/database/database_provider.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/widgets/app_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
 import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/set_manual_rate_sheet.dart';
@@ -15,10 +17,7 @@ final allExchangeRatesProvider = StreamProvider<List<ExchangeRate>>((ref) {
 });
 
 Future<void> showRatesSheet(BuildContext context) {
-  return showAppModalSheet(
-    context: context,
-    child: const RatesSheetBody(),
-  );
+  return showAppModalSheet(context: context, child: const RatesSheetBody());
 }
 
 class RatesSheetBody extends ConsumerStatefulWidget {
@@ -117,11 +116,7 @@ class _RatesSheetBodyState extends ConsumerState<RatesSheetBody> {
     }
   }
 
-  Future<void> _addOrEdit({
-    String? base,
-    String? target,
-    double? rate,
-  }) async {
+  Future<void> _addOrEdit({String? base, String? target, double? rate}) async {
     await showSetManualRateSheet(
       context,
       base: base,
@@ -154,32 +149,22 @@ class _RatesSheetBodyState extends ConsumerState<RatesSheetBody> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      l10n.allRates,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
+                    AppSheetHeader(title: l10n.allRates),
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: [
-                        FilledButton.icon(
+                        AppFilledButton(
                           onPressed: () => _addOrEdit(),
-                          icon: const Icon(Icons.add),
-                          label: Text(l10n.addRate),
+                          icon: Icons.add,
+                          label: l10n.addRate,
                         ),
-                        OutlinedButton.icon(
+                        AppOutlinedButton(
                           onPressed: _refreshing ? null : _refreshAll,
-                          icon: _refreshing
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Icon(Icons.cloud_download_outlined),
-                          label: Text(l10n.fetchAllRatesFrom(serviceLabel)),
+                          busy: _refreshing,
+                          icon: Icons.cloud_download_outlined,
+                          label: l10n.fetchAllRatesFrom(serviceLabel),
                         ),
                       ],
                     ),
@@ -188,8 +173,8 @@ class _RatesSheetBodyState extends ConsumerState<RatesSheetBody> {
                       Text(
                         _bulkFetchStatus!,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
+                          color: Theme.of(context).colorScheme.error,
+                        ),
                       ),
                     ],
                   ],
@@ -255,9 +240,9 @@ class _RatesSheetBodyState extends ConsumerState<RatesSheetBody> {
                             onPressed: pairBusy || _refreshing
                                 ? null
                                 : () => _refreshPair(
-                                      rate.baseCurrencyCode,
-                                      rate.targetCurrencyCode,
-                                    ),
+                                    rate.baseCurrencyCode,
+                                    rate.targetCurrencyCode,
+                                  ),
                             icon: pairBusy
                                 ? const SizedBox(
                                     width: 18,

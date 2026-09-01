@@ -5,9 +5,14 @@ import 'package:valtero/entities/exchange_rate/model/rate_resolver.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/currency_label.dart';
+import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
+import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 import 'package:valtero/widgets/currency_picker.dart';
 import 'package:valtero/widgets/flag_icon.dart';
-import 'package:valtero/widgets/app_modal_sheet.dart';
 
 /// Prompt to enter a manual FX rate.
 /// Returns the saved rate, or `null` if cancelled.
@@ -155,21 +160,20 @@ class _SetManualRateBodyState extends ConsumerState<_SetManualRateBody> {
     final serviceLabel = serviceId == 'exchangerate_api'
         ? l10n.rateSourceApi
         : l10n.rateSourceFrankfurter;
-    final scrollController = PrimaryScrollController.maybeOf(context);
 
-    return ListView(
-      controller: scrollController,
-      padding: appModalScrollPadding(context),
-      children: [
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-          Text(
-            l10n.setManualRateTitle,
-            style: Theme.of(context).textTheme.titleLarge,
+    return AppSheetScaffold(
+      header: AppSheetHeader(title: l10n.setManualRateTitle),
+      actions: AppSheetActionsBar(
+        children: [
+          const AppCloseIconButton(),
+          AppFilledButton(
+            label: l10n.save,
+            icon: Icons.check,
+            onPressed: _save,
           ),
-          const SizedBox(height: 16),
+        ],
+      ),
+      children: [
           if (widget.allowPickPair) ...[
             ListTile(
               contentPadding: EdgeInsets.zero,
@@ -214,16 +218,11 @@ class _SetManualRateBodyState extends ConsumerState<_SetManualRateBody> {
           const SizedBox(height: 12),
           Align(
             alignment: Alignment.centerLeft,
-            child: OutlinedButton.icon(
+            child: AppOutlinedButton(
               onPressed: _fetching || _base == _target ? null : _fetchFromService,
-              icon: _fetching
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.cloud_download_outlined),
-              label: Text(l10n.fetchRateFromService(serviceLabel)),
+              busy: _fetching,
+              icon: Icons.cloud_download_outlined,
+              label: l10n.fetchRateFromService(serviceLabel),
             ),
           ),
           if (_fetchedNote != null) ...[
@@ -245,22 +244,6 @@ class _SetManualRateBodyState extends ConsumerState<_SetManualRateBody> {
             ),
             onSubmitted: (_) => _save(),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(l10n.cancel),
-              ),
-              const Spacer(),
-              FilledButton(
-                onPressed: _save,
-                child: Text(l10n.save),
-              ),
-            ],
-          ),
-        ],
-        ),
       ],
     );
   }

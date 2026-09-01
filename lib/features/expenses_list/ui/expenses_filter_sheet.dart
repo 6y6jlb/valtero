@@ -3,7 +3,12 @@ import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
 import 'package:valtero/features/expenses_list/ui/expense_currency_filter_dialog.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_filter_form.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 
 /// Full-screen-ish filter sheet. Returns the applied draft on Apply, or null.
 Future<ExpenseListQuery?> showExpensesFilterSheet({
@@ -62,17 +67,45 @@ class _ExpensesFilterSheetBody extends StatefulWidget {
 class _ExpensesFilterSheetBodyState extends State<_ExpensesFilterSheetBody> {
   late ExpenseListQuery _draft = widget.initial;
 
+  void _clearAll() {
+    final defaults = ExpenseListQuery.sessionDefaults(
+      timeZoneId: 'system',
+    );
+    setState(() {
+      _draft = _draft.copyWith(
+        tagIds: {},
+        paymentMethodIds: {},
+        countryCodes: {},
+        clearCurrencyCode: true,
+        from: defaults.from,
+        to: defaults.to,
+        clearFrom: defaults.from == null,
+        clearTo: defaults.to == null,
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final scrollController = PrimaryScrollController.maybeOf(context);
 
-    return ListView(
-      controller: scrollController,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+    return AppSheetScaffold(
+      header: AppSheetHeader(title: l10n.filtersTitle),
+      actions: AppSheetActionsBar(
+        children: [
+          AppTextButton(
+            onPressed: _clearAll,
+            label: l10n.clearFilters,
+          ),
+          const AppCloseIconButton(),
+          AppFilledButton(
+            onPressed: () => Navigator.of(context).pop(_draft),
+            label: l10n.applyFilters,
+            icon: Icons.check,
+          ),
+        ],
+      ),
       children: [
-        Text(l10n.filtersTitle, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 16),
         ExpensesFilterForm(
           draft: _draft,
           onPickPeriod: () async {
@@ -99,24 +132,6 @@ class _ExpensesFilterSheetBodyState extends State<_ExpensesFilterSheetBody> {
           onPickPayment: () async {
             final next = await widget.onPickPayment(_draft);
             if (next != null && mounted) setState(() => _draft = next);
-          },
-          onApply: () => Navigator.of(context).pop(_draft),
-          onClear: () {
-            final defaults = ExpenseListQuery.sessionDefaults(
-              timeZoneId: 'system',
-            );
-            setState(() {
-              _draft = _draft.copyWith(
-                tagIds: {},
-                paymentMethodIds: {},
-                countryCodes: {},
-                clearCurrencyCode: true,
-                from: defaults.from,
-                to: defaults.to,
-                clearFrom: defaults.from == null,
-                clearTo: defaults.to == null,
-              );
-            });
           },
           tagLabels: widget.tagLabels,
           paymentLabels: widget.paymentLabels,

@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/debug_logs/model/debug_logs_controller.dart';
+import 'package:valtero/shared/consts/developer_contact.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
+import 'package:valtero/widgets/app_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 import 'package:valtero/widgets/app_toast.dart';
 
 Future<void> showDebugLogsSheet(BuildContext context) {
@@ -76,29 +81,30 @@ class _DebugLogsPanelState extends ConsumerState<DebugLogsPanel> {
     await _reload();
   }
 
+  Future<void> _copyDeveloperEmail() async {
+    final l10n = AppLocalizations.of(context)!;
+    await Clipboard.setData(
+      const ClipboardData(text: DeveloperContact.email),
+    );
+    if (!mounted) return;
+    showAppToast(context, l10n.copiedToClipboard);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final settings = ref.watch(appSettingsProvider).value;
-    final scrollController = PrimaryScrollController.maybeOf(context);
     final display = _logText.trim().isEmpty
         ? l10n.debugLogsEmpty
         : _logText.split('\n').reversed.where((l) => l.isNotEmpty).join('\n');
 
-    return ListView(
-      controller: scrollController,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+    return AppSheetScaffold(
+      header: AppSheetHeader(
+        title: l10n.settingsDebug,
+        description: l10n.debugLoggingDescription,
+      ),
       children: [
-        Text(l10n.settingsDebug, style: theme.textTheme.titleLarge),
-        const SizedBox(height: 8),
-        Text(
-          l10n.debugLoggingDescription,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 8),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           title: Text(l10n.debugLoggingEnabled),
@@ -108,6 +114,22 @@ class _DebugLogsPanelState extends ConsumerState<DebugLogsPanel> {
           },
         ),
         const SizedBox(height: 8),
+        Text(
+          l10n.debugLogsSendHint(DeveloperContact.email),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: AppOutlinedButton(
+            label: l10n.contactDeveloperCopyEmail,
+            icon: Icons.copy_outlined,
+            onPressed: _copyDeveloperEmail,
+          ),
+        ),
+        const SizedBox(height: 16),
         Text(l10n.debugViewLogs, style: theme.textTheme.titleMedium),
         const SizedBox(height: 8),
         Container(
@@ -133,21 +155,25 @@ class _DebugLogsPanelState extends ConsumerState<DebugLogsPanel> {
           spacing: 8,
           runSpacing: 8,
           children: [
-            FilledButton.tonal(
+            IconButton.filledTonal(
               onPressed: _reload,
-              child: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh),
             ),
-            FilledButton(
+            AppFilledButton(
               onPressed: _share,
-              child: Text(l10n.debugShareLogs),
+              label: l10n.debugShareLogs,
+              icon: Icons.share_outlined,
             ),
-            OutlinedButton(
+            AppOutlinedButton(
               onPressed: _copy,
-              child: Text(l10n.debugCopyLogs),
+              label: l10n.debugCopyLogs,
+              icon: Icons.copy_outlined,
             ),
-            OutlinedButton(
+            AppOutlinedButton(
               onPressed: _clear,
-              child: Text(l10n.debugClearLogs),
+              label: l10n.debugClearLogs,
+              icon: Icons.delete_outline,
+              destructive: true,
             ),
           ],
         ),

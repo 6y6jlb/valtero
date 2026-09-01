@@ -15,8 +15,6 @@ class ExpensesFilterForm extends StatelessWidget {
   final VoidCallback onPickCurrency;
   final VoidCallback onPickTags;
   final VoidCallback onPickPayment;
-  final VoidCallback onApply;
-  final VoidCallback onClear;
   final Map<int, String> tagLabels;
   final Map<int, String> paymentLabels;
   final VoidCallback onClearCurrency;
@@ -31,8 +29,6 @@ class ExpensesFilterForm extends StatelessWidget {
     required this.onPickCurrency,
     required this.onPickTags,
     required this.onPickPayment,
-    required this.onApply,
-    required this.onClear,
     required this.tagLabels,
     required this.paymentLabels,
     required this.onClearCurrency,
@@ -137,25 +133,6 @@ class ExpensesFilterForm extends StatelessWidget {
           },
         ),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            FilledButton(
-              onPressed: onApply,
-              child: Text(l10n.applyFilters),
-            ),
-            const SizedBox(width: 8),
-            OutlinedButton.icon(
-              onPressed: onClear,
-              icon: Icon(
-                Icons.close,
-                size: 18,
-                color: theme.colorScheme.error,
-              ),
-              label: Text(l10n.clearFilters),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
         Wrap(
           spacing: 8,
           runSpacing: 4,

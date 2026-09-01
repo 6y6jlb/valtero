@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_ok_button.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 
 Future<void> showFeatureHelpSheet(
   BuildContext context, {
@@ -11,32 +15,15 @@ Future<void> showFeatureHelpSheet(
     initialChildSize: 0.45,
     minChildSize: 0.3,
     maxChildSize: 0.75,
-    child: ListView(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-      children: [
-        Text(
-          title,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          body,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                height: 1.45,
-              ),
-        ),
-        const SizedBox(height: 16),
-        Align(
-          alignment: Alignment.centerRight,
-          child: FilledButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(MaterialLocalizations.of(context).okButtonLabel),
-          ),
-        ),
-      ],
+    child: AppSheetScaffold(
+      header: AppSheetHeader(
+        title: title,
+        description: body,
+      ),
+      actions: const AppSheetActionsBar(
+        children: [AppOkButton()],
+      ),
+      children: const [],
     ),
   );
 }

@@ -14,6 +14,8 @@ import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/action_success_status_icon.dart';
 import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
+import 'package:valtero/widgets/app_ok_button.dart';
 
 class GoogleDriveSyncConfigForm extends ConsumerStatefulWidget {
   const GoogleDriveSyncConfigForm({super.key});
@@ -80,12 +82,7 @@ class _GoogleDriveSyncConfigFormState
         builder: (ctx) => AlertDialog(
           title: Text(l10n.googleDriveRemoteNewerSchemaTitle),
           content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: Text(MaterialLocalizations.of(ctx).okButtonLabel),
-            ),
-          ],
+          actions: [const AppOkButton()],
         ),
       );
       return;
@@ -117,13 +114,15 @@ class _GoogleDriveSyncConfigFormState
         title: Text(l10n.googleDrivePassphraseChangeTitle),
         content: Text(l10n.googleDrivePassphraseChangeBody),
         actions: [
-          TextButton(
+          AppCloseIconButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(l10n.cancel),
+            label: l10n.cancel,
           ),
-          FilledButton(
+          AppFilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(MaterialLocalizations.of(ctx).okButtonLabel),
+            destructive: true,
+            icon: Icons.check,
+            label: l10n.ok,
           ),
         ],
       ),
@@ -146,10 +145,9 @@ class _GoogleDriveSyncConfigFormState
       _busyAction = 'signIn';
       _status = null;
     });
-    final result = await ref.read(googleDriveSyncEngineProvider).connectAndSync(
-          passphrase: passphrase,
-          includeFileScope: false,
-        );
+    final result = await ref
+        .read(googleDriveSyncEngineProvider)
+        .connectAndSync(passphrase: passphrase, includeFileScope: false);
     if (!mounted) return;
     setState(() => _busyAction = null);
     await _showResultFeedback(l10n, result);
@@ -166,16 +164,17 @@ class _GoogleDriveSyncConfigFormState
     if (!confirmed || !mounted) return;
     final passphrase = _passphraseController.text.trim();
     if (passphrase.isNotEmpty) {
-      await ref.read(appSettingsProvider.notifier).setGoogleDriveSync(
-            syncPassphrase: passphrase,
-          );
+      await ref
+          .read(appSettingsProvider.notifier)
+          .setGoogleDriveSync(syncPassphrase: passphrase);
     }
     setState(() {
       _busyAction = 'sync';
       _status = null;
     });
-    final result =
-        await ref.read(googleDriveSyncControllerProvider.notifier).syncNow();
+    final result = await ref
+        .read(googleDriveSyncControllerProvider.notifier)
+        .syncNow();
     if (!mounted) return;
     setState(() => _busyAction = null);
     await _showResultFeedback(l10n, result);
@@ -197,10 +196,7 @@ class _GoogleDriveSyncConfigFormState
       _busyAction = null;
       if (result.success) {
         _status = null;
-        showAppToast(
-          context,
-          connectionMessage(l10n, result.messageKey),
-        );
+        showAppToast(context, connectionMessage(l10n, result.messageKey));
       } else {
         _status = connectionMessage(l10n, result.messageKey);
       }
@@ -255,7 +251,8 @@ class _GoogleDriveSyncConfigFormState
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final settings = ref.watch(appSettingsProvider).value;
-    final connected = settings != null &&
+    final connected =
+        settings != null &&
         ref.watch(
           isIntegrationConfiguredProvider(kGoogleDriveSyncIntegrationId),
         );
@@ -306,9 +303,7 @@ class _GoogleDriveSyncConfigFormState
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.check_circle_outline),
             title: Text(
-              isJoined
-                  ? l10n.googleDriveJoinedAs
-                  : l10n.integrationConnected,
+              isJoined ? l10n.googleDriveJoinedAs : l10n.integrationConnected,
             ),
             subtitle: Text(
               settings.googleDriveAccountEmail.isNotEmpty
@@ -341,17 +336,18 @@ class _GoogleDriveSyncConfigFormState
               AppFilledButton(
                 label: l10n.googleDriveSignIn,
                 busy: _busyAction == 'signIn',
-                onPressed: !_busy &&
-                        isGoogleOAuthClientConfigured &&
-                        _passphraseReady
+                onPressed:
+                    !_busy && isGoogleOAuthClientConfigured && _passphraseReady
                     ? _signIn
                     : null,
+                icon: Icons.login,
               ),
               AppOutlinedButton(
                 label: l10n.googleDriveJoinShared,
                 onPressed: _busy || !isGoogleOAuthClientConfigured
                     ? null
                     : _joinShared,
+                icon: Icons.group_add_outlined,
               ),
             ],
             if (connected) ...[
@@ -359,6 +355,7 @@ class _GoogleDriveSyncConfigFormState
                 label: l10n.googleDriveSyncNow,
                 busy: _busyAction == 'sync',
                 onPressed: _busy ? null : _syncNow,
+                icon: Icons.sync_outlined,
               ),
               if (lastSynced != null && !_busy)
                 ActionSuccessStatusIcon(
@@ -369,12 +366,15 @@ class _GoogleDriveSyncConfigFormState
                 label: l10n.integrationTestConnection,
                 busy: _busyAction == 'test',
                 onPressed: _busy ? null : _test,
+                icon: Icons.verified_outlined,
               ),
               AppOutlinedButton(
                 label: isJoined
                     ? l10n.googleDriveLeaveShared
                     : l10n.integrationDisconnect,
                 onPressed: _busy ? null : _disconnect,
+                destructive: true,
+                icon: Icons.link_off_outlined,
               ),
             ],
           ],
@@ -390,10 +390,7 @@ class _GoogleDriveSyncConfigFormState
         ],
         if (connected && !isJoined) ...[
           const SizedBox(height: 24),
-          Text(
-            l10n.googleDriveSharedTitle,
-            style: theme.textTheme.titleMedium,
-          ),
+          Text(l10n.googleDriveSharedTitle, style: theme.textTheme.titleMedium),
           const SizedBox(height: 4),
           Text(
             l10n.googleDriveSharedDescription,
@@ -406,9 +403,7 @@ class _GoogleDriveSyncConfigFormState
             controller: _shareEmailController,
             keyboardType: TextInputType.emailAddress,
             enabled: !_busy,
-            decoration: InputDecoration(
-              labelText: l10n.googleDriveShareEmail,
-            ),
+            decoration: InputDecoration(labelText: l10n.googleDriveShareEmail),
           ),
           const SizedBox(height: 8),
           Align(
@@ -417,6 +412,7 @@ class _GoogleDriveSyncConfigFormState
               label: l10n.googleDriveShareAdd,
               busy: _busyAction == 'share',
               onPressed: _busy || !_shareEmailReady ? null : _share,
+              icon: Icons.person_add_alt_outlined,
             ),
           ),
           if (sharedWith.isNotEmpty) ...[

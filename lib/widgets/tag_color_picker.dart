@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/shared/consts/palette.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 
 /// Compact palette for picking a tag color.
 class TagColorPicker extends StatelessWidget {
@@ -97,11 +99,11 @@ Future<TagEditResult?> showTagEditDialog(
               ),
             ),
             actions: [
-              TextButton(
+              AppCloseIconButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text(l10n.cancel),
+                label: l10n.cancel,
               ),
-              FilledButton(
+              AppFilledButton(
                 onPressed: () {
                   final name = controller.text.trim();
                   if (name.isEmpty) return;
@@ -110,7 +112,8 @@ Future<TagEditResult?> showTagEditDialog(
                     TagEditResult(name: name, colorValue: color),
                   );
                 },
-                child: Text(confirmLabel),
+                icon: Icons.check,
+                label: confirmLabel,
               ),
             ],
           );

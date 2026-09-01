@@ -7,6 +7,11 @@ import 'package:valtero/features/export_expenses/model/export_destination.dart';
 import 'package:valtero/features/export_expenses/model/export_readiness.dart';
 import 'package:valtero/features/integrations/ui/integration_config_modal.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 import 'package:valtero/widgets/app_toast.dart';
 
 class ExportPanel extends ConsumerStatefulWidget {
@@ -60,15 +65,21 @@ class _ExportPanelState extends ConsumerState<ExportPanel> {
     final l10n = AppLocalizations.of(context)!;
     final telegramConnected =
         ref.watch(isIntegrationConfiguredProvider(kTelegramIntegrationId));
-    final scrollController = PrimaryScrollController.maybeOf(context);
     final theme = Theme.of(context);
 
-    return ListView(
-      controller: scrollController,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+    return AppSheetScaffold(
+      header: AppSheetHeader(title: l10n.settingsExport),
+      actions: AppSheetActionsBar(
+        children: [
+          const AppCloseIconButton(),
+          AppFilledButton(
+            label: l10n.saveFile,
+            icon: Icons.check,
+            onPressed: () => _run(ExportDestination.save),
+          ),
+        ],
+      ),
       children: [
-        Text(l10n.settingsExport, style: theme.textTheme.titleLarge),
-        const SizedBox(height: 16),
         SegmentedButton<ExportFormat>(
           segments: [
             ButtonSegment(value: ExportFormat.csv, label: Text(l10n.exportCsv)),
@@ -78,31 +89,28 @@ class _ExportPanelState extends ConsumerState<ExportPanel> {
           onSelectionChanged: (s) => setState(() => _format = s.first),
         ),
         const SizedBox(height: 16),
-        FilledButton(
-          onPressed: () => _run(ExportDestination.save),
-          child: Text(l10n.saveFile),
-        ),
         if (isExportShareSupported) ...[
-          const SizedBox(height: 8),
-          OutlinedButton(
+          AppOutlinedButton(
             onPressed: () => _run(ExportDestination.share),
-            child: Text(l10n.share),
+            label: l10n.share,
+            icon: Icons.share_outlined,
           ),
+          const SizedBox(height: 8),
         ],
-        const SizedBox(height: 8),
-        OutlinedButton(
+        AppOutlinedButton(
           onPressed: () => _run(ExportDestination.copy),
-          child: Text(
-            '${l10n.copyAs} ${_format == ExportFormat.csv ? l10n.exportCsv : l10n.exportJson}',
-          ),
+          label:
+              '${l10n.copyAs} ${_format == ExportFormat.csv ? l10n.exportCsv : l10n.exportJson}',
+          icon: Icons.copy_outlined,
         ),
         const SizedBox(height: 24),
         Text(l10n.integrationTelegramTitle, style: theme.textTheme.titleMedium),
         const SizedBox(height: 8),
         if (telegramConnected) ...[
-          FilledButton.tonal(
+          AppFilledButton.tonal(
             onPressed: () => _run(ExportDestination.telegram),
-            child: Text(l10n.sendTelegram),
+            label: l10n.sendTelegram,
+            icon: Icons.send_outlined,
           ),
         ] else ...[
           Text(
@@ -112,9 +120,10 @@ class _ExportPanelState extends ConsumerState<ExportPanel> {
             ),
           ),
           const SizedBox(height: 8),
-          OutlinedButton(
+          AppOutlinedButton(
             onPressed: _openTelegramSettings,
-            child: Text(l10n.openTelegramIntegration),
+            label: l10n.openTelegramIntegration,
+            icon: Icons.settings_outlined,
           ),
         ],
       ],

@@ -9,7 +9,12 @@ import 'package:valtero/features/integrations/ui/integration_config_modal.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/currency_label.dart';
+import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/currency_picker.dart';
 import 'package:valtero/widgets/flag_icon.dart';
@@ -37,25 +42,22 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final settingsAsync = ref.watch(appSettingsProvider);
-    final apiConnected =
-        ref.watch(isIntegrationConfiguredProvider(kExchangeRateApiIntegrationId));
-    final scrollController = PrimaryScrollController.maybeOf(context);
+    final apiConnected = ref.watch(
+      isIntegrationConfiguredProvider(kExchangeRateApiIntegrationId),
+    );
 
     return settingsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('$e')),
       data: (settings) {
-        return ListView(
-          controller: scrollController,
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        return AppSheetScaffold(
+          header: AppSheetHeader(title: l10n.settingsCurrency),
+          actions: const AppSheetActionsBar(children: [AppCloseIconButton()]),
           children: [
             Text(
-              l10n.settingsCurrency,
-              style: Theme.of(context).textTheme.titleLarge,
+              l10n.reportingCurrencies,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 16),
-            Text(l10n.reportingCurrencies,
-                style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
@@ -67,8 +69,9 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
                     label: Text(
                       currencyDisplayLabel(
                         code,
-                        languageCode:
-                            Localizations.localeOf(context).languageCode,
+                        languageCode: Localizations.localeOf(
+                          context,
+                        ).languageCode,
                         customCodes: settings.customCurrencyCodes,
                       ),
                     ),
@@ -91,9 +94,10 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
                     if (settings.reportingCurrencies.contains(code)) return;
                     await ref
                         .read(appSettingsProvider.notifier)
-                        .setReportingCurrencies(
-                          [...settings.reportingCurrencies, code],
-                        );
+                        .setReportingCurrencies([
+                          ...settings.reportingCurrencies,
+                          code,
+                        ]);
                   },
                 ),
               ],
@@ -101,17 +105,17 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               // ignore: deprecated_member_use
-              value: settings.reportingCurrencies.contains(settings.primaryCurrency)
+              value:
+                  settings.reportingCurrencies.contains(
+                    settings.primaryCurrency,
+                  )
                   ? settings.primaryCurrency
                   : settings.reportingCurrencies.first,
               isExpanded: true,
               decoration: InputDecoration(labelText: l10n.primaryCurrency),
               items: [
                 for (final code in settings.reportingCurrencies)
-                  DropdownMenuItem(
-                    value: code,
-                    child: CurrencyCodeLabel(code),
-                  ),
+                  DropdownMenuItem(value: code, child: CurrencyCodeLabel(code)),
               ],
               onChanged: (v) {
                 if (v != null) {
@@ -132,27 +136,25 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
               runSpacing: 8,
               children: [
                 if (!apiConnected)
-                  OutlinedButton(
+                  AppOutlinedButton(
                     onPressed: () async {
                       await showIntegrationConfigSheet(
                         context,
-                        integration:
-                            ref.read(frankfurterIntegrationProvider),
+                        integration: ref.read(frankfurterIntegrationProvider),
                       );
                     },
-                    child: Text(l10n.integrationFrankfurterTitle),
+                    label: l10n.integrationFrankfurterTitle,
                   ),
-                OutlinedButton(
+                AppOutlinedButton(
                   onPressed: () async {
                     await showIntegrationConfigSheet(
                       context,
-                      integration:
-                          ref.read(exchangeRateApiIntegrationProvider),
+                      integration: ref.read(exchangeRateApiIntegrationProvider),
                     );
                   },
-                  child: Text(l10n.openExchangeRateApiIntegration),
+                  label: l10n.openExchangeRateApiIntegration,
                 ),
-                FilledButton.icon(
+                AppFilledButton(
                   onPressed: () async {
                     final resolver = ref.read(rateResolverProvider);
                     final cooldown = resolver.rateFetchCooldownRemaining();
@@ -169,7 +171,7 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
                         : l10n.rateSourceFrankfurter;
                     try {
                       final count = await resolver.refreshAllRates();
-                      if (!mounted) return;
+                      if (!mounted || !context.mounted) return;
                       setState(() => _fetchStatus = null);
                       showAppToast(
                         context,
@@ -186,18 +188,16 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
                       setState(() => _fetchStatus = l10n.connectionFailed);
                     }
                   },
-                  icon: const Icon(Icons.cloud_download_outlined),
-                  label: Text(
-                    l10n.fetchAllRatesFrom(
-                      apiConnected
-                          ? l10n.rateSourceApi
-                          : l10n.rateSourceFrankfurter,
-                    ),
+                  icon: Icons.cloud_download_outlined,
+                  label: l10n.fetchAllRatesFrom(
+                    apiConnected
+                        ? l10n.rateSourceApi
+                        : l10n.rateSourceFrankfurter,
                   ),
                 ),
-                FilledButton.tonal(
+                AppFilledButton.tonal(
                   onPressed: () => showRatesSheet(context),
-                  child: Text(l10n.viewRates),
+                  label: l10n.viewRates,
                 ),
               ],
             ),
@@ -206,24 +206,30 @@ class _CurrencySettingsPanelState extends ConsumerState<CurrencySettingsPanel> {
               Text(
                 _fetchStatus!,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
+                  color: Theme.of(context).colorScheme.error,
+                ),
               ),
             ],
             const SizedBox(height: 24),
-            Text(l10n.manualRates, style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              l10n.manualRates,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 8),
-            FilledButton.icon(
-              onPressed: () async {
-                final rate = await showSetManualRateSheet(
-                  context,
-                  allowPickPair: true,
-                );
-                if (!mounted || rate == null) return;
-                setState(() {});
-              },
-              icon: const Icon(Icons.add),
-              label: Text(l10n.addRate),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: AppFilledButton(
+                onPressed: () async {
+                  final rate = await showSetManualRateSheet(
+                    context,
+                    allowPickPair: true,
+                  );
+                  if (!mounted || rate == null) return;
+                  setState(() {});
+                },
+                icon: Icons.add,
+                label: l10n.addRate,
+              ),
             ),
           ],
         );

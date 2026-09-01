@@ -14,11 +14,12 @@ import 'package:valtero/shared/utils/payment_method_label.dart';
 import 'package:valtero/shared/utils/platform_support.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
 import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
 
-Future<VoiceExpenseDraft?> showVoiceExpenseCaptureSheet(
-  BuildContext context,
-) {
+Future<VoiceExpenseDraft?> showVoiceExpenseCaptureSheet(BuildContext context) {
   if (!isVoiceInputSupported) return Future.value(null);
   return showAppModalSheet<VoiceExpenseDraft>(
     context: context,
@@ -61,10 +62,9 @@ class _VoiceExpenseCaptureSheetState
       onStatus: _onStatus,
       onError: (msg) {
         // Log engine error code/message only — never the spoken text.
-        ref.read(appLoggerProvider).error(
-              'Voice expense: speech engine error',
-              error: msg,
-            );
+        ref
+            .read(appLoggerProvider)
+            .error('Voice expense: speech engine error', error: msg);
         if (!mounted) return;
         setState(() {
           _phase = _CapturePhase.error;
@@ -74,9 +74,9 @@ class _VoiceExpenseCaptureSheetState
     );
     if (!mounted) return;
     if (!ok) {
-      ref.read(appLoggerProvider).error(
-            'Voice expense: speech recognition initialize failed',
-          );
+      ref
+          .read(appLoggerProvider)
+          .error('Voice expense: speech recognition initialize failed');
       setState(() {
         _phase = _CapturePhase.error;
         _errorKey = 'voiceExpenseUnavailable';
@@ -109,12 +109,11 @@ class _VoiceExpenseCaptureSheetState
       _finishing = false;
     });
     try {
-      await _service.startListening(
-        localeId: _localeId,
-        onResult: _onResult,
-      );
+      await _service.startListening(localeId: _localeId, onResult: _onResult);
     } catch (e, st) {
-      ref.read(appLoggerProvider).error(
+      ref
+          .read(appLoggerProvider)
+          .error(
             'Voice expense: startListening failed',
             error: e,
             stackTrace: st,
@@ -152,9 +151,9 @@ class _VoiceExpenseCaptureSheetState
         : _partial.trim();
     if (text.isEmpty) {
       // No transcript content in logs — only the outcome.
-      ref.read(appLoggerProvider).warning(
-            'Voice expense: empty recognition result',
-          );
+      ref
+          .read(appLoggerProvider)
+          .warning('Voice expense: empty recognition result');
       setState(() {
         _phase = _CapturePhase.error;
         _errorKey = 'voiceExpenseEmpty';
@@ -207,16 +206,14 @@ class _VoiceExpenseCaptureSheetState
     final scroll = PrimaryScrollController.maybeOf(context);
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
           child: ListView(
             controller: scroll,
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             children: [
-              Text(
-                l10n.voiceExpenseTitle,
-                style: theme.textTheme.titleLarge,
-              ),
+              AppSheetHeader(title: l10n.voiceExpenseTitle),
               const SizedBox(height: 12),
               _PatternHint(l10n: l10n, theme: theme),
               const SizedBox(height: 16),
@@ -224,13 +221,7 @@ class _VoiceExpenseCaptureSheetState
             ],
           ),
         ),
-        SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: _buildActions(l10n),
-          ),
-        ),
+        AppSheetActionsBar(children: _buildActions(l10n)),
       ],
     );
   }
@@ -281,7 +272,8 @@ class _VoiceExpenseCaptureSheetState
           ),
           _PreviewRow(
             label: l10n.paymentMethod,
-            value: _paymentLabel(draft.paymentMethodId) ??
+            value:
+                _paymentLabel(draft.paymentMethodId) ??
                 l10n.voiceExpenseNotDetected,
           ),
           _PreviewRow(
@@ -299,71 +291,54 @@ class _VoiceExpenseCaptureSheetState
     }
   }
 
-  Widget _buildActions(AppLocalizations l10n) {
+  List<Widget> _buildActions(AppLocalizations l10n) {
     switch (_phase) {
       case _CapturePhase.initializing:
-        return AppOutlinedButton(
-          onPressed: () => Navigator.of(context).pop(null),
-          label: l10n.cancel,
-        );
+        return [
+          AppCloseIconButton(
+            onPressed: () => Navigator.of(context).pop(null),
+            label: l10n.cancel,
+          ),
+        ];
       case _CapturePhase.listening:
-        return Row(
-          children: [
-            Expanded(
-              child: AppOutlinedButton(
-                onPressed: () async {
-                  await _service.cancelListening();
-                  if (!mounted) return;
-                  Navigator.of(context).pop(null);
-                },
-                label: l10n.cancel,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: AppFilledButton(
-                onPressed: _stopAndPreview,
-                label: l10n.voiceExpenseDoneListening,
-              ),
-            ),
-          ],
-        );
+        return [
+          AppCloseIconButton(
+            onPressed: () async {
+              await _service.cancelListening();
+              if (!mounted) return;
+              Navigator.of(context).pop(null);
+            },
+            label: l10n.cancel,
+          ),
+          AppFilledButton(
+            onPressed: _stopAndPreview,
+            label: l10n.voiceExpenseDoneListening,
+          ),
+        ];
       case _CapturePhase.preview:
-        return Row(
-          children: [
-            Expanded(
-              child: AppOutlinedButton(
-                onPressed: () => Navigator.of(context).pop(null),
-                label: l10n.cancel,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: AppFilledButton(
-                onPressed: () => Navigator.of(context).pop(_draft),
-                label: l10n.voiceExpenseCreate,
-              ),
-            ),
-          ],
-        );
+        return [
+          AppCloseIconButton(
+            onPressed: () => Navigator.of(context).pop(null),
+            label: l10n.cancel,
+          ),
+          AppFilledButton(
+            onPressed: () => Navigator.of(context).pop(_draft),
+            icon: Icons.check,
+            label: l10n.voiceExpenseCreate,
+          ),
+        ];
       case _CapturePhase.error:
-        return Row(
-          children: [
-            Expanded(
-              child: AppOutlinedButton(
-                onPressed: () => Navigator.of(context).pop(null),
-                label: l10n.cancel,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: AppFilledButton(
-                onPressed: _startListening,
-                label: l10n.voiceExpenseRetry,
-              ),
-            ),
-          ],
-        );
+        return [
+          AppCloseIconButton(
+            onPressed: () => Navigator.of(context).pop(null),
+            label: l10n.cancel,
+          ),
+          AppFilledButton(
+            onPressed: _startListening,
+            icon: Icons.refresh,
+            label: l10n.voiceExpenseRetry,
+          ),
+        ];
     }
   }
 

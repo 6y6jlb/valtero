@@ -6,7 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 import 'package:valtero/widgets/date_text.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/money_text.dart';
@@ -101,18 +105,38 @@ class _ExpenseDetailSheet extends ConsumerWidget {
             expense.originalCurrencyCode.toUpperCase() !=
                 expense.storedCurrencyCode.toUpperCase();
 
-    return ListView(
-      controller: PrimaryScrollController.maybeOf(context),
-      padding: appModalScrollPadding(context),
-      children: [
-        Text(
-          l10n.expenseDetails,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
+    return AppSheetScaffold(
+      header: AppSheetHeader(
+        title: l10n.expenseDetails,
+        centered: true,
+      ),
+      actions: AppSheetActionsBar(
+        children: [
+          AppCloseIconButton(
+            onPressed: () => Navigator.pop(context),
           ),
-        ),
-        const SizedBox(height: 16),
+          AppOutlinedButton(
+            label: l10n.delete,
+            icon: Icons.delete_outline,
+            destructive: true,
+            onPressed: () async {
+              final deleted = await onDelete();
+              if (deleted && context.mounted) {
+                Navigator.pop(context);
+              }
+            },
+          ),
+          AppFilledButton(
+            label: l10n.editExpense,
+            icon: Icons.check,
+            onPressed: () {
+              Navigator.pop(context);
+              onEdit();
+            },
+          ),
+        ],
+      ),
+      children: [
         _DetailRow(
           label: l10n.columnDate,
           child: DateText(instant: expense.occurredAt),
@@ -178,34 +202,6 @@ class _ExpenseDetailSheet extends ConsumerWidget {
             label: l10n.note,
             child: Text(note),
           ),
-        const SizedBox(height: 24),
-        Wrap(
-          alignment: WrapAlignment.center,
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            AppFilledButton(
-              label: l10n.editExpense,
-              onPressed: () {
-                Navigator.pop(context);
-                onEdit();
-              },
-            ),
-            AppOutlinedButton(
-              label: l10n.close,
-              onPressed: () => Navigator.pop(context),
-            ),
-            AppTextButton(
-              label: l10n.delete,
-              onPressed: () async {
-                final deleted = await onDelete();
-                if (deleted && context.mounted) {
-                  Navigator.pop(context);
-                }
-              },
-            ),
-          ],
-        ),
       ],
     );
   }

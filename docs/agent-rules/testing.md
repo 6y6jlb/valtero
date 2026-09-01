@@ -26,6 +26,45 @@ Guidelines for unit and feature tests in Valtero.
 6. Schema / migration: add fixture upgrade tests for breaking `migrate_to_vN` changes. Never wipe user DB on upgrade.
 7. When a Drift / generated model gains a **required** field (e.g. new non-null column), update **all** hand-built `Expense(...)` / table-row fixtures across `test/` — not only the new feature’s tests.
 
+## In-memory `AppDatabase` — one live instance
+
+Drift warns (and can race) if **two** `AppDatabase` instances exist at once in the same isolate, even with separate `NativeDatabase.memory()` executors:
+
+```
+WARNING (drift): It looks like you've created the database class AppDatabase multiple times…
+```
+
+**Do not** create a local `AppDatabase(...)` inside a `test(...)` when the enclosing `group` already opens one in `setUp`.
+
+| Pattern | Action |
+| --- | --- |
+| `group` with `setUp(() { db = AppDatabase(...); })` + `tearDown(db.close)` | Reuse group `db` in every test — no second constructor |
+| Standalone test / group without shared DB | `final db = AppDatabase(NativeDatabase.memory());` + `addTearDown(db.close)` (or `tearDown`) |
+| Need a fresh empty DB mid-test | `await db.close()` first, then construct the replacement (or use a nested group with its own setUp/tearDown) |
+
+```dart
+// ❌ BAD — group setUp already owns `db`; local ctor opens a second live AppDatabase
+group('BackupImporter', () {
+  late AppDatabase db;
+  setUp(() => db = AppDatabase(NativeDatabase.memory()));
+  tearDown(() async => db.close());
+
+  test('rates merge…', () async {
+    final db = AppDatabase(NativeDatabase.memory()); // shadows + warning
+    addTearDown(db.close);
+    …
+  });
+});
+
+// ✅ GOOD — reuse the group database
+test('rates merge…', () async {
+  await db.upsertRate(…);
+  …
+});
+```
+
+Do **not** silence this with `driftRuntimeOptions.dontWarnAboutMultipleDatabases = true` unless there is a deliberate, documented reason (prefer fixing ownership instead).
+
 ## After finishing a plan / feature
 
 Before declaring the work done (and before asking the user to commit):

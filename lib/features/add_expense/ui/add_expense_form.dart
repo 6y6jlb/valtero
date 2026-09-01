@@ -22,6 +22,9 @@ import 'package:valtero/shared/utils/app_timezone.dart';
 import 'package:valtero/shared/utils/money.dart';
 import 'package:valtero/shared/utils/payment_method_label.dart';
 import 'package:valtero/shared/utils/platform_support.dart';
+import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 import 'package:valtero/widgets/currency_picker.dart';
 import 'package:valtero/widgets/date_text.dart';
 import 'package:valtero/widgets/flag_icon.dart';
@@ -307,7 +310,6 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
         ref.watch(paymentMethodsStreamProvider).value ?? const [];
     final tagById = {for (final t in tags) t.id: t};
     final reporting = settings?.reportingCurrencies ?? const ['RUB'];
-    final scrollController = PrimaryScrollController.maybeOf(context);
     final theme = Theme.of(context);
     final lang = Localizations.localeOf(context).languageCode;
     final tagsSubtitle = _tagIds.isEmpty
@@ -326,26 +328,20 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
         ? l10n.tagKindUnspecifiedCountry
         : countryDisplayName(_countryCode!, languageCode: lang);
 
-    return Column(
+    return AppSheetScaffold(
+      header: AppSheetHeader(
+        title: _isEdit ? l10n.editExpense : l10n.addExpense,
+        trailing: (!_isEdit && isVoiceInputSupported)
+            ? VoiceExpenseMicButton(onPressed: _dictateExpense)
+            : null,
+      ),
+      actions: AddExpenseActionsBar(
+        isEdit: _isEdit,
+        expenseId: widget.expense?.id,
+        onSave: _save,
+        canSave: _canSave,
+      ),
       children: [
-        Expanded(
-          child: ListView(
-            controller: scrollController,
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      _isEdit ? l10n.editExpense : l10n.addExpense,
-                      style: theme.textTheme.titleLarge,
-                    ),
-                  ),
-                  if (!_isEdit && isVoiceInputSupported)
-                    VoiceExpenseMicButton(onPressed: _dictateExpense),
-                ],
-              ),
-              const SizedBox(height: 16),
               TextField(
                 controller: _amountController,
                 keyboardType:
@@ -418,10 +414,10 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
                     style: TextStyle(color: theme.colorScheme.error),
                   ),
                   const SizedBox(height: 8),
-                  OutlinedButton.icon(
+                  AppOutlinedButton(
                     onPressed: _offerSetRate,
-                    icon: const Icon(Icons.edit_outlined),
-                    label: Text(l10n.setRateNow),
+                    icon: Icons.edit_outlined,
+                    label: l10n.setRateNow,
                   ),
                 ],
               ],
@@ -480,15 +476,6 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
                   }
                 },
               ),
-            ],
-          ),
-        ),
-        AddExpenseActionsBar(
-          isEdit: _isEdit,
-          expenseId: widget.expense?.id,
-          onSave: _save,
-          canSave: _canSave,
-        ),
       ],
     );
   }

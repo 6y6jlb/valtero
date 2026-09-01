@@ -51,6 +51,49 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsDebug => 'Debug & logs';
 
   @override
+  String get settingsThanks => 'Thanks';
+
+  @override
+  String get thanksTitle => 'Thanks';
+
+  @override
+  String get thanksDescription =>
+      'If Valtero helps you, you can say thank you with a small tip in ETH or Bitcoin. Copy an address below and send from a compatible wallet.';
+
+  @override
+  String get thanksEthLabel => 'ETH address';
+
+  @override
+  String get thanksCopyEthAddress => 'Copy ETH address';
+
+  @override
+  String get thanksBtcLabel => 'Bitcoin address';
+
+  @override
+  String get thanksCopyBtcAddress => 'Copy Bitcoin address';
+
+  @override
+  String get settingsContactDeveloper => 'Contact developer';
+
+  @override
+  String get contactDeveloperTitle => 'Contact developer';
+
+  @override
+  String get contactDeveloperDescription =>
+      'Questions, ideas, or bug reports — write to the email below. You can also share app logs from Settings → Debug & logs.';
+
+  @override
+  String get contactDeveloperEmailLabel => 'Email';
+
+  @override
+  String get contactDeveloperCopyEmail => 'Copy email';
+
+  @override
+  String debugLogsSendHint(String email) {
+    return 'To send logs to the developer, share or copy them and email to $email.';
+  }
+
+  @override
   String get integrationConnected => 'Connected';
 
   @override
@@ -627,6 +670,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get save => 'Save';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get ok => 'OK';
 
   @override
   String get delete => 'Delete';

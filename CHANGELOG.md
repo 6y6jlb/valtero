@@ -8,6 +8,25 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.5.2] - 2026-09-01
+
+### Changed
+
+- Unified modal sheets and dialogs around a shared layout: title (optional
+  trailing action) → description → form → sticky centered actions
+  (`AppSheetScaffold`, `AppSheetHeader`, `AppSheetActionsBar`).
+- Action buttons use a consistent trailing-icon pattern (text then icon): close
+  (label + grey X), OK (success), Save/Create (check). Sticky footers use a
+  tinted action strip above the keyboard and system bottom inset; filter sheets
+  (main Filters, currency, tags, payment) share the same Clear / Close / OK|Apply
+  pattern.
+
+### Added
+
+- Shared sheet chrome widgets and l10n keys `ok` / `create`.
+- Settings: **Thanks** (ETH + Bitcoin tip addresses) and **Contact developer** (email);
+  Debug & logs shows where to send shared logs.
+
 ## [1.5.1] - 2026-09-01
 
 ### Added

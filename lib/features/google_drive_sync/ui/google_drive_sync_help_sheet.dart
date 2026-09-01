@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_ok_button.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 
 Future<void> showGoogleDriveSyncHelpSheet(BuildContext context) {
   return showAppModalSheet(
@@ -17,14 +21,11 @@ class GoogleDriveSyncHelpSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final scrollController = PrimaryScrollController.maybeOf(context);
 
-    return ListView(
-      controller: scrollController,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+    return AppSheetScaffold(
+      header: AppSheetHeader(title: l10n.googleDriveHelpTitle),
+      actions: const AppSheetActionsBar(children: [AppOkButton()]),
       children: [
-        Text(l10n.googleDriveHelpTitle, style: theme.textTheme.titleLarge),
-        const SizedBox(height: 16),
         Text(
           l10n.googleDriveHelpSameAccountTitle,
           style: theme.textTheme.titleMedium,

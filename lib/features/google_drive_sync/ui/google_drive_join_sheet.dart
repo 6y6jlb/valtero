@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/integrations/google_drive_sync/model/google_drive_rest_client.dart';
-import 'package:valtero/widgets/passphrase_text_field.dart';
 import 'package:valtero/features/google_drive_sync/model/google_drive_sync_engine.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
+import 'package:valtero/widgets/passphrase_text_field.dart';
 
 /// Discovers shared sync files and lets the user join one with a passphrase.
 Future<GoogleDriveSyncResult?> showJoinSharedSyncSheet(BuildContext context) {
@@ -50,8 +55,9 @@ class _JoinSharedSyncBodyState extends ConsumerState<_JoinSharedSyncBody> {
       _error = null;
     });
     try {
-      final files =
-          await ref.read(googleDriveSyncEngineProvider).discoverSharedSyncFiles();
+      final files = await ref
+          .read(googleDriveSyncEngineProvider)
+          .discoverSharedSyncFiles();
       if (!mounted) return;
       setState(() {
         _files = files;
@@ -73,10 +79,9 @@ class _JoinSharedSyncBodyState extends ConsumerState<_JoinSharedSyncBody> {
     final phrase = _passphraseController.text.trim();
     if (phrase.length < 8) return;
     setState(() => _joining = true);
-    final result = await ref.read(googleDriveSyncEngineProvider).joinSharedSync(
-          fileId: selected.id,
-          passphrase: phrase,
-        );
+    final result = await ref
+        .read(googleDriveSyncEngineProvider)
+        .joinSharedSync(fileId: selected.id, passphrase: phrase);
     if (!mounted) return;
     setState(() => _joining = false);
     Navigator.of(context).pop(result);
@@ -86,14 +91,26 @@ class _JoinSharedSyncBodyState extends ConsumerState<_JoinSharedSyncBody> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final scrollController = PrimaryScrollController.maybeOf(context);
 
-    return ListView(
-      controller: scrollController,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+    return AppSheetScaffold(
+      header: AppSheetHeader(title: l10n.googleDriveJoinPickTitle),
+      actions: AppSheetActionsBar(
+        children: [
+          const AppCloseIconButton(),
+          AppFilledButton(
+            onPressed:
+                _joining ||
+                    _selected == null ||
+                    _passphraseController.text.trim().length < 8
+                ? null
+                : _join,
+            busy: _joining,
+            icon: Icons.check,
+            label: l10n.googleDriveJoinConfirm,
+          ),
+        ],
+      ),
       children: [
-        Text(l10n.googleDriveJoinPickTitle, style: theme.textTheme.titleLarge),
-        const SizedBox(height: 12),
         if (_loading)
           const Padding(
             padding: EdgeInsets.all(24),
@@ -139,21 +156,6 @@ class _JoinSharedSyncBodyState extends ConsumerState<_JoinSharedSyncBody> {
             enabled: !_joining,
             showGenerate: false,
             showCopy: false,
-          ),
-          const SizedBox(height: 16),
-          FilledButton(
-            onPressed: _joining ||
-                    _selected == null ||
-                    _passphraseController.text.trim().length < 8
-                ? null
-                : _join,
-            child: _joining
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(l10n.googleDriveJoinConfirm),
           ),
         ],
       ],

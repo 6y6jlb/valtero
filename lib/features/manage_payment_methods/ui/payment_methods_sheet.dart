@@ -5,7 +5,12 @@ import 'package:valtero/features/manage_payment_methods/model/manage_payment_met
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/payment_method_label.dart';
+import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 import 'package:valtero/widgets/tag_color_picker.dart';
 
 Future<void> showPaymentMethodsSheet(BuildContext context) {
@@ -24,40 +29,34 @@ class PaymentMethodsSheetBody extends ConsumerWidget {
     final methods = ref.watch(paymentMethodsStreamProvider).value ?? const [];
     final settings = ref.watch(appSettingsProvider).value;
     final defaultId = settings?.defaultPaymentMethodId;
-    final scrollController = PrimaryScrollController.maybeOf(context);
 
-    return ListView(
-      controller: scrollController,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+    return AppSheetScaffold(
+      header: AppSheetHeader(
+        title: l10n.paymentMethodsTitle,
+        description: l10n.paymentMethodsHint,
+      ),
+      actions: AppSheetActionsBar(
+        children: [
+          const AppCloseIconButton(),
+          AppFilledButton.tonal(
+            onPressed: () async {
+              final result = await showTagEditDialog(
+                context,
+                title: l10n.paymentMethodNew,
+                confirmLabel: l10n.add,
+              );
+              if (result == null) return;
+              await ref
+                  .read(managePaymentMethodsControllerProvider)
+                  .addCustom(name: result.name, colorValue: result.colorValue);
+            },
+            icon: Icons.add,
+            label: l10n.paymentMethodAdd,
+          ),
+        ],
+      ),
       children: [
-        Text(
-          l10n.paymentMethodsTitle,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          l10n.paymentMethodsHint,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-        ),
-        const SizedBox(height: 12),
-        FilledButton.tonal(
-          onPressed: () async {
-            final result = await showTagEditDialog(
-              context,
-              title: l10n.paymentMethodNew,
-              confirmLabel: l10n.add,
-            );
-            if (result == null) return;
-            await ref.read(managePaymentMethodsControllerProvider).addCustom(
-                  name: result.name,
-                  colorValue: result.colorValue,
-                );
-          },
-          child: Text(l10n.paymentMethodAdd),
-        ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 4),
         for (final method in methods)
           ListTile(
             leading: CircleAvatar(
@@ -67,9 +66,7 @@ class PaymentMethodsSheetBody extends ConsumerWidget {
               radius: 12,
             ),
             title: Text(localizedPaymentMethodLabel(context, method)),
-            subtitle: method.isDefault
-                ? Text(l10n.paymentMethodBuiltIn)
-                : null,
+            subtitle: method.isDefault ? Text(l10n.paymentMethodBuiltIn) : null,
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -105,8 +102,9 @@ class PaymentMethodsSheetBody extends ConsumerWidget {
                 confirmLabel: l10n.save,
               );
               if (result == null) return;
-              final controller =
-                  ref.read(managePaymentMethodsControllerProvider);
+              final controller = ref.read(
+                managePaymentMethodsControllerProvider,
+              );
               await controller.setColor(method, result.colorValue);
               if (result.name != currentLabel) {
                 await controller.rename(method, result.name);

@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/expense_duplicate_compare_tile.dart';
 
-enum DuplicateConflictAction {
-  saveAsUnique,
-  deleteMatchAndSave,
-  cancel,
-}
+enum DuplicateConflictAction { saveAsUnique, deleteMatchAndSave, cancel }
 
 class DuplicateConflictDialogResult {
   final DuplicateConflictAction action;
@@ -138,31 +136,35 @@ class DuplicateConflictDialog extends StatelessWidget {
           ],
         ),
       ),
+      actionsAlignment: MainAxisAlignment.center,
       actions: [
-        TextButton(
+        AppCloseIconButton(
           onPressed: () => Navigator.of(context).pop(
             const DuplicateConflictDialogResult(
               action: DuplicateConflictAction.cancel,
             ),
           ),
-          child: Text(l10n.dismiss),
+          label: l10n.dismiss,
         ),
-        TextButton(
+        AppOutlinedButton(
           onPressed: () => Navigator.of(context).pop(
             DuplicateConflictDialogResult(
               action: DuplicateConflictAction.deleteMatchAndSave,
               matchIdsToDelete: matches.map((e) => e.id).toList(),
             ),
           ),
-          child: Text(l10n.duplicateDeleteMatchAndSave),
+          destructive: true,
+          icon: Icons.delete_outline,
+          label: l10n.duplicateDeleteMatchAndSave,
         ),
-        FilledButton(
+        AppFilledButton(
           onPressed: () => Navigator.of(context).pop(
             const DuplicateConflictDialogResult(
               action: DuplicateConflictAction.saveAsUnique,
             ),
           ),
-          child: Text(l10n.duplicateSaveAsUnique),
+          icon: Icons.check,
+          label: l10n.duplicateSaveAsUnique,
         ),
       ],
     );

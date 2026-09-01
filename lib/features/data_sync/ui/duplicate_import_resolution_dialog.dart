@@ -3,7 +3,12 @@ import 'package:valtero/features/data_sync/model/data_sync_controller.dart';
 import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 import 'package:valtero/widgets/expense_duplicate_compare_tile.dart';
 
 enum _ConflictChoice { duplicate, unique }
@@ -106,137 +111,107 @@ class _DuplicateImportResolutionDialogState
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final scrollController = PrimaryScrollController.maybeOf(context);
     final lang = Localizations.localeOf(context).languageCode;
-    final allSelected = _selected.length == widget.conflicts.length &&
+    final allSelected =
+        _selected.length == widget.conflicts.length &&
         widget.conflicts.isNotEmpty;
     final someSelected = _selected.isNotEmpty && !allSelected;
 
-    return Column(
+    return AppSheetScaffold(
+      header: AppSheetHeader(
+        title: l10n.dataSyncDuplicatesFoundTitle,
+        description: l10n.dataSyncDuplicatesFoundHint,
+      ),
+      actions: AppSheetActionsBar(
+        children: [
+          const AppCloseIconButton(),
+          AppFilledButton(
+            onPressed: _confirm,
+            icon: Icons.check,
+            label: l10n.dataSyncContinueImport,
+          ),
+        ],
+      ),
       children: [
-        Expanded(
-          child: ListView(
-            controller: scrollController,
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            children: [
-              Text(
-                l10n.dataSyncDuplicatesFoundTitle,
-                style: theme.textTheme.titleLarge,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                l10n.dataSyncDuplicatesFoundHint,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  FilterChip(
-                    label: Text(l10n.dataSyncMarkAllAsDuplicate),
-                    selected: false,
-                    onSelected: (_) => _setAll(_ConflictChoice.duplicate),
-                  ),
-                  FilterChip(
-                    label: Text(l10n.dataSyncMarkAllAsUnique),
-                    selected: false,
-                    onSelected: (_) => _setAll(_ConflictChoice.unique),
-                  ),
-                  if (_selected.isNotEmpty) ...[
-                    FilterChip(
-                      label: Text(l10n.dataSyncMarkSelectedAsDuplicate),
-                      selected: false,
-                      onSelected: (_) =>
-                          _setSelected(_ConflictChoice.duplicate),
-                    ),
-                    FilterChip(
-                      label: Text(l10n.dataSyncMarkSelectedAsUnique),
-                      selected: false,
-                      onSelected: (_) => _setSelected(_ConflictChoice.unique),
-                    ),
-                  ],
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Checkbox(
-                    tristate: true,
-                    value: allSelected
-                        ? true
-                        : (someSelected ? null : false),
-                    onChanged: (_) {
-                      setState(() {
-                        if (allSelected) {
-                          _selected.clear();
-                        } else {
-                          _selected
-                            ..clear()
-                            ..addAll(
-                              widget.conflicts.map((c) => c.incoming.clientId),
-                            );
-                        }
-                      });
-                    },
-                  ),
-                  Text(
-                    l10n.bulkSelectedCount(_selected.length),
-                    style: theme.textTheme.labelLarge,
-                  ),
-                ],
-              ),
-              const Divider(height: 1),
-              for (final conflict in widget.conflicts)
-                _ConflictRow(
-                  conflict: conflict,
-                  choice: _choices[conflict.incoming.clientId]!,
-                  selected: _selected.contains(conflict.incoming.clientId),
-                  paymentLabels: widget.paymentLabels,
-                  tagsLabelFor: widget.tagsLabelFor,
-                  languageCode: lang,
-                  onToggleSelected: () {
-                    setState(() {
-                      final id = conflict.incoming.clientId;
-                      if (_selected.contains(id)) {
-                        _selected.remove(id);
-                      } else {
-                        _selected.add(id);
-                      }
-                    });
-                  },
-                  onChoice: (choice) {
-                    setState(() {
-                      _choices[conflict.incoming.clientId] = choice;
-                    });
-                  },
-                ),
-            ],
-          ),
-        ),
-        SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-            child: Row(
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(l10n.dismiss),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: _confirm,
-                    child: Text(l10n.dataSyncContinueImport),
-                  ),
-                ),
-              ],
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            FilterChip(
+              label: Text(l10n.dataSyncMarkAllAsDuplicate),
+              selected: false,
+              onSelected: (_) => _setAll(_ConflictChoice.duplicate),
             ),
-          ),
+            FilterChip(
+              label: Text(l10n.dataSyncMarkAllAsUnique),
+              selected: false,
+              onSelected: (_) => _setAll(_ConflictChoice.unique),
+            ),
+            if (_selected.isNotEmpty) ...[
+              FilterChip(
+                label: Text(l10n.dataSyncMarkSelectedAsDuplicate),
+                selected: false,
+                onSelected: (_) => _setSelected(_ConflictChoice.duplicate),
+              ),
+              FilterChip(
+                label: Text(l10n.dataSyncMarkSelectedAsUnique),
+                selected: false,
+                onSelected: (_) => _setSelected(_ConflictChoice.unique),
+              ),
+            ],
+          ],
         ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Checkbox(
+              tristate: true,
+              value: allSelected ? true : (someSelected ? null : false),
+              onChanged: (_) {
+                setState(() {
+                  if (allSelected) {
+                    _selected.clear();
+                  } else {
+                    _selected
+                      ..clear()
+                      ..addAll(
+                        widget.conflicts.map((c) => c.incoming.clientId),
+                      );
+                  }
+                });
+              },
+            ),
+            Text(
+              l10n.bulkSelectedCount(_selected.length),
+              style: theme.textTheme.labelLarge,
+            ),
+          ],
+        ),
+        const Divider(height: 1),
+        for (final conflict in widget.conflicts)
+          _ConflictRow(
+            conflict: conflict,
+            choice: _choices[conflict.incoming.clientId]!,
+            selected: _selected.contains(conflict.incoming.clientId),
+            paymentLabels: widget.paymentLabels,
+            tagsLabelFor: widget.tagsLabelFor,
+            languageCode: lang,
+            onToggleSelected: () {
+              setState(() {
+                final id = conflict.incoming.clientId;
+                if (_selected.contains(id)) {
+                  _selected.remove(id);
+                } else {
+                  _selected.add(id);
+                }
+              });
+            },
+            onChoice: (choice) {
+              setState(() {
+                _choices[conflict.incoming.clientId] = choice;
+              });
+            },
+          ),
       ],
     );
   }
@@ -272,10 +247,9 @@ class _ConflictRow extends StatelessWidget {
 
     String? paymentFor(Expense e) =>
         e.paymentMethodId == null ? null : paymentLabels[e.paymentMethodId!];
-    String? countryFor(String? code) =>
-        code == null || code.isEmpty
-            ? null
-            : countryDisplayName(code, languageCode: languageCode);
+    String? countryFor(String? code) => code == null || code.isEmpty
+        ? null
+        : countryDisplayName(code, languageCode: languageCode);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -283,10 +257,7 @@ class _ConflictRow extends StatelessWidget {
         children: [
           Row(
             children: [
-              Checkbox(
-                value: selected,
-                onChanged: (_) => onToggleSelected(),
-              ),
+              Checkbox(value: selected, onChanged: (_) => onToggleSelected()),
               Expanded(
                 child: SegmentedButton<_ConflictChoice>(
                   segments: [
@@ -320,7 +291,9 @@ class _ConflictRow extends StatelessWidget {
                   paymentLabel: incoming.paymentName,
                   countryLabel: countryFor(incoming.countryCode),
                   note: incoming.note,
-                  borderColor: theme.colorScheme.primary.withValues(alpha: 0.35),
+                  borderColor: theme.colorScheme.primary.withValues(
+                    alpha: 0.35,
+                  ),
                 ),
               ),
               const SizedBox(width: 8),

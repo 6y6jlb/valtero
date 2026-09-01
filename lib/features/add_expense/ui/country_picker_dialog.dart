@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 
 Future<String?> showCountryPicker(BuildContext context) async {
@@ -55,9 +56,9 @@ Future<String?> showCountryPicker(BuildContext context) async {
               ),
             ),
             actions: [
-              TextButton(
+              AppCloseIconButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text(l10n.cancel),
+                label: l10n.cancel,
               ),
             ],
           );

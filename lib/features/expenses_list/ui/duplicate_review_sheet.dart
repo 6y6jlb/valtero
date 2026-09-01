@@ -12,7 +12,12 @@ import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/utils/payment_method_label.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
+import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 import 'package:valtero/widgets/expense_duplicate_compare_tile.dart';
 
 Future<void> showDuplicateReviewSheet(BuildContext context) {
@@ -31,7 +36,6 @@ class DuplicateReviewSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final scrollController = PrimaryScrollController.maybeOf(context);
     final dupState = ref.watch(duplicateExpensesProvider);
     final expenses = ref.watch(allExpensesProvider).value ?? const [];
     final byId = {for (final e in expenses) e.id: e};
@@ -46,22 +50,13 @@ class DuplicateReviewSheet extends ConsumerWidget {
     };
     final lang = Localizations.localeOf(context).languageCode;
 
-    return ListView(
-      controller: scrollController,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+    return AppSheetScaffold(
+      header: AppSheetHeader(
+        title: l10n.duplicateReviewSheetTitle,
+        description: l10n.duplicateConflictDialogHint,
+      ),
+      actions: const AppSheetActionsBar(children: [AppCloseIconButton()]),
       children: [
-        Text(
-          l10n.duplicateReviewSheetTitle,
-          style: theme.textTheme.titleLarge,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          l10n.duplicateConflictDialogHint,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 16),
         if (dupState.groups.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 24),
@@ -139,7 +134,8 @@ class _DuplicateGroupCard extends ConsumerWidget {
                 paymentLabel: items[i].paymentMethodId == null
                     ? null
                     : paymentLabels[items[i].paymentMethodId!],
-                countryLabel: items[i].countryCode == null ||
+                countryLabel:
+                    items[i].countryCode == null ||
                         items[i].countryCode!.isEmpty
                     ? null
                     : countryDisplayName(
@@ -154,22 +150,20 @@ class _DuplicateGroupCard extends ConsumerWidget {
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton.icon(
+                    child: AppOutlinedButton(
                       onPressed: () async {
                         await ref
                             .read(bulkExpenseControllerProvider)
                             .markNotDuplicate([items[i].id]);
                       },
-                      icon: const Icon(Icons.check_circle_outline, size: 18),
-                      label: Text(l10n.duplicateMarkNotDuplicate),
+                      icon: Icons.check_circle_outline,
+                      label: l10n.duplicateMarkNotDuplicate,
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: theme.colorScheme.error,
-                      ),
+                    child: AppOutlinedButton(
+                      destructive: true,
                       onPressed: () {
                         confirmAndDeleteExpense(
                           context,
@@ -178,8 +172,8 @@ class _DuplicateGroupCard extends ConsumerWidget {
                           expense: items[i],
                         );
                       },
-                      icon: const Icon(Icons.delete_outline, size: 18),
-                      label: Text(l10n.delete),
+                      icon: Icons.delete_outline,
+                      label: l10n.delete,
                     ),
                   ),
                 ],

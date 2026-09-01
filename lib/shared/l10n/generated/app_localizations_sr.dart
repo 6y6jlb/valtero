@@ -51,6 +51,49 @@ class AppLocalizationsSr extends AppLocalizations {
   String get settingsDebug => 'Otklanjanje grešaka i logovi';
 
   @override
+  String get settingsThanks => 'Zahvalnost';
+
+  @override
+  String get thanksTitle => 'Zahvalnost';
+
+  @override
+  String get thanksDescription =>
+      'Ako ti Valtero pomaže, možeš se zahvaliti malom napojnicom u ETH ili Bitcoin. Kopiraj adresu ispod i pošalji iz kompatibilnog novčanika.';
+
+  @override
+  String get thanksEthLabel => 'ETH adresa';
+
+  @override
+  String get thanksCopyEthAddress => 'Kopiraj ETH adresu';
+
+  @override
+  String get thanksBtcLabel => 'Bitcoin adresa';
+
+  @override
+  String get thanksCopyBtcAddress => 'Kopiraj Bitcoin adresu';
+
+  @override
+  String get settingsContactDeveloper => 'Piši razvojnom timu';
+
+  @override
+  String get contactDeveloperTitle => 'Piši razvojnom timu';
+
+  @override
+  String get contactDeveloperDescription =>
+      'Pitanja, ideje ili greške — na email ispod. Logove aplikacije možeš poslati iz Podešavanja → Otklanjanje grešaka i logovi.';
+
+  @override
+  String get contactDeveloperEmailLabel => 'Email';
+
+  @override
+  String get contactDeveloperCopyEmail => 'Kopiraj email';
+
+  @override
+  String debugLogsSendHint(String email) {
+    return 'Da pošalješ logove razvojnom timu, podeli ili kopiraj ih i pošalji na $email.';
+  }
+
+  @override
   String get integrationConnected => 'Povezano';
 
   @override
@@ -633,6 +676,12 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get save => 'Sačuvaj';
+
+  @override
+  String get create => 'Kreiraj';
+
+  @override
+  String get ok => 'OK';
 
   @override
   String get delete => 'Obriši';

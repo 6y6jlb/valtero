@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:valtero/features/about_support/ui/contact_developer_sheet.dart';
+import 'package:valtero/features/about_support/ui/thanks_sheet.dart';
 import 'package:valtero/features/currency_settings/ui/currency_settings_panel.dart';
 import 'package:valtero/features/data_sync/ui/data_sync_flow.dart';
 import 'package:valtero/features/debug_logs/ui/debug_logs_panel.dart';
@@ -16,6 +18,7 @@ import 'package:valtero/shared/utils/date_display.dart';
 import 'package:valtero/shared/utils/money_display.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
 import 'package:valtero/widgets/app_page_scaffold.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -39,10 +42,7 @@ class SettingsPage extends ConsumerWidget {
             controller: scrollController,
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
             children: [
-              Text(
-                l10n.settingsAppearance,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
+              AppSheetHeader(title: l10n.settingsAppearance),
               const SizedBox(height: 16),
               Text(l10n.theme, style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(height: 8),
@@ -156,12 +156,16 @@ class SettingsPage extends ConsumerWidget {
                 },
               ),
               const SizedBox(height: 16),
-              Text(l10n.moneyFormat, style: Theme.of(context).textTheme.titleSmall),
+              Text(
+                l10n.moneyFormat,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 // ignore: deprecated_member_use
-                value: moneyDisplayFormatFromName(settings?.moneyDisplayFormat)
-                    .name,
+                value: moneyDisplayFormatFromName(
+                  settings?.moneyDisplayFormat,
+                ).name,
                 decoration: InputDecoration(labelText: l10n.moneyFormat),
                 isExpanded: true,
                 items: [
@@ -172,8 +176,9 @@ class SettingsPage extends ConsumerWidget {
                         formatMoneyDisplay(
                           amountMinor: 123456,
                           currencyCode: settings?.primaryCurrency ?? 'USD',
-                          localeName:
-                              Localizations.localeOf(context).toString(),
+                          localeName: Localizations.localeOf(
+                            context,
+                          ).toString(),
                           format: format,
                         ),
                         overflow: TextOverflow.ellipsis,
@@ -189,12 +194,16 @@ class SettingsPage extends ConsumerWidget {
                 },
               ),
               const SizedBox(height: 16),
-              Text(l10n.dateFormat, style: Theme.of(context).textTheme.titleSmall),
+              Text(
+                l10n.dateFormat,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 // ignore: deprecated_member_use
-                value: dateDisplayFormatFromName(settings?.dateDisplayFormat)
-                    .name,
+                value: dateDisplayFormatFromName(
+                  settings?.dateDisplayFormat,
+                ).name,
                 decoration: InputDecoration(labelText: l10n.dateFormat),
                 isExpanded: true,
                 items: [
@@ -206,8 +215,9 @@ class SettingsPage extends ConsumerWidget {
                           instant: DateTime(2026, 1, 15),
                           timeZoneId: selectedTz,
                           format: format,
-                          localeName:
-                              Localizations.localeOf(context).toString(),
+                          localeName: Localizations.localeOf(
+                            context,
+                          ).toString(),
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -317,6 +327,18 @@ class SettingsPage extends ConsumerWidget {
             title: Text(l10n.guideOpenFromSettings),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => PlatformGuidePage.open(context),
+          ),
+          ListTile(
+            leading: const Icon(Icons.favorite_outline),
+            title: Text(l10n.settingsThanks),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => showThanksSheet(context),
+          ),
+          ListTile(
+            leading: const Icon(Icons.mail_outline),
+            title: Text(l10n.settingsContactDeveloper),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => showContactDeveloperSheet(context),
           ),
           ListTile(
             leading: const Icon(Icons.bug_report_outlined),

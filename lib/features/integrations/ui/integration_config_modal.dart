@@ -13,6 +13,7 @@ import 'package:valtero/features/integrations/ui/forms/frankfurter_config_form.d
 import 'package:valtero/features/integrations/ui/forms/telegram_config_form.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
 
 Future<void> showIntegrationConfigSheet(
   BuildContext context, {
@@ -38,25 +39,13 @@ class IntegrationConfigModal extends ConsumerWidget {
     final descriptionStyle = theme.textTheme.bodyMedium?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
-    final showDriveHelp =
-        integration.id == kGoogleDriveSyncIntegrationId;
+    final showDriveHelp = integration.id == kGoogleDriveSyncIntegrationId;
 
     return ListView(
       controller: scrollController,
       padding: appModalScrollPadding(context),
       children: [
-        Row(
-          children: [
-            Icon(meta.icon),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                meta.title(l10n),
-                style: theme.textTheme.titleLarge,
-              ),
-            ),
-          ],
-        ),
+        AppSheetHeader(title: meta.title(l10n), trailing: Icon(meta.icon)),
         const SizedBox(height: 8),
         if (showDriveHelp)
           Text.rich(

@@ -16,7 +16,11 @@ import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/logging/logging_providers.dart';
 import 'package:valtero/shared/utils/payment_method_label.dart';
 import 'package:valtero/widgets/app_button.dart';
-import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
+import 'package:valtero/widgets/app_ok_button.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/passphrase_text_field.dart';
 
@@ -91,11 +95,9 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
       showAppToast(context, l10n.dataSyncExportDone);
     } catch (e, st) {
       // ignore: unawaited_futures
-      ref.read(appLoggerProvider).error(
-            'Backup export failed',
-            error: e,
-            stackTrace: st,
-          );
+      ref
+          .read(appLoggerProvider)
+          .error('Backup export failed', error: e, stackTrace: st);
       if (!mounted) return;
       showAppToast(context, l10n.dataSyncExportFailed);
     } finally {
@@ -122,12 +124,7 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
         context: context,
         builder: (context) => AlertDialog(
           content: Text(l10n.shareFailed),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(l10n.dismiss),
-            ),
-          ],
+          actions: [AppOkButton(label: l10n.dismiss)],
         ),
       );
     } finally {
@@ -160,26 +157,25 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
           ),
         ),
         actions: [
-          TextButton(
+          AppTextButton(
             onPressed: () async {
               await Clipboard.setData(ClipboardData(text: path));
               if (!context.mounted) return;
               showAppToast(context, l10n.copiedToClipboard);
             },
-            child: Text(l10n.dataSyncCopyFilePath),
+            icon: Icons.copy,
+            label: l10n.dataSyncCopyFilePath,
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(l10n.dismiss),
-          ),
+          AppOkButton(label: l10n.dismiss),
         ],
       ),
     );
   }
 
   Future<void> _pickFile() async {
-    final path =
-        await ref.read(dataSyncControllerProvider).pickBackupFilePath();
+    final path = await ref
+        .read(dataSyncControllerProvider)
+        .pickBackupFilePath();
     if (!mounted || path == null) return;
     setState(() => _pickedPath = path);
   }
@@ -265,11 +261,9 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
       showAppToast(context, l10n.dataSyncUnsupportedFormat);
     } catch (e, st) {
       // ignore: unawaited_futures
-      ref.read(appLoggerProvider).error(
-            'Backup import failed',
-            error: e,
-            stackTrace: st,
-          );
+      ref
+          .read(appLoggerProvider)
+          .error('Backup import failed', error: e, stackTrace: st);
       if (!mounted) return;
       showAppToast(context, l10n.dataSyncUnsupportedFormat);
     } finally {
@@ -281,18 +275,17 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final scrollController = PrimaryScrollController.maybeOf(context);
     final fileSelected = _pickedPath != null;
-    final driveSyncing = ref.watch(googleDriveSyncControllerProvider).status ==
+    final driveSyncing =
+        ref.watch(googleDriveSyncControllerProvider).status ==
         GoogleDriveSyncStatus.syncing;
     final panelBusy = _busy || driveSyncing;
 
-    return ListView(
-      controller: scrollController,
-      padding: appModalScrollPadding(context, base: const EdgeInsets.fromLTRB(16, 0, 16, 32)),
+    return AppSheetScaffold(
+      header: AppSheetHeader(title: l10n.dataSyncTitle),
+      contentPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      actions: const AppSheetActionsBar(children: [AppCloseIconButton()]),
       children: [
-        Text(l10n.dataSyncTitle, style: theme.textTheme.titleLarge),
-        const SizedBox(height: 12),
         Card(
           margin: EdgeInsets.zero,
           color: theme.colorScheme.surfaceContainerHighest.withValues(
@@ -373,13 +366,15 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
                   label: l10n.saveFile,
                   busy: _busy && _tab == DataSyncTab.export,
                   onPressed: panelBusy ? null : _exportSave,
+                  icon: Icons.save_outlined,
                 ),
               ),
               const SizedBox(width: 8),
               IconButton.filledTonal(
                 tooltip: l10n.share,
-                onPressed:
-                    (panelBusy || _exportedPath == null) ? null : _exportShare,
+                onPressed: (panelBusy || _exportedPath == null)
+                    ? null
+                    : _exportShare,
                 icon: const Icon(Icons.share_outlined),
               ),
             ],
@@ -397,8 +392,9 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
             title: Text(l10n.dataSyncApplyAppearance),
             subtitle: Text(l10n.dataSyncApplyAppearanceHint),
             value: _applySettings,
-            onChanged:
-                panelBusy ? null : (v) => setState(() => _applySettings = v),
+            onChanged: panelBusy
+                ? null
+                : (v) => setState(() => _applySettings = v),
           ),
           const SizedBox(height: 16),
           Text(
@@ -421,9 +417,7 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
                       )
                     : null,
                 icon: Icon(
-                  fileSelected
-                      ? Icons.check_circle_outline
-                      : Icons.attach_file,
+                  fileSelected ? Icons.check_circle_outline : Icons.attach_file,
                 ),
               ),
               const SizedBox(width: 8),
@@ -432,6 +426,7 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
                   label: l10n.dataSyncImportFromFile,
                   busy: _busy && _tab == DataSyncTab.import,
                   onPressed: (panelBusy || !fileSelected) ? null : _import,
+                  icon: Icons.check,
                 ),
               ),
             ],

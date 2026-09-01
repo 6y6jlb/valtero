@@ -186,6 +186,84 @@ abstract class AppLocalizations {
   /// **'Debug & logs'**
   String get settingsDebug;
 
+  /// No description provided for @settingsThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks'**
+  String get settingsThanks;
+
+  /// No description provided for @thanksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks'**
+  String get thanksTitle;
+
+  /// No description provided for @thanksDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'If Valtero helps you, you can say thank you with a small tip in ETH or Bitcoin. Copy an address below and send from a compatible wallet.'**
+  String get thanksDescription;
+
+  /// No description provided for @thanksEthLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'ETH address'**
+  String get thanksEthLabel;
+
+  /// No description provided for @thanksCopyEthAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy ETH address'**
+  String get thanksCopyEthAddress;
+
+  /// No description provided for @thanksBtcLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bitcoin address'**
+  String get thanksBtcLabel;
+
+  /// No description provided for @thanksCopyBtcAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Bitcoin address'**
+  String get thanksCopyBtcAddress;
+
+  /// No description provided for @settingsContactDeveloper.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact developer'**
+  String get settingsContactDeveloper;
+
+  /// No description provided for @contactDeveloperTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact developer'**
+  String get contactDeveloperTitle;
+
+  /// No description provided for @contactDeveloperDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions, ideas, or bug reports — write to the email below. You can also share app logs from Settings → Debug & logs.'**
+  String get contactDeveloperDescription;
+
+  /// No description provided for @contactDeveloperEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get contactDeveloperEmailLabel;
+
+  /// No description provided for @contactDeveloperCopyEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy email'**
+  String get contactDeveloperCopyEmail;
+
+  /// No description provided for @debugLogsSendHint.
+  ///
+  /// In en, this message translates to:
+  /// **'To send logs to the developer, share or copy them and email to {email}.'**
+  String debugLogsSendHint(String email);
+
   /// No description provided for @integrationConnected.
   ///
   /// In en, this message translates to:
@@ -1196,6 +1274,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save'**
   String get save;
+
+  /// No description provided for @create.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get create;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
 
   /// No description provided for @delete.
   ///

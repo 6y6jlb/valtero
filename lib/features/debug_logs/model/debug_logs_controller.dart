@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:valtero/features/export_expenses/model/export_readiness.dart';
+import 'package:valtero/shared/consts/developer_contact.dart';
 import 'package:valtero/shared/logging/logging_providers.dart';
 
 class DebugLogsController {
@@ -30,7 +31,8 @@ class DebugLogsController {
         await SharePlus.instance.share(
           ShareParams(
             files: [XFile(file.path)],
-            text: 'Valtero debug log',
+            text:
+                'Valtero debug log — please send to ${DeveloperContact.email}',
           ),
         );
         return 'shared';

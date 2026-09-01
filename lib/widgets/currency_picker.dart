@@ -5,7 +5,12 @@ import 'package:valtero/shared/consts/currencies.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/currency_label.dart';
+import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 
 enum CurrencyPickerFilter { all, fiat, crypto, custom }
@@ -37,16 +42,24 @@ Future<String?> showAddCustomCurrencyDialog(BuildContext context) {
     child: Builder(
       builder: (context) {
         final l10n = AppLocalizations.of(context)!;
-        return ListView(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+        return AppSheetScaffold(
+          header: AppSheetHeader(title: l10n.addCustomCurrency),
+          contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+          actions: AppSheetActionsBar(
+            children: [
+              const AppCloseIconButton(),
+              AppFilledButton(
+                onPressed: () {
+                  final code = controller.text.trim().toUpperCase();
+                  if (code.length < 2) return;
+                  Navigator.pop(context, code);
+                },
+                icon: Icons.add,
+                label: l10n.add,
+              ),
+            ],
+          ),
           children: [
-            Text(
-              l10n.addCustomCurrency,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-            const SizedBox(height: 12),
             TextField(
               controller: controller,
               autofocus: true,
@@ -59,25 +72,6 @@ Future<String?> showAddCustomCurrencyDialog(BuildContext context) {
                 labelText: l10n.currencyCode,
                 hintText: 'BTC',
               ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(l10n.cancel),
-                ),
-                const SizedBox(width: 8),
-                FilledButton(
-                  onPressed: () {
-                    final code = controller.text.trim().toUpperCase();
-                    if (code.length < 2) return;
-                    Navigator.pop(context, code);
-                  },
-                  child: Text(l10n.add),
-                ),
-              ],
             ),
           ],
         );
@@ -114,8 +108,8 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final lang = Localizations.localeOf(context).languageCode;
-    final custom = ref.watch(appSettingsProvider).value?.customCurrencyCodes ??
-        const [];
+    final custom =
+        ref.watch(appSettingsProvider).value?.customCurrencyCodes ?? const [];
     final catalog = currenciesCatalog(customCodes: custom);
     final filtered = catalog.where((c) {
       if (widget.exclude.contains(c.code)) return false;
@@ -142,12 +136,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
           child: Align(
             alignment: Alignment.centerLeft,
-            child: Text(
-              l10n.currency,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
+            child: AppSheetHeader(title: l10n.currency),
           ),
         ),
         Padding(
@@ -193,7 +182,8 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
             itemBuilder: (context, index) {
               final c = filtered[index];
               return ListTile(
-                leading: c.kind == CurrencyKind.crypto ||
+                leading:
+                    c.kind == CurrencyKind.crypto ||
                         c.kind == CurrencyKind.custom
                     ? Icon(
                         c.kind == CurrencyKind.crypto
@@ -213,30 +203,23 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
             },
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-          child: Row(
-            children: [
-              TextButton.icon(
-                onPressed: () async {
-                  final code = await showAddCustomCurrencyDialog(context);
-                  if (code == null) return;
-                  await ref
-                      .read(appSettingsProvider.notifier)
-                      .addCustomCurrency(code);
-                  if (!context.mounted) return;
-                  Navigator.pop(context, code);
-                },
-                icon: const Icon(Icons.add),
-                label: Text(l10n.addCustomCurrency),
-              ),
-              const Spacer(),
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(l10n.cancel),
-              ),
-            ],
-          ),
+        AppSheetActionsBar(
+          children: [
+            AppTextButton(
+              onPressed: () async {
+                final code = await showAddCustomCurrencyDialog(context);
+                if (code == null) return;
+                await ref
+                    .read(appSettingsProvider.notifier)
+                    .addCustomCurrency(code);
+                if (!context.mounted) return;
+                Navigator.pop(context, code);
+              },
+              icon: Icons.add,
+              label: l10n.addCustomCurrency,
+            ),
+            const AppCloseIconButton(),
+          ],
         ),
       ],
     );

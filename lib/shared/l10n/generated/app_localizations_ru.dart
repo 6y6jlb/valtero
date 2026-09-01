@@ -51,6 +51,49 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsDebug => 'Отладка и логи';
 
   @override
+  String get settingsThanks => 'Благодарности';
+
+  @override
+  String get thanksTitle => 'Благодарности';
+
+  @override
+  String get thanksDescription =>
+      'Если Valtero вам помогает, можно сказать спасибо небольшой суммой в ETH или Bitcoin. Скопируйте адрес ниже и отправьте из совместимого кошелька.';
+
+  @override
+  String get thanksEthLabel => 'Адрес ETH';
+
+  @override
+  String get thanksCopyEthAddress => 'Скопировать ETH';
+
+  @override
+  String get thanksBtcLabel => 'Адрес Bitcoin';
+
+  @override
+  String get thanksCopyBtcAddress => 'Скопировать Bitcoin';
+
+  @override
+  String get settingsContactDeveloper => 'Написать разработчику';
+
+  @override
+  String get contactDeveloperTitle => 'Написать разработчику';
+
+  @override
+  String get contactDeveloperDescription =>
+      'Вопросы, идеи или баги — на почту ниже. Логи приложения можно отправить из Настройки → Отладка и логи.';
+
+  @override
+  String get contactDeveloperEmailLabel => 'Email';
+
+  @override
+  String get contactDeveloperCopyEmail => 'Скопировать email';
+
+  @override
+  String debugLogsSendHint(String email) {
+    return 'Чтобы отправить логи разработчику, поделитесь или скопируйте их и пришлите на $email.';
+  }
+
+  @override
   String get integrationConnected => 'Подключено';
 
   @override
@@ -633,6 +676,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get save => 'Сохранить';
+
+  @override
+  String get create => 'Создать';
+
+  @override
+  String get ok => 'OK';
 
   @override
   String get delete => 'Удалить';

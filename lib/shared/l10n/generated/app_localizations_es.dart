@@ -51,6 +51,49 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settingsDebug => 'Depuración y registros';
 
   @override
+  String get settingsThanks => 'Agradecimientos';
+
+  @override
+  String get thanksTitle => 'Agradecimientos';
+
+  @override
+  String get thanksDescription =>
+      'Si Valtero te ayuda, puedes dar las gracias con una pequeña propina en ETH o Bitcoin. Copia una dirección de abajo y envía desde un monedero compatible.';
+
+  @override
+  String get thanksEthLabel => 'Dirección ETH';
+
+  @override
+  String get thanksCopyEthAddress => 'Copiar dirección ETH';
+
+  @override
+  String get thanksBtcLabel => 'Dirección Bitcoin';
+
+  @override
+  String get thanksCopyBtcAddress => 'Copiar dirección Bitcoin';
+
+  @override
+  String get settingsContactDeveloper => 'Contactar al desarrollador';
+
+  @override
+  String get contactDeveloperTitle => 'Contactar al desarrollador';
+
+  @override
+  String get contactDeveloperDescription =>
+      'Preguntas, ideas o errores — escribe al correo de abajo. También puedes enviar los registros desde Ajustes → Depuración y registros.';
+
+  @override
+  String get contactDeveloperEmailLabel => 'Correo';
+
+  @override
+  String get contactDeveloperCopyEmail => 'Copiar correo';
+
+  @override
+  String debugLogsSendHint(String email) {
+    return 'Para enviar los registros al desarrollador, compártelos o cópialos y envíalos a $email.';
+  }
+
+  @override
   String get integrationConnected => 'Conectado';
 
   @override
@@ -637,6 +680,12 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get save => 'Guardar';
+
+  @override
+  String get create => 'Crear';
+
+  @override
+  String get ok => 'OK';
 
   @override
   String get delete => 'Eliminar';

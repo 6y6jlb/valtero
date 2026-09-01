@@ -6,6 +6,7 @@ import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
 import 'package:valtero/features/export_expenses/model/export_controller.dart';
 import 'package:valtero/features/export_expenses/model/export_destination.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/widgets/app_ok_button.dart';
 
 /// share_plus has no usable file-share UI on Linux.
 bool get isExportShareSupported =>
@@ -14,21 +15,13 @@ bool get isExportShareSupported =>
     Platform.isWindows ||
     Platform.isMacOS;
 
-Future<void> showExportUnsupportedDialog(
-  BuildContext context,
-  String message,
-) {
+Future<void> showExportUnsupportedDialog(BuildContext context, String message) {
   final l10n = AppLocalizations.of(context)!;
   return showDialog<void>(
     context: context,
     builder: (context) => AlertDialog(
       content: Text(message),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.dismiss),
-        ),
-      ],
+      actions: [AppOkButton(label: l10n.dismiss)],
     ),
   );
 }

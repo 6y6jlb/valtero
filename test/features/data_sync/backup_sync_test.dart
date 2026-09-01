@@ -383,9 +383,6 @@ void main() {
     });
 
     test('rates merge LWW by fetchedAt and max lastRateRefreshAt', () async {
-      final db = AppDatabase(NativeDatabase.memory());
-      addTearDown(db.close);
-
       final older = DateTime.utc(2026, 3, 1, 10);
       final newer = DateTime.utc(2026, 3, 1, 12);
       final localRefresh = DateTime.utc(2026, 3, 1, 11);
@@ -493,8 +490,6 @@ void main() {
     });
 
     test('snapshot exports provider rates and lastRateRefreshAt', () async {
-      final db = AppDatabase(NativeDatabase.memory());
-      addTearDown(db.close);
       final at = DateTime.utc(2026, 3, 2, 8);
       await db.upsertRate(
         base: 'EUR',

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/utils/date_period.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 import 'package:valtero/widgets/period_month_calendar.dart';
 
 /// Opens a period picker with presets and dual-month custom range selection.
@@ -97,9 +101,7 @@ class _PeriodPickerSheetState extends State<PeriodPickerSheet> {
     _from = widget.initial.from;
     _to = widget.initial.to;
     _preset = matchPeriodPreset(widget.initial) ?? PeriodPreset.custom;
-    _leftMonth = PeriodMonthCalendar.monthStart(
-      _from ?? _to ?? DateTime.now(),
-    );
+    _leftMonth = PeriodMonthCalendar.monthStart(_from ?? _to ?? DateTime.now());
   }
 
   DateTime get _rightMonth =>
@@ -134,10 +136,7 @@ class _PeriodPickerSheetState extends State<PeriodPickerSheet> {
       to = from;
       from = selected;
     }
-    Navigator.pop(
-      context,
-      DatePeriod(from: from, to: to).normalized(),
-    );
+    Navigator.pop(context, DatePeriod(from: from, to: to).normalized());
   }
 
   Widget _calendar(DateTime month) {
@@ -204,9 +203,7 @@ class _PeriodPickerSheetState extends State<PeriodPickerSheet> {
                 width: 16,
                 color: theme.colorScheme.outlineVariant,
               ),
-              Expanded(
-                child: SingleChildScrollView(child: calendars),
-              ),
+              Expanded(child: SingleChildScrollView(child: calendars)),
             ],
           )
         : SingleChildScrollView(
@@ -223,43 +220,23 @@ class _PeriodPickerSheetState extends State<PeriodPickerSheet> {
             ),
           );
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+    return AppSheetScaffold(
+      header: AppSheetHeader(title: l10n.periodRange),
+      contentPadding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+      actions: const AppSheetActionsBar(children: [AppCloseIconButton()]),
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
-          child: Text(
-            l10n.periodRange,
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        SizedBox(
-          height: sideBySide ? 420 : 520,
-          child: body,
-        ),
+        SizedBox(height: sideBySide ? 420 : 520, child: body),
         const SizedBox(height: 8),
         if (_from != null || _to != null)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Text(
-              formatPeriodLabel(
-                l10n,
-                DatePeriod(from: _from, to: _to),
-              ),
+              formatPeriodLabel(l10n, DatePeriod(from: _from, to: _to)),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
           ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-        ),
       ],
     );
   }

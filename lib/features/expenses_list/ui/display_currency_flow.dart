@@ -4,7 +4,12 @@ import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_resolver.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
+import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/currency_picker.dart';
 import 'package:valtero/widgets/flag_icon.dart';
@@ -87,10 +92,7 @@ Future<bool> ensureRatesForDisplay(
       initialChildSize: 0.65,
       minChildSize: 0.4,
       maxChildSize: 0.9,
-      child: _MissingRatesSheet(
-        target: target,
-        pairs: missing,
-      ),
+      child: _MissingRatesSheet(target: target, pairs: missing),
     );
     if (action == null || action.cancel) return false;
     if (action.setPair != null) {
@@ -119,13 +121,9 @@ class _MissingRatesAction {
   final bool cancel;
   final RatePair? setPair;
 
-  const _MissingRatesAction.cancel()
-      : cancel = true,
-        setPair = null;
+  const _MissingRatesAction.cancel() : cancel = true, setPair = null;
 
-  const _MissingRatesAction.retry()
-      : cancel = false,
-        setPair = null;
+  const _MissingRatesAction.retry() : cancel = false, setPair = null;
 
   const _MissingRatesAction.set(this.setPair) : cancel = false;
 }
@@ -134,24 +132,29 @@ class _MissingRatesSheet extends StatelessWidget {
   final String target;
   final List<RatePair> pairs;
 
-  const _MissingRatesSheet({
-    required this.target,
-    required this.pairs,
-  });
+  const _MissingRatesSheet({required this.target, required this.pairs});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+    return AppSheetScaffold(
+      header: AppSheetHeader(title: l10n.missingRatesTitle),
+      contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      actions: AppSheetActionsBar(
+        children: [
+          AppCloseIconButton(
+            onPressed: () =>
+                Navigator.pop(context, const _MissingRatesAction.cancel()),
+          ),
+          AppFilledButton(
+            onPressed: () =>
+                Navigator.pop(context, const _MissingRatesAction.retry()),
+            icon: Icons.refresh,
+            label: l10n.retryConversion,
+          ),
+        ],
+      ),
       children: [
-        Text(
-          l10n.missingRatesTitle,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-        ),
-        const SizedBox(height: 8),
         Text(l10n.missingRatesBody(pairs.length, target)),
         const SizedBox(height: 12),
         for (var i = 0; i < pairs.length; i++) ...[
@@ -160,31 +163,12 @@ class _MissingRatesSheet extends StatelessWidget {
             contentPadding: EdgeInsets.zero,
             title: Text('${pairs[i].base} → ${pairs[i].target}'),
             trailing: TextButton(
-              onPressed: () => Navigator.pop(
-                context,
-                _MissingRatesAction.set(pairs[i]),
-              ),
+              onPressed: () =>
+                  Navigator.pop(context, _MissingRatesAction.set(pairs[i])),
               child: Text(l10n.setRateNow),
             ),
           ),
         ],
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            TextButton(
-              onPressed: () =>
-                  Navigator.pop(context, const _MissingRatesAction.cancel()),
-              child: Text(l10n.cancel),
-            ),
-            const SizedBox(width: 8),
-            FilledButton(
-              onPressed: () =>
-                  Navigator.pop(context, const _MissingRatesAction.retry()),
-              child: Text(l10n.retryConversion),
-            ),
-          ],
-        ),
       ],
     );
   }
@@ -257,8 +241,7 @@ class _DisplayCurrencySheetState extends ConsumerState<_DisplayCurrencySheet> {
       if (settings != null) settings.primaryCurrency,
       ...?settings?.reportingCurrencies,
       ...widget.sourceCurrencies,
-    }.map((c) => c.toUpperCase()).toList()
-      ..sort();
+    }.map((c) => c.toUpperCase()).toList()..sort();
 
     final resolver = ref.read(rateResolverProvider);
     final out = <String, List<RatePair>>{};
@@ -292,12 +275,7 @@ class _DisplayCurrencySheetState extends ConsumerState<_DisplayCurrencySheet> {
         return ListView(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
           children: [
-            Text(
-              l10n.displayIn,
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            AppSheetHeader(title: l10n.displayIn),
             const SizedBox(height: 8),
             Text(
               l10n.displayCurrencyHelpBody,
@@ -316,10 +294,8 @@ class _DisplayCurrencySheetState extends ConsumerState<_DisplayCurrencySheet> {
               ),
               title: Text(l10n.displayOriginal),
               subtitle: Text(l10n.displayOriginalHint),
-              onTap: () => Navigator.pop(
-                context,
-                const DisplayCurrencyCleared(),
-              ),
+              onTap: () =>
+                  Navigator.pop(context, const DisplayCurrencyCleared()),
             ),
             const Divider(),
             for (final entry in statuses.entries)
@@ -333,35 +309,29 @@ class _DisplayCurrencySheetState extends ConsumerState<_DisplayCurrencySheet> {
                       : l10n.ratesMissingCount(entry.value.length),
                 ),
                 trailing: entry.value.isEmpty
-                    ? Icon(
-                        Icons.check,
-                        color: theme.colorScheme.primary,
-                      )
+                    ? Icon(Icons.check, color: theme.colorScheme.primary)
                     : Icon(
                         Icons.warning_amber_outlined,
                         color: theme.colorScheme.error,
                       ),
                 selected: widget.currentDisplayCurrency == entry.key,
-                onTap: () => Navigator.pop(
-                  context,
-                  DisplayCurrencyChosen(entry.key),
-                ),
+                onTap: () =>
+                    Navigator.pop(context, DisplayCurrencyChosen(entry.key)),
               ),
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerLeft,
-              child: TextButton.icon(
+              child: AppTextButton(
                 onPressed: _pickOther,
-                icon: const Icon(Icons.search),
-                label: Text(l10n.pickOtherCurrency),
+                icon: Icons.search,
+                label: l10n.pickOtherCurrency,
               ),
             ),
             Align(
               alignment: Alignment.centerRight,
-              child: TextButton(
+              child: AppCloseIconButton(
                 onPressed: () =>
                     Navigator.pop(context, const DisplayCurrencyCancelled()),
-                child: Text(l10n.cancel),
               ),
             ),
           ],

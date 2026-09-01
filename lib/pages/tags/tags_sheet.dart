@@ -10,7 +10,12 @@ import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
+import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/tag_color_picker.dart';
 
@@ -32,7 +37,6 @@ class TagsSheetBody extends ConsumerWidget {
     final tags = ref.watch(tagsStreamProvider).value ?? const [];
     final grouped = groupTagsByKind(tags);
     final settings = ref.watch(appSettingsProvider).value;
-    final scrollController = PrimaryScrollController.maybeOf(context);
     final countryLabel = settings?.detectedCountryCode == null
         ? '—'
         : countryDisplayName(
@@ -40,28 +44,30 @@ class TagsSheetBody extends ConsumerWidget {
             languageCode: lang,
           );
 
-    return ListView(
-      controller: scrollController,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+    return AppSheetScaffold(
+      header: AppSheetHeader(title: l10n.tagsTitle),
+      actions: AppSheetActionsBar(
+        children: [
+          const AppCloseIconButton(),
+          AppFilledButton.tonal(
+            label: l10n.addTag,
+            icon: Icons.add,
+            onPressed: () async {
+              final result = await showTagEditDialog(
+                context,
+                title: l10n.newTag,
+                confirmLabel: l10n.add,
+              );
+              if (result == null) return;
+              await ref.read(manageTagsControllerProvider).addTag(
+                    result.name,
+                    colorValue: result.colorValue,
+                  );
+            },
+          ),
+        ],
+      ),
       children: [
-        Text(l10n.tagsTitle, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 12),
-        FilledButton.tonal(
-          onPressed: () async {
-            final result = await showTagEditDialog(
-              context,
-              title: l10n.newTag,
-              confirmLabel: l10n.add,
-            );
-            if (result == null) return;
-            await ref.read(manageTagsControllerProvider).addTag(
-                  result.name,
-                  colorValue: result.colorValue,
-                );
-          },
-          child: Text(l10n.addTag),
-        ),
-        const SizedBox(height: 8),
         ListTile(
           contentPadding: EdgeInsets.zero,
           leading: settings?.detectedCountryCode == null

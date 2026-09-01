@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/ui/expense_delete_flow.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
 
 /// Bottom action bar for add/edit expense sheet.
 class AddExpenseActionsBar extends ConsumerWidget {
@@ -22,34 +25,27 @@ class AddExpenseActionsBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
 
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Row(
-          children: [
-            if (isEdit && expenseId != null) ...[
-              OutlinedButton.icon(
-                onPressed: () async {
-                  final deleted =
-                      await confirmAndDeleteExpense(context, ref, expenseId!);
-                  if (!deleted || !context.mounted) return;
-                  Navigator.of(context).pop();
-                },
-                icon: const Icon(Icons.delete_outline),
-                label: Text(l10n.delete),
-              ),
-              const SizedBox(width: 12),
-            ],
-            Expanded(
-              child: FilledButton(
-                onPressed: canSave ? onSave : null,
-                child: Text(l10n.save),
-              ),
-            ),
-          ],
+    return AppSheetActionsBar(
+      children: [
+        const AppCloseIconButton(),
+        if (isEdit && expenseId != null)
+          AppOutlinedButton(
+            label: l10n.delete,
+            icon: Icons.delete_outline,
+            destructive: true,
+            onPressed: () async {
+              final deleted =
+                  await confirmAndDeleteExpense(context, ref, expenseId!);
+              if (!deleted || !context.mounted) return;
+              Navigator.of(context).pop();
+            },
+          ),
+        AppFilledButton(
+          label: isEdit ? l10n.save : l10n.create,
+          icon: Icons.check,
+          onPressed: canSave ? onSave : null,
         ),
-      ),
+      ],
     );
   }
 }

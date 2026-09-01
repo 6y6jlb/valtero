@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
 
 /// One-of-many pick in a bottom sheet (replaces inline dropdowns).
 Future<T?> showSingleChoiceSheet<T>({
@@ -41,12 +42,7 @@ class _SingleChoiceSheetBody<T> extends StatelessWidget {
     return ListView(
       padding: appModalScrollPadding(context),
       children: [
-        Text(
-          title,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        AppSheetHeader(title: title),
         const SizedBox(height: 8),
         for (final option in options)
           ListTile(

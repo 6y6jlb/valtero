@@ -10,6 +10,7 @@ import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/widgets/action_success_status_icon.dart';
 import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_ok_button.dart';
 import 'package:valtero/widgets/app_toast.dart';
 
 /// Google Drive sync status + Sync now / setup actions (Backup & sync card).
@@ -17,10 +18,7 @@ class GoogleDriveSyncQuickCard extends ConsumerStatefulWidget {
   /// When false (e.g. backup export/import running), all card actions are disabled.
   final bool actionsEnabled;
 
-  const GoogleDriveSyncQuickCard({
-    super.key,
-    this.actionsEnabled = true,
-  });
+  const GoogleDriveSyncQuickCard({super.key, this.actionsEnabled = true});
 
   @override
   ConsumerState<GoogleDriveSyncQuickCard> createState() =>
@@ -36,12 +34,14 @@ class _GoogleDriveSyncQuickCardState
   }
 
   Future<void> _syncGoogleDrive() async {
-    final syncing = ref.read(googleDriveSyncControllerProvider).status ==
+    final syncing =
+        ref.read(googleDriveSyncControllerProvider).status ==
         GoogleDriveSyncStatus.syncing;
     if (_isBlocked(syncing: syncing)) return;
     final l10n = AppLocalizations.of(context)!;
-    final result =
-        await ref.read(googleDriveSyncControllerProvider.notifier).syncNow();
+    final result = await ref
+        .read(googleDriveSyncControllerProvider.notifier)
+        .syncNow();
     if (!mounted) return;
     if (result.success) {
       setState(() {});
@@ -54,12 +54,7 @@ class _GoogleDriveSyncQuickCardState
         builder: (ctx) => AlertDialog(
           title: Text(l10n.googleDriveRemoteNewerSchemaTitle),
           content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: Text(MaterialLocalizations.of(ctx).okButtonLabel),
-            ),
-          ],
+          actions: [const AppOkButton()],
         ),
       );
       return;
@@ -68,7 +63,8 @@ class _GoogleDriveSyncQuickCardState
   }
 
   Future<void> _openGoogleDriveIntegration() async {
-    final syncing = ref.read(googleDriveSyncControllerProvider).status ==
+    final syncing =
+        ref.read(googleDriveSyncControllerProvider).status ==
         GoogleDriveSyncStatus.syncing;
     if (_isBlocked(syncing: syncing)) return;
     setState(() => _openingIntegration = true);
@@ -89,13 +85,15 @@ class _GoogleDriveSyncQuickCardState
     final theme = Theme.of(context);
     final settingsAsync = ref.watch(appSettingsProvider);
     final settings = settingsAsync.value;
-    final connected = settings != null &&
+    final connected =
+        settings != null &&
         ref.watch(
           isIntegrationConfiguredProvider(kGoogleDriveSyncIntegrationId),
         );
     final meta = integrationUiMeta(kGoogleDriveSyncIntegrationId);
     final lastSynced = settings?.googleDriveLastSyncedAt;
-    final syncing = ref.watch(googleDriveSyncControllerProvider).status ==
+    final syncing =
+        ref.watch(googleDriveSyncControllerProvider).status ==
         GoogleDriveSyncStatus.syncing;
 
     if (settingsAsync.isLoading && settings == null) {
@@ -171,6 +169,7 @@ class _GoogleDriveSyncQuickCardState
                     onPressed: widget.actionsEnabled && !_openingIntegration
                         ? _syncGoogleDrive
                         : null,
+                    icon: Icons.sync_outlined,
                   ),
                   if (lastSynced != null && !syncing)
                     ActionSuccessStatusIcon(
@@ -183,6 +182,7 @@ class _GoogleDriveSyncQuickCardState
                     onPressed: widget.actionsEnabled && !syncing
                         ? _openGoogleDriveIntegration
                         : null,
+                    icon: Icons.settings_outlined,
                   ),
                 ],
               ),
@@ -195,6 +195,7 @@ class _GoogleDriveSyncQuickCardState
                   onPressed: widget.actionsEnabled && !syncing
                       ? _openGoogleDriveIntegration
                       : null,
+                  icon: Icons.settings_outlined,
                 ),
               ),
           ],
