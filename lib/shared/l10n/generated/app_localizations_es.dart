@@ -587,6 +587,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get editExpense => 'Editar gasto';
 
   @override
+  String get expenseDetails => 'Detalles del gasto';
+
+  @override
+  String get close => 'Cerrar';
+
+  @override
   String get amount => 'Importe';
 
   @override
@@ -1358,6 +1364,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get columnAmount => 'Importe';
+
+  @override
+  String get columnOriginalAmount => 'Importe original';
 
   @override
   String get columnCurrency => 'Moneda';

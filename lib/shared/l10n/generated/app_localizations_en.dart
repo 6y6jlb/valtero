@@ -577,6 +577,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editExpense => 'Edit expense';
 
   @override
+  String get expenseDetails => 'Expense details';
+
+  @override
+  String get close => 'Close';
+
+  @override
   String get amount => 'Amount';
 
   @override
@@ -1347,6 +1353,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get columnAmount => 'Amount';
+
+  @override
+  String get columnOriginalAmount => 'Original amount';
 
   @override
   String get columnCurrency => 'Currency';

@@ -33,3 +33,33 @@ ExpenseChartType expensesChartTypeFromSettings(AppSettings settings) {
 ExpenseChartBreakdown expensesChartDatePeriodFromSettings(AppSettings settings) {
   return expenseChartDatePeriodFromName(settings.expensesChartDatePeriod);
 }
+
+
+/// Resolves the values to persist for expenses-list display settings.
+({
+  String view,
+  String group,
+  String chartBreakdown,
+  String chartType,
+  String chartDatePeriod,
+}) expensesListDisplayPersistValues({
+  required ExpenseListViewMode view,
+  required ExpenseListGroup appliedGroup,
+  required ExpenseChartBreakdown chartBreakdown,
+  required ExpenseChartType chartType,
+  required ExpenseChartBreakdown chartDatePeriod,
+}) {
+  final nextGroup = appliedGroup == ExpenseListGroup.none
+      ? ExpenseListGroup.currency
+      : appliedGroup;
+  final nextDatePeriod = isDateChartBreakdown(chartBreakdown)
+      ? chartBreakdown
+      : chartDatePeriod;
+  return (
+    view: view.name,
+    group: nextGroup.name,
+    chartBreakdown: chartBreakdown.name,
+    chartType: chartType.name,
+    chartDatePeriod: nextDatePeriod.name,
+  );
+}

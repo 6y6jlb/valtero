@@ -47,3 +47,4 @@ app.*.map.json
 
 # Local secrets / machine-specific OAuth client ids (see local.oauth.env.example)
 local.oauth.env
+.tools/

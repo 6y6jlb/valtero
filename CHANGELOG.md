@@ -8,6 +8,22 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.5.1] - 2026-09-01
+
+### Added
+
+- Expenses list and dashboard recent rows show the **original amount** (table
+  column; dimmed second line on the dashboard only when it differs from stored).
+- Row tap opens an **expense detail** sheet (Edit / Close / Delete); edit and
+  delete icons remain on the row. Expenses table gains an edit icon before delete.
+
+### Changed
+
+- Split oversized expenses sheet orchestrator into focused UI helpers (display
+  rates, listing views, filter flow, title bar, duplicates banner).
+- Agent rule: never copy Flutter/Dart SDKs into the repo to work around tooling
+  failures (`docs/agent-rules/tooling-environment.md`).
+
 ## [1.5.0] - 2026-08-31
 
 ### Added

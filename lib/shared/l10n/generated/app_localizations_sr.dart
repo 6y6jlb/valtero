@@ -583,6 +583,12 @@ class AppLocalizationsSr extends AppLocalizations {
   String get editExpense => 'Izmeni trošak';
 
   @override
+  String get expenseDetails => 'Detalji troška';
+
+  @override
+  String get close => 'Zatvori';
+
+  @override
   String get amount => 'Iznos';
 
   @override
@@ -1356,6 +1362,9 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get columnAmount => 'Iznos';
+
+  @override
+  String get columnOriginalAmount => 'Početni iznos';
 
   @override
   String get columnCurrency => 'Valuta';

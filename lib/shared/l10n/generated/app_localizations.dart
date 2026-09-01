@@ -1101,6 +1101,18 @@ abstract class AppLocalizations {
   /// **'Edit expense'**
   String get editExpense;
 
+  /// No description provided for @expenseDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense details'**
+  String get expenseDetails;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
   /// No description provided for @amount.
   ///
   /// In en, this message translates to:
@@ -2516,6 +2528,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Amount'**
   String get columnAmount;
+
+  /// No description provided for @columnOriginalAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Original amount'**
+  String get columnOriginalAmount;
 
   /// No description provided for @columnCurrency.
   ///

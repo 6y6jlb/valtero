@@ -115,7 +115,7 @@ Details: [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md)
 5. If core flow or architecture changes, update this `AGENTS.md`
 6. If platform run/build/release flow changes, update `README.md` and the **App version** section here
 7. **If editing an agent rule**: update `docs/agent-rules/<topic>.md` first (source of truth). If a local `.cursor/rules/<topic>.mdc` mirror exists, update its body in the same pass. Never edit only the `.mdc`.
-8. **After finishing a plan / feature**: run full `flutter test` (not only new files), fix every failure including unrelated fixtures broken by schema changes, then re-run until green — see [testing.md](docs/agent-rules/testing.md)
+8. **After finishing a plan / feature**: run full `flutter test` (not only new files), fix every failure including unrelated fixtures broken by schema changes, then re-run until green — see [testing.md](docs/agent-rules/testing.md). If Flutter/Dart tooling is blocked by the environment, report that and ask the user — **never** copy the Flutter/Dart SDK (or other toolchains) into the repo to work around it — see [tooling-environment.md](docs/agent-rules/tooling-environment.md)
 9. **On every commit**: bump **patch** in `VERSION` (unless the user explicitly asked for minor/major), sync `pubspec.yaml`, and update [`CHANGELOG.md`](CHANGELOG.md) — see [changelog.md](docs/agent-rules/changelog.md)
 
 ## Topic rules (tool-agnostic)
@@ -131,6 +131,7 @@ Details: [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md)
 | [docs/agent-rules/dry.md](docs/agent-rules/dry.md) | Same pattern in **>2** places → extract shared helper/widget |
 | [docs/agent-rules/ui-component-size.md](docs/agent-rules/ui-component-size.md) | ≤ 500 lines per UI component; when/how to split |
 | [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md) | New packages: need / overlap / health + explicit user approve |
+| [docs/agent-rules/tooling-environment.md](docs/agent-rules/tooling-environment.md) | **Never** copy Flutter/Dart/SDKs into the repo; report env failures instead |
 | [docs/agent-rules/platform-guide.md](docs/agent-rules/platform-guide.md) | Keep in-app platform guide in sync with new capabilities |
 | [docs/agent-rules/testing.md](docs/agent-rules/testing.md) | Unit/feature tests; **full `flutter test` after finishing a plan** |
 | [docs/agent-rules/changelog.md](docs/agent-rules/changelog.md) | Keep a Changelog; **patch + changelog on every commit**; minor/major only when the user asks |
@@ -155,6 +156,7 @@ To generate Cursor mirrors once locally:
 | `dry` | `alwaysApply: true` |
 | `ui-component-size` | `globs: lib/**/ui/**,lib/pages/**,lib/widgets/**` |
 | `dependencies` | `alwaysApply: true` |
+| `tooling-environment` | `alwaysApply: true` |
 | `platform-guide` | `globs: lib/features/platform_guide/**,lib/pages/platform_guide/**` |
 | `testing` | `globs: test/**` |
 | `changelog` | `globs: CHANGELOG.md,VERSION,scripts/app_version.*` |

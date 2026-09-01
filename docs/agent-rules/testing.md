@@ -43,3 +43,5 @@ flutter test
 # or a single file while iterating:
 flutter test test/money_display_test.dart
 ```
+
+If `flutter test` / `flutter gen-l10n` cannot run in the agent environment (permissions, read-only SDK cache, root), do **not** copy Flutter into the repo — see [tooling-environment.md](tooling-environment.md). Report the blocker and ask the user to run the suite.

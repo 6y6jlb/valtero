@@ -12,9 +12,11 @@ const double _kColGap = 16;
 const double _kSelectW = 40;
 const double _kDateW = 110;
 const double _kAmountW = 120;
+const double _kOriginalAmountW = 120;
 const double _kPaymentW = 100;
 const double _kCountryW = 110;
 const double _kTagsW = 140;
+const double _kEditW = 40;
 const double _kDeleteW = 40;
 
 /// Minimum content width so columns don't compress on narrow screens.
@@ -26,11 +28,15 @@ const double _kTableMinWidth =
     _kColGap +
     _kAmountW +
     _kColGap +
+    _kOriginalAmountW +
+    _kColGap +
     _kPaymentW +
     _kColGap +
     _kCountryW +
     _kColGap +
     _kTagsW +
+    _kColGap +
+    _kEditW +
     _kColGap +
     _kDeleteW;
 
@@ -43,6 +49,7 @@ class ExpenseTable extends StatelessWidget {
   final String? displayCurrency;
   final int? Function(Expense expense) convertedMinor;
   final ValueChanged<int> onDelete;
+  final ValueChanged<Expense>? onOpen;
   final ValueChanged<Expense>? onEdit;
   final Set<int> selectedIds;
   final ValueChanged<int> onToggleSelected;
@@ -60,6 +67,7 @@ class ExpenseTable extends StatelessWidget {
     required this.displayCurrency,
     required this.convertedMinor,
     required this.onDelete,
+    this.onOpen,
     this.onEdit,
     this.selectedIds = const {},
     required this.onToggleSelected,
@@ -125,6 +133,14 @@ class ExpenseTable extends StatelessWidget {
                       ),
                       const SizedBox(width: _kColGap),
                       SizedBox(
+                        width: _kOriginalAmountW,
+                        child: Text(
+                          l10n.columnOriginalAmount,
+                          style: headerStyle,
+                        ),
+                      ),
+                      const SizedBox(width: _kColGap),
+                      SizedBox(
                         width: _kPaymentW,
                         child: Text(l10n.paymentMethod, style: headerStyle),
                       ),
@@ -137,6 +153,8 @@ class ExpenseTable extends StatelessWidget {
                       Expanded(
                         child: Text(l10n.columnTags, style: headerStyle),
                       ),
+                      const SizedBox(width: _kColGap),
+                      const SizedBox(width: _kEditW),
                       const SizedBox(width: _kColGap),
                       const SizedBox(width: _kDeleteW),
                     ],
@@ -159,6 +177,7 @@ class ExpenseTable extends StatelessWidget {
                         possibleDuplicateIds.contains(expense.id),
                     onToggleSelected: () => onToggleSelected(expense.id),
                     onDelete: () => onDelete(expense.id),
+                    onOpen: onOpen == null ? null : () => onOpen!(expense),
                     onEdit: onEdit == null ? null : () => onEdit!(expense),
                   ),
               ],
@@ -187,6 +206,7 @@ class ExpenseTableRow extends ConsumerWidget {
   final bool showPossibleDuplicate;
   final VoidCallback onToggleSelected;
   final VoidCallback onDelete;
+  final VoidCallback? onOpen;
   final VoidCallback? onEdit;
 
   const ExpenseTableRow({
@@ -201,6 +221,7 @@ class ExpenseTableRow extends ConsumerWidget {
     this.showPossibleDuplicate = false,
     required this.onToggleSelected,
     required this.onDelete,
+    this.onOpen,
     this.onEdit,
   });
 
@@ -270,6 +291,18 @@ class ExpenseTableRow extends ConsumerWidget {
           ),
           const SizedBox(width: _kColGap),
           SizedBox(
+            width: _kOriginalAmountW,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: MoneyText(
+                amountMinor: expense.originalAmountMinor,
+                currencyCode: expense.originalCurrencyCode,
+                style: theme.textTheme.titleSmall,
+              ),
+            ),
+          ),
+          const SizedBox(width: _kColGap),
+          SizedBox(
             width: _kPaymentW,
             child: Text(
               paymentLabel,
@@ -306,9 +339,20 @@ class ExpenseTableRow extends ConsumerWidget {
           ),
           const SizedBox(width: _kColGap),
           SizedBox(
+            width: _kEditW,
+            child: IconButton(
+              icon: const Icon(Icons.edit_outlined, size: 20),
+              tooltip: l10n.editExpense,
+              onPressed: selectionActive || onEdit == null ? null : onEdit,
+              visualDensity: VisualDensity.compact,
+            ),
+          ),
+          const SizedBox(width: _kColGap),
+          SizedBox(
             width: _kDeleteW,
             child: IconButton(
               icon: const Icon(Icons.delete_outline, size: 20),
+              tooltip: l10n.delete,
               onPressed: selectionActive ? null : onDelete,
               visualDensity: VisualDensity.compact,
             ),
@@ -320,6 +364,8 @@ class ExpenseTableRow extends ConsumerWidget {
     VoidCallback? rowTap;
     if (selectionActive) {
       rowTap = onToggleSelected;
+    } else if (onOpen != null) {
+      rowTap = onOpen;
     } else if (onEdit != null) {
       rowTap = onEdit;
     }

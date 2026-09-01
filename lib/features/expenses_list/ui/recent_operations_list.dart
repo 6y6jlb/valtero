@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
 import 'package:valtero/features/expenses_list/model/duplicate_expenses_provider.dart';
+import 'package:valtero/features/expenses_list/ui/expense_delete_flow.dart';
+import 'package:valtero/features/expenses_list/ui/expense_detail_sheet.dart';
 import 'package:valtero/features/expenses_list/ui/recent_expense_tile.dart';
 import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/database/app_database.dart';
@@ -68,26 +70,43 @@ class RecentOperationsList extends ConsumerWidget {
         );
       }
 
+      final paymentLabel = expense.paymentMethodId == null
+          ? null
+          : paymentLabels[expense.paymentMethodId!];
+      final countryLabel = expense.countryCode == null ||
+              expense.countryCode!.isEmpty
+          ? null
+          : countryDisplayName(
+              expense.countryCode!,
+              languageCode: lang,
+            );
+      final tagsLabel = recentExpenseTagsLabel(
+        expense.id,
+        expenseTags,
+        tagLabels,
+      );
       children.add(
         RecentExpenseTile(
           expense: expense,
-          paymentLabel: expense.paymentMethodId == null
-              ? null
-              : paymentLabels[expense.paymentMethodId!],
-          countryLabel: expense.countryCode == null ||
-                  expense.countryCode!.isEmpty
-              ? null
-              : countryDisplayName(
-                  expense.countryCode!,
-                  languageCode: lang,
-                ),
-          tagsLabel: recentExpenseTagsLabel(
-            expense.id,
-            expenseTags,
-            tagLabels,
-          ),
+          paymentLabel: paymentLabel,
+          countryLabel: countryLabel,
+          tagsLabel: tagsLabel,
           showPossibleDuplicate: dupState.isFlagged(expense.id),
-          onTap: () => showAddExpenseSheet(context, expense: expense),
+          onTap: () => openExpenseDetail(
+            context,
+            ref,
+            expense: expense,
+            expenseTags: expenseTags,
+            tagLabels: tagLabels,
+            paymentLabels: paymentLabels,
+          ),
+          onEdit: () => showAddExpenseSheet(context, expense: expense),
+          onDelete: () => confirmAndDeleteExpense(
+            context,
+            ref,
+            expense.id,
+            expense: expense,
+          ),
         ),
       );
     }

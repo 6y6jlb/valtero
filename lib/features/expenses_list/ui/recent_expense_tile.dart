@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/ui/possible_duplicate_badge.dart';
 import 'package:valtero/shared/database/app_database.dart';
+import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/money_text.dart';
 
@@ -13,6 +14,8 @@ class RecentExpenseTile extends ConsumerWidget {
   final String? tagsLabel;
   final bool showPossibleDuplicate;
   final VoidCallback onTap;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   const RecentExpenseTile({
     super.key,
@@ -22,16 +25,20 @@ class RecentExpenseTile extends ConsumerWidget {
     required this.tagsLabel,
     this.showPossibleDuplicate = false,
     required this.onTap,
+    required this.onEdit,
+    required this.onDelete,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final parts = <String>[
       if (paymentLabel != null && paymentLabel!.isNotEmpty) paymentLabel!,
       if (countryLabel != null && countryLabel!.isNotEmpty) countryLabel!,
       if (tagsLabel != null && tagsLabel!.isNotEmpty) tagsLabel!,
     ];
+    final showOriginal = _hasDistinctOriginal(expense);
 
     return ListTile(
       contentPadding: EdgeInsets.zero,
@@ -39,19 +46,32 @@ class RecentExpenseTile extends ConsumerWidget {
       leading: expense.countryCode == null || expense.countryCode!.isEmpty
           ? null
           : FlagIcon.country(expense.countryCode, size: 28),
-      title: Row(
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Flexible(
-            child: MoneyText(
-              amountMinor: expense.storedAmountMinor,
-              currencyCode: expense.storedCurrencyCode,
-              style: theme.textTheme.titleSmall,
-            ),
+          Row(
+            children: [
+              Flexible(
+                child: MoneyText(
+                  amountMinor: expense.storedAmountMinor,
+                  currencyCode: expense.storedCurrencyCode,
+                  style: theme.textTheme.titleSmall,
+                ),
+              ),
+              if (showPossibleDuplicate) ...[
+                const SizedBox(width: 6),
+                const PossibleDuplicateBadge(size: 16),
+              ],
+            ],
           ),
-          if (showPossibleDuplicate) ...[
-            const SizedBox(width: 6),
-            const PossibleDuplicateBadge(size: 16),
-          ],
+          if (showOriginal)
+            MoneyText(
+              amountMinor: expense.originalAmountMinor,
+              currencyCode: expense.originalCurrencyCode,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
         ],
       ),
       subtitle: parts.isEmpty
@@ -61,8 +81,31 @@ class RecentExpenseTile extends ConsumerWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.edit_outlined, size: 20),
+            tooltip: l10n.editExpense,
+            onPressed: onEdit,
+            visualDensity: VisualDensity.compact,
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline, size: 20),
+            tooltip: l10n.delete,
+            onPressed: onDelete,
+            visualDensity: VisualDensity.compact,
+          ),
+        ],
+      ),
     );
   }
+}
+
+bool _hasDistinctOriginal(Expense expense) {
+  return expense.originalAmountMinor != expense.storedAmountMinor ||
+      expense.originalCurrencyCode.toUpperCase() !=
+          expense.storedCurrencyCode.toUpperCase();
 }
 
 String? recentExpenseTagsLabel(

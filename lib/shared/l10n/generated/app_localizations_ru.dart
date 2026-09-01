@@ -583,6 +583,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get editExpense => 'Изменить трату';
 
   @override
+  String get expenseDetails => 'Детали операции';
+
+  @override
+  String get close => 'Закрыть';
+
+  @override
   String get amount => 'Сумма';
 
   @override
@@ -1356,6 +1362,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get columnAmount => 'Сумма';
+
+  @override
+  String get columnOriginalAmount => 'Начальная сумма';
 
   @override
   String get columnCurrency => 'Валюта';
