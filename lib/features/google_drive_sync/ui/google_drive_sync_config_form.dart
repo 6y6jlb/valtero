@@ -304,6 +304,26 @@ class _GoogleDriveSyncConfigFormState
     }
   }
 
+  Future<void> _revokeShare(String email) async {
+    final l10n = AppLocalizations.of(context)!;
+    setState(() {
+      _busyAction = 'revoke';
+      _status = null;
+    });
+    final result =
+        await ref.read(googleDriveSyncEngineProvider).revokeShare(email);
+    if (!mounted) return;
+    setState(() {
+      _busyAction = null;
+      if (result.success) {
+        _status = null;
+        showAppToast(context, l10n.googleDriveRevokeOk);
+      } else {
+        _status = googleDriveSyncResultMessage(l10n, result);
+      }
+    });
+  }
+
   Future<void> _joinShared() async {
     final l10n = AppLocalizations.of(context)!;
     final result = await showJoinSharedSyncSheet(context);
@@ -323,7 +343,9 @@ class _GoogleDriveSyncConfigFormState
         );
     final isJoined =
         settings?.googleDriveSyncRole == kGoogleDriveSyncRoleJoined;
-    final lastSynced = settings?.googleDriveLastSyncedAt;
+    final lastSynced = isJoined
+        ? settings?.googleDriveSharedLastSyncedAt
+        : settings?.googleDriveLastSyncedAt;
     final sharedWith = settings?.googleDriveSharedWithEmails ?? const [];
     final syncState = ref.watch(googleDriveSyncControllerProvider);
     final needsReauth =
@@ -502,7 +524,12 @@ class _GoogleDriveSyncConfigFormState
               spacing: 8,
               runSpacing: 8,
               children: [
-                for (final email in sharedWith) Chip(label: Text(email)),
+                for (final email in sharedWith)
+                  Chip(
+                    label: Text(email),
+                    onDeleted: _busy ? null : () => _revokeShare(email),
+                    deleteIcon: const Icon(Icons.close, size: 18),
+                  ),
               ],
             ),
           ],

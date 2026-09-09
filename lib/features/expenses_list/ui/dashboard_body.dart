@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/model/expense_chart_drill_down.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
@@ -7,6 +8,7 @@ import 'package:valtero/features/expenses_list/ui/breakdown_chart_view.dart';
 import 'package:valtero/features/expenses_list/ui/chart_breakdown_icons.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_filter_summary_bar.dart';
 import 'package:valtero/features/expenses_list/ui/recent_operations_list.dart';
+import 'package:valtero/features/google_drive_sync/model/google_drive_pull_to_sync.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/app_page_scaffold.dart';
@@ -17,7 +19,7 @@ const kDashboardRecentInitial = 5;
 const kDashboardRecentBatch = 5;
 
 /// Scrollable dashboard content: sample banner, filters, chart, recent list.
-class DashboardBody extends StatefulWidget {
+class DashboardBody extends ConsumerStatefulWidget {
   final List<DonutChartSlice> slices;
   final int missingRateCount;
   final String displayCurrency;
@@ -60,10 +62,10 @@ class DashboardBody extends StatefulWidget {
   });
 
   @override
-  State<DashboardBody> createState() => _DashboardBodyState();
+  ConsumerState<DashboardBody> createState() => _DashboardBodyState();
 }
 
-class _DashboardBodyState extends State<DashboardBody> {
+class _DashboardBodyState extends ConsumerState<DashboardBody> {
   int _recentVisibleCount = kDashboardRecentInitial;
   bool _recentLoadScheduled = false;
 
@@ -93,9 +95,12 @@ class _DashboardBodyState extends State<DashboardBody> {
         });
         return false;
       },
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, kFabBottomPadding),
-        children: [
+      child: RefreshIndicator(
+        onRefresh: () => triggerPullToRefreshSync(context, ref),
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, kFabBottomPadding),
+          children: [
           if (widget.isSample) ...[
             _DashboardSampleBanner(
               onOpenGuide: widget.onOpenGuide,
@@ -186,6 +191,7 @@ class _DashboardBodyState extends State<DashboardBody> {
             if (hasMoreRecent) const InfiniteScrollEllipsis(),
           ],
         ],
+        ),
       ),
     );
   }

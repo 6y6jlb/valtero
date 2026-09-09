@@ -276,6 +276,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get googleDriveShareFailed => 'Не удалось расшарить файл';
 
   @override
+  String get googleDriveRevokeOk => 'Доступ отозван';
+
+  @override
+  String get googleDriveRevokeFailed => 'Не удалось отозвать доступ';
+
+  @override
   String get googleDriveInvalidEmail => 'Введите корректный email';
 
   @override

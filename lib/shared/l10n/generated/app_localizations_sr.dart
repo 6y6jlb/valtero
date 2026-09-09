@@ -275,6 +275,12 @@ class AppLocalizationsSr extends AppLocalizations {
   String get googleDriveShareFailed => 'Nije moguće podeliti fajl';
 
   @override
+  String get googleDriveRevokeOk => 'Pristup opozvan';
+
+  @override
+  String get googleDriveRevokeFailed => 'Nije moguće opozvati pristup';
+
+  @override
   String get googleDriveInvalidEmail => 'Unesite ispravan email';
 
   @override

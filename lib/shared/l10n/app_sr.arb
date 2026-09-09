@@ -114,6 +114,8 @@
   "googleDriveShareAdd": "Podeli emailom",
   "googleDriveShareOk": "Uspešno podeljeno",
   "googleDriveShareFailed": "Nije moguće podeliti fajl",
+  "googleDriveRevokeOk": "Pristup opozvan",
+  "googleDriveRevokeFailed": "Nije moguće opozvati pristup",
   "googleDriveInvalidEmail": "Unesite ispravan email",
   "googleDriveRemoteNewerSchemaTitle": "Potrebno je ažuriranje aplikacije",
   "googleDriveRemoteNewerSchema": "Podaci u oblaku su napisani novijom aplikacijom (šema {remoteSchema}, app {remoteApp}). Ovaj uređaj ima šemu {localSchema}. Sinhronizacija je zaustavljena da se ne bi pregazili noviji podaci. Ažurirajte aplikaciju i pokušajte ponovo.",

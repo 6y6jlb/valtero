@@ -8,6 +8,25 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.5.5] - 2026-09-09
+
+### Fixed
+
+- Google Drive Sync: owners no longer skip pulling the **shared** sync file after
+  syncing their personal appData snapshot (separate last-synced timestamps per
+  target). Cross-account changes with the same passphrase now merge correctly.
+
+### Added
+
+- Pull-to-refresh (swipe down) on Dashboard and Expenses triggers Google Drive
+  sync when configured and no modal/sheet is open.
+- Shared sync: revoke a collaborator from the email chip (Drive permission
+  delete + local list cleanup). Multiple collaborators were already supported.
+- Donut chart: tiny slices get a minimum visual sweep so on-segment labels stay
+  readable.
+- With Debug & logs enabled, Google Drive Sync writes fetch / decrypt / pull /
+  import / push summaries to the app log file.
+
 ## [1.5.4] - 2026-09-09
 
 ### Changed

@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:valtero/features/expenses_list/model/donut_chart_layout.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/money_text.dart';
@@ -84,6 +85,13 @@ class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
     final visible =
         all.where((s) => !_hiddenKeys.contains(s.key)).toList(growable: false);
     final total = visible.fold<int>(0, (sum, s) => sum + s.amountMinor);
+    final rawValues = [
+      for (final slice in visible)
+        slice.amountMinor.toDouble().abs() == 0
+            ? 1.0
+            : slice.amountMinor.toDouble().abs(),
+    ];
+    final sectionValues = computeDonutSectionValues(rawValues);
 
     return Column(
       children: [
@@ -123,21 +131,19 @@ class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
                       },
                     ),
                     sections: [
-                      for (final slice in visible)
+                      for (var i = 0; i < visible.length; i++)
                         PieChartSectionData(
-                          value: slice.amountMinor.toDouble().abs() == 0
-                              ? 1
-                              : slice.amountMinor.toDouble().abs(),
+                          value: sectionValues[i],
                           title: widget.hideSegmentAmounts
-                              ? slice.label
-                              : '${slice.label}\n${formatMoneyOf(
+                              ? visible[i].label
+                              : '${visible[i].label}\n${formatMoneyOf(
                                   context,
                                   ref,
-                                  amountMinor: slice.amountMinor,
-                                  currencyCode: slice.currencyCode ??
+                                  amountMinor: visible[i].amountMinor,
+                                  currencyCode: visible[i].currencyCode ??
                                       widget.displayCurrency,
                                 )}',
-                          color: slice.color,
+                          color: visible[i].color,
                           radius: widget.sectionRadius,
                           titleStyle: const TextStyle(
                             fontSize: 9,

@@ -243,6 +243,50 @@ void main() {
       );
       expect(adapter.requests, hasLength(1));
     });
+
+    test('listPermissions parses email entries', () async {
+      final dio = Dio();
+      final adapter = _RecordingAdapter((options) async {
+        expect(options.method, 'GET');
+        expect(options.path, contains('/files/file-9/permissions'));
+        return ResponseBody.fromString(
+          '{"permissions":[{"id":"p1","emailAddress":"a@ex.com","role":"writer","type":"user"},'
+          '{"id":"owner","role":"owner","type":"user"}]}',
+          200,
+          headers: {
+            Headers.contentTypeHeader: [Headers.jsonContentType],
+          },
+        );
+      });
+      dio.httpClientAdapter = adapter;
+
+      final client = GoogleDriveRestClient(dio);
+      final perms = await client.listPermissions(
+        accessToken: 'tok',
+        fileId: 'file-9',
+      );
+      expect(perms, hasLength(2));
+      expect(perms.first.emailAddress, 'a@ex.com');
+      expect(perms.first.id, 'p1');
+    });
+
+    test('deletePermission issues DELETE', () async {
+      final dio = Dio();
+      final adapter = _RecordingAdapter((options) async {
+        expect(options.method, 'DELETE');
+        expect(options.path, contains('/files/file-9/permissions/p1'));
+        return ResponseBody.fromString('', 204);
+      });
+      dio.httpClientAdapter = adapter;
+
+      final client = GoogleDriveRestClient(dio);
+      await client.deletePermission(
+        accessToken: 'tok',
+        fileId: 'file-9',
+        permissionId: 'p1',
+      );
+      expect(adapter.requests, hasLength(1));
+    });
   });
 
   group('GoogleDriveSyncIntegration.isConfigured', () {

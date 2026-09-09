@@ -156,6 +156,44 @@ class GoogleDriveRestClient {
     );
   }
 
+  /// Lists user permissions on [fileId] (id + emailAddress).
+  Future<List<GoogleDrivePermission>> listPermissions({
+    required String accessToken,
+    required String fileId,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '$_filesUrl/$fileId/permissions',
+      queryParameters: {
+        'fields': 'permissions(id,emailAddress,role,type)',
+        'pageSize': 100,
+      },
+      options: _auth(accessToken),
+    );
+    final permissions = response.data?['permissions'];
+    if (permissions is! List) return const [];
+    return permissions
+        .whereType<Map>()
+        .map(
+          (e) => GoogleDrivePermission.fromJson(
+            Map<String, dynamic>.from(e),
+          ),
+        )
+        .where((p) => p.id.isNotEmpty)
+        .toList();
+  }
+
+  /// Revokes a single permission on [fileId].
+  Future<void> deletePermission({
+    required String accessToken,
+    required String fileId,
+    required String permissionId,
+  }) async {
+    await _dio.delete<void>(
+      '$_filesUrl/$fileId/permissions/$permissionId',
+      options: _auth(accessToken),
+    );
+  }
+
   /// Lists shared sync files visible to this account (sharedWithMe).
   /// Requires full `drive` scope — `drive.file` alone cannot discover these.
   Future<List<GoogleDriveFileMeta>> listSharedSyncFiles(
@@ -256,6 +294,30 @@ class GoogleDriveRestClient {
       throw const GoogleDriveException('empty_upload_response');
     }
     return GoogleDriveFileMeta.fromJson(data);
+  }
+}
+
+/// A Drive permission entry (used when revoking shared-sync writers).
+class GoogleDrivePermission {
+  final String id;
+  final String? emailAddress;
+  final String? role;
+  final String? type;
+
+  const GoogleDrivePermission({
+    required this.id,
+    this.emailAddress,
+    this.role,
+    this.type,
+  });
+
+  factory GoogleDrivePermission.fromJson(Map<String, dynamic> json) {
+    return GoogleDrivePermission(
+      id: json['id'] as String? ?? '',
+      emailAddress: json['emailAddress'] as String?,
+      role: json['role'] as String?,
+      type: json['type'] as String?,
+    );
   }
 }
 

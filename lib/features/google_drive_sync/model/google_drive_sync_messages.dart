@@ -58,6 +58,9 @@ String googleDriveSyncResultMessage(
     'token_exchange_failed' =>
       l10n.googleDriveSignInFailed,
     'share_failed' => l10n.googleDriveShareFailed,
+    'revoke_failed' => l10n.googleDriveRevokeFailed,
+    'shareOk' => l10n.googleDriveShareOk,
+    'revokeOk' => l10n.googleDriveRevokeOk,
     'invalid_email' => l10n.googleDriveInvalidEmail,
     'remote_newer_schema' => l10n.googleDriveRemoteNewerSchema(
         result.remoteSchemaVersion ?? 0,

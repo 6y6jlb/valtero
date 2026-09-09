@@ -114,6 +114,8 @@
   "googleDriveShareAdd": "Поделиться",
   "googleDriveShareOk": "Доступ выдан",
   "googleDriveShareFailed": "Не удалось расшарить файл",
+  "googleDriveRevokeOk": "Доступ отозван",
+  "googleDriveRevokeFailed": "Не удалось отозвать доступ",
   "googleDriveInvalidEmail": "Введите корректный email",
   "googleDriveRemoteNewerSchemaTitle": "Нужно обновить приложение",
   "googleDriveRemoteNewerSchema": "Облачный снимок создан более новой версией приложения (схема {remoteSchema}, приложение {remoteApp}). На этом устройстве схема {localSchema}. Синхронизация остановлена, чтобы не перезаписать новые данные. Обновите приложение и повторите попытку.",

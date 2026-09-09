@@ -101,6 +101,13 @@ class GoogleDriveSyncEngine {
       final isJoined =
           settings.googleDriveSyncRole == kGoogleDriveSyncRoleJoined;
 
+      _logDebug(
+        'GDrive sync start role=${isJoined ? 'joined' : 'owner'} '
+        'pushOnly=$pushOnly '
+        'appDataFileId=${settings.googleDriveAppDataFileId} '
+        'sharedFileId=${settings.googleDriveSharedFileId}',
+      );
+
       if (isJoined) {
         final sharedId = settings.googleDriveSharedFileId.trim();
         if (sharedId.isEmpty) {
@@ -160,8 +167,13 @@ class GoogleDriveSyncEngine {
             applySettings: false,
             createInAppDataIfMissing: false,
           );
-        } on DioException {
+        } on DioException catch (e, st) {
           // Shared sync is best-effort after personal succeeded.
+          _logWarning(
+            'GDrive shared sync failed (best-effort) fileId=$sharedId',
+            error: e,
+            stackTrace: st,
+          );
         }
       }
 
@@ -208,6 +220,10 @@ class GoogleDriveSyncEngine {
   }) async {
     var resolvedId = fileId?.trim();
     if (resolvedId != null && resolvedId.isEmpty) resolvedId = null;
+    final target = storeAsAppDataFileId ? 'personal' : 'shared';
+    final lastSyncedAt = storeAsAppDataFileId
+        ? settings.googleDriveLastSyncedAt
+        : settings.googleDriveSharedLastSyncedAt;
 
     if (!pushOnly && resolvedId != null) {
       final meta = remoteMeta ??
@@ -216,6 +232,11 @@ class GoogleDriveSyncEngine {
             fileId: resolvedId,
           );
       if (meta != null) {
+        _logDebug(
+          'GDrive fetch meta target=$target fileId=${meta.id} '
+          'modified=${meta.modifiedTime?.toUtc().toIso8601String()} '
+          'size=${meta.size} owner=${meta.ownerEmail}',
+        );
         final bytes = await drive.downloadFile(
           accessToken: accessToken,
           fileId: meta.id,
@@ -228,10 +249,24 @@ class GoogleDriveSyncEngine {
               passphrase: passphrase,
             );
 
-        final shouldPull = settings.googleDriveLastSyncedAt == null ||
+        _logDebug(
+          'GDrive decrypted target=$target fileId=${meta.id} '
+          'schema=${envelope.schemaVersion} '
+          'expenses=${envelope.data.expenses.length} '
+          'tags=${envelope.data.tags.length} '
+          'payments=${envelope.data.paymentMethods.length} '
+          'rates=${envelope.data.exchangeRateOverrides.length}',
+        );
+
+        final shouldPull = lastSyncedAt == null ||
             (meta.modifiedTime != null &&
-                settings.googleDriveLastSyncedAt!
-                    .isBefore(meta.modifiedTime!));
+                lastSyncedAt.isBefore(meta.modifiedTime!));
+
+        _logDebug(
+          'GDrive pull decision target=$target shouldPull=$shouldPull '
+          'lastSyncedAt=${lastSyncedAt?.toUtc().toIso8601String()} '
+          'modified=${meta.modifiedTime?.toUtc().toIso8601String()}',
+        );
 
         if (shouldPull) {
           final conflicts = await ref
@@ -240,7 +275,11 @@ class GoogleDriveSyncEngine {
           final skipIds = {
             for (final c in conflicts) c.incoming.clientId,
           };
-          await ref.read(backupImporterProvider).importEnvelope(
+          _logDebug(
+            'GDrive merge plan target=$target '
+            'conflicts=${conflicts.length} skipIds=${skipIds.length}',
+          );
+          final report = await ref.read(backupImporterProvider).importEnvelope(
                 db: ref.read(appDatabaseProvider),
                 envelope: envelope,
                 currentSettings: settings,
@@ -250,6 +289,13 @@ class GoogleDriveSyncEngine {
                     .read(appSettingsProvider.notifier)
                     .updateSettings(updated),
               );
+          _logDebug(
+            'GDrive import done target=$target '
+            'expensesAdded=${report.expensesAdded} '
+            'tagsAdded=${report.tagsAdded} '
+            'paymentsAdded=${report.paymentsAdded} '
+            'skippedDup=${report.expensesSkippedDuplicate}',
+          );
           await _mergeGoogleDriveMetadataFromEnvelope(
             envelope: envelope,
             settings: ref.read(appSettingsProvider).value ?? settings,
@@ -268,6 +314,7 @@ class GoogleDriveSyncEngine {
     }
 
     final freshSettings = ref.read(appSettingsProvider).value ?? settings;
+    _logDebug('GDrive push start target=$target fileId=$resolvedId');
     final content =
         await _buildEncryptedSnapshot(freshSettings, passphrase);
 
@@ -291,10 +338,20 @@ class GoogleDriveSyncEngine {
     }
 
     final now = DateTime.now();
-    await ref.read(appSettingsProvider.notifier).setGoogleDriveSync(
-          appDataFileId: storeAsAppDataFileId ? uploaded.id : null,
-          lastSyncedAt: now,
-        );
+    if (storeAsAppDataFileId) {
+      await ref.read(appSettingsProvider.notifier).setGoogleDriveSync(
+            appDataFileId: uploaded.id,
+            lastSyncedAt: now,
+          );
+    } else {
+      await ref.read(appSettingsProvider.notifier).setGoogleDriveSync(
+            sharedLastSyncedAt: now,
+          );
+    }
+    _logDebug(
+      'GDrive push done target=$target fileId=${uploaded.id} '
+      'syncedAt=${now.toUtc().toIso8601String()}',
+    );
     return now;
   }
 
@@ -398,6 +455,7 @@ class GoogleDriveSyncEngine {
             sharedFileId: id,
             syncRole: kGoogleDriveSyncRoleJoined,
             appDataFileId: '',
+            clearSharedLastSyncedAt: true,
           );
       return syncNow(applySettings: false);
     } on GoogleOAuthException catch (e, st) {
@@ -413,6 +471,20 @@ class GoogleDriveSyncEngine {
       _logError('Google Drive join failed', error: e, stackTrace: st);
       return const GoogleDriveSyncResult.fail('sign_in_failed');
     }
+  }
+
+  void _logDebug(String message) {
+    // ignore: unawaited_futures
+    ref.read(appLoggerProvider).debug(message);
+  }
+
+  void _logWarning(String message, {Object? error, StackTrace? stackTrace}) {
+    // ignore: unawaited_futures
+    ref.read(appLoggerProvider).warning(
+          message,
+          error: error,
+          stackTrace: stackTrace,
+        );
   }
 
   void _logError(String message, {Object? error, StackTrace? stackTrace}) {
@@ -512,6 +584,95 @@ class GoogleDriveSyncEngine {
     } catch (e, st) {
       _logError('Google Drive share failed', error: e, stackTrace: st);
       return const GoogleDriveSyncResult.fail('share_failed');
+    }
+  }
+
+  /// Revokes writer access for [email] on the shared sync file.
+  Future<GoogleDriveSyncResult> revokeShare(String email) async {
+    final settings = ref.read(appSettingsProvider).value;
+    if (settings == null) {
+      return const GoogleDriveSyncResult.fail('no_settings');
+    }
+    if (settings.googleDriveSyncRole == kGoogleDriveSyncRoleJoined) {
+      return const GoogleDriveSyncResult.fail('revoke_failed');
+    }
+    final trimmed = email.trim().toLowerCase();
+    if (trimmed.isEmpty || !trimmed.contains('@')) {
+      return const GoogleDriveSyncResult.fail('invalid_email');
+    }
+    final sharedId = settings.googleDriveSharedFileId.trim();
+    if (sharedId.isEmpty) {
+      return const GoogleDriveSyncResult.fail('revoke_failed');
+    }
+    final known = settings.googleDriveSharedWithEmails
+        .map((e) => e.toLowerCase())
+        .contains(trimmed);
+    if (!known) {
+      return const GoogleDriveSyncResult.fail('revoke_failed');
+    }
+
+    final integration = ref.read(googleDriveSyncIntegrationProvider);
+    try {
+      final result = await integration.oauth.signIn(
+        includeFileScope: true,
+        scopeMode: GoogleDriveOAuthScopeMode.share,
+      );
+      final refresh = result.tokens.refreshToken?.trim();
+      _cachedTokens = result.tokens;
+      if (refresh != null && refresh.isNotEmpty) {
+        await ref.read(appSettingsProvider.notifier).setGoogleDriveSync(
+              refreshToken: refresh,
+              accountEmail: result.email ?? settings.googleDriveAccountEmail,
+            );
+      }
+
+      final accessToken = result.tokens.accessToken;
+      final permissions = await integration.drive.listPermissions(
+        accessToken: accessToken,
+        fileId: sharedId,
+      );
+      GoogleDrivePermission? match;
+      for (final p in permissions) {
+        final addr = p.emailAddress?.trim().toLowerCase();
+        if (addr != null && addr == trimmed) {
+          match = p;
+          break;
+        }
+      }
+      if (match != null) {
+        await integration.drive.deletePermission(
+          accessToken: accessToken,
+          fileId: sharedId,
+          permissionId: match.id,
+        );
+      } else {
+        _logDebug(
+          'GDrive revoke: no Drive permission for $trimmed on $sharedId; '
+          'cleaning local list only',
+        );
+      }
+
+      final emails = settings.googleDriveSharedWithEmails
+          .where((e) => e.toLowerCase() != trimmed)
+          .toList()
+        ..sort();
+      await ref.read(appSettingsProvider.notifier).setGoogleDriveSync(
+            sharedWithEmails: emails,
+          );
+      return const GoogleDriveSyncResult.ok(messageKey: 'revokeOk');
+    } on GoogleOAuthException catch (e, st) {
+      _logError(
+        'Google Drive revoke OAuth failed code=${e.code}',
+        error: e,
+        stackTrace: st,
+      );
+      return GoogleDriveSyncResult.fail(e.code);
+    } on DioException catch (e, st) {
+      _logError('Google Drive revoke network failed', error: e, stackTrace: st);
+      return const GoogleDriveSyncResult.fail('revoke_failed');
+    } catch (e, st) {
+      _logError('Google Drive revoke failed', error: e, stackTrace: st);
+      return const GoogleDriveSyncResult.fail('revoke_failed');
     }
   }
 
@@ -646,8 +807,13 @@ class GoogleDriveSyncController extends Notifier<GoogleDriveSyncState> {
   @override
   GoogleDriveSyncState build() {
     final settings = ref.watch(appSettingsProvider).value;
+    final lastSynced = settings == null
+        ? null
+        : (settings.googleDriveSyncRole == kGoogleDriveSyncRoleJoined
+            ? settings.googleDriveSharedLastSyncedAt
+            : settings.googleDriveLastSyncedAt);
     return GoogleDriveSyncState(
-      lastSyncedAt: settings?.googleDriveLastSyncedAt,
+      lastSyncedAt: lastSynced,
     );
   }
 

@@ -114,6 +114,8 @@
   "googleDriveShareAdd": "Compartir por correo",
   "googleDriveShareOk": "Compartido correctamente",
   "googleDriveShareFailed": "No se pudo compartir el archivo",
+  "googleDriveRevokeOk": "Acceso revocado",
+  "googleDriveRevokeFailed": "No se pudo revocar el acceso",
   "googleDriveInvalidEmail": "Introduce un correo válido",
   "googleDriveRemoteNewerSchemaTitle": "Actualiza la app para sincronizar",
   "googleDriveRemoteNewerSchema": "Los datos en la nube los escribió una app más nueva (esquema {remoteSchema}, app {remoteApp}). Este dispositivo usa el esquema {localSchema}. La sincronización se detuvo para no sobrescribir datos más nuevos. Actualiza la app e inténtalo de nuevo.",

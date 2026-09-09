@@ -53,5 +53,29 @@ void main() {
         l10n.googleDriveReauthRequired,
       );
     });
+
+    test('maps revoke and share success/failure keys', () {
+      expect(
+        googleDriveSyncResultMessage(
+          l10n,
+          const GoogleDriveSyncResult.ok(messageKey: 'revokeOk'),
+        ),
+        l10n.googleDriveRevokeOk,
+      );
+      expect(
+        googleDriveSyncResultMessage(
+          l10n,
+          const GoogleDriveSyncResult.fail('revoke_failed'),
+        ),
+        l10n.googleDriveRevokeFailed,
+      );
+      expect(
+        googleDriveSyncResultMessage(
+          l10n,
+          const GoogleDriveSyncResult.ok(messageKey: 'shareOk'),
+        ),
+        l10n.googleDriveShareOk,
+      );
+    });
   });
 }

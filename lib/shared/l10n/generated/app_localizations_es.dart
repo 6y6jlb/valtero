@@ -278,6 +278,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get googleDriveShareFailed => 'No se pudo compartir el archivo';
 
   @override
+  String get googleDriveRevokeOk => 'Acceso revocado';
+
+  @override
+  String get googleDriveRevokeFailed => 'No se pudo revocar el acceso';
+
+  @override
   String get googleDriveInvalidEmail => 'Introduce un correo válido';
 
   @override

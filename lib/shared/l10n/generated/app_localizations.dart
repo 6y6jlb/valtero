@@ -576,6 +576,18 @@ abstract class AppLocalizations {
   /// **'Could not share the sync file'**
   String get googleDriveShareFailed;
 
+  /// No description provided for @googleDriveRevokeOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Access revoked'**
+  String get googleDriveRevokeOk;
+
+  /// No description provided for @googleDriveRevokeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not revoke access'**
+  String get googleDriveRevokeFailed;
+
   /// No description provided for @googleDriveInvalidEmail.
   ///
   /// In en, this message translates to:

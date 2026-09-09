@@ -114,6 +114,8 @@
   "googleDriveShareAdd": "Share with email",
   "googleDriveShareOk": "Shared successfully",
   "googleDriveShareFailed": "Could not share the sync file",
+  "googleDriveRevokeOk": "Access revoked",
+  "googleDriveRevokeFailed": "Could not revoke access",
   "googleDriveInvalidEmail": "Enter a valid email address",
   "googleDriveRemoteNewerSchemaTitle": "Update required to sync",
   "googleDriveRemoteNewerSchema": "Cloud sync data was written by a newer app (schema {remoteSchema}, app {remoteApp}). This device is schema {localSchema}. Sync was blocked so newer cloud data is not overwritten. Update the app, then try again.",

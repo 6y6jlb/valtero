@@ -43,6 +43,10 @@ class AppSettings {
   /// Local-only E2EE passphrase (never uploaded to Google).
   final String googleDriveSyncPassphrase;
   final DateTime? googleDriveLastSyncedAt;
+  /// Last successful pull/push against the shared Drive file (owner or joined).
+  /// Kept separate from [googleDriveLastSyncedAt] so an owner's personal
+  /// appData sync does not skip pulling the shared file in the same cycle.
+  final DateTime? googleDriveSharedLastSyncedAt;
   final String googleDriveAppDataFileId;
   final String googleDriveSharedFileId;
   final List<String> googleDriveSharedWithEmails;
@@ -81,6 +85,7 @@ class AppSettings {
     this.googleDriveRefreshToken = '',
     this.googleDriveSyncPassphrase = '',
     this.googleDriveLastSyncedAt,
+    this.googleDriveSharedLastSyncedAt,
     this.googleDriveAppDataFileId = '',
     this.googleDriveSharedFileId = '',
     this.googleDriveSharedWithEmails = const [],
@@ -131,6 +136,8 @@ class AppSettings {
     String? googleDriveSyncPassphrase,
     DateTime? googleDriveLastSyncedAt,
     bool clearGoogleDriveLastSyncedAt = false,
+    DateTime? googleDriveSharedLastSyncedAt,
+    bool clearGoogleDriveSharedLastSyncedAt = false,
     String? googleDriveAppDataFileId,
     String? googleDriveSharedFileId,
     List<String>? googleDriveSharedWithEmails,
@@ -182,6 +189,10 @@ class AppSettings {
       googleDriveLastSyncedAt: clearGoogleDriveLastSyncedAt
           ? null
           : (googleDriveLastSyncedAt ?? this.googleDriveLastSyncedAt),
+      googleDriveSharedLastSyncedAt: clearGoogleDriveSharedLastSyncedAt
+          ? null
+          : (googleDriveSharedLastSyncedAt ??
+              this.googleDriveSharedLastSyncedAt),
       googleDriveAppDataFileId:
           googleDriveAppDataFileId ?? this.googleDriveAppDataFileId,
       googleDriveSharedFileId:
@@ -224,6 +235,8 @@ class AppSettings {
         'googleDriveRefreshToken': googleDriveRefreshToken,
         'googleDriveSyncPassphrase': googleDriveSyncPassphrase,
         'googleDriveLastSyncedAt': googleDriveLastSyncedAt?.toIso8601String(),
+        'googleDriveSharedLastSyncedAt':
+            googleDriveSharedLastSyncedAt?.toIso8601String(),
         'googleDriveAppDataFileId': googleDriveAppDataFileId,
         'googleDriveSharedFileId': googleDriveSharedFileId,
         'googleDriveSharedWithEmails': googleDriveSharedWithEmails,
@@ -291,6 +304,12 @@ class AppSettings {
       googleDriveLastSyncedAt: json['googleDriveLastSyncedAt'] != null
           ? DateTime.tryParse(json['googleDriveLastSyncedAt'] as String)
           : null,
+      googleDriveSharedLastSyncedAt:
+          json['googleDriveSharedLastSyncedAt'] != null
+              ? DateTime.tryParse(
+                  json['googleDriveSharedLastSyncedAt'] as String,
+                )
+              : null,
       googleDriveAppDataFileId:
           json['googleDriveAppDataFileId'] as String? ?? '',
       googleDriveSharedFileId: json['googleDriveSharedFileId'] as String? ?? '',
