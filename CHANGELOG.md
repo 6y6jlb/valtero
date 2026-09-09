@@ -8,6 +8,12 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.6.3] - 2026-09-09
+
+### Changed
+
+- Add expense / income FABs use red vs green button backgrounds (white `+`).
+
 ## [1.6.2] - 2026-09-09
 
 ### Changed
