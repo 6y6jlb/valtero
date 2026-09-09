@@ -259,6 +259,108 @@ class ExportController {
         );
     await _sendTelegramFile(file, format: format);
   }
+
+  String buildIncomeContentFor(
+    ExportFormat format, {
+    required List<Income> incomes,
+    required Map<int, String> tagNames,
+    required Map<int, List<int>> tagsByIncome,
+    Map<int, String> paymentNames = const {},
+  }) {
+    final exporter = ref.read(incomeExporterProvider);
+    return format == ExportFormat.csv
+        ? exporter.buildCsv(
+            incomes,
+            tagNames,
+            tagsByIncome,
+            paymentNames: paymentNames,
+          )
+        : exporter.buildJson(
+            incomes,
+            tagNames,
+            tagsByIncome,
+            paymentNames: paymentNames,
+          );
+  }
+
+  Future<String?> saveIncomeFileFor(
+    ExportFormat format, {
+    required List<Income> incomes,
+    required Map<int, String> tagNames,
+    required Map<int, List<int>> tagsByIncome,
+    Map<int, String> paymentNames = const {},
+  }) {
+    final content = buildIncomeContentFor(
+      format,
+      incomes: incomes,
+      tagNames: tagNames,
+      tagsByIncome: tagsByIncome,
+      paymentNames: paymentNames,
+    );
+    return ref.read(incomeExporterProvider).saveWithDialog(
+          content: content,
+          format: format,
+        );
+  }
+
+  Future<void> shareIncomeFor(
+    ExportFormat format, {
+    required List<Income> incomes,
+    required Map<int, String> tagNames,
+    required Map<int, List<int>> tagsByIncome,
+    Map<int, String> paymentNames = const {},
+  }) async {
+    final content = buildIncomeContentFor(
+      format,
+      incomes: incomes,
+      tagNames: tagNames,
+      tagsByIncome: tagsByIncome,
+      paymentNames: paymentNames,
+    );
+    final file = await ref.read(incomeExporterProvider).writeTempFile(
+          content: content,
+          format: format,
+        );
+    await ref.read(incomeExporterProvider).shareFile(file);
+  }
+
+  Future<void> copyIncomeFor(
+    ExportFormat format, {
+    required List<Income> incomes,
+    required Map<int, String> tagNames,
+    required Map<int, List<int>> tagsByIncome,
+    Map<int, String> paymentNames = const {},
+  }) async {
+    final content = buildIncomeContentFor(
+      format,
+      incomes: incomes,
+      tagNames: tagNames,
+      tagsByIncome: tagsByIncome,
+      paymentNames: paymentNames,
+    );
+    await Clipboard.setData(ClipboardData(text: content));
+  }
+
+  Future<void> sendIncomeTelegramFor(
+    ExportFormat format, {
+    required List<Income> incomes,
+    required Map<int, String> tagNames,
+    required Map<int, List<int>> tagsByIncome,
+    Map<int, String> paymentNames = const {},
+  }) async {
+    final content = buildIncomeContentFor(
+      format,
+      incomes: incomes,
+      tagNames: tagNames,
+      tagsByIncome: tagsByIncome,
+      paymentNames: paymentNames,
+    );
+    final file = await ref.read(incomeExporterProvider).writeTempFile(
+          content: content,
+          format: format,
+        );
+    await _sendTelegramFile(file, format: format);
+  }
 }
 
 final exportControllerProvider = Provider<ExportController>((ref) {

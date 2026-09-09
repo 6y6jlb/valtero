@@ -22,6 +22,10 @@ class ExpensesListingCard extends StatelessWidget {
     required ExportDestination destination,
   }) onExport;
   final bool showTelegram;
+  /// When true, export menu lists income formats instead of (or in addition
+  /// to) expenses. Income list passes [showExpensesExport]: false.
+  final bool showIncomeExport;
+  final bool showExpensesExport;
   final Widget child;
 
   const ExpensesListingCard({
@@ -35,6 +39,8 @@ class ExpensesListingCard extends StatelessWidget {
     required this.onSortChanged,
     required this.onExport,
     this.showTelegram = false,
+    this.showIncomeExport = false,
+    this.showExpensesExport = true,
     required this.child,
   });
 
@@ -198,6 +204,8 @@ class ExpensesListingCard extends StatelessWidget {
                         l10n,
                         showShare: isExportShareSupported,
                         showTelegram: showTelegram,
+                        showIncome: showIncomeExport,
+                        showExpenses: showExpensesExport,
                       ),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(

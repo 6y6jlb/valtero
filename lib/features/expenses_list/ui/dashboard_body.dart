@@ -49,6 +49,9 @@ class DashboardBody extends ConsumerStatefulWidget {
   final Map<int, String> paymentLabels;
   final bool isSample;
   final bool loading;
+  /// True when the user has any rows of the active kind (before filters).
+  /// Used so empty charts say "nothing matches" vs "none yet".
+  final bool hasSourceData;
   final ValueChanged<ExpenseChartBreakdown> onBreakdownChanged;
   final ValueChanged<ExpenseChartType> onChartTypeChanged;
   final VoidCallback onOpenFilters;
@@ -75,6 +78,7 @@ class DashboardBody extends ConsumerStatefulWidget {
     required this.paymentLabels,
     required this.isSample,
     required this.loading,
+    this.hasSourceData = false,
     required this.onBreakdownChanged,
     required this.onChartTypeChanged,
     required this.onOpenFilters,
@@ -101,12 +105,31 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
   }
 
   Widget _buildChart(AppLocalizations l10n) {
+    final emptyYet = switch (widget.direction) {
+      TransactionDirection.income => l10n.noIncomeYet,
+      TransactionDirection.expenses => l10n.noExpenses,
+      TransactionDirection.cashFlow => l10n.noOperationsYet,
+    };
+    final emptyFiltered = switch (widget.direction) {
+      TransactionDirection.income => l10n.noMatchingIncome,
+      TransactionDirection.expenses => l10n.noMatchingExpenses,
+      TransactionDirection.cashFlow => l10n.noMatchingOperations,
+    };
+    final emptyMessage = widget.isSample || !widget.hasSourceData
+        ? emptyYet
+        : emptyFiltered;
+    final emptyIcon = switch (widget.direction) {
+      TransactionDirection.income => Icons.south_west_outlined,
+      TransactionDirection.expenses => Icons.north_east_outlined,
+      TransactionDirection.cashFlow => Icons.stacked_bar_chart_outlined,
+    };
     if (widget.direction == TransactionDirection.cashFlow) {
       return CashFlowChart(
         buckets: widget.cashFlowBuckets,
         displayCurrency: widget.displayCurrency,
         hideBarAmounts: widget.missingRateCount > 0,
-        emptyMessage: l10n.noMatchingOperations,
+        emptyMessage: emptyMessage,
+        emptyIcon: emptyIcon,
       );
     }
     return BreakdownChartView(
@@ -121,11 +144,8 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
           widget.breakdown == ExpenseChartBreakdown.currency,
       hideSegmentAmounts: widget.missingRateCount > 0 &&
           widget.breakdown != ExpenseChartBreakdown.currency,
-      emptyMessage: widget.isSample
-          ? l10n.noExpenses
-          : widget.direction == TransactionDirection.income
-              ? l10n.noMatchingIncome
-              : l10n.noMatchingExpenses,
+      emptyMessage: emptyMessage,
+      emptyIcon: emptyIcon,
       onSegmentTap: widget.isSample ? null : widget.onSegmentTap,
     );
   }

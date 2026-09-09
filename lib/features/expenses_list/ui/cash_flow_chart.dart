@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/cash_flow_aggregator.dart';
+import 'package:valtero/features/expenses_list/ui/chart_empty_placeholder.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/money_text.dart';
 
@@ -12,6 +13,7 @@ class CashFlowChart extends ConsumerWidget {
   final String displayCurrency;
   final double chartHeight;
   final String? emptyMessage;
+  final IconData emptyIcon;
   final bool hideBarAmounts;
 
   const CashFlowChart({
@@ -20,6 +22,7 @@ class CashFlowChart extends ConsumerWidget {
     required this.displayCurrency,
     this.chartHeight = 280,
     this.emptyMessage,
+    this.emptyIcon = Icons.stacked_bar_chart_outlined,
     this.hideBarAmounts = false,
   });
 
@@ -31,9 +34,10 @@ class CashFlowChart extends ConsumerWidget {
     final expenseColor = theme.colorScheme.error;
 
     if (buckets.isEmpty) {
-      return SizedBox(
-        height: chartHeight,
-        child: Center(child: Text(emptyMessage ?? l10n.noMatchingExpenses)),
+      return ChartEmptyPlaceholder(
+        message: emptyMessage ?? l10n.noMatchingOperations,
+        icon: emptyIcon,
+        height: chartHeight * 0.55,
       );
     }
 

@@ -573,8 +573,11 @@
   "exportIncome": "Exportar ingresos",
   "duplicateConflictIncomeTitle": "Ingreso similar encontrado",
   "showIncomeList": "Ver ingresos",
+  "noIncomeYet": "Aún no hay ingresos",
+  "incomeEmptyTitle": "Aún no hay ingresos",
   "noMatchingIncome": "Ningún ingreso coincide con los filtros",
   "noMatchingOperations": "Ninguna operación coincide con los filtros",
+  "noOperationsYet": "Aún no hay operaciones",
   "chartMissingRatesAlertGeneric": "{count, plural, one{1 operación mostrada sin tipo de cambio} other{{count} operaciones mostradas sin tipos de cambio}}",
   "@chartMissingRatesAlertGeneric": {
     "placeholders": {

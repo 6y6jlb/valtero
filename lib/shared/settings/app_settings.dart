@@ -33,6 +33,16 @@ class AppSettings {
   final String expensesChartType;
   /// Last date-chart period: `day` | `week` | `month` | `year`.
   final String expensesChartDatePeriod;
+  /// Persisted income page listing mode: `list` | `grouping` | `chart`.
+  final String incomeListView;
+  /// Persisted income group-by when view is grouping.
+  final String incomeListGroup;
+  /// Persisted chart breakdown on the income list.
+  final String incomeChartBreakdown;
+  /// Persisted income chart shape: `donut` | `column`.
+  final String incomeChartType;
+  /// Last income date-chart period: `day` | `week` | `month` | `year`.
+  final String incomeChartDatePeriod;
   /// When true, verbose debug breadcrumbs are written to the app log file.
   /// Error/warning logs are always written regardless of this flag.
   final bool debugLoggingEnabled;
@@ -79,6 +89,11 @@ class AppSettings {
     this.expensesChartBreakdown = 'currency',
     this.expensesChartType = 'donut',
     this.expensesChartDatePeriod = 'month',
+    this.incomeListView = 'list',
+    this.incomeListGroup = 'currency',
+    this.incomeChartBreakdown = 'currency',
+    this.incomeChartType = 'donut',
+    this.incomeChartDatePeriod = 'month',
     this.debugLoggingEnabled = false,
     this.googleDriveSyncEnabled = false,
     this.googleDriveAccountEmail = '',
@@ -129,6 +144,11 @@ class AppSettings {
     String? expensesChartBreakdown,
     String? expensesChartType,
     String? expensesChartDatePeriod,
+    String? incomeListView,
+    String? incomeListGroup,
+    String? incomeChartBreakdown,
+    String? incomeChartType,
+    String? incomeChartDatePeriod,
     bool? debugLoggingEnabled,
     bool? googleDriveSyncEnabled,
     String? googleDriveAccountEmail,
@@ -177,6 +197,12 @@ class AppSettings {
       expensesChartType: expensesChartType ?? this.expensesChartType,
       expensesChartDatePeriod:
           expensesChartDatePeriod ?? this.expensesChartDatePeriod,
+      incomeListView: incomeListView ?? this.incomeListView,
+      incomeListGroup: incomeListGroup ?? this.incomeListGroup,
+      incomeChartBreakdown: incomeChartBreakdown ?? this.incomeChartBreakdown,
+      incomeChartType: incomeChartType ?? this.incomeChartType,
+      incomeChartDatePeriod:
+          incomeChartDatePeriod ?? this.incomeChartDatePeriod,
       debugLoggingEnabled: debugLoggingEnabled ?? this.debugLoggingEnabled,
       googleDriveSyncEnabled:
           googleDriveSyncEnabled ?? this.googleDriveSyncEnabled,
@@ -229,6 +255,11 @@ class AppSettings {
         'expensesChartBreakdown': expensesChartBreakdown,
         'expensesChartType': expensesChartType,
         'expensesChartDatePeriod': expensesChartDatePeriod,
+        'incomeListView': incomeListView,
+        'incomeListGroup': incomeListGroup,
+        'incomeChartBreakdown': incomeChartBreakdown,
+        'incomeChartType': incomeChartType,
+        'incomeChartDatePeriod': incomeChartDatePeriod,
         'debugLoggingEnabled': debugLoggingEnabled,
         'googleDriveSyncEnabled': googleDriveSyncEnabled,
         'googleDriveAccountEmail': googleDriveAccountEmail,
@@ -287,6 +318,23 @@ class AppSettings {
         final stored = json['expensesChartDatePeriod'] as String?;
         if (stored != null && stored.isNotEmpty) return stored;
         final breakdown = json['expensesChartBreakdown'] as String? ?? '';
+        if (breakdown == 'day' ||
+            breakdown == 'week' ||
+            breakdown == 'month' ||
+            breakdown == 'year') {
+          return breakdown;
+        }
+        return 'month';
+      }(),
+      incomeListView: json['incomeListView'] as String? ?? 'list',
+      incomeListGroup: json['incomeListGroup'] as String? ?? 'currency',
+      incomeChartBreakdown:
+          json['incomeChartBreakdown'] as String? ?? 'currency',
+      incomeChartType: json['incomeChartType'] as String? ?? 'donut',
+      incomeChartDatePeriod: () {
+        final stored = json['incomeChartDatePeriod'] as String?;
+        if (stored != null && stored.isNotEmpty) return stored;
+        final breakdown = json['incomeChartBreakdown'] as String? ?? '';
         if (breakdown == 'day' ||
             breakdown == 'week' ||
             breakdown == 'month' ||

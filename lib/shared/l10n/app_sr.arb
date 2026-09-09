@@ -573,8 +573,11 @@
   "exportIncome": "Izvezi prihode",
   "duplicateConflictIncomeTitle": "Pronađen sličan prihod",
   "showIncomeList": "Prikaži prihode",
+  "noIncomeYet": "Još nema prihoda",
+  "incomeEmptyTitle": "Još nema prihoda",
   "noMatchingIncome": "Nema prihoda koji odgovaraju filterima",
   "noMatchingOperations": "Nema operacija koje odgovaraju filterima",
+  "noOperationsYet": "Još nema operacija",
   "chartMissingRatesAlertGeneric": "{count, plural, one{1 operacija prikazana bez kursa konverzije} few{{count} operacije prikazane bez kursa konverzije} other{{count} operacija prikazano bez kursa konverzije}}",
   "@chartMissingRatesAlertGeneric": {
     "placeholders": {

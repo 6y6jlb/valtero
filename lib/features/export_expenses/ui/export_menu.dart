@@ -40,14 +40,14 @@ ExportMenuSelection? parseExportMenuValue(String value) {
   return (format: format, destination: destination, dataType: dataType);
 }
 
-/// [showIncome] adds a second set of entries exporting income instead of
-/// expenses (no income list screen consumes this yet, but the menu already
-/// supports it so a future income list can opt in).
+/// [showIncome] adds income export entries. [showExpenses] defaults to true;
+/// pass false on the income list so the menu only offers income exports.
 List<PopupMenuEntry<String>> buildExportMenuItems(
   AppLocalizations l10n, {
   bool showShare = true,
   bool showTelegram = false,
   bool showIncome = false,
+  bool showExpenses = true,
 }) {
   PopupMenuItem<String> item({
     required ExportFormat format,
@@ -65,7 +65,7 @@ List<PopupMenuEntry<String>> buildExportMenuItems(
       format == ExportFormat.csv ? l10n.exportCsv : l10n.exportJson;
 
   List<PopupMenuEntry<String>> itemsFor(ExportDataType dataType) {
-    final prefix = dataType == ExportDataType.income
+    final prefix = dataType == ExportDataType.income && showExpenses
         ? '${l10n.income} · '
         : '';
     return [
@@ -101,7 +101,7 @@ List<PopupMenuEntry<String>> buildExportMenuItems(
   }
 
   return [
-    ...itemsFor(ExportDataType.expenses),
+    if (showExpenses) ...itemsFor(ExportDataType.expenses),
     if (showIncome) ...itemsFor(ExportDataType.income),
   ];
 }

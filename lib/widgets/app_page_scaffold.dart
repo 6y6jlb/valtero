@@ -5,7 +5,7 @@ import 'package:valtero/widgets/add_income_fab.dart';
 /// Bottom inset so scrollable content clears the FAB row.
 const double kFabBottomPadding = 96;
 
-/// Page scaffold with optional shared “+” add-expense / add-income FABs.
+/// Page scaffold with optional add-expense / add-income FABs.
 ///
 /// Put extra FABs (e.g. “Show expenses”) in [extraFabs]; they appear to the
 /// left of the add button(s).

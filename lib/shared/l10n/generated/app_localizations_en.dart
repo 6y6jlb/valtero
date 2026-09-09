@@ -1206,10 +1206,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get showIncomeList => 'Show income';
 
   @override
+  String get noIncomeYet => 'No income yet';
+
+  @override
+  String get incomeEmptyTitle => 'No income yet';
+
+  @override
   String get noMatchingIncome => 'No income matches the filters';
 
   @override
   String get noMatchingOperations => 'No operations match the filters';
+
+  @override
+  String get noOperationsYet => 'No operations yet';
 
   @override
   String chartMissingRatesAlertGeneric(int count) {

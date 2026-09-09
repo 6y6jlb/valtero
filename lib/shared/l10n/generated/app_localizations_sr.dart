@@ -1214,10 +1214,19 @@ class AppLocalizationsSr extends AppLocalizations {
   String get showIncomeList => 'Prikaži prihode';
 
   @override
+  String get noIncomeYet => 'Još nema prihoda';
+
+  @override
+  String get incomeEmptyTitle => 'Još nema prihoda';
+
+  @override
   String get noMatchingIncome => 'Nema prihoda koji odgovaraju filterima';
 
   @override
   String get noMatchingOperations => 'Nema operacija koje odgovaraju filterima';
+
+  @override
+  String get noOperationsYet => 'Još nema operacija';
 
   @override
   String chartMissingRatesAlertGeneric(int count) {

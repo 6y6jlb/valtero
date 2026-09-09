@@ -573,8 +573,11 @@
   "exportIncome": "Export income",
   "duplicateConflictIncomeTitle": "Similar income found",
   "showIncomeList": "Show income",
+  "noIncomeYet": "No income yet",
+  "incomeEmptyTitle": "No income yet",
   "noMatchingIncome": "No income matches the filters",
   "noMatchingOperations": "No operations match the filters",
+  "noOperationsYet": "No operations yet",
   "chartMissingRatesAlertGeneric": "{count, plural, one{1 operation shown without a conversion rate} other{{count} operations shown without conversion rates}}",
   "@chartMissingRatesAlertGeneric": {
     "placeholders": {

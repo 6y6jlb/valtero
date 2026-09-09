@@ -1217,11 +1217,20 @@ class AppLocalizationsEs extends AppLocalizations {
   String get showIncomeList => 'Ver ingresos';
 
   @override
+  String get noIncomeYet => 'Aún no hay ingresos';
+
+  @override
+  String get incomeEmptyTitle => 'Aún no hay ingresos';
+
+  @override
   String get noMatchingIncome => 'Ningún ingreso coincide con los filtros';
 
   @override
   String get noMatchingOperations =>
       'Ninguna operación coincide con los filtros';
+
+  @override
+  String get noOperationsYet => 'Aún no hay operaciones';
 
   @override
   String chartMissingRatesAlertGeneric(int count) {

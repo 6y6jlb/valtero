@@ -1214,10 +1214,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get showIncomeList => 'Показать доходы';
 
   @override
+  String get noIncomeYet => 'Пока нет доходов';
+
+  @override
+  String get incomeEmptyTitle => 'Пока нет доходов';
+
+  @override
   String get noMatchingIncome => 'Нет доходов по выбранным фильтрам';
 
   @override
   String get noMatchingOperations => 'Нет операций по выбранным фильтрам';
+
+  @override
+  String get noOperationsYet => 'Пока нет операций';
 
   @override
   String chartMissingRatesAlertGeneric(int count) {

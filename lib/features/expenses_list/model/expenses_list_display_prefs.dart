@@ -63,3 +63,54 @@ ExpenseChartBreakdown expensesChartDatePeriodFromSettings(AppSettings settings) 
     chartDatePeriod: nextDatePeriod.name,
   );
 }
+
+ExpenseListViewMode incomeViewModeFromSettings(AppSettings settings) {
+  return ExpenseListViewMode.values.firstWhere(
+    (v) => v.name == settings.incomeListView,
+    orElse: () => ExpenseListViewMode.list,
+  );
+}
+
+ExpenseListGroup incomeGroupFromSettings(AppSettings settings) {
+  final name = settings.incomeListGroup;
+  if (name == 'tag') return ExpenseListGroup.tagCustom;
+  final group = ExpenseListGroup.values.firstWhere(
+    (g) => g.name == name,
+    orElse: () => ExpenseListGroup.currency,
+  );
+  return group == ExpenseListGroup.none ? ExpenseListGroup.currency : group;
+}
+
+ExpenseChartBreakdown incomeChartBreakdownFromSettings(AppSettings settings) {
+  return expenseChartBreakdownFromName(settings.incomeChartBreakdown);
+}
+
+ExpenseChartType incomeChartTypeFromSettings(AppSettings settings) {
+  return expenseChartTypeFromName(settings.incomeChartType);
+}
+
+ExpenseChartBreakdown incomeChartDatePeriodFromSettings(AppSettings settings) {
+  return expenseChartDatePeriodFromName(settings.incomeChartDatePeriod);
+}
+
+/// Same shape as [expensesListDisplayPersistValues] for income prefs.
+({
+  String view,
+  String group,
+  String chartBreakdown,
+  String chartType,
+  String chartDatePeriod,
+}) incomeListDisplayPersistValues({
+  required ExpenseListViewMode view,
+  required ExpenseListGroup appliedGroup,
+  required ExpenseChartBreakdown chartBreakdown,
+  required ExpenseChartType chartType,
+  required ExpenseChartBreakdown chartDatePeriod,
+}) =>
+    expensesListDisplayPersistValues(
+      view: view,
+      appliedGroup: appliedGroup,
+      chartBreakdown: chartBreakdown,
+      chartType: chartType,
+      chartDatePeriod: chartDatePeriod,
+    );

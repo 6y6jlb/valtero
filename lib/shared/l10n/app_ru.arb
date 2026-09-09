@@ -573,8 +573,11 @@
   "exportIncome": "Экспорт доходов",
   "duplicateConflictIncomeTitle": "Найден похожий доход",
   "showIncomeList": "Показать доходы",
+  "noIncomeYet": "Пока нет доходов",
+  "incomeEmptyTitle": "Пока нет доходов",
   "noMatchingIncome": "Нет доходов по выбранным фильтрам",
   "noMatchingOperations": "Нет операций по выбранным фильтрам",
+  "noOperationsYet": "Пока нет операций",
   "chartMissingRatesAlertGeneric": "{count, plural, one{1 операция показана без курса конвертации} few{{count} операции показаны без курса конвертации} many{{count} операций показано без курса конвертации} other{{count} операции показаны без курса конвертации}}",
   "@chartMissingRatesAlertGeneric": {
     "placeholders": {

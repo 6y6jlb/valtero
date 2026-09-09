@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_resolver.dart';
+import 'package:valtero/entities/tag/model/tag_kind.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/shared/consts/palette.dart';
@@ -65,7 +66,7 @@ void _aggregateIncomeByTagKind({
   final matching = <int>[
     for (final id in tagIds)
       if (tagById[id] != null &&
-          tagMatchesChartBreakdown(tagById[id]!, breakdown))
+          _incomeTagMatchesBreakdown(tagById[id]!, breakdown))
         id,
   ];
 
@@ -278,4 +279,13 @@ Future<IncomeChartAggregation> aggregateIncomesForChart({
     ],
     missingRateCount: missingRateCount,
   );
+}
+
+/// Income category tags use [TagKind.income]; expense chart matching maps
+/// `tagCustom` to [TagKind.custom], so income charts need their own check.
+bool _incomeTagMatchesBreakdown(Tag tag, ExpenseChartBreakdown breakdown) {
+  if (breakdown == ExpenseChartBreakdown.tagCustom) {
+    return tagMatchesKind(tag, TagKind.income);
+  }
+  return tagMatchesChartBreakdown(tag, breakdown);
 }

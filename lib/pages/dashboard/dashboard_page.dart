@@ -186,6 +186,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     required ExpenseListQuery applied,
     required bool isSample,
     required bool loading,
+    bool hasSourceData = false,
   }) {
     return DashboardBody(
       key: ValueKey('${_direction.name}-$_filterGeneration'),
@@ -206,6 +207,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       paymentLabels: paymentLabels,
       isSample: isSample,
       loading: loading,
+      hasSourceData: hasSourceData,
       onBreakdownChanged: _changeBreakdown,
       onChartTypeChanged: _changeChartType,
       onOpenFilters: () => _openFilters(
@@ -295,6 +297,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         applied: applied,
         isSample: true,
         loading: false,
+        hasSourceData: false,
       );
     } else if (_direction == TransactionDirection.income) {
       body = FutureBuilder<IncomeChartAggregation>(
@@ -306,7 +309,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           incomeTags: incomeTags,
           tagLabels: tagLabels,
           tagById: tagById,
-          untaggedLabel: unspecifiedLabelForChartBreakdown(l10n, breakdown),
+          untaggedLabel: breakdown == ExpenseChartBreakdown.tagCustom
+              ? l10n.tagKindUnspecifiedIncome
+              : unspecifiedLabelForChartBreakdown(l10n, breakdown),
           paymentById: paymentById,
           paymentLabels: paymentLabels,
           countryLabel: (code) =>
@@ -334,6 +339,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             applied: applied,
             isSample: false,
             loading: snapshot.connectionState == ConnectionState.waiting,
+            hasSourceData: incomes.isNotEmpty,
           );
         },
       );
@@ -386,6 +392,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             applied: applied,
             isSample: false,
             loading: snapshot.connectionState == ConnectionState.waiting,
+            hasSourceData: expenses.isNotEmpty || incomes.isNotEmpty,
           );
         },
       );
@@ -428,6 +435,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             applied: applied,
             isSample: false,
             loading: snapshot.connectionState == ConnectionState.waiting,
+            hasSourceData: expenses.isNotEmpty,
           );
         },
       );
@@ -455,16 +463,37 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       showAddExpenseFab: _direction != TransactionDirection.income,
       showAddIncomeFab: _direction != TransactionDirection.expenses,
       extraFabs: [
-        FloatingActionButton.extended(
-          heroTag: 'dashboard_show_expenses',
-          onPressed: () => ExpensesPage.open(context, direction: _direction),
-          icon: const Icon(Icons.list_alt),
-          label: Text(
-            _direction == TransactionDirection.income
-                ? l10n.showIncomeList
-                : l10n.showExpenses,
+        if (_direction == TransactionDirection.cashFlow) ...[
+          FloatingActionButton(
+            heroTag: 'dashboard_show_expenses',
+            tooltip: l10n.showExpenses,
+            onPressed: () => ExpensesPage.open(
+              context,
+              direction: TransactionDirection.expenses,
+            ),
+            child: const Icon(Icons.receipt_long_outlined),
           ),
-        ),
+          const SizedBox(width: 12),
+          FloatingActionButton(
+            heroTag: 'dashboard_show_income',
+            tooltip: l10n.showIncomeList,
+            onPressed: () => ExpensesPage.open(
+              context,
+              direction: TransactionDirection.income,
+            ),
+            child: const Icon(Icons.account_balance_wallet_outlined),
+          ),
+        ] else
+          FloatingActionButton.extended(
+            heroTag: 'dashboard_show_expenses',
+            onPressed: () => ExpensesPage.open(context, direction: _direction),
+            icon: const Icon(Icons.list_alt),
+            label: Text(
+              _direction == TransactionDirection.income
+                  ? l10n.showIncomeList
+                  : l10n.showExpenses,
+            ),
+          ),
       ],
       body: body,
     );

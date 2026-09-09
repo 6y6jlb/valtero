@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:valtero/features/add_income/ui/add_income_sheet.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 
-/// Shared “+” FAB that opens the add-income sheet (mirrors [addExpenseFab]).
+/// FAB that opens the add-income sheet (inflow arrow).
 FloatingActionButton addIncomeFab(
   BuildContext context, {
   required String heroTag,
@@ -12,6 +12,6 @@ FloatingActionButton addIncomeFab(
     heroTag: heroTag,
     tooltip: l10n.addIncome,
     onPressed: () => showAddIncomeSheet(context),
-    child: const Icon(Icons.add, size: 32),
+    child: const Icon(Icons.south_west, size: 28),
   );
 }

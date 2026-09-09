@@ -8,6 +8,28 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.6.1] - 2026-09-09
+
+### Added
+
+- Income list parity with expenses: list / grouping / chart views, sort, summary
+  with convert-to display currency, filtered export, and persisted display prefs.
+- Compact chart empty placeholder (icon + short line) on Dashboard and charts.
+- Distinct add-expense (`↗`) and add-income (`↙`) FAB icons.
+- From Cash flow: separate Show expenses / Show income icon FABs opening the
+  full list screens.
+
+### Changed
+
+- Direction selector uses folder-style bookmark tabs instead of a segmented
+  control.
+- Dashboard empty charts distinguish “none yet” vs “nothing matches filters”.
+
+### Fixed
+
+- Bookmark tabs no longer throw `borderRadius` / non-uniform border errors
+  (active tab label was blank).
+
 ## [1.6.0] - 2026-09-09
 
 ### Added

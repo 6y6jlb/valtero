@@ -30,3 +30,9 @@ List<CurrencyIncomeSummary> aggregateIncomesByCurrency(
       (currency: e.key, count: e.value, totalMinor: totals[e.key]!),
   ];
 }
+
+/// Stable key for chart FutureBuilder invalidation when the filtered set changes.
+String incomesSnapshotKey(Iterable<Income> incomes) {
+  final ids = incomes.map((e) => e.id).toList()..sort();
+  return ids.join(',');
+}

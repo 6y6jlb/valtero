@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/expenses_list/ui/breakdown_chart_legend.dart';
+import 'package:valtero/features/expenses_list/ui/chart_empty_placeholder.dart';
 import 'package:valtero/features/expenses_list/ui/column_breakdown_chart.dart';
 import 'package:valtero/features/expenses_list/ui/donut_breakdown_chart.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
@@ -22,6 +23,7 @@ class BreakdownChartView extends ConsumerStatefulWidget {
   final bool hideSegmentAmounts;
   final double chartHeight;
   final String? emptyMessage;
+  final IconData emptyIcon;
 
   const BreakdownChartView({
     super.key,
@@ -35,6 +37,7 @@ class BreakdownChartView extends ConsumerStatefulWidget {
     this.hideSegmentAmounts = false,
     this.chartHeight = 312,
     this.emptyMessage,
+    this.emptyIcon = Icons.pie_chart_outline,
   });
 
   @override
@@ -70,11 +73,10 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
     final theme = Theme.of(context);
     final all = widget.slices;
     if (all.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: Text(widget.emptyMessage ?? l10n.noMatchingExpenses),
-        ),
+      return ChartEmptyPlaceholder(
+        message: widget.emptyMessage ?? l10n.noMatchingExpenses,
+        icon: widget.emptyIcon,
+        height: widget.chartHeight * 0.55,
       );
     }
 

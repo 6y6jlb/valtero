@@ -91,7 +91,7 @@ class _ExpensesPageState extends ConsumerState<ExpensesPage> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             child: OperationDirectionTabs(
               selected: _direction,
               onChanged: (next) => setState(() => _direction = next),

@@ -206,6 +206,24 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     ));
   }
 
+  Future<void> setIncomeListDisplay({
+    String? view,
+    String? group,
+    String? chartBreakdown,
+    String? chartType,
+    String? chartDatePeriod,
+  }) async {
+    final current = state.value;
+    if (current == null) return;
+    await _save(current.copyWith(
+      incomeListView: view,
+      incomeListGroup: group,
+      incomeChartBreakdown: chartBreakdown,
+      incomeChartType: chartType,
+      incomeChartDatePeriod: chartDatePeriod,
+    ));
+  }
+
   Future<void> setDebugLoggingEnabled(bool enabled) async {
     final current = state.value;
     if (current == null) return;

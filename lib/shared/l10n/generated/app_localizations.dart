@@ -2260,6 +2260,18 @@ abstract class AppLocalizations {
   /// **'Show income'**
   String get showIncomeList;
 
+  /// No description provided for @noIncomeYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No income yet'**
+  String get noIncomeYet;
+
+  /// No description provided for @incomeEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No income yet'**
+  String get incomeEmptyTitle;
+
   /// No description provided for @noMatchingIncome.
   ///
   /// In en, this message translates to:
@@ -2271,6 +2283,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No operations match the filters'**
   String get noMatchingOperations;
+
+  /// No description provided for @noOperationsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No operations yet'**
+  String get noOperationsYet;
 
   /// No description provided for @chartMissingRatesAlertGeneric.
   ///
