@@ -20,7 +20,7 @@ class ColumnBreakdownChart extends ConsumerWidget {
     required this.displayCurrency,
     this.onSegmentTap,
     this.hideSegmentAmounts = false,
-    this.chartHeight = 260,
+    this.chartHeight = 312,
     this.emptyMessage,
   });
 
@@ -31,9 +31,7 @@ class ColumnBreakdownChart extends ConsumerWidget {
     if (slices.isEmpty) {
       return SizedBox(
         height: chartHeight,
-        child: Center(
-          child: Text(emptyMessage ?? l10n.noMatchingExpenses),
-        ),
+        child: Center(child: Text(emptyMessage ?? l10n.noMatchingExpenses)),
       );
     }
 
@@ -68,8 +66,7 @@ class ColumnBreakdownChart extends ConsumerWidget {
                           context,
                           ref,
                           amountMinor: slice.amountMinor,
-                          currencyCode:
-                              slice.currencyCode ?? displayCurrency,
+                          currencyCode: slice.currencyCode ?? displayCurrency,
                         );
                   return BarTooltipItem(
                     amount.isEmpty ? slice.label : '${slice.label}\n$amount',
@@ -112,23 +109,48 @@ class ColumnBreakdownChart extends ConsumerWidget {
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: showBottomTitles,
-                  reservedSize: 36,
+                  reservedSize: hideSegmentAmounts ? 36 : 48,
                   getTitlesWidget: (value, meta) {
                     final i = value.toInt();
                     if (i < 0 || i >= slices.length) {
                       return const SizedBox.shrink();
                     }
+                    final slice = slices[i];
                     return Padding(
                       padding: const EdgeInsets.only(top: 6),
-                      child: Text(
-                        slices[i].label,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          fontSize: 9,
-                          height: 1.1,
-                        ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            slice.label,
+                            maxLines: hideSegmentAmounts ? 2 : 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              fontSize: 9,
+                              height: 1.1,
+                            ),
+                          ),
+                          if (!hideSegmentAmounts)
+                            Text(
+                              formatMoneyOf(
+                                context,
+                                ref,
+                                amountMinor: slice.amountMinor,
+                                currencyCode:
+                                    slice.currencyCode ?? displayCurrency,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                fontSize: 8,
+                                height: 1.1,
+                                fontWeight: FontWeight.w600,
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                        ],
                       ),
                     );
                   },

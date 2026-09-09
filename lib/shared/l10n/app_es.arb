@@ -67,6 +67,7 @@
   "googleDriveWrongPassphrase": "Frase incorrecta para la copia remota",
   "googleDriveMissingClientId": "Falta el client id de Google OAuth. Copia local.oauth.env.example a local.oauth.env, pon GOOGLE_OAUTH_CLIENT_ID_DESKTOP / _ANDROID y vuelve a compilar (make run-*).",
   "googleDriveReauthRequired": "Vuelve a iniciar sesión con Google",
+  "googleDriveSyncPaused": "La sincronización está en pausa: se cerró tu sesión",
   "googleDriveSignInFailed": "No se pudo iniciar sesión con Google",
   "googleDriveAuthCanceled": "Se canceló el inicio de sesión con Google",
   "googleDriveAccessDenied": "Se denegó el acceso de Google. Concede permisos de Drive e inténtalo de nuevo.",

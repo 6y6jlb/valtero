@@ -8,7 +8,6 @@ import 'package:valtero/widgets/passphrase_text_field.dart';
 import 'package:valtero/features/google_drive_sync/model/google_drive_sync_engine.dart';
 import 'package:valtero/features/google_drive_sync/model/google_drive_sync_messages.dart';
 import 'package:valtero/features/google_drive_sync/ui/google_drive_join_sheet.dart';
-import 'package:valtero/features/integrations/model/integration_ui_meta.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/widgets/app_toast.dart';
@@ -31,6 +30,7 @@ class _GoogleDriveSyncConfigFormState
   final _shareEmailController = TextEditingController();
   String? _busyAction;
   String? _status;
+  bool _autoPromptedReauth = false;
 
   bool get _busy => _busyAction != null;
 
@@ -45,7 +45,32 @@ class _GoogleDriveSyncConfigFormState
       if (s.googleDriveSyncPassphrase.isNotEmpty) {
         _passphraseController.text = s.googleDriveSyncPassphrase;
       }
+      // A previous (possibly background) sync attempt already found the
+      // stored credentials stale: surface it right away instead of waiting
+      // for the user to press Sync now / Test connection and hit the same
+      // error again.
+      _maybeAutoPromptReauth();
     });
+  }
+
+  void _maybeAutoPromptReauth() {
+    if (!mounted || _autoPromptedReauth) return;
+    final connected = ref.read(
+      isIntegrationConfiguredProvider(kGoogleDriveSyncIntegrationId),
+    );
+    if (!connected) return;
+    final state = ref.read(googleDriveSyncControllerProvider);
+    if (state.status != GoogleDriveSyncStatus.error) return;
+    if (!needsGoogleReauth(state.messageKey)) return;
+    _autoPromptedReauth = true;
+    final l10n = AppLocalizations.of(context)!;
+    final message = googleDriveSyncResultMessage(
+      l10n,
+      GoogleDriveSyncResult.fail(state.messageKey),
+    );
+    setState(() => _status = message);
+    // ignore: unawaited_futures
+    _promptReauth(message);
   }
 
   @override
@@ -97,6 +122,37 @@ class _GoogleDriveSyncConfigFormState
       return;
     }
     setState(() => _status = message);
+    if (needsGoogleReauth(result.messageKey)) {
+      await _promptReauth(message);
+    }
+  }
+
+  /// The stored refresh token went stale (e.g. signed out on another
+  /// device): offer an immediate re-login instead of leaving the user with
+  /// only a "sign in again" message and no way to act on it.
+  Future<void> _promptReauth(String message) async {
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
+    final shouldSignIn = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.googleDriveReauthRequired),
+        content: Text(message),
+        actions: [
+          AppCloseIconButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            label: l10n.cancel,
+          ),
+          AppFilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            icon: Icons.login,
+            label: l10n.googleDriveSignIn,
+          ),
+        ],
+      ),
+    );
+    if (shouldSignIn != true || !mounted) return;
+    await _signIn();
   }
 
   /// Returns false if the user cancelled a passphrase-change confirmation.
@@ -196,11 +252,20 @@ class _GoogleDriveSyncConfigFormState
       _busyAction = null;
       if (result.success) {
         _status = null;
-        showAppToast(context, connectionMessage(l10n, result.messageKey));
-      } else {
-        _status = connectionMessage(l10n, result.messageKey);
       }
     });
+    if (result.success) {
+      showAppToast(
+        context,
+        googleDriveConnectionMessage(l10n, result.messageKey),
+      );
+      return;
+    }
+    final message = googleDriveConnectionMessage(l10n, result.messageKey);
+    setState(() => _status = message);
+    if (needsGoogleReauth(result.messageKey)) {
+      await _promptReauth(message);
+    }
   }
 
   Future<void> _disconnect() async {
@@ -261,6 +326,10 @@ class _GoogleDriveSyncConfigFormState
     final lastSynced = settings?.googleDriveLastSyncedAt;
     final sharedWith = settings?.googleDriveSharedWithEmails ?? const [];
     final syncState = ref.watch(googleDriveSyncControllerProvider);
+    final needsReauth =
+        connected &&
+        syncState.status == GoogleDriveSyncStatus.error &&
+        needsGoogleReauth(syncState.messageKey);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -301,9 +370,21 @@ class _GoogleDriveSyncConfigFormState
         if (connected) ...[
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.check_circle_outline),
+            leading: Icon(
+              needsReauth
+                  ? Icons.warning_amber_outlined
+                  : Icons.check_circle_outline,
+              color: needsReauth ? theme.colorScheme.error : null,
+            ),
             title: Text(
-              isJoined ? l10n.googleDriveJoinedAs : l10n.integrationConnected,
+              needsReauth
+                  ? l10n.googleDriveSyncPaused
+                  : (isJoined
+                        ? l10n.googleDriveJoinedAs
+                        : l10n.integrationConnected),
+              style: needsReauth
+                  ? TextStyle(color: theme.colorScheme.error)
+                  : null,
             ),
             subtitle: Text(
               settings.googleDriveAccountEmail.isNotEmpty

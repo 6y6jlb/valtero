@@ -205,6 +205,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get googleDriveReauthRequired => 'Войдите в Google снова';
 
   @override
+  String get googleDriveSyncPaused =>
+      'Синхронизация приостановлена — вы вышли из аккаунта';
+
+  @override
   String get googleDriveSignInFailed => 'Не удалось войти в Google';
 
   @override

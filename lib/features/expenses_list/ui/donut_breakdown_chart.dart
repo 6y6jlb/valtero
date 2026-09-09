@@ -5,6 +5,11 @@ import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/money_text.dart';
 
+/// Radius of the empty hole in the donut's center (shared with
+/// [BreakdownChartView] so its centered total overlay knows how much room
+/// it has to work with).
+const kDonutCenterSpaceRadius = 58.0;
+
 /// Shared donut: amounts on segments, legend chips toggle visibility,
 /// optional tap on a visible segment.
 class DonutBreakdownChart extends ConsumerStatefulWidget {
@@ -28,8 +33,8 @@ class DonutBreakdownChart extends ConsumerStatefulWidget {
     this.hideCenterTotal = false,
     this.hideSegmentAmounts = false,
     this.showLegend = true,
-    this.chartHeight = 260,
-    this.sectionRadius = 72,
+    this.chartHeight = 312,
+    this.sectionRadius = 86,
     this.emptyMessage,
   });
 
@@ -89,7 +94,7 @@ class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
               : PieChart(
                   PieChartData(
                     sectionsSpace: 2,
-                    centerSpaceRadius: 48,
+                    centerSpaceRadius: kDonutCenterSpaceRadius,
                     pieTouchData: PieTouchData(
                       touchCallback: (event, response) {
                         if (widget.onSegmentTap == null) return;

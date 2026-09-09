@@ -8,6 +8,33 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.5.3] - 2026-09-09
+
+### Added
+
+- Dashboard/Expenses breakdown charts show the **total** as an overlay: centered
+  in the donut hole, or as a small badge on the opposite corner from the chart-type
+  toggle for the column chart. Column chart bars are now labeled with their amount
+  below the category label (in addition to the existing touch tooltip). The donut
+  is ~20% larger by default (self-limited to the available width, no scrolling).
+  Totals never show cents; if the full amount still doesn't fit its overlay it
+  shortens to a compact form (`$20,000` → `$20K`) instead of overflowing.
+- Google Drive Sync: the AppBar sync icon turns into a warning state (and the
+  Backup & sync card / integration settings show **"Sync is paused — you're
+  signed out"**) as soon as stored credentials go stale — even before the user
+  attempts a manual sync — so they don't assume everything is up to date when
+  it isn't. Opening the sync sheet or settings while in that state now
+  proactively offers the sign-in alert instead of waiting for the next failed
+  sync attempt.
+
+### Fixed
+
+- Google Drive Sync: when a stale/expired token requires signing in again
+  (`invalid_grant` / missing refresh token / invalid-token test result), the
+  sync now/test-connection/config-form flows show an alert offering an
+  immediate **Sign in with Google** action (reusing the stored passphrase)
+  instead of only reporting the error with no way to act on it.
+
 ## [1.5.2] - 2026-09-01
 
 ### Changed

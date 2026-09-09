@@ -8,7 +8,9 @@ import 'package:valtero/features/expenses_list/ui/donut_breakdown_chart.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/money_text.dart';
 
-/// Donut / column chart with an overlay type toggle (top-right, no extra height).
+/// Donut / column chart with an overlay type toggle (top-right, no extra
+/// height) and an overlay total: centered in the donut hole, or a small
+/// badge on the opposite corner (top-left) for the column chart.
 class BreakdownChartView extends ConsumerStatefulWidget {
   final List<DonutChartSlice> slices;
   final String displayCurrency;
@@ -31,7 +33,7 @@ class BreakdownChartView extends ConsumerStatefulWidget {
     this.showTotal = true,
     this.hideCenterTotal = false,
     this.hideSegmentAmounts = false,
-    this.chartHeight = 260,
+    this.chartHeight = 312,
     this.emptyMessage,
   });
 
@@ -76,9 +78,27 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
       );
     }
 
-    final visible =
-        all.where((s) => !_hiddenKeys.contains(s.key)).toList(growable: false);
+    final visible = all
+        .where((s) => !_hiddenKeys.contains(s.key))
+        .toList(growable: false);
     final total = visible.fold<int>(0, (sum, s) => sum + s.amountMinor);
+    // Totals never show cents; if the full amount still doesn't fit its
+    // overlay, fall back to a compact form (`$20,000` -> `$20K`).
+    final totalPrimaryText = formatMoneyOf(
+      context,
+      ref,
+      amountMinor: total,
+      currencyCode: widget.displayCurrency,
+      hideFraction: true,
+    );
+    final totalCompactText = formatMoneyOf(
+      context,
+      ref,
+      amountMinor: total,
+      currencyCode: widget.displayCurrency,
+      hideFraction: true,
+      compact: true,
+    );
 
     return Column(
       children: [
@@ -127,6 +147,31 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
                       ),
               ),
             ),
+            if (widget.showTotal &&
+                !widget.hideCenterTotal &&
+                visible.isNotEmpty)
+              if (widget.chartType == ExpenseChartType.donut)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: Center(
+                      child: _ChartCenterTotal(
+                        label: l10n.summaryTotal,
+                        primaryText: totalPrimaryText,
+                        compactText: totalCompactText,
+                      ),
+                    ),
+                  ),
+                )
+              else
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  child: _ChartTotalBadge(
+                    label: l10n.summaryTotal,
+                    primaryText: totalPrimaryText,
+                    compactText: totalCompactText,
+                  ),
+                ),
             Positioned(
               top: 0,
               right: 0,
@@ -143,17 +188,15 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
                         tooltip: l10n.chartTypeDonut,
                         selected: widget.chartType == ExpenseChartType.donut,
                         icon: Icons.pie_chart_outline,
-                        onPressed: () => widget.onChartTypeChanged(
-                          ExpenseChartType.donut,
-                        ),
+                        onPressed: () =>
+                            widget.onChartTypeChanged(ExpenseChartType.donut),
                       ),
                       _ChartTypeIcon(
                         tooltip: l10n.chartTypeColumn,
                         selected: widget.chartType == ExpenseChartType.column,
                         icon: Icons.bar_chart,
-                        onPressed: () => widget.onChartTypeChanged(
-                          ExpenseChartType.column,
-                        ),
+                        onPressed: () =>
+                            widget.onChartTypeChanged(ExpenseChartType.column),
                       ),
                     ],
                   ),
@@ -170,17 +213,119 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
           hiddenKeys: _hiddenKeys,
           onToggle: _toggle,
         ),
-        if (widget.showTotal &&
-            !widget.hideCenterTotal &&
-            visible.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          MoneyText(
-            amountMinor: total,
-            currencyCode: widget.displayCurrency,
-            style: theme.textTheme.titleMedium,
-          ),
-        ],
       ],
+    );
+  }
+}
+
+/// True when [text] rendered with [style] fits within [maxWidth] on one line.
+bool _textFitsWidth(String text, TextStyle? style, double maxWidth) {
+  final painter = TextPainter(
+    text: TextSpan(text: text, style: style),
+    maxLines: 1,
+    textDirection: TextDirection.ltr,
+  )..layout();
+  return painter.width <= maxWidth;
+}
+
+/// Total shown centered in the donut hole. Never wider than the hole itself
+/// (falls back to [compactText], then lets [FittedBox] scale down as a last
+/// resort) so the text can never spill outside the ring.
+class _ChartCenterTotal extends StatelessWidget {
+  final String label;
+  final String primaryText;
+  final String compactText;
+
+  // Hole diameter is 2 * kDonutCenterSpaceRadius; keep a margin so the text
+  // never visually touches the ring.
+  static const _maxWidth = kDonutCenterSpaceRadius * 2 * 0.82;
+
+  const _ChartCenterTotal({
+    required this.label,
+    required this.primaryText,
+    required this.compactText,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final amountStyle = theme.textTheme.titleMedium?.copyWith(
+      fontWeight: FontWeight.w700,
+    );
+    final amountText = _textFitsWidth(primaryText, amountStyle, _maxWidth)
+        ? primaryText
+        : compactText;
+    return SizedBox(
+      width: _maxWidth,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            Text(amountText, maxLines: 1, style: amountStyle),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Total shown as a small corner badge (non-donut charts): hugs its content
+/// when short, falls back to [compactText] (then scale-down) when it grows
+/// past a reasonable pill width.
+class _ChartTotalBadge extends StatelessWidget {
+  final String label;
+  final String primaryText;
+  final String compactText;
+
+  static const _maxWidth = 120.0;
+
+  const _ChartTotalBadge({
+    required this.label,
+    required this.primaryText,
+    required this.compactText,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final amountStyle = theme.textTheme.titleSmall?.copyWith(
+      fontWeight: FontWeight.w700,
+    );
+    final amountText = _textFitsWidth(primaryText, amountStyle, _maxWidth)
+        ? primaryText
+        : compactText;
+    return Material(
+      color: theme.colorScheme.surface.withValues(alpha: 0.88),
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: _maxWidth),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                Text(amountText, maxLines: 1, style: amountStyle),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

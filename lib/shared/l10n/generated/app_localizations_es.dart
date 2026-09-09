@@ -206,6 +206,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get googleDriveReauthRequired => 'Vuelve a iniciar sesión con Google';
 
   @override
+  String get googleDriveSyncPaused =>
+      'La sincronización está en pausa: se cerró tu sesión';
+
+  @override
   String get googleDriveSignInFailed => 'No se pudo iniciar sesión con Google';
 
   @override

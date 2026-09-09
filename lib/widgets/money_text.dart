@@ -33,17 +33,27 @@ class MoneyText extends ConsumerWidget {
 }
 
 /// Formats money using the current app settings + widget locale.
+///
+/// [hideFraction] drops decimals entirely (for compact totals, never `.00`).
+/// [compact] forces the compact currency format (`$20K`) regardless of the
+/// user's chosen display format — used as a shortening fallback.
 String formatMoneyOf(
   BuildContext context,
   WidgetRef ref, {
   required int amountMinor,
   required String currencyCode,
+  bool hideFraction = false,
+  bool compact = false,
 }) {
   final settings = ref.watch(appSettingsProvider).value;
+  final format = compact
+      ? MoneyDisplayFormat.compactSymbol
+      : moneyDisplayFormatFromName(settings?.moneyDisplayFormat);
   return formatMoneyDisplay(
     amountMinor: amountMinor,
     currencyCode: currencyCode,
     localeName: Localizations.localeOf(context).toString(),
-    format: moneyDisplayFormatFromName(settings?.moneyDisplayFormat),
+    format: format,
+    hideFraction: hideFraction,
   );
 }

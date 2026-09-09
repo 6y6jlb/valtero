@@ -67,6 +67,7 @@
   "googleDriveWrongPassphrase": "Неверный пароль для удалённой копии",
   "googleDriveMissingClientId": "Не задан Google OAuth client id. Скопируйте local.oauth.env.example → local.oauth.env, укажите GOOGLE_OAUTH_CLIENT_ID_DESKTOP / _ANDROID и пересоберите (make run-*).",
   "googleDriveReauthRequired": "Войдите в Google снова",
+  "googleDriveSyncPaused": "Синхронизация приостановлена — вы вышли из аккаунта",
   "googleDriveSignInFailed": "Не удалось войти в Google",
   "googleDriveAuthCanceled": "Вход через Google отменён",
   "googleDriveAccessDenied": "Доступ Google отклонён. Разрешите права Drive и повторите вход.",

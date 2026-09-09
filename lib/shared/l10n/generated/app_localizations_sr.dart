@@ -204,6 +204,10 @@ class AppLocalizationsSr extends AppLocalizations {
   String get googleDriveReauthRequired => 'Prijavite se ponovo preko Google-a';
 
   @override
+  String get googleDriveSyncPaused =>
+      'Sinhronizacija je pauzirana — odjavljeni ste';
+
+  @override
   String get googleDriveSignInFailed => 'Prijava preko Google-a nije uspela';
 
   @override

@@ -4,6 +4,29 @@ import 'package:valtero/features/google_drive_sync/model/google_drive_sync_engin
 import 'package:valtero/features/integrations/model/integration_ui_meta.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 
+/// Message keys that mean the stored Google credentials are stale (the user
+/// was signed out remotely) and syncing won't work again until they sign in.
+const _kGoogleReauthMessageKeys = {
+  'invalid_grant',
+  'missing_refresh_token',
+  'connectionInvalidToken',
+};
+
+/// True when [messageKey] means the user must sign in with Google again
+/// before sync/test-connection will succeed.
+bool needsGoogleReauth(String? messageKey) {
+  return messageKey != null && _kGoogleReauthMessageKeys.contains(messageKey);
+}
+
+/// Like [connectionMessage], but maps the Google-specific invalid-token key
+/// to the reauth string instead of the generic (Telegram-oriented) text.
+String googleDriveConnectionMessage(AppLocalizations l10n, String messageKey) {
+  if (messageKey == 'connectionInvalidToken') {
+    return l10n.googleDriveReauthRequired;
+  }
+  return connectionMessage(l10n, messageKey);
+}
+
 /// User-facing label for a [GoogleDriveSyncResult.messageKey].
 String googleDriveSyncResultMessage(
   AppLocalizations l10n,

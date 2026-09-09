@@ -204,6 +204,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get googleDriveReauthRequired => 'Please sign in with Google again';
 
   @override
+  String get googleDriveSyncPaused => 'Sync is paused — you\'re signed out';
+
+  @override
   String get googleDriveSignInFailed => 'Google sign-in failed';
 
   @override

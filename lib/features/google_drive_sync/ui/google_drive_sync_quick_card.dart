@@ -10,6 +10,7 @@ import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/widgets/action_success_status_icon.dart';
 import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/app_ok_button.dart';
 import 'package:valtero/widgets/app_toast.dart';
 
@@ -28,6 +29,38 @@ class GoogleDriveSyncQuickCard extends ConsumerStatefulWidget {
 class _GoogleDriveSyncQuickCardState
     extends ConsumerState<GoogleDriveSyncQuickCard> {
   bool _openingIntegration = false;
+  bool _autoPromptedReauth = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // If a previous (possibly background) sync already found the stored
+    // credentials stale, surface it as soon as this card is opened instead
+    // of waiting for the user to press "Sync now" and get the same error —
+    // they shouldn't be left assuming everything is already in sync.
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _maybeAutoPromptReauth(),
+    );
+  }
+
+  void _maybeAutoPromptReauth() {
+    if (!mounted || _autoPromptedReauth) return;
+    final connected = ref.read(
+      isIntegrationConfiguredProvider(kGoogleDriveSyncIntegrationId),
+    );
+    if (!connected) return;
+    final state = ref.read(googleDriveSyncControllerProvider);
+    if (state.status != GoogleDriveSyncStatus.error) return;
+    if (!needsGoogleReauth(state.messageKey)) return;
+    _autoPromptedReauth = true;
+    final l10n = AppLocalizations.of(context)!;
+    final message = googleDriveSyncResultMessage(
+      l10n,
+      GoogleDriveSyncResult.fail(state.messageKey),
+    );
+    // ignore: unawaited_futures
+    _promptReauth(message);
+  }
 
   bool _isBlocked({required bool syncing}) {
     return !widget.actionsEnabled || _openingIntegration || syncing;
@@ -59,7 +92,62 @@ class _GoogleDriveSyncQuickCardState
       );
       return;
     }
+    if (needsGoogleReauth(result.messageKey)) {
+      await _promptReauth(message);
+      return;
+    }
     showAppToast(context, message);
+  }
+
+  /// Shown when the stored Google credentials went stale (e.g. the user was
+  /// signed out on another device): offers an immediate re-login instead of
+  /// leaving the user stuck with a "sign in again" message and no action.
+  Future<void> _promptReauth(String message) async {
+    final l10n = AppLocalizations.of(context)!;
+    final shouldSignIn = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.googleDriveReauthRequired),
+        content: Text(message),
+        actions: [
+          AppCloseIconButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            label: l10n.cancel,
+          ),
+          AppFilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            icon: Icons.login,
+            label: l10n.googleDriveSignIn,
+          ),
+        ],
+      ),
+    );
+    if (shouldSignIn != true || !mounted) return;
+    await _reauthAndSync();
+  }
+
+  Future<void> _reauthAndSync() async {
+    final l10n = AppLocalizations.of(context)!;
+    final passphrase =
+        ref.read(appSettingsProvider).value?.googleDriveSyncPassphrase.trim() ??
+        '';
+    if (passphrase.isEmpty) {
+      // No stored passphrase to reuse (shouldn't normally happen while
+      // connected) — fall back to the full setup sheet.
+      await _openGoogleDriveIntegration();
+      return;
+    }
+    setState(() => _openingIntegration = true);
+    final result = await ref
+        .read(googleDriveSyncEngineProvider)
+        .connectAndSync(passphrase: passphrase, includeFileScope: false);
+    if (!mounted) return;
+    setState(() => _openingIntegration = false);
+    if (result.success) {
+      setState(() {});
+      return;
+    }
+    showAppToast(context, googleDriveSyncResultMessage(l10n, result));
   }
 
   Future<void> _openGoogleDriveIntegration() async {
@@ -92,9 +180,12 @@ class _GoogleDriveSyncQuickCardState
         );
     final meta = integrationUiMeta(kGoogleDriveSyncIntegrationId);
     final lastSynced = settings?.googleDriveLastSyncedAt;
-    final syncing =
-        ref.watch(googleDriveSyncControllerProvider).status ==
-        GoogleDriveSyncStatus.syncing;
+    final syncState = ref.watch(googleDriveSyncControllerProvider);
+    final syncing = syncState.status == GoogleDriveSyncStatus.syncing;
+    final needsReauth =
+        connected &&
+        syncState.status == GoogleDriveSyncStatus.error &&
+        needsGoogleReauth(syncState.messageKey);
 
     if (settingsAsync.isLoading && settings == null) {
       return Card(
@@ -152,7 +243,27 @@ class _GoogleDriveSyncQuickCardState
             ),
             const SizedBox(height: 12),
             if (connected) ...[
-              if (settings.googleDriveAccountEmail.isNotEmpty)
+              if (needsReauth)
+                Row(
+                  children: [
+                    Icon(
+                      Icons.warning_amber_outlined,
+                      size: 16,
+                      color: theme.colorScheme.error,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        l10n.googleDriveSyncPaused,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.error,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              else if (settings.googleDriveAccountEmail.isNotEmpty)
                 Text(
                   settings.googleDriveAccountEmail,
                   style: theme.textTheme.bodySmall,

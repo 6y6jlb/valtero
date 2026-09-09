@@ -135,7 +135,6 @@ class _DashboardBodyState extends State<DashboardBody> {
             displayCurrency: widget.displayCurrency,
             chartType: widget.chartType,
             onChartTypeChanged: widget.onChartTypeChanged,
-            showTotal: false,
             hideCenterTotal: widget.missingRateCount > 0 ||
                 widget.breakdown == ExpenseChartBreakdown.currency,
             hideSegmentAmounts: widget.missingRateCount > 0 &&

@@ -462,6 +462,12 @@ abstract class AppLocalizations {
   /// **'Please sign in with Google again'**
   String get googleDriveReauthRequired;
 
+  /// No description provided for @googleDriveSyncPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync is paused — you\'re signed out'**
+  String get googleDriveSyncPaused;
+
   /// No description provided for @googleDriveSignInFailed.
   ///
   /// In en, this message translates to:

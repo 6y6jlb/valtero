@@ -36,9 +36,15 @@ String formatMoneyDisplay({
   required String localeName,
   required MoneyDisplayFormat format,
   int fractionDigits = 2,
+
+  /// When true, never show fraction digits (e.g. chart totals: `$20,000`
+  /// instead of `$20,000.00`). Does not change [amountMinor]'s conversion
+  /// scale — only how many decimals are rendered.
+  bool hideFraction = false,
 }) {
   final code = currencyCode.toUpperCase();
   final major = amountMinor / Money.pow10(fractionDigits);
+  final displayDigits = hideFraction ? 0 : fractionDigits;
 
   switch (format) {
     case MoneyDisplayFormat.localeSymbol:
@@ -46,7 +52,7 @@ String formatMoneyDisplay({
         return NumberFormat.currency(
           locale: localeName,
           name: code,
-          decimalDigits: fractionDigits,
+          decimalDigits: displayDigits,
         ).format(major);
       } catch (_) {
         return formatMoneyDisplay(
@@ -55,28 +61,32 @@ String formatMoneyDisplay({
           localeName: localeName,
           format: MoneyDisplayFormat.localeCode,
           fractionDigits: fractionDigits,
+          hideFraction: hideFraction,
         );
       }
     case MoneyDisplayFormat.localeCode:
       final number = NumberFormat.decimalPatternDigits(
         locale: localeName,
-        decimalDigits: fractionDigits,
+        decimalDigits: displayDigits,
       ).format(major);
       return '$number $code';
     case MoneyDisplayFormat.isoBefore:
       final number = NumberFormat.decimalPatternDigits(
         locale: localeName,
-        decimalDigits: fractionDigits,
+        decimalDigits: displayDigits,
       ).format(major);
       return '$code $number';
     case MoneyDisplayFormat.plain:
+      if (hideFraction) {
+        return '${major.round()} $code';
+      }
       return '${Money.formatMinor(amountMinor, fractionDigits: fractionDigits)} $code';
     case MoneyDisplayFormat.compactSymbol:
       try {
         return NumberFormat.compactCurrency(
           locale: localeName,
           name: code,
-          decimalDigits: 1,
+          decimalDigits: hideFraction ? 0 : 1,
         ).format(major);
       } catch (_) {
         return formatMoneyDisplay(
@@ -85,6 +95,7 @@ String formatMoneyDisplay({
           localeName: localeName,
           format: MoneyDisplayFormat.localeCode,
           fractionDigits: fractionDigits,
+          hideFraction: hideFraction,
         );
       }
   }

@@ -68,14 +68,80 @@ void main() {
     });
 
     test('moneyDisplayFormatFromName falls back to localeCode', () {
-      expect(
-        moneyDisplayFormatFromName(null),
-        MoneyDisplayFormat.localeCode,
-      );
+      expect(moneyDisplayFormatFromName(null), MoneyDisplayFormat.localeCode);
       expect(
         moneyDisplayFormatFromName('isoBefore'),
         MoneyDisplayFormat.isoBefore,
       );
+    });
+  });
+
+  group('formatMoneyDisplay hideFraction', () {
+    const code = 'USD';
+    const locale = 'en_US';
+
+    test('drops decimals for every format', () {
+      for (final format in MoneyDisplayFormat.values) {
+        final s = formatMoneyDisplay(
+          amountMinor: 2000000,
+          currencyCode: code,
+          localeName: locale,
+          format: format,
+          hideFraction: true,
+        );
+        expect(s, isNot(contains('.00')), reason: 'format=$format');
+        expect(s, contains('20'), reason: 'format=$format');
+      }
+    });
+
+    test('drops decimals with grouping for locale-aware formats', () {
+      for (final format in [
+        MoneyDisplayFormat.localeCode,
+        MoneyDisplayFormat.isoBefore,
+        MoneyDisplayFormat.localeSymbol,
+      ]) {
+        final s = formatMoneyDisplay(
+          amountMinor: 2000000,
+          currencyCode: code,
+          localeName: locale,
+          format: format,
+          hideFraction: true,
+        );
+        expect(s, contains('20,000'), reason: 'format=$format');
+      }
+    });
+
+    test('rounds instead of truncating non-zero cents', () {
+      final s = formatMoneyDisplay(
+        amountMinor: 199951, // $1,999.51
+        currencyCode: code,
+        localeName: locale,
+        format: MoneyDisplayFormat.localeCode,
+        hideFraction: true,
+      );
+      expect(s, contains('2,000'));
+    });
+
+    test('compactSymbol drops the .0 when hideFraction is set', () {
+      final s = formatMoneyDisplay(
+        amountMinor: 2000000,
+        currencyCode: code,
+        localeName: locale,
+        format: MoneyDisplayFormat.compactSymbol,
+        hideFraction: true,
+      );
+      expect(s, isNot(contains('.0')));
+      expect(s.toUpperCase(), contains('K'));
+    });
+
+    test('unaffected when hideFraction is false (default)', () {
+      final s = formatMoneyDisplay(
+        amountMinor: 123456,
+        currencyCode: code,
+        localeName: locale,
+        format: MoneyDisplayFormat.localeCode,
+      );
+      expect(s, contains('1,234.56'));
     });
   });
 }

@@ -67,6 +67,7 @@
   "googleDriveWrongPassphrase": "Wrong sync passphrase for the remote backup",
   "googleDriveMissingClientId": "Google OAuth client id is not configured. Copy local.oauth.env.example to local.oauth.env and set GOOGLE_OAUTH_CLIENT_ID_DESKTOP / _ANDROID, then rebuild (make run-*).",
   "googleDriveReauthRequired": "Please sign in with Google again",
+  "googleDriveSyncPaused": "Sync is paused — you're signed out",
   "googleDriveSignInFailed": "Google sign-in failed",
   "googleDriveAuthCanceled": "Google sign-in was canceled",
   "googleDriveAccessDenied": "Google access was denied. Allow Drive permissions and try again.",
