@@ -12,20 +12,20 @@
 - `lib/shared/database/app_database.dart` composes all tables/DAOs into one `AppDatabase`
 - Do not open a second SQLite database for entity data
 - Schema version SSOT: `lib/shared/database/schema_version.dart` (`kAppSchemaVersion`)
-- Local upgrade steps: `lib/shared/database/migrations/migrate_to_vN.dart`
+- Local upgrade steps (above baseline): `lib/shared/database/migrations/migrate_to_vN.dart`
 
 ## Local schema migrations (Drift)
 
 Drift already stores an integer `user_version` in SQLite. On open it compares that to `AppDatabase.schemaVersion` (= `kAppSchemaVersion`) and runs `MigrationStrategy.onUpgrade`. **Do not invent a parallel hash-based migrator** — use the monotonic int.
 
-Production baseline is **v5**. Destructive wipe-on-upgrade is **forbidden**.
+Production baseline is **v8**. Fresh installs use `onCreate` (`m.createAll()`). Databases with `user_version` **below** the baseline are **refused** with a clear error — **never wipe** user data. Pre-baseline stepwise migrations (v6–v8) were removed at the 1.0 public release.
 
 ### Checklist (same PR as the table change)
 
 1. Update the table class in the entity’s `data/` segment
 2. Bump `kAppSchemaVersion` by **exactly 1** (no skipping versions in a single release chain)
-3. Add `lib/shared/database/migrations/migrate_to_vN.dart` for the new `N`
-4. Wire `if (from < N) await migrateToVN(m, this);` in `AppDatabase.migration`
+3. Add `lib/shared/database/migrations/migrate_to_vN.dart` for the new `N` (first post-baseline bump is **v9**)
+4. Wire `if (from < N) await migrateToVN(m, this);` in `AppDatabase.migration` (keep the baseline refuse for `from <` baseline if still needed)
 5. Run `dart run build_runner build --delete-conflicting-outputs` (or `make codegen`)
 6. If the change alters the portable payload shape, update **import adapters** for exchange (see below) in the same PR when import already exists
 
@@ -43,7 +43,7 @@ Production baseline is **v5**. Destructive wipe-on-upgrade is **forbidden**.
 | Kind | Examples | Where |
 | --- | --- | --- |
 | Schema | add/drop/rename column, new table | `Migrator` / SQL recreate |
-| Data | copy `tag_id` → `expense_tags`, set `stable_key` from legacy names | `customStatement` / queries in the same `migrateToVN` |
+| Data | copy/remap rows, backfill keys | `customStatement` / queries in the same `migrateToVN` |
 
 ### Tests (when change is risky)
 
@@ -93,10 +93,11 @@ Prefer stable business keys in interchange (`tags[].stableKey`, ISO timestamps, 
 
 // ❌ BAD — table defined only inside shared/ with no entity ownership
 // ✅ GOOD — OperationsTable in entities/operation/data/, included in AppDatabase
+
+// ❌ BAD — wipe or silently no-op when user_version < baseline
+// ✅ GOOD — refuse older-than-baseline DBs; never delete the file
 ```
 
 ### Current schema notes
 
-- **v8**: single `operations` table (`kind` = `expense`|`income`) + `operation_tags`. Legacy `expenses`/`incomes` removed after `migrate_to_v8`. Backup JSON still uses parallel `expenses`/`incomes` arrays with `e{id}`/`i{id}` client ids.
-- **v7**: introduced incomes + `tags.icon_key` (intermediate; folded at v8).
-- **v6**: `duplicate_dismissed` on expenses.
+- **v8 (baseline)**: single `operations` table (`kind` = `expense`|`income`) + `operation_tags`. Backup JSON still uses parallel `expenses`/`incomes` arrays with `e{id}`/`i{id}` client ids. Do **not** lower `kAppSchemaVersion` — exchange files and local DBs already use 8.

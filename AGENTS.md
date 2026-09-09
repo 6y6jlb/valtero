@@ -33,7 +33,7 @@ Details: [docs/agent-rules/fsd-layers.md](docs/agent-rules/fsd-layers.md)
 
 - **Riverpod** for state (`AsyncNotifier` for Hive/Drift-backed state)
 - **Drift (SQLite)** for expenses, income, tags, exchange-rate cache/overrides (`sqlite3` ≥3.x bundles native SQLite via build hooks on Linux/Android/Windows)
-- **Schema version** SSOT: `kAppSchemaVersion`. Production baseline v5 — stepwise `migrate_to_vN` only; **never wipe** user DB on upgrade — see [drift-conventions.md](docs/agent-rules/drift-conventions.md). Same int goes into strict exchange envelopes as `schemaVersion`. Current: **v8** merges expenses/incomes into `Operations` + `OperationTags` with `kind` (`expense`|`income`); v7 added incomes + `Tags.iconKey`; v6 added `duplicateDismissed`.
+- **Schema version** SSOT: `kAppSchemaVersion`. Production baseline **v8** (`Operations` + `OperationTags` with `kind` expense|income); fresh installs use `onCreate`. Bumps above baseline: stepwise `migrate_to_vN` only; DBs older than baseline are refused — **never wipe** user DB on upgrade — see [drift-conventions.md](docs/agent-rules/drift-conventions.md). Same int goes into strict exchange envelopes as `schemaVersion`.
 - **Hive CE** for `AppSettings` only (reporting currencies, API key, detection cache, theme/locale/timezone, integration credentials, debug logging flag)
 
 Details: [docs/agent-rules/riverpod-conventions.md](docs/agent-rules/riverpod-conventions.md), [docs/agent-rules/drift-conventions.md](docs/agent-rules/drift-conventions.md)

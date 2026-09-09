@@ -8,6 +8,15 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-09-09
+
+### Changed
+
+- First public release version (`1.0.0`).
+- Drift production baseline is **schema v8** (`operations` / `operation_tags`);
+  pre-v8 stepwise migrations removed. Existing v8 databases and backups keep
+  working; older local DBs are refused without wiping data.
+
 ## [1.6.4] - 2026-09-09
 
 ### Changed

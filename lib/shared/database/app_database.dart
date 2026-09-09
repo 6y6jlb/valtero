@@ -10,9 +10,6 @@ import 'package:valtero/entities/operation/data/operations_table.dart';
 import 'package:valtero/entities/operation/model/operation_kind.dart';
 import 'package:valtero/entities/payment_method/data/payment_methods_table.dart';
 import 'package:valtero/entities/tag/data/tags_table.dart';
-import 'package:valtero/shared/database/migrations/migrate_to_v6.dart';
-import 'package:valtero/shared/database/migrations/migrate_to_v7.dart';
-import 'package:valtero/shared/database/migrations/migrate_to_v8.dart';
 import 'package:valtero/shared/database/schema_version.dart';
 
 part 'app_database.g.dart';
@@ -42,11 +39,16 @@ class AppDatabase extends _$AppDatabase {
           await m.createAll();
         },
         onUpgrade: (Migrator m, int from, int to) async {
-          // Production: stepwise migrate_to_vN only — never wipe user data.
-          // Baseline schema is v5.
-          if (from < 6) await migrateToV6(m, this);
-          if (from < 7) await migrateToV7(m, this);
-          if (from < 8) await migrateToV8(m, this);
+          // Baseline is v8. Pre-baseline DBs are refused — never wipe.
+          // Future bumps: stepwise migrate_to_vN only (v9+).
+          if (from < kAppSchemaVersion) {
+            throw StateError(
+              'Database schema $from is older than supported baseline '
+              '$kAppSchemaVersion. Restore from a backup created with the '
+              'current app, or open once with the last pre-1.0 build to '
+              'upgrade in place before installing this version.',
+            );
+          }
         },
       );
 
