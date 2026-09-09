@@ -5,25 +5,27 @@ import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:valtero/entities/exchange_rate/data/exchange_rates_table.dart';
-import 'package:valtero/entities/expense/data/expense_tags_table.dart';
-import 'package:valtero/entities/expense/data/expenses_table.dart';
-import 'package:valtero/entities/income/data/income_tags_table.dart';
-import 'package:valtero/entities/income/data/incomes_table.dart';
+import 'package:valtero/entities/operation/data/operation_tags_table.dart';
+import 'package:valtero/entities/operation/data/operations_table.dart';
+import 'package:valtero/entities/operation/model/operation_kind.dart';
 import 'package:valtero/entities/payment_method/data/payment_methods_table.dart';
 import 'package:valtero/entities/tag/data/tags_table.dart';
 import 'package:valtero/shared/database/migrations/migrate_to_v6.dart';
 import 'package:valtero/shared/database/migrations/migrate_to_v7.dart';
+import 'package:valtero/shared/database/migrations/migrate_to_v8.dart';
 import 'package:valtero/shared/database/schema_version.dart';
 
 part 'app_database.g.dart';
 
+/// Drift row aliases after schema v8 (single [Operations] table).
+typedef Expense = Operation;
+typedef Income = Operation;
+
 @DriftDatabase(
   tables: [
     Tags,
-    Expenses,
-    ExpenseTags,
-    Incomes,
-    IncomeTags,
+    Operations,
+    OperationTags,
     ExchangeRates,
     PaymentMethods,
   ],
@@ -44,6 +46,7 @@ class AppDatabase extends _$AppDatabase {
           // Baseline schema is v5.
           if (from < 6) await migrateToV6(m, this);
           if (from < 7) await migrateToV7(m, this);
+          if (from < 8) await migrateToV8(m, this);
         },
       );
 
@@ -105,34 +108,45 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
-  Stream<List<Expense>> watchExpenses({
+  Stream<List<Operation>> watchOperations({
+    OperationKind? kind,
     int? tagId,
     String? currencyCode,
     DateTime? from,
     DateTime? to,
   }) {
+    final kindDb = kind == null ? null : operationKindDbValue(kind);
     if (tagId != null) {
-      final query = select(expenses).join([
+      final query = select(operations).join([
         innerJoin(
-          expenseTags,
-          expenseTags.expenseId.equalsExp(expenses.id),
+          operationTags,
+          operationTags.operationId.equalsExp(operations.id),
         ),
       ])
-        ..where(expenseTags.tagId.equals(tagId))
-        ..orderBy([OrderingTerm.desc(expenses.occurredAt)]);
+        ..where(operationTags.tagId.equals(tagId))
+        ..orderBy([OrderingTerm.desc(operations.occurredAt)]);
+      if (kindDb != null) {
+        query.where(operations.kind.equals(kindDb));
+      }
       if (currencyCode != null && currencyCode.isNotEmpty) {
-        query.where(expenses.storedCurrencyCode.equals(currencyCode));
+        query.where(operations.storedCurrencyCode.equals(currencyCode));
       }
       if (from != null) {
-        query.where(expenses.occurredAt.isBiggerOrEqualValue(from));
+        query.where(operations.occurredAt.isBiggerOrEqualValue(from));
       }
       if (to != null) {
-        query.where(expenses.occurredAt.isSmallerOrEqualValue(to));
+        query.where(operations.occurredAt.isSmallerOrEqualValue(to));
       }
-      return query.watch().map((rows) => rows.map((r) => r.readTable(expenses)).toList());
+      return query
+          .watch()
+          .map((rows) => rows.map((r) => r.readTable(operations)).toList());
     }
 
-    final query = select(expenses)..orderBy([(e) => OrderingTerm.desc(e.occurredAt)]);
+    final query =
+        select(operations)..orderBy([(e) => OrderingTerm.desc(e.occurredAt)]);
+    if (kindDb != null) {
+      query.where((e) => e.kind.equals(kindDb));
+    }
     if (currencyCode != null && currencyCode.isNotEmpty) {
       query.where((e) => e.storedCurrencyCode.equals(currencyCode));
     }
@@ -145,106 +159,195 @@ class AppDatabase extends _$AppDatabase {
     return query.watch();
   }
 
-  Future<List<Expense>> getAllExpenses() {
-    return (select(expenses)..orderBy([(e) => OrderingTerm.desc(e.occurredAt)])).get();
-  }
-
-  Future<int> insertExpense(ExpensesCompanion entry) => into(expenses).insert(entry);
-
-  Stream<List<Income>> watchIncome({
-    int? tagId,
-    String? currencyCode,
-    DateTime? from,
-    DateTime? to,
-  }) {
-    if (tagId != null) {
-      final query = select(incomes).join([
-        innerJoin(
-          incomeTags,
-          incomeTags.incomeId.equalsExp(incomes.id),
-        ),
-      ])
-        ..where(incomeTags.tagId.equals(tagId))
-        ..orderBy([OrderingTerm.desc(incomes.occurredAt)]);
-      if (currencyCode != null && currencyCode.isNotEmpty) {
-        query.where(incomes.storedCurrencyCode.equals(currencyCode));
-      }
-      if (from != null) {
-        query.where(incomes.occurredAt.isBiggerOrEqualValue(from));
-      }
-      if (to != null) {
-        query.where(incomes.occurredAt.isSmallerOrEqualValue(to));
-      }
-      return query.watch().map((rows) => rows.map((r) => r.readTable(incomes)).toList());
+  Future<List<Operation>> getAllOperations({OperationKind? kind}) {
+    final query =
+        select(operations)..orderBy([(e) => OrderingTerm.desc(e.occurredAt)]);
+    if (kind != null) {
+      query.where((e) => e.kind.equals(operationKindDbValue(kind)));
     }
+    return query.get();
+  }
 
-    final query = select(incomes)..orderBy([(e) => OrderingTerm.desc(e.occurredAt)]);
-    if (currencyCode != null && currencyCode.isNotEmpty) {
-      query.where((e) => e.storedCurrencyCode.equals(currencyCode));
+  Future<int> insertOperation(OperationsCompanion entry) =>
+      into(operations).insert(entry);
+
+  Future<bool> updateOperationRow(Operation row) =>
+      update(operations).replace(row);
+
+  Future<int> deleteOperationById(int id) async {
+    await (delete(operationTags)..where((ot) => ot.operationId.equals(id))).go();
+    return (delete(operations)..where((e) => e.id.equals(id))).go();
+  }
+
+  Future<Operation?> getOperationById(int id) {
+    return (select(operations)..where((e) => e.id.equals(id))).getSingleOrNull();
+  }
+
+  Future<void> setOperationTags(int operationId, List<int> tagIds) async {
+    var ids = tagIds.toSet().toList();
+    final op = await getOperationById(operationId);
+    if (op != null && ids.isNotEmpty) {
+      final expectedKind =
+          tagKindDbValueForOperation(operationKindOf(op.kind));
+      final tagRows = await (select(tags)..where((t) => t.id.isIn(ids))).get();
+      ids = [
+        for (final tag in tagRows)
+          if (tag.kind == expectedKind) tag.id,
+      ];
     }
-    if (from != null) {
-      query.where((e) => e.occurredAt.isBiggerOrEqualValue(from));
-    }
-    if (to != null) {
-      query.where((e) => e.occurredAt.isSmallerOrEqualValue(to));
-    }
-    return query.watch();
-  }
-
-  Future<List<Income>> getAllIncome() {
-    return (select(incomes)..orderBy([(e) => OrderingTerm.desc(e.occurredAt)])).get();
-  }
-
-  Future<int> insertIncome(IncomesCompanion entry) => into(incomes).insert(entry);
-
-  Future<bool> updateIncomeRow(Income row) => update(incomes).replace(row);
-
-  Future<int> deleteIncomeById(int id) async {
-    await (delete(incomeTags)..where((it) => it.incomeId.equals(id))).go();
-    return (delete(incomes)..where((e) => e.id.equals(id))).go();
-  }
-
-  Future<Income?> getIncomeById(int id) {
-    return (select(incomes)..where((e) => e.id.equals(id))).getSingleOrNull();
-  }
-
-  Future<void> setIncomeTags(int incomeId, List<int> tagIds) async {
-    await (delete(incomeTags)..where((it) => it.incomeId.equals(incomeId))).go();
-    for (final tagId in tagIds.toSet()) {
-      await into(incomeTags).insert(
-        IncomeTagsCompanion.insert(incomeId: incomeId, tagId: tagId),
+    await (delete(operationTags)..where((ot) => ot.operationId.equals(operationId)))
+        .go();
+    for (final tagId in ids) {
+      await into(operationTags).insert(
+        OperationTagsCompanion.insert(operationId: operationId, tagId: tagId),
       );
     }
   }
 
-  Future<List<int>> getTagIdsForIncome(int incomeId) async {
-    final rows = await (select(incomeTags)
-          ..where((it) => it.incomeId.equals(incomeId)))
+  Future<List<int>> getTagIdsForOperation(int operationId) async {
+    final rows = await (select(operationTags)
+          ..where((ot) => ot.operationId.equals(operationId)))
         .get();
     return rows.map((r) => r.tagId).toList();
   }
 
-  Future<Map<int, List<int>>> getTagIdsByIncomeIds(List<int> incomeIds) async {
-    if (incomeIds.isEmpty) return {};
-    final rows = await (select(incomeTags)
-          ..where((it) => it.incomeId.isIn(incomeIds)))
+  Future<Map<int, List<int>>> getTagIdsByOperationIds(
+    List<int> operationIds,
+  ) async {
+    if (operationIds.isEmpty) return {};
+    final rows = await (select(operationTags)
+          ..where((ot) => ot.operationId.isIn(operationIds)))
         .get();
     final map = <int, List<int>>{};
     for (final row in rows) {
-      map.putIfAbsent(row.incomeId, () => []).add(row.tagId);
+      map.putIfAbsent(row.operationId, () => []).add(row.tagId);
     }
     return map;
   }
 
-  Stream<Map<int, List<int>>> watchAllIncomeTagIds() {
-    return select(incomeTags).watch().map((rows) {
+  Stream<Map<int, List<int>>> watchAllOperationTagIds({OperationKind? kind}) {
+    if (kind == null) {
+      return select(operationTags).watch().map((rows) {
+        final map = <int, List<int>>{};
+        for (final row in rows) {
+          map.putIfAbsent(row.operationId, () => []).add(row.tagId);
+        }
+        return map;
+      });
+    }
+    final kindDb = operationKindDbValue(kind);
+    final query = select(operationTags).join([
+      innerJoin(
+        operations,
+        operations.id.equalsExp(operationTags.operationId),
+      ),
+    ])
+      ..where(operations.kind.equals(kindDb));
+    return query.watch().map((rows) {
       final map = <int, List<int>>{};
       for (final row in rows) {
-        map.putIfAbsent(row.incomeId, () => []).add(row.tagId);
+        final link = row.readTable(operationTags);
+        map.putIfAbsent(link.operationId, () => []).add(link.tagId);
       }
       return map;
     });
   }
+
+  // --- Direction-specific wrappers (call sites still say expense/income) ---
+
+  Stream<List<Operation>> watchExpenses({
+    int? tagId,
+    String? currencyCode,
+    DateTime? from,
+    DateTime? to,
+  }) =>
+      watchOperations(
+        kind: OperationKind.expense,
+        tagId: tagId,
+        currencyCode: currencyCode,
+        from: from,
+        to: to,
+      );
+
+  Future<List<Operation>> getAllExpenses() =>
+      getAllOperations(kind: OperationKind.expense);
+
+  Future<int> insertExpense(OperationsCompanion entry) {
+    return insertOperation(
+      entry.copyWith(kind: const Value('expense')),
+    );
+  }
+
+  Future<bool> updateExpenseRow(Operation row) => updateOperationRow(
+        row.copyWith(kind: 'expense'),
+      );
+
+  Future<int> deleteExpenseById(int id) => deleteOperationById(id);
+
+  Future<Operation?> getExpenseById(int id) async {
+    final row = await getOperationById(id);
+    if (row == null || row.kind != 'expense') return null;
+    return row;
+  }
+
+  Future<void> setExpenseTags(int expenseId, List<int> tagIds) =>
+      setOperationTags(expenseId, tagIds);
+
+  Future<List<int>> getTagIdsForExpense(int expenseId) =>
+      getTagIdsForOperation(expenseId);
+
+  Future<Map<int, List<int>>> getTagIdsByExpenseIds(List<int> expenseIds) =>
+      getTagIdsByOperationIds(expenseIds);
+
+  Stream<Map<int, List<int>>> watchAllExpenseTagIds() =>
+      watchAllOperationTagIds(kind: OperationKind.expense);
+
+  Stream<List<Operation>> watchIncome({
+    int? tagId,
+    String? currencyCode,
+    DateTime? from,
+    DateTime? to,
+  }) =>
+      watchOperations(
+        kind: OperationKind.income,
+        tagId: tagId,
+        currencyCode: currencyCode,
+        from: from,
+        to: to,
+      );
+
+  Future<List<Operation>> getAllIncome() =>
+      getAllOperations(kind: OperationKind.income);
+
+  Future<int> insertIncome(OperationsCompanion entry) {
+    return insertOperation(
+      entry.copyWith(kind: const Value('income')),
+    );
+  }
+
+  Future<bool> updateIncomeRow(Operation row) => updateOperationRow(
+        row.copyWith(kind: 'income'),
+      );
+
+  Future<int> deleteIncomeById(int id) => deleteOperationById(id);
+
+  Future<Operation?> getIncomeById(int id) async {
+    final row = await getOperationById(id);
+    if (row == null || row.kind != 'income') return null;
+    return row;
+  }
+
+  Future<void> setIncomeTags(int incomeId, List<int> tagIds) =>
+      setOperationTags(incomeId, tagIds);
+
+  Future<List<int>> getTagIdsForIncome(int incomeId) =>
+      getTagIdsForOperation(incomeId);
+
+  Future<Map<int, List<int>>> getTagIdsByIncomeIds(List<int> incomeIds) =>
+      getTagIdsByOperationIds(incomeIds);
+
+  Stream<Map<int, List<int>>> watchAllIncomeTagIds() =>
+      watchAllOperationTagIds(kind: OperationKind.income);
 
   Stream<List<PaymentMethod>> watchAllPaymentMethods() {
     return (select(paymentMethods)
@@ -270,11 +373,9 @@ class AppDatabase extends _$AppDatabase {
       update(paymentMethods).replace(row);
 
   Future<int> deletePaymentMethodById(int id) async {
-    await (update(expenses)..where((e) => e.paymentMethodId.equals(id))).write(
-      const ExpensesCompanion(paymentMethodId: Value(null)),
-    );
-    await (update(incomes)..where((e) => e.paymentMethodId.equals(id))).write(
-      const IncomesCompanion(paymentMethodId: Value(null)),
+    await (update(operations)..where((e) => e.paymentMethodId.equals(id)))
+        .write(
+      const OperationsCompanion(paymentMethodId: Value(null)),
     );
     return (delete(paymentMethods)..where((p) => p.id.equals(id))).go();
   }
@@ -308,55 +409,6 @@ class AppDatabase extends _$AppDatabase {
         sortOrder: Value(nextOrder),
       ),
     );
-  }
-
-  Future<void> setExpenseTags(int expenseId, List<int> tagIds) async {
-    await (delete(expenseTags)..where((et) => et.expenseId.equals(expenseId))).go();
-    for (final tagId in tagIds.toSet()) {
-      await into(expenseTags).insert(
-        ExpenseTagsCompanion.insert(expenseId: expenseId, tagId: tagId),
-      );
-    }
-  }
-
-  Future<List<int>> getTagIdsForExpense(int expenseId) async {
-    final rows = await (select(expenseTags)
-          ..where((et) => et.expenseId.equals(expenseId)))
-        .get();
-    return rows.map((r) => r.tagId).toList();
-  }
-
-  Future<Map<int, List<int>>> getTagIdsByExpenseIds(List<int> expenseIds) async {
-    if (expenseIds.isEmpty) return {};
-    final rows = await (select(expenseTags)
-          ..where((et) => et.expenseId.isIn(expenseIds)))
-        .get();
-    final map = <int, List<int>>{};
-    for (final row in rows) {
-      map.putIfAbsent(row.expenseId, () => []).add(row.tagId);
-    }
-    return map;
-  }
-
-  Stream<Map<int, List<int>>> watchAllExpenseTagIds() {
-    return select(expenseTags).watch().map((rows) {
-      final map = <int, List<int>>{};
-      for (final row in rows) {
-        map.putIfAbsent(row.expenseId, () => []).add(row.tagId);
-      }
-      return map;
-    });
-  }
-
-  Future<bool> updateExpenseRow(Expense row) => update(expenses).replace(row);
-
-  Future<int> deleteExpenseById(int id) async {
-    await (delete(expenseTags)..where((et) => et.expenseId.equals(id))).go();
-    return (delete(expenses)..where((e) => e.id.equals(id))).go();
-  }
-
-  Future<Expense?> getExpenseById(int id) {
-    return (select(expenses)..where((e) => e.id.equals(id))).getSingleOrNull();
   }
 
   Future<ExchangeRate?> getRateRow({
@@ -465,35 +517,21 @@ class AppDatabase extends _$AppDatabase {
     return true;
   }
 
-  Future<List<String>> distinctStoredCurrencies() async {
-    final expenseRows = await select(expenses).get();
-    final incomeRows = await select(incomes).get();
-    return {
-      ...expenseRows.map((e) => e.storedCurrencyCode),
-      ...incomeRows.map((e) => e.storedCurrencyCode),
-    }.toList()
-      ..sort();
-  }
-
-  Future<List<String>> distinctOriginalCurrencies() async {
-    final expenseRows = await select(expenses).get();
-    final incomeRows = await select(incomes).get();
-    return {
-      ...expenseRows.map((e) => e.originalCurrencyCode),
-      ...incomeRows.map((e) => e.originalCurrencyCode),
-    }.toList()
-      ..sort();
-  }
-
-  Future<List<String>> distinctStoredIncomeCurrencies() async {
-    final rows = await select(incomes).get();
+  Future<List<String>> distinctStoredCurrencies({OperationKind? kind}) async {
+    final rows = await getAllOperations(kind: kind);
     return rows.map((e) => e.storedCurrencyCode).toSet().toList()..sort();
   }
 
-  Future<List<String>> distinctOriginalIncomeCurrencies() async {
-    final rows = await select(incomes).get();
+  Future<List<String>> distinctOriginalCurrencies({OperationKind? kind}) async {
+    final rows = await getAllOperations(kind: kind);
     return rows.map((e) => e.originalCurrencyCode).toSet().toList()..sort();
   }
+
+  Future<List<String>> distinctStoredIncomeCurrencies() =>
+      distinctStoredCurrencies(kind: OperationKind.income);
+
+  Future<List<String>> distinctOriginalIncomeCurrencies() =>
+      distinctOriginalCurrencies(kind: OperationKind.income);
 }
 
 LazyDatabase _openConnection() {

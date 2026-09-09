@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 
-/// FAB that opens the add-expense sheet (outflow arrow).
+/// FAB that opens the add-expense sheet (red +).
 FloatingActionButton addExpenseFab(
   BuildContext context, {
   required String heroTag,
@@ -12,6 +12,6 @@ FloatingActionButton addExpenseFab(
     heroTag: heroTag,
     tooltip: l10n.addExpense,
     onPressed: () => showAddExpenseSheet(context),
-    child: const Icon(Icons.north_east, size: 28),
+    child: const Icon(Icons.add, size: 28, color: Color(0xFFE74C3C)),
   );
 }

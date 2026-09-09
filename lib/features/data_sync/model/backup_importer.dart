@@ -104,7 +104,8 @@ class BackupImporter {
 
       final markUnique = forceUniqueClientIds.contains(expense.clientId);
       final newId = await db.insertExpense(
-        ExpensesCompanion.insert(
+        OperationsCompanion.insert(
+          kind: 'expense',
           occurredAt: expense.occurredAt,
           originalAmountMinor: expense.originalAmountMinor,
           originalCurrencyCode: expense.originalCurrencyCode,
@@ -160,7 +161,8 @@ class BackupImporter {
 
       final markUnique = forceUniqueClientIds.contains(income.clientId);
       final newId = await db.insertIncome(
-        IncomesCompanion.insert(
+        OperationsCompanion.insert(
+          kind: 'income',
           occurredAt: income.occurredAt,
           originalAmountMinor: income.originalAmountMinor,
           originalCurrencyCode: income.originalCurrencyCode,

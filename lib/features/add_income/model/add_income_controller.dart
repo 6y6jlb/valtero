@@ -101,7 +101,8 @@ class AddIncomeController {
     final original = input.originalCurrencyCode.toUpperCase();
 
     final id = await db.insertIncome(
-      IncomesCompanion.insert(
+      OperationsCompanion.insert(
+        kind: 'income',
         occurredAt: input.occurredAt,
         originalAmountMinor: input.originalAmountMinor,
         originalCurrencyCode: original,

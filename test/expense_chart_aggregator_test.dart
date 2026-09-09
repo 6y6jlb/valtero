@@ -43,6 +43,7 @@ Expense _expense({
 }) {
   final at = DateTime(2026, 1, 15);
   return Expense(
+    kind: 'expense',
     id: id,
     occurredAt: at,
     originalAmountMinor: amountMinor,

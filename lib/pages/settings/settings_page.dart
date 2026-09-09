@@ -277,86 +277,100 @@ class SettingsPage extends ConsumerWidget {
         ),
         title: Text(l10n.settings),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ListTile(
-            leading: const Icon(Icons.palette_outlined),
-            title: Text(l10n.settingsAppearance),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => _openAppearance(context, ref),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.palette_outlined),
+                  title: Text(l10n.settingsAppearance),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _openAppearance(context, ref),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.currency_exchange),
+                  title: Text(l10n.settingsCurrency),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => showCurrencySettingsSheet(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.label_outline),
+                  title: Text(l10n.tagsTitle),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => showTagsSheet(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.payments_outlined),
+                  title: Text(l10n.paymentMethodsTitle),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => showPaymentMethodsSheet(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.extension_outlined),
+                  title: Text(l10n.settingsIntegrations),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => showIntegrationsSheet(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.ios_share),
+                  title: Text(l10n.settingsExport),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => showExportSheet(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.sync_outlined),
+                  title: Text(l10n.settingsDataSync),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => showDataSyncSheet(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.menu_book_outlined),
+                  title: Text(l10n.guideOpenFromSettings),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => PlatformGuidePage.open(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.mail_outline),
+                  title: Text(l10n.settingsContactDeveloper),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => showContactDeveloperSheet(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.bug_report_outlined),
+                  title: Text(l10n.settingsDebug),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => showDebugLogsSheet(context),
+                ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.favorite,
+                    color: Color(0xFFE91E63),
+                  ),
+                  title: Text(l10n.settingsThanks),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => showThanksSheet(context),
+                ),
+              ],
+            ),
           ),
-          ListTile(
-            leading: const Icon(Icons.currency_exchange),
-            title: Text(l10n.settingsCurrency),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => showCurrencySettingsSheet(context),
-          ),
-          ListTile(
-            leading: const Icon(Icons.label_outline),
-            title: Text(l10n.tagsTitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => showTagsSheet(context),
-          ),
-          ListTile(
-            leading: const Icon(Icons.payments_outlined),
-            title: Text(l10n.paymentMethodsTitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => showPaymentMethodsSheet(context),
-          ),
-          ListTile(
-            leading: const Icon(Icons.extension_outlined),
-            title: Text(l10n.settingsIntegrations),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => showIntegrationsSheet(context),
-          ),
-          ListTile(
-            leading: const Icon(Icons.ios_share),
-            title: Text(l10n.settingsExport),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => showExportSheet(context),
-          ),
-          ListTile(
-            leading: const Icon(Icons.sync_outlined),
-            title: Text(l10n.settingsDataSync),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => showDataSyncSheet(context),
-          ),
-          ListTile(
-            leading: const Icon(Icons.menu_book_outlined),
-            title: Text(l10n.guideOpenFromSettings),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => PlatformGuidePage.open(context),
-          ),
-          ListTile(
-            leading: const Icon(Icons.favorite_outline),
-            title: Text(l10n.settingsThanks),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => showThanksSheet(context),
-          ),
-          ListTile(
-            leading: const Icon(Icons.mail_outline),
-            title: Text(l10n.settingsContactDeveloper),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => showContactDeveloperSheet(context),
-          ),
-          ListTile(
-            leading: const Icon(Icons.bug_report_outlined),
-            title: Text(l10n.settingsDebug),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => showDebugLogsSheet(context),
-          ),
-          if (versionLabel != null) ...[
-            const SizedBox(height: 24),
-            Center(
-              child: Text(
-                versionLabel,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+          if (versionLabel != null)
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: Center(
+                  child: Text(
+                    versionLabel,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ],
         ],
       ),
     );

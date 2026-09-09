@@ -10,6 +10,7 @@ Expense _expense({
   bool duplicateDismissed = false,
 }) {
   return Expense(
+    kind: 'expense',
     id: id,
     occurredAt: occurredAt,
     originalAmountMinor: originalAmountMinor,
@@ -18,7 +19,6 @@ Expense _expense({
     storedCurrencyCode: originalCurrencyCode,
     rateUsed: null,
     rateTimestamp: null,
-    tagId: null,
     paymentMethodId: null,
     countryCode: null,
     note: null,

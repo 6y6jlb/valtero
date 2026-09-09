@@ -1,8 +1,11 @@
 import 'package:drift/drift.dart';
 import 'package:valtero/entities/payment_method/data/payment_methods_table.dart';
 
-class Incomes extends Table {
+@TableIndex(name: 'operations_kind_occurred_at', columns: {#kind, #occurredAt})
+class Operations extends Table {
   IntColumn get id => integer().autoIncrement()();
+  /// `'expense'` or `'income'`.
+  TextColumn get kind => text()();
   DateTimeColumn get occurredAt => dateTime()();
   IntColumn get originalAmountMinor => integer()();
   TextColumn get originalCurrencyCode => text().withLength(min: 3, max: 3)();
@@ -16,7 +19,7 @@ class Incomes extends Table {
   TextColumn get countryCode => text().nullable()();
   TextColumn get note => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
-  /// User confirmed this income is not a duplicate of others sharing
+  /// User confirmed this row is not a duplicate of others sharing
   /// the same day + original amount + currency fingerprint.
   BoolColumn get duplicateDismissed =>
       boolean().withDefault(const Constant(false))();

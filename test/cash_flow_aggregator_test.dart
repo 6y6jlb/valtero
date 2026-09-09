@@ -36,6 +36,7 @@ class _FakeProvider implements ExchangeRateProvider {
 
 Expense _expense(int id, DateTime at, int amount, String currency) {
   return Expense(
+    kind: 'expense',
     id: id,
     occurredAt: at,
     originalAmountMinor: amount,
@@ -49,6 +50,7 @@ Expense _expense(int id, DateTime at, int amount, String currency) {
 
 Income _income(int id, DateTime at, int amount, String currency) {
   return Income(
+    kind: 'income',
     id: id,
     occurredAt: at,
     originalAmountMinor: amount,

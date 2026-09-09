@@ -8,6 +8,16 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.6.2] - 2026-09-09
+
+### Changed
+
+- Expenses and incomes share one SQLite `operations` table (`kind`), schema **v8**
+  (upgrade copies existing rows; backup JSON still uses separate expense/income arrays).
+- Tags sheet: expense vs income categories as bookmark tabs (like Dashboard).
+- Settings: Thanks near the bottom with accent heart icon; app version sticky footer.
+- Add expense / income FABs both use `+`, with red vs green icon color.
+
 ## [1.6.1] - 2026-09-09
 
 ### Added

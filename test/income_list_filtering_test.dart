@@ -13,6 +13,7 @@ Income _income({
   String? countryCode,
 }) {
   return Income(
+    kind: 'income',
     id: id,
     occurredAt: at,
     originalAmountMinor: amount,

@@ -4,14 +4,14 @@ import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/database/schema_version.dart';
 
 void main() {
-  test('schema v6 creates expenses.duplicateDismissed defaulting to false',
-      () async {
-    expect(kAppSchemaVersion, greaterThanOrEqualTo(6));
+  test('schema v8 expenses default duplicateDismissed to false', () async {
+    expect(kAppSchemaVersion, greaterThanOrEqualTo(8));
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
     final id = await db.insertExpense(
-      ExpensesCompanion.insert(
+      OperationsCompanion.insert(
+        kind: 'expense',
         occurredAt: DateTime.utc(2026, 1, 1),
         originalAmountMinor: 100,
         originalCurrencyCode: 'USD',
@@ -22,6 +22,7 @@ void main() {
     );
     final row = await db.getExpenseById(id);
     expect(row, isNotNull);
-    expect(row!.duplicateDismissed, isFalse);
+    expect(row!.kind, 'expense');
+    expect(row.duplicateDismissed, isFalse);
   });
 }

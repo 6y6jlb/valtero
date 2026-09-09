@@ -85,12 +85,18 @@ Prefer stable business keys in interchange (`tags[].stableKey`, ISO timestamps, 
 ## Examples
 
 ```dart
-// ❌ BAD — change Expenses columns without bumping kAppSchemaVersion / migrateToVN
+// ❌ BAD — change Operations columns without bumping kAppSchemaVersion / migrateToVN
 // ✅ GOOD — bump to N, add migrations/migrate_to_vN.dart, wire onUpgrade
 
 // ❌ BAD — encrypted backup with only appVersion "1.2.0", no schemaVersion
 // ✅ GOOD — envelope includes formatVersion + schemaVersion == kAppSchemaVersion at export
 
 // ❌ BAD — table defined only inside shared/ with no entity ownership
-// ✅ GOOD — ExpensesTable in entities/expense/data/, included in AppDatabase
+// ✅ GOOD — OperationsTable in entities/operation/data/, included in AppDatabase
 ```
+
+### Current schema notes
+
+- **v8**: single `operations` table (`kind` = `expense`|`income`) + `operation_tags`. Legacy `expenses`/`incomes` removed after `migrate_to_v8`. Backup JSON still uses parallel `expenses`/`incomes` arrays with `e{id}`/`i{id}` client ids.
+- **v7**: introduced incomes + `tags.icon_key` (intermediate; folded at v8).
+- **v6**: `duplicate_dismissed` on expenses.

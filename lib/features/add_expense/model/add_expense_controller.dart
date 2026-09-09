@@ -101,7 +101,8 @@ class AddExpenseController {
     final original = input.originalCurrencyCode.toUpperCase();
 
     final id = await db.insertExpense(
-      ExpensesCompanion.insert(
+      OperationsCompanion.insert(
+        kind: 'expense',
         occurredAt: input.occurredAt,
         originalAmountMinor: input.originalAmountMinor,
         originalCurrencyCode: original,

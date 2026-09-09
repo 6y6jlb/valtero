@@ -390,6 +390,7 @@ void main() {
       await db.ensureTagByStableKey(
         stableKey: 'salary',
         fallbackName: 'Salary',
+        kind: 'income',
       );
 
       final envelope = BackupEnvelope(
@@ -424,7 +425,7 @@ void main() {
               incomeClientId: 'i1',
               tagStableKey: 'salary',
               tagName: 'Salary',
-              tagKind: 'normal',
+              tagKind: 'income',
             ),
           ],
           exchangeRateOverrides: const [],
@@ -668,7 +669,8 @@ void main() {
       addTearDown(db.close);
 
       await db.insertExpense(
-        ExpensesCompanion.insert(
+        OperationsCompanion.insert(
+        kind: 'expense',
           occurredAt: DateTime.utc(2026, 1, 1),
           originalAmountMinor: 500,
           originalCurrencyCode: 'USD',
@@ -735,12 +737,14 @@ void main() {
       final tagId = await db.insertTag(
         TagsCompanion.insert(
           name: 'Salary',
+          kind: const Value('income'),
           stableKey: const Value('salary'),
           iconKey: const Value('salary'),
         ),
       );
       final incomeId = await db.insertIncome(
-        IncomesCompanion.insert(
+        OperationsCompanion.insert(
+        kind: 'income',
           occurredAt: DateTime.utc(2026, 5, 1),
           originalAmountMinor: 400000,
           originalCurrencyCode: 'USD',
@@ -815,7 +819,8 @@ void main() {
     test('finds both expense and income duplicates', () async {
       final occurred = DateTime.utc(2026, 6, 1);
       await db.insertExpense(
-        ExpensesCompanion.insert(
+        OperationsCompanion.insert(
+        kind: 'expense',
           occurredAt: occurred,
           originalAmountMinor: 1000,
           originalCurrencyCode: 'USD',
@@ -825,7 +830,8 @@ void main() {
         ),
       );
       await db.insertIncome(
-        IncomesCompanion.insert(
+        OperationsCompanion.insert(
+        kind: 'income',
           occurredAt: occurred,
           originalAmountMinor: 5000,
           originalCurrencyCode: 'USD',

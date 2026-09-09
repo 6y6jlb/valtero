@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -65,7 +66,9 @@ void main() {
   });
 
   test('save persists countryCode and tags', () async {
-    final tagId = await db.insertTag(TagsCompanion.insert(name: 'salary'));
+    final tagId = await db.insertTag(
+      TagsCompanion.insert(name: 'salary', kind: const Value('income')),
+    );
     final controller = container.read(addIncomeControllerProvider);
     final id = await controller.save(
       AddIncomeInput(

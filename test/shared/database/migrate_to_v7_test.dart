@@ -5,13 +5,14 @@ import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/database/schema_version.dart';
 
 void main() {
-  test('schema v7 creates incomes table and tags.iconKey', () async {
-    expect(kAppSchemaVersion, 7);
+  test('schema v8 operations store income rows with iconKey on tags', () async {
+    expect(kAppSchemaVersion, 8);
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
     final incomeId = await db.insertIncome(
-      IncomesCompanion.insert(
+      OperationsCompanion.insert(
+        kind: 'income',
         occurredAt: DateTime.utc(2026, 1, 1),
         originalAmountMinor: 50000,
         originalCurrencyCode: 'USD',
@@ -22,12 +23,14 @@ void main() {
     );
     final income = await db.getIncomeById(incomeId);
     expect(income, isNotNull);
-    expect(income!.duplicateDismissed, isFalse);
+    expect(income!.kind, 'income');
+    expect(income.duplicateDismissed, isFalse);
     expect(income.originalAmountMinor, 50000);
 
     final tagId = await db.insertTag(
       TagsCompanion.insert(
         name: 'salary',
+        kind: const Value('income'),
         stableKey: const Value('salary'),
         iconKey: const Value('salary'),
       ),
