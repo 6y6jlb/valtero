@@ -2,28 +2,32 @@ import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 
 /// Category tags only. Country lives on [Expense.countryCode]; trip kind removed.
-enum TagKind { custom }
+/// [TagKind.income] labels income sources (salary, sale, gift, …).
+enum TagKind { custom, income }
 
 /// Stored `tags.kind` value for [kind].
 String tagKindDbValue(TagKind kind) {
   return switch (kind) {
     TagKind.custom => 'normal',
+    TagKind.income => 'income',
   };
 }
 
-TagKind tagKindOf(Tag tag) => TagKind.custom;
+TagKind tagKindOf(Tag tag) => tag.kind == 'income' ? TagKind.income : TagKind.custom;
 
 bool tagMatchesKind(Tag tag, TagKind kind) => tagKindOf(tag) == kind;
 
 String tagKindSectionTitle(AppLocalizations l10n, TagKind kind) {
   return switch (kind) {
     TagKind.custom => l10n.tagKindSectionCustom,
+    TagKind.income => l10n.tagKindSectionIncome,
   };
 }
 
 String tagKindUnspecifiedLabel(AppLocalizations l10n, TagKind kind) {
   return switch (kind) {
     TagKind.custom => l10n.tagKindUnspecifiedCustom,
+    TagKind.income => l10n.tagKindUnspecifiedIncome,
   };
 }
 

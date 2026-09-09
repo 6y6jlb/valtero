@@ -203,7 +203,14 @@ class _GoogleDriveSyncConfigFormState
     });
     final result = await ref
         .read(googleDriveSyncEngineProvider)
-        .connectAndSync(passphrase: passphrase, includeFileScope: false);
+        .connectAndSync(
+          passphrase: passphrase,
+          includeFileScope:
+              ref.read(appSettingsProvider).value?.googleDriveSharedFileId
+                      .trim()
+                      .isNotEmpty ??
+                  false,
+        );
     if (!mounted) return;
     setState(() => _busyAction = null);
     await _showResultFeedback(l10n, result);

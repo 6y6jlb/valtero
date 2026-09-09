@@ -29,6 +29,9 @@ class ExpenseGroupingContext {
   String unspecifiedLabelFor(TagKind kind) {
     return switch (kind) {
       TagKind.custom => unspecifiedCustomLabel,
+      // Expense grouping never breaks down by income tags; fall back to the
+      // same "not set" copy used for expense categories.
+      TagKind.income => unspecifiedCustomLabel,
     };
   }
 }

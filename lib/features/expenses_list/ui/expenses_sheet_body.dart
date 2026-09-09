@@ -7,7 +7,6 @@ import 'package:valtero/entities/expense/model/expenses_provider.dart';
 import 'package:valtero/entities/integrations/model/integration_registry.dart';
 import 'package:valtero/entities/integrations/telegram/model/telegram_integration.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
-import 'package:valtero/features/expenses_list/ui/expenses_sheet_title_bar.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/model/duplicate_expenses_provider.dart';
 import 'package:valtero/features/expenses_list/model/expense_chart_aggregator.dart';
@@ -21,12 +20,14 @@ import 'package:valtero/features/expenses_list/model/expense_summary_aggregator.
 import 'package:valtero/features/expenses_list/model/expenses_list_display_prefs.dart';
 import 'package:valtero/features/expenses_list/model/grouping/expense_grouper_for.dart';
 import 'package:valtero/features/expenses_list/model/grouping/expense_grouping_context.dart';
+import 'package:valtero/features/expenses_list/model/transaction_direction.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_display_rates_controller.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_empty_placeholder.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_filter_summary_bar.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_listing_card.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_sheet_filter_flow.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_sheet_listing_views.dart';
+import 'package:valtero/features/expenses_list/ui/expenses_sheet_top_bar.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_summary_row.dart';
 import 'package:valtero/features/expenses_list/ui/possible_duplicates_banner.dart';
 import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
@@ -49,10 +50,16 @@ class ExpensesSheetBody extends ConsumerStatefulWidget {
   final ExpenseListQuery initial;
   final bool showTitleBar;
 
+  /// When set (see `ExpensesPage`), shows direction tabs above the filter bar.
+  final TransactionDirection? direction;
+  final ValueChanged<TransactionDirection>? onDirectionChanged;
+
   const ExpensesSheetBody({
     super.key,
     required this.initial,
     this.showTitleBar = true,
+    this.direction,
+    this.onDirectionChanged,
   });
 
   @override
@@ -331,10 +338,11 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      if (widget.showTitleBar) ...[
-                        const ExpensesSheetTitleBar(),
-                        const SizedBox(height: 12),
-                      ],
+                      ExpensesSheetTopBar(
+                        showTitleBar: widget.showTitleBar,
+                        direction: widget.direction,
+                        onDirectionChanged: widget.onDirectionChanged,
+                      ),
                       ExpensesFilterSummaryBar(
                         draft: _applied,
                         onTap: () => _openFilters(

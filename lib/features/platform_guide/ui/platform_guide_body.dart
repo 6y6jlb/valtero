@@ -46,6 +46,11 @@ class PlatformGuideBody extends StatelessWidget {
           body: l10n.guideSectionExpenseTrackingBody,
         ),
         PlatformGuideSection(
+          icon: Icons.south_west,
+          title: l10n.guideSectionIncomeTitle,
+          body: l10n.guideSectionIncomeBody,
+        ),
+        PlatformGuideSection(
           icon: Icons.label_outline,
           title: l10n.guideSectionTagsTitle,
           body: l10n.guideSectionTagsBody,
@@ -54,6 +59,11 @@ class PlatformGuideBody extends StatelessWidget {
           icon: Icons.pie_chart_outline,
           title: l10n.guideSectionChartsTitle,
           body: l10n.guideSectionChartsBody,
+        ),
+        PlatformGuideSection(
+          icon: Icons.stacked_bar_chart,
+          title: l10n.guideSectionCashFlowTitle,
+          body: l10n.guideSectionCashFlowBody,
         ),
         PlatformGuideSection(
           icon: Icons.currency_exchange,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:valtero/entities/tag/model/tag_kind.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
 import 'package:valtero/features/expenses_list/ui/expense_payment_filter_dialog.dart';
 import 'package:valtero/features/expenses_list/ui/expense_tag_filter_dialog.dart';
@@ -8,7 +9,9 @@ import 'package:valtero/shared/utils/date_period.dart';
 import 'package:valtero/widgets/period_picker.dart';
 
 /// Opens the expenses filter sheet (period / tags / payment) and returns the
-/// applied draft, or `null` if cancelled.
+/// applied draft, or `null` if cancelled. [tagKinds] selects which tag kind
+/// the tag picker shows (custom category tags for expenses/cash flow, income
+/// category tags for the income direction).
 Future<ExpenseListQuery?> openExpensesFilterSheet({
   required BuildContext context,
   required ExpenseListQuery draft,
@@ -17,6 +20,7 @@ Future<ExpenseListQuery?> openExpensesFilterSheet({
   required Map<int, String> paymentLabels,
   required List<Tag> tags,
   required List<PaymentMethod> paymentMethods,
+  List<TagKind> tagKinds = const [TagKind.custom],
 }) {
   return showExpensesFilterSheet(
     context: context,
@@ -42,6 +46,7 @@ Future<ExpenseListQuery?> openExpensesFilterSheet({
         context,
         tags: tags,
         initialSelection: current.tagIds,
+        kinds: tagKinds,
       );
       if (selected == null) return null;
       return current.copyWith(tagIds: selected);

@@ -114,6 +114,7 @@
   "googleDriveShareAdd": "Поделиться",
   "googleDriveShareOk": "Доступ выдан",
   "googleDriveShareFailed": "Не удалось расшарить файл",
+  "googleDriveSharedFileInaccessible": "Нет доступа к общему файлу синхронизации. Войдите снова и разрешите доступ к файлам Drive, когда Google спросит (нужно для синхронизации между аккаунтами), или поделитесь файлом с соавтором ещё раз.",
   "googleDriveRevokeOk": "Доступ отозван",
   "googleDriveRevokeFailed": "Не удалось отозвать доступ",
   "googleDriveInvalidEmail": "Введите корректный email",
@@ -241,10 +242,13 @@
   "dataSyncPassphraseWarning": "Сохраните парольную фразу в надёжном месте. Без неё резервную копию открыть нельзя.",
   "dataSyncExportDone": "Резервная копия сохранена",
   "dataSyncExportFailed": "Не удалось сохранить резервную копию",
-  "dataSyncImportDone": "Импортировано: {expenses} трат, {tags} тегов, {payments} способов оплаты",
+  "dataSyncImportDone": "Импортировано: {expenses} трат, {incomes} доходов, {tags} тегов, {payments} способов оплаты",
   "@dataSyncImportDone": {
     "placeholders": {
       "expenses": {
+        "type": "int"
+      },
+      "incomes": {
         "type": "int"
       },
       "tags": {
@@ -262,10 +266,13 @@
   "dataSyncGoogleDriveHint": "Также можно включить автоматическую зашифрованную синхронизацию через Google Drive — без ручного обмена файлами между устройствами.",
   "dataSyncGoogleDriveSetup": "Подключить Google Drive Sync",
   "dataSyncGoogleDriveManage": "Открыть настройки Google Drive Sync",
-  "dataSyncImportDoneWithDuplicates": "Импортировано: {expenses} трат, {tags} тегов, {payments} способов оплаты (пропущено дублей: {skipped})",
+  "dataSyncImportDoneWithDuplicates": "Импортировано: {expenses} трат, {incomes} доходов, {tags} тегов, {payments} способов оплаты (пропущено дублей: {skipped})",
   "@dataSyncImportDoneWithDuplicates": {
     "placeholders": {
       "expenses": {
+        "type": "int"
+      },
+      "incomes": {
         "type": "int"
       },
       "tags": {
@@ -280,7 +287,7 @@
     }
   },
   "dataSyncDuplicatesFoundTitle": "Найдены возможные дубли",
-  "dataSyncDuplicatesFoundHint": "Эти входящие траты похожи на уже существующие (тот же день, сумма и валюта). Выберите, как поступить с каждой.",
+  "dataSyncDuplicatesFoundHint": "Эти входящие траты или доходы похожи на уже существующие (тот же день, сумма и валюта). Выберите, как поступить с каждой.",
   "dataSyncMarkAsDuplicate": "Пометить как дубль",
   "dataSyncMarkAsUnique": "Пометить как уникальную",
   "dataSyncMarkSelectedAsDuplicate": "Выбранные → дубли",
@@ -307,6 +314,8 @@
   "duplicateDeleteMatchAndSave": "Удалить похожую и сохранить",
   "duplicateYourExpense": "Ваша трата",
   "duplicateMatchingExpense": "Похожая трата",
+  "duplicateYourIncome": "Ваш доход",
+  "duplicateMatchingIncome": "Похожий доход",
   "dashboardRestoreFromBackup": "Восстановить из копии",
   "selectCountry": "Выбрать страну",
   "addExpense": "Добавить трату",
@@ -353,6 +362,9 @@
   "confirmDeleteExpense": "Удалить эту трату?",
   "confirmDeleteExpenseDescription": "Эта трата будет удалена безвозвратно.",
   "expenseDeleted": "Трата удалена",
+  "confirmDeleteIncome": "Удалить этот доход?",
+  "confirmDeleteIncomeDescription": "Эта запись о доходе будет удалена безвозвратно.",
+  "incomeDeleted": "Доход удалён",
   "bulkSelectedCount": "Выбрано: {count}",
   "@bulkSelectedCount": {
     "placeholders": {
@@ -428,6 +440,8 @@
   "defaultTags": "Теги по умолчанию",
   "dismiss": "Скрыть",
   "exportTitle": "Экспорт",
+  "expense": "Трата",
+  "income": "Доход",
   "exportCsv": "CSV",
   "exportJson": "JSON",
   "saveFile": "Сохранить файл",
@@ -492,6 +506,12 @@
   "tagShopping": "Покупки",
   "tagTravel": "Путешествия",
   "tagUtilities": "Коммуналка",
+  "tagSalary": "Зарплата",
+  "tagSale": "Продажа",
+  "tagGift": "Подарок",
+  "tagRefund": "Возврат",
+  "tagInvestment": "Инвестиции",
+  "tagOtherIncome": "Прочий доход",
   "tagCash": "Наличка",
   "tagCard": "Карта",
   "tagCrypto": "Крипта",
@@ -533,10 +553,40 @@
   "tagKindSectionCountry": "Страна",
   "tagKindSectionTrip": "Поездка",
   "tagKindSectionCustom": "Категория",
+  "tagKindSectionIncome": "Категория дохода",
   "tagKindUnspecifiedCountry": "Страна не указана",
   "tagKindUnspecifiedTrip": "Поездка не указана",
   "tagKindUnspecifiedCustom": "Категория не указана",
+  "tagKindUnspecifiedIncome": "Категория дохода не указана",
   "tagKindSingleSelectHint": "Один тег из группы; группы необязательны",
+  "tagIcon": "Иконка",
+  "tagIconNone": "Без иконки",
+  "addIncome": "Добавить доход",
+  "editIncome": "Изменить доход",
+  "navIncome": "Доходы",
+  "directionExpenses": "Расходы",
+  "directionIncome": "Доходы",
+  "directionCashFlow": "Баланс",
+  "cashFlowIncome": "Доходы",
+  "cashFlowExpense": "Расходы",
+  "cashFlowNet": "Итого",
+  "exportIncome": "Экспорт доходов",
+  "duplicateConflictIncomeTitle": "Найден похожий доход",
+  "showIncomeList": "Показать доходы",
+  "noMatchingIncome": "Нет доходов по выбранным фильтрам",
+  "noMatchingOperations": "Нет операций по выбранным фильтрам",
+  "chartMissingRatesAlertGeneric": "{count, plural, one{1 операция показана без курса конвертации} few{{count} операции показаны без курса конвертации} many{{count} операций показано без курса конвертации} other{{count} операции показаны без курса конвертации}}",
+  "@chartMissingRatesAlertGeneric": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "guideSectionIncomeTitle": "Доходы",
+  "guideSectionIncomeBody": "На вкладке «Доходы» на главной можно добавить поступление с теми же полями суммы, валюты, оплаты, страны и даты, что и у трат. Для доходов — свои категории (зарплата, продажа, подарок и др.). Проверка возможных дублей работает так же.",
+  "guideSectionCashFlowTitle": "Баланс",
+  "guideSectionCashFlowBody": "Вкладка «Баланс» сравнивает доходы и расходы по дням, неделям, месяцам или годам. Фильтры по дате и валюте общие; категории и оплата остаются на вкладках «Расходы» и «Доходы».",
   "paymentMethod": "Оплата",
   "paymentMethodNone": "Не указано",
   "paymentMethodUnspecified": "Оплата не указана",

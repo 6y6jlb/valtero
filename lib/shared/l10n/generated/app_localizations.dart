@@ -576,6 +576,12 @@ abstract class AppLocalizations {
   /// **'Could not share the sync file'**
   String get googleDriveShareFailed;
 
+  /// No description provided for @googleDriveSharedFileInaccessible.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t access the shared sync file. Sign in again and allow the Drive file permission when Google asks (needed for cross-account sync), or re-share with the collaborator.'**
+  String get googleDriveSharedFileInaccessible;
+
   /// No description provided for @googleDriveRevokeOk.
   ///
   /// In en, this message translates to:
@@ -991,8 +997,8 @@ abstract class AppLocalizations {
   /// No description provided for @dataSyncImportDone.
   ///
   /// In en, this message translates to:
-  /// **'Imported {expenses} expenses, {tags} tags, {payments} payment methods'**
-  String dataSyncImportDone(int expenses, int tags, int payments);
+  /// **'Imported {expenses} expenses, {incomes} incomes, {tags} tags, {payments} payment methods'**
+  String dataSyncImportDone(int expenses, int incomes, int tags, int payments);
 
   /// No description provided for @dataSyncWrongPassphrase.
   ///
@@ -1039,9 +1045,10 @@ abstract class AppLocalizations {
   /// No description provided for @dataSyncImportDoneWithDuplicates.
   ///
   /// In en, this message translates to:
-  /// **'Imported {expenses} expenses, {tags} tags, {payments} payment methods ({skipped} duplicates skipped)'**
+  /// **'Imported {expenses} expenses, {incomes} incomes, {tags} tags, {payments} payment methods ({skipped} duplicates skipped)'**
   String dataSyncImportDoneWithDuplicates(
     int expenses,
+    int incomes,
     int tags,
     int payments,
     int skipped,
@@ -1056,7 +1063,7 @@ abstract class AppLocalizations {
   /// No description provided for @dataSyncDuplicatesFoundHint.
   ///
   /// In en, this message translates to:
-  /// **'These incoming expenses look like ones you already have (same day, amount, and currency). Choose how to handle each.'**
+  /// **'These incoming expenses or incomes look like ones you already have (same day, amount, and currency). Choose how to handle each.'**
   String get dataSyncDuplicatesFoundHint;
 
   /// No description provided for @dataSyncMarkAsDuplicate.
@@ -1172,6 +1179,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Matching expense'**
   String get duplicateMatchingExpense;
+
+  /// No description provided for @duplicateYourIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Your income'**
+  String get duplicateYourIncome;
+
+  /// No description provided for @duplicateMatchingIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Matching income'**
+  String get duplicateMatchingIncome;
 
   /// No description provided for @dashboardRestoreFromBackup.
   ///
@@ -1346,6 +1365,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Expense deleted'**
   String get expenseDeleted;
+
+  /// No description provided for @confirmDeleteIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this income?'**
+  String get confirmDeleteIncome;
+
+  /// No description provided for @confirmDeleteIncomeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'This income entry will be permanently deleted.'**
+  String get confirmDeleteIncomeDescription;
+
+  /// No description provided for @incomeDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Income deleted'**
+  String get incomeDeleted;
 
   /// No description provided for @bulkSelectedCount.
   ///
@@ -1550,6 +1587,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Export'**
   String get exportTitle;
+
+  /// No description provided for @expense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get expense;
+
+  /// No description provided for @income.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get income;
 
   /// No description provided for @exportCsv.
   ///
@@ -1893,6 +1942,42 @@ abstract class AppLocalizations {
   /// **'Utilities'**
   String get tagUtilities;
 
+  /// No description provided for @tagSalary.
+  ///
+  /// In en, this message translates to:
+  /// **'Salary'**
+  String get tagSalary;
+
+  /// No description provided for @tagSale.
+  ///
+  /// In en, this message translates to:
+  /// **'Sale'**
+  String get tagSale;
+
+  /// No description provided for @tagGift.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift'**
+  String get tagGift;
+
+  /// No description provided for @tagRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund'**
+  String get tagRefund;
+
+  /// No description provided for @tagInvestment.
+  ///
+  /// In en, this message translates to:
+  /// **'Investment'**
+  String get tagInvestment;
+
+  /// No description provided for @tagOtherIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Other income'**
+  String get tagOtherIncome;
+
   /// No description provided for @tagCash.
   ///
   /// In en, this message translates to:
@@ -2055,6 +2140,12 @@ abstract class AppLocalizations {
   /// **'Category'**
   String get tagKindSectionCustom;
 
+  /// No description provided for @tagKindSectionIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income category'**
+  String get tagKindSectionIncome;
+
   /// No description provided for @tagKindUnspecifiedCountry.
   ///
   /// In en, this message translates to:
@@ -2073,11 +2164,143 @@ abstract class AppLocalizations {
   /// **'Category not set'**
   String get tagKindUnspecifiedCustom;
 
+  /// No description provided for @tagKindUnspecifiedIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income category not set'**
+  String get tagKindUnspecifiedIncome;
+
   /// No description provided for @tagKindSingleSelectHint.
   ///
   /// In en, this message translates to:
   /// **'One tag per group; groups are optional'**
   String get tagKindSingleSelectHint;
+
+  /// No description provided for @tagIcon.
+  ///
+  /// In en, this message translates to:
+  /// **'Icon'**
+  String get tagIcon;
+
+  /// No description provided for @tagIconNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No icon'**
+  String get tagIconNone;
+
+  /// No description provided for @addIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Add income'**
+  String get addIncome;
+
+  /// No description provided for @editIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit income'**
+  String get editIncome;
+
+  /// No description provided for @navIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get navIncome;
+
+  /// No description provided for @directionExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get directionExpenses;
+
+  /// No description provided for @directionIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get directionIncome;
+
+  /// No description provided for @directionCashFlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash flow'**
+  String get directionCashFlow;
+
+  /// No description provided for @cashFlowIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get cashFlowIncome;
+
+  /// No description provided for @cashFlowExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get cashFlowExpense;
+
+  /// No description provided for @cashFlowNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Net'**
+  String get cashFlowNet;
+
+  /// No description provided for @exportIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Export income'**
+  String get exportIncome;
+
+  /// No description provided for @duplicateConflictIncomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Similar income found'**
+  String get duplicateConflictIncomeTitle;
+
+  /// No description provided for @showIncomeList.
+  ///
+  /// In en, this message translates to:
+  /// **'Show income'**
+  String get showIncomeList;
+
+  /// No description provided for @noMatchingIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'No income matches the filters'**
+  String get noMatchingIncome;
+
+  /// No description provided for @noMatchingOperations.
+  ///
+  /// In en, this message translates to:
+  /// **'No operations match the filters'**
+  String get noMatchingOperations;
+
+  /// No description provided for @chartMissingRatesAlertGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 operation shown without a conversion rate} other{{count} operations shown without conversion rates}}'**
+  String chartMissingRatesAlertGeneric(int count);
+
+  /// No description provided for @guideSectionIncomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get guideSectionIncomeTitle;
+
+  /// No description provided for @guideSectionIncomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch the Dashboard tab to Income to add receipts with the same amount, currency, payment, country, and date fields as expenses. Income uses its own category tags (salary, sale, gift, and more). Soft-duplicate checks work the same way.'**
+  String get guideSectionIncomeBody;
+
+  /// No description provided for @guideSectionCashFlowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash flow'**
+  String get guideSectionCashFlowTitle;
+
+  /// No description provided for @guideSectionCashFlowBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The Cash flow tab compares income and expenses over day, week, month, or year. Filters apply by date and currency; category and payment filters stay on the Expenses or Income tabs.'**
+  String get guideSectionCashFlowBody;
 
   /// No description provided for @paymentMethod.
   ///

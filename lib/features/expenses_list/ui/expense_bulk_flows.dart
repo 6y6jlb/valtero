@@ -70,7 +70,8 @@ Future<bool> runBulkChangeTags(
   final selected = _selectedExpenses(allExpenses, selectedIds);
   if (selected.isEmpty) return false;
 
-  final tags = ref.read(tagsStreamProvider).value ?? const <Tag>[];
+  final allTags = ref.read(tagsStreamProvider).value ?? const <Tag>[];
+  final tags = [for (final t in allTags) if (tagKindOf(t) == TagKind.custom) t];
   final tagById = {for (final t in tags) t.id: t};
   final list = buildExpenseBulkListDescription(
     context,
@@ -222,6 +223,7 @@ class _BulkTagsSheetState extends State<_BulkTagsSheet> {
       description: widget.description,
       body: GroupedTagPicker(
         tags: widget.tags,
+        kinds: const [TagKind.custom],
         selectedIds: _selected,
         singleSelectPerKind: true,
         onTagTap: (tag) {

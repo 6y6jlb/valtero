@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:valtero/features/export_expenses/model/export_readiness.dart';
 import 'package:valtero/shared/consts/developer_contact.dart';
@@ -22,21 +26,24 @@ class DebugLogsController {
   /// Returns `'shared'`, `'copied'`, or `null` if empty / cancelled.
   Future<String?> shareOrCopyLogs() async {
     final logger = ref.read(appLoggerProvider);
-    final content = await logger.readAll();
+    final content = await logger.readAllForExport();
     if (content.trim().isEmpty) return null;
 
     if (isExportShareSupported) {
-      final file = logger.logFile;
-      if (file != null && await file.exists()) {
-        await SharePlus.instance.share(
-          ShareParams(
-            files: [XFile(file.path)],
-            text:
-                'Valtero debug log — please send to ${DeveloperContact.email}',
-          ),
-        );
-        return 'shared';
-      }
+      final dir = await getTemporaryDirectory();
+      final stamp = DateTime.now().toUtc().toIso8601String().replaceAll(':', '-');
+      final exportFile = File(
+        p.join(dir.path, 'valtero-app-$stamp.log'),
+      );
+      await exportFile.writeAsString(content, flush: true);
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(exportFile.path)],
+          text:
+              'Valtero debug log — please send to ${DeveloperContact.email}',
+        ),
+      );
+      return 'shared';
     }
 
     await Clipboard.setData(ClipboardData(text: content));
@@ -44,7 +51,7 @@ class DebugLogsController {
   }
 
   Future<void> copyLogs() async {
-    final content = await readLogs();
+    final content = await ref.read(appLoggerProvider).readAllForExport();
     await Clipboard.setData(ClipboardData(text: content));
   }
 }

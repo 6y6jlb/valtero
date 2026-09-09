@@ -8,6 +8,8 @@ class ImportReport {
   final int tagsAdded;
   final int paymentsAdded;
   final int expensesSkippedDuplicate;
+  final int incomesAdded;
+  final int incomesSkippedDuplicate;
   final bool settingsApplied;
 
   const ImportReport({
@@ -15,6 +17,8 @@ class ImportReport {
     required this.tagsAdded,
     required this.paymentsAdded,
     this.expensesSkippedDuplicate = 0,
+    this.incomesAdded = 0,
+    this.incomesSkippedDuplicate = 0,
     this.settingsApplied = false,
   });
 }
@@ -37,6 +41,8 @@ class BackupImporter {
     var paymentsAdded = 0;
     var expensesAdded = 0;
     var expensesSkippedDuplicate = 0;
+    var incomesAdded = 0;
+    var incomesSkippedDuplicate = 0;
 
     final existingTags = await db.watchTagsList();
     final existingMethods = await db.getAllPaymentMethods();
@@ -137,6 +143,62 @@ class BackupImporter {
       await db.setExpenseTags(entry.key, entry.value);
     }
 
+    final localIncomeIdByClientId = <String, int>{};
+
+    for (final income in data.incomes) {
+      if (skipClientIds.contains(income.clientId)) {
+        incomesSkippedDuplicate++;
+        continue;
+      }
+
+      final paymentId = _lookupPaymentId(
+        stableKey: income.paymentStableKey,
+        name: income.paymentName,
+        paymentIdByStableKey: paymentIdByStableKey,
+        paymentIdByName: paymentIdByName,
+      );
+
+      final markUnique = forceUniqueClientIds.contains(income.clientId);
+      final newId = await db.insertIncome(
+        IncomesCompanion.insert(
+          occurredAt: income.occurredAt,
+          originalAmountMinor: income.originalAmountMinor,
+          originalCurrencyCode: income.originalCurrencyCode,
+          storedAmountMinor: income.storedAmountMinor,
+          storedCurrencyCode: income.storedCurrencyCode,
+          rateUsed: Value(income.rateUsed),
+          rateTimestamp: Value(income.rateTimestamp),
+          paymentMethodId: Value(paymentId),
+          countryCode: Value(income.countryCode),
+          note: Value(income.note),
+          createdAt: income.createdAt,
+          duplicateDismissed: Value(
+            markUnique || income.duplicateDismissed,
+          ),
+        ),
+      );
+      localIncomeIdByClientId[income.clientId] = newId;
+      incomesAdded++;
+    }
+
+    final tagsByNewIncome = <int, List<int>>{};
+    for (final link in data.incomeTags) {
+      final incomeId = localIncomeIdByClientId[link.incomeClientId];
+      if (incomeId == null) continue;
+      final tagId = _lookupTagId(
+        stableKey: link.tagStableKey,
+        name: link.tagName,
+        kind: link.tagKind ?? 'normal',
+        tagIdByStableKey: tagIdByStableKey,
+        tagIdByNameKind: tagIdByNameKind,
+      );
+      if (tagId == null) continue;
+      tagsByNewIncome.putIfAbsent(incomeId, () => []).add(tagId);
+    }
+    for (final entry in tagsByNewIncome.entries) {
+      await db.setIncomeTags(entry.key, entry.value);
+    }
+
     for (final rate in data.exchangeRateOverrides) {
       if (rate.baseCurrencyCode.isEmpty || rate.targetCurrencyCode.isEmpty) {
         continue;
@@ -188,6 +250,8 @@ class BackupImporter {
       tagsAdded: tagsAdded,
       paymentsAdded: paymentsAdded,
       expensesSkippedDuplicate: expensesSkippedDuplicate,
+      incomesAdded: incomesAdded,
+      incomesSkippedDuplicate: incomesSkippedDuplicate,
       settingsApplied: settingsApplied,
     );
   }
@@ -228,6 +292,7 @@ class BackupImporter {
         isDefault: tag.isDefault,
         kind: tag.kind,
         colorValue: tag.colorValue,
+        iconKey: tag.iconKey,
       );
       tagIdByStableKey[stable] = id;
       tagIdByNameKind[nameKind] = id;
@@ -240,6 +305,7 @@ class BackupImporter {
         kind: Value(tag.kind),
         colorValue: Value(tag.colorValue),
         countryCode: Value(tag.countryCode),
+        iconKey: Value(tag.iconKey),
         isDefault: Value(tag.isDefault),
         sortOrder: Value(tag.sortOrder),
       ),

@@ -10,6 +10,8 @@ class ExpensesSummaryRow extends StatelessWidget {
   final String? displayCurrency;
   final Future<({int totalMinor, int convertibleCount})>? convertedTotalFuture;
   final VoidCallback onConvert;
+  /// Overrides the "Expenses" title label (e.g. for the income direction).
+  final String? titleLabel;
 
   const ExpensesSummaryRow({
     super.key,
@@ -18,6 +20,7 @@ class ExpensesSummaryRow extends StatelessWidget {
     required this.displayCurrency,
     required this.convertedTotalFuture,
     required this.onConvert,
+    this.titleLabel,
   });
 
   @override
@@ -34,7 +37,7 @@ class ExpensesSummaryRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              l10n.summaryExpenses,
+              titleLabel ?? l10n.summaryExpenses,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),

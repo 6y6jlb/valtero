@@ -114,6 +114,7 @@
   "googleDriveShareAdd": "Podeli emailom",
   "googleDriveShareOk": "Uspešno podeljeno",
   "googleDriveShareFailed": "Nije moguće podeliti fajl",
+  "googleDriveSharedFileInaccessible": "Nema pristupa deljenom fajlu za sinhronizaciju. Prijavite se ponovo i dozvolite pristup Drive fajlovima kada Google zatraži (potrebno za sinhronizaciju između naloga), ili ponovo podelite sa saradnikom.",
   "googleDriveRevokeOk": "Pristup opozvan",
   "googleDriveRevokeFailed": "Nije moguće opozvati pristup",
   "googleDriveInvalidEmail": "Unesite ispravan email",
@@ -241,10 +242,13 @@
   "dataSyncPassphraseWarning": "Sačuvajte ovu frazu na sigurnom mestu. Bez nje se rezervna kopija ne može otvoriti.",
   "dataSyncExportDone": "Rezervna kopija sačuvana",
   "dataSyncExportFailed": "Nije moguće sačuvati rezervnu kopiju",
-  "dataSyncImportDone": "Uvezeno {expenses} troškova, {tags} oznaka, {payments} načina plaćanja",
+  "dataSyncImportDone": "Uvezeno {expenses} troškova, {incomes} prihoda, {tags} oznaka, {payments} načina plaćanja",
   "@dataSyncImportDone": {
     "placeholders": {
       "expenses": {
+        "type": "int"
+      },
+      "incomes": {
         "type": "int"
       },
       "tags": {
@@ -262,10 +266,13 @@
   "dataSyncGoogleDriveHint": "Možete i automatsku šifrovanu sinhronizaciju preko Google Drive-a — rezervne kopije se ažuriraju između uređaja bez ručne razmene fajlova.",
   "dataSyncGoogleDriveSetup": "Poveži Google Drive Sync",
   "dataSyncGoogleDriveManage": "Otvori podešavanja Google Drive Sync",
-  "dataSyncImportDoneWithDuplicates": "Uvezeno {expenses} troškova, {tags} oznaka, {payments} načina plaćanja (preskočeno duplikata: {skipped})",
+  "dataSyncImportDoneWithDuplicates": "Uvezeno {expenses} troškova, {incomes} prihoda, {tags} oznaka, {payments} načina plaćanja (preskočeno duplikata: {skipped})",
   "@dataSyncImportDoneWithDuplicates": {
     "placeholders": {
       "expenses": {
+        "type": "int"
+      },
+      "incomes": {
         "type": "int"
       },
       "tags": {
@@ -280,7 +287,7 @@
     }
   },
   "dataSyncDuplicatesFoundTitle": "Pronađeni mogući duplikati",
-  "dataSyncDuplicatesFoundHint": "Ovi dolazni troškovi liče na one koje već imate (isti dan, iznos i valuta). Izaberite kako da postupite sa svakim.",
+  "dataSyncDuplicatesFoundHint": "Ovi dolazni troškovi ili prihodi liče na one koje već imate (isti dan, iznos i valuta). Izaberite kako da postupite sa svakim.",
   "dataSyncMarkAsDuplicate": "Označi kao duplikat",
   "dataSyncMarkAsUnique": "Označi kao jedinstven",
   "dataSyncMarkSelectedAsDuplicate": "Izabrani → duplikati",
@@ -307,6 +314,8 @@
   "duplicateDeleteMatchAndSave": "Obriši podudaranje i sačuvaj",
   "duplicateYourExpense": "Vaš trošak",
   "duplicateMatchingExpense": "Podudarni trošak",
+  "duplicateYourIncome": "Vaš prihod",
+  "duplicateMatchingIncome": "Podudarni prihod",
   "dashboardRestoreFromBackup": "Vrati iz rezervne kopije",
   "selectCountry": "Izaberi zemlju",
   "addExpense": "Dodaj trošak",
@@ -353,6 +362,9 @@
   "confirmDeleteExpense": "Obrisati ovaj trošak?",
   "confirmDeleteExpenseDescription": "Ovaj trošak biće trajno obrisan.",
   "expenseDeleted": "Trošak obrisan",
+  "confirmDeleteIncome": "Obrisati ovaj prihod?",
+  "confirmDeleteIncomeDescription": "Ovaj prihod biće trajno obrisan.",
+  "incomeDeleted": "Prihod obrisan",
   "bulkSelectedCount": "Izabrano: {count}",
   "@bulkSelectedCount": {
     "placeholders": {
@@ -428,6 +440,8 @@
   "defaultTags": "Podrazumevane oznake",
   "dismiss": "Odbaci",
   "exportTitle": "Izvoz",
+  "expense": "Trošak",
+  "income": "Prihod",
   "exportCsv": "CSV",
   "exportJson": "JSON",
   "saveFile": "Sačuvaj fajl",
@@ -492,6 +506,12 @@
   "tagShopping": "Kupovina",
   "tagTravel": "Putovanja",
   "tagUtilities": "Režije",
+  "tagSalary": "Plata",
+  "tagSale": "Prodaja",
+  "tagGift": "Poklon",
+  "tagRefund": "Povraćaj",
+  "tagInvestment": "Investicija",
+  "tagOtherIncome": "Ostali prihod",
   "tagCash": "Gotovina",
   "tagCard": "Kartica",
   "tagCrypto": "Kripto",
@@ -533,10 +553,40 @@
   "tagKindSectionCountry": "Zemlja",
   "tagKindSectionTrip": "Putovanje",
   "tagKindSectionCustom": "Kategorija",
+  "tagKindSectionIncome": "Kategorija prihoda",
   "tagKindUnspecifiedCountry": "Zemlja nije postavljena",
   "tagKindUnspecifiedTrip": "Putovanje nije postavljeno",
   "tagKindUnspecifiedCustom": "Kategorija nije postavljena",
+  "tagKindUnspecifiedIncome": "Kategorija prihoda nije postavljena",
   "tagKindSingleSelectHint": "Jedna oznaka po grupi; grupe su opcione",
+  "tagIcon": "Ikona",
+  "tagIconNone": "Bez ikone",
+  "addIncome": "Dodaj prihod",
+  "editIncome": "Izmeni prihod",
+  "navIncome": "Prihodi",
+  "directionExpenses": "Troškovi",
+  "directionIncome": "Prihodi",
+  "directionCashFlow": "Tok novca",
+  "cashFlowIncome": "Prihodi",
+  "cashFlowExpense": "Troškovi",
+  "cashFlowNet": "Neto",
+  "exportIncome": "Izvezi prihode",
+  "duplicateConflictIncomeTitle": "Pronađen sličan prihod",
+  "showIncomeList": "Prikaži prihode",
+  "noMatchingIncome": "Nema prihoda koji odgovaraju filterima",
+  "noMatchingOperations": "Nema operacija koje odgovaraju filterima",
+  "chartMissingRatesAlertGeneric": "{count, plural, one{1 operacija prikazana bez kursa konverzije} few{{count} operacije prikazane bez kursa konverzije} other{{count} operacija prikazano bez kursa konverzije}}",
+  "@chartMissingRatesAlertGeneric": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "guideSectionIncomeTitle": "Prihodi",
+  "guideSectionIncomeBody": "Na kartici Prihodi na početnoj možete dodati uplatu sa istim poljima iznosa, valute, plaćanja, zemlje i datuma kao kod troškova. Prihodi imaju svoje kategorije (plata, prodaja, poklon…). Provera mogućih duplikata radi isto.",
+  "guideSectionCashFlowTitle": "Tok novca",
+  "guideSectionCashFlowBody": "Kartica Tok novca poredi prihode i troškove po danu, nedelji, mesecu ili godini. Filteri datuma i valute važe; kategorija i plaćanje ostaju na karticama Troškovi ili Prihodi.",
   "paymentMethod": "Plaćanje",
   "paymentMethodNone": "Nije postavljeno",
   "paymentMethodUnspecified": "Plaćanje nije postavljeno",

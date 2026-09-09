@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/entities/payment_method/ui/payment_method_chip.dart';
+import 'package:valtero/entities/tag/model/tag_kind.dart';
 import 'package:valtero/entities/tag/ui/grouped_tag_picker.dart';
 import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/database/app_database.dart';
@@ -22,6 +23,7 @@ class AddExpenseMetaSection extends StatelessWidget {
   final ValueChanged<Tag> onTagTap;
   final TextEditingController newTagController;
   final Future<void> Function() onAddTag;
+  final Iterable<TagKind>? tagKinds;
 
   const AddExpenseMetaSection({
     super.key,
@@ -39,6 +41,7 @@ class AddExpenseMetaSection extends StatelessWidget {
     required this.onTagTap,
     required this.newTagController,
     required this.onAddTag,
+    this.tagKinds,
   });
 
   @override
@@ -136,6 +139,7 @@ class AddExpenseMetaSection extends StatelessWidget {
                 selectedIds: tagIds,
                 singleSelectPerKind: true,
                 onTagTap: onTagTap,
+                kinds: tagKinds,
               ),
               const SizedBox(height: 8),
               Row(

@@ -84,6 +84,7 @@ class GoogleDriveSyncEngine {
   Future<GoogleDriveSyncResult> syncNow({
     bool pushOnly = false,
     bool applySettings = false,
+    bool allowInteractiveReauth = true,
   }) async {
     final settings = ref.read(appSettingsProvider).value;
     if (settings == null) {
@@ -95,7 +96,7 @@ class GoogleDriveSyncEngine {
     }
 
     try {
-      final accessToken = await _ensureAccessToken(settings);
+      var accessToken = await _ensureAccessToken(settings);
       final drive = integration.drive;
       final passphrase = settings.googleDriveSyncPassphrase;
       final isJoined =
@@ -103,9 +104,12 @@ class GoogleDriveSyncEngine {
 
       _logDebug(
         'GDrive sync start role=${isJoined ? 'joined' : 'owner'} '
-        'pushOnly=$pushOnly '
+        'pushOnly=$pushOnly allowInteractiveReauth=$allowInteractiveReauth '
+        'tokenScopes=${_cachedTokens?.scope ?? '(unknown)'} '
         'appDataFileId=${settings.googleDriveAppDataFileId} '
-        'sharedFileId=${settings.googleDriveSharedFileId}',
+        'sharedFileId=${settings.googleDriveSharedFileId} '
+        'personalLastSynced=${settings.googleDriveLastSyncedAt?.toUtc().toIso8601String()} '
+        'sharedLastSynced=${settings.googleDriveSharedLastSyncedAt?.toUtc().toIso8601String()}',
       );
 
       if (isJoined) {
@@ -156,6 +160,13 @@ class GoogleDriveSyncEngine {
         try {
           final fresh =
               ref.read(appSettingsProvider).value ?? settings;
+          accessToken = await _ensureSharedFileAccess(
+            drive: drive,
+            accessToken: accessToken,
+            settings: fresh,
+            fileId: sharedId,
+            allowInteractiveReauth: allowInteractiveReauth,
+          );
           await _syncAgainstFile(
             drive: drive,
             accessToken: accessToken,
@@ -167,13 +178,34 @@ class GoogleDriveSyncEngine {
             applySettings: false,
             createInAppDataIfMissing: false,
           );
-        } on DioException catch (e, st) {
-          // Shared sync is best-effort after personal succeeded.
-          _logWarning(
-            'GDrive shared sync failed (best-effort) fileId=$sharedId',
+        } on GoogleDriveException catch (e, st) {
+          _logError(
+            'GDrive shared sync failed code=${e.code} fileId=$sharedId',
             error: e,
             stackTrace: st,
           );
+          return GoogleDriveSyncResult.fail(e.code);
+        } on DioException catch (e, st) {
+          _logError(
+            'GDrive shared sync failed fileId=$sharedId '
+            '${googleDriveDioDebugSummary(e)}',
+            error: e,
+            stackTrace: st,
+          );
+          if (googleDriveDioIsNotFoundOrForbidden(e)) {
+            return const GoogleDriveSyncResult.fail(
+              'shared_file_inaccessible',
+            );
+          }
+          // Transient network after personal succeeded — surface warning key.
+          return const GoogleDriveSyncResult.fail('shared_sync_failed');
+        } on GoogleOAuthException catch (e, st) {
+          _logError(
+            'GDrive shared sync OAuth failed code=${e.code} fileId=$sharedId',
+            error: e,
+            stackTrace: st,
+          );
+          return GoogleDriveSyncResult.fail(e.code);
         }
       }
 
@@ -197,7 +229,11 @@ class GoogleDriveSyncEngine {
       );
       return GoogleDriveSyncResult.fail(e.code);
     } on DioException catch (e, st) {
-      _logError('Google Drive sync network failed', error: e, stackTrace: st);
+      _logError(
+        'Google Drive sync network failed ${googleDriveDioDebugSummary(e)}',
+        error: e,
+        stackTrace: st,
+      );
       return const GoogleDriveSyncResult.fail('network_error');
     } catch (e, st) {
       _logError('Google Drive sync failed', error: e, stackTrace: st);
@@ -226,12 +262,31 @@ class GoogleDriveSyncEngine {
         : settings.googleDriveSharedLastSyncedAt;
 
     if (!pushOnly && resolvedId != null) {
-      final meta = remoteMeta ??
-          await drive.getFileMeta(
+      GoogleDriveFileMeta? meta = remoteMeta;
+      if (meta == null) {
+        try {
+          meta = await drive.getFileMeta(
             accessToken: accessToken,
             fileId: resolvedId,
           );
-      if (meta != null) {
+        } on DioException catch (e) {
+          _logWarning(
+            'GDrive fetch meta failed target=$target fileId=$resolvedId '
+            '${googleDriveDioDebugSummary(e)}',
+            error: e,
+          );
+          // Shared file must be readable — rethrow so caller can upgrade
+          // scopes or surface shared_file_inaccessible.
+          if (!storeAsAppDataFileId) rethrow;
+          meta = null;
+        }
+      }
+      if (meta == null) {
+        _logDebug(
+          'GDrive fetch meta target=$target fileId=$resolvedId result=null '
+          '(skip pull; will push if possible)',
+        );
+      } else {
         _logDebug(
           'GDrive fetch meta target=$target fileId=${meta.id} '
           'modified=${meta.modifiedTime?.toUtc().toIso8601String()} '
@@ -253,6 +308,7 @@ class GoogleDriveSyncEngine {
           'GDrive decrypted target=$target fileId=${meta.id} '
           'schema=${envelope.schemaVersion} '
           'expenses=${envelope.data.expenses.length} '
+          'incomes=${envelope.data.incomes.length} '
           'tags=${envelope.data.tags.length} '
           'payments=${envelope.data.paymentMethods.length} '
           'rates=${envelope.data.exchangeRateOverrides.length}',
@@ -261,9 +317,17 @@ class GoogleDriveSyncEngine {
         final shouldPull = lastSyncedAt == null ||
             (meta.modifiedTime != null &&
                 lastSyncedAt.isBefore(meta.modifiedTime!));
+        final reason = lastSyncedAt == null
+            ? 'no_local_shared_cursor'
+            : (meta.modifiedTime == null
+                ? 'remote_modified_unknown'
+                : (shouldPull
+                    ? 'remote_newer'
+                    : 'local_cursor_on_or_after_remote'));
 
         _logDebug(
           'GDrive pull decision target=$target shouldPull=$shouldPull '
+          'reason=$reason '
           'lastSyncedAt=${lastSyncedAt?.toUtc().toIso8601String()} '
           'modified=${meta.modifiedTime?.toUtc().toIso8601String()}',
         );
@@ -273,11 +337,14 @@ class GoogleDriveSyncEngine {
               .read(dataSyncControllerProvider)
               .findDuplicateConflicts(envelope);
           final skipIds = {
-            for (final c in conflicts) c.incoming.clientId,
+            for (final c in conflicts) c.clientId,
           };
           _logDebug(
             'GDrive merge plan target=$target '
-            'conflicts=${conflicts.length} skipIds=${skipIds.length}',
+            'conflicts=${conflicts.length} '
+            'expenseConflicts=${conflicts.where((c) => !c.isIncome).length} '
+            'incomeConflicts=${conflicts.where((c) => c.isIncome).length} '
+            'skipIds=${skipIds.length}',
           );
           final report = await ref.read(backupImporterProvider).importEnvelope(
                 db: ref.read(appDatabaseProvider),
@@ -292,9 +359,10 @@ class GoogleDriveSyncEngine {
           _logDebug(
             'GDrive import done target=$target '
             'expensesAdded=${report.expensesAdded} '
+            'incomesAdded=${report.incomesAdded} '
             'tagsAdded=${report.tagsAdded} '
             'paymentsAdded=${report.paymentsAdded} '
-            'skippedDup=${report.expensesSkippedDuplicate}',
+            'skippedDup=${report.expensesSkippedDuplicate + report.incomesSkippedDuplicate}',
           );
           await _mergeGoogleDriveMetadataFromEnvelope(
             envelope: envelope,
@@ -314,27 +382,43 @@ class GoogleDriveSyncEngine {
     }
 
     final freshSettings = ref.read(appSettingsProvider).value ?? settings;
-    _logDebug('GDrive push start target=$target fileId=$resolvedId');
+    final db = ref.read(appDatabaseProvider);
+    final localExpenses = await db.getAllExpenses();
+    final localIncomes = await db.getAllIncome();
+    _logDebug(
+      'GDrive push start target=$target fileId=$resolvedId '
+      'localExpenses=${localExpenses.length} '
+      'localIncomes=${localIncomes.length}',
+    );
     final content =
         await _buildEncryptedSnapshot(freshSettings, passphrase);
 
     final GoogleDriveFileMeta uploaded;
-    if (createInAppDataIfMissing ||
-        (storeAsAppDataFileId &&
-            (resolvedId == null || resolvedId.isEmpty))) {
-      uploaded = await drive.uploadAppDataSyncFile(
-        accessToken: accessToken,
-        content: content,
-        existingFileId: resolvedId,
+    try {
+      if (createInAppDataIfMissing ||
+          (storeAsAppDataFileId &&
+              (resolvedId == null || resolvedId.isEmpty))) {
+        uploaded = await drive.uploadAppDataSyncFile(
+          accessToken: accessToken,
+          content: content,
+          existingFileId: resolvedId,
+        );
+      } else if (resolvedId != null && resolvedId.isNotEmpty) {
+        uploaded = await drive.updateFileContent(
+          accessToken: accessToken,
+          fileId: resolvedId,
+          content: content,
+        );
+      } else {
+        throw const GoogleDriveException('missing_file_id');
+      }
+    } on DioException catch (e) {
+      _logError(
+        'GDrive push failed target=$target fileId=$resolvedId '
+        '${googleDriveDioDebugSummary(e)}',
+        error: e,
       );
-    } else if (resolvedId != null && resolvedId.isNotEmpty) {
-      uploaded = await drive.updateFileContent(
-        accessToken: accessToken,
-        fileId: resolvedId,
-        content: content,
-      );
-    } else {
-      throw const GoogleDriveException('missing_file_id');
+      rethrow;
     }
 
     final now = DateTime.now();
@@ -350,7 +434,9 @@ class GoogleDriveSyncEngine {
     }
     _logDebug(
       'GDrive push done target=$target fileId=${uploaded.id} '
-      'syncedAt=${now.toUtc().toIso8601String()}',
+      'syncedAt=${now.toUtc().toIso8601String()} '
+      'remoteModified=${uploaded.modifiedTime?.toUtc().toIso8601String()} '
+      'size=${uploaded.size}',
     );
     return now;
   }
@@ -361,16 +447,25 @@ class GoogleDriveSyncEngine {
     required bool includeFileScope,
   }) async {
     final integration = ref.read(googleDriveSyncIntegrationProvider);
+    final existing = ref.read(appSettingsProvider).value;
+    // Re-sign-in must keep drive.file when a shared sync file is already
+    // configured — personal-only scopes overwrite the refresh token and the
+    // owner can no longer read/write the shared My Drive file (404).
+    final needFileScope = includeFileScope ||
+        (existing?.googleDriveSharedFileId.trim().isNotEmpty ?? false);
     // ignore: unawaited_futures
     ref.read(appLoggerProvider).debug(
           'Google Drive sign-in starting '
           'platform=${_oauthPlatformLabel()} '
-          'useWebview=${GoogleOAuthRedirect.forPlatform().useWebview}',
+          'useWebview=${GoogleOAuthRedirect.forPlatform().useWebview} '
+          'needFileScope=$needFileScope',
         );
     try {
       final result = await integration.oauth.signIn(
-        includeFileScope: includeFileScope,
-        scopeMode: GoogleDriveOAuthScopeMode.personal,
+        includeFileScope: needFileScope,
+        scopeMode: needFileScope
+            ? GoogleDriveOAuthScopeMode.share
+            : GoogleDriveOAuthScopeMode.personal,
       );
       final refresh = result.tokens.refreshToken?.trim() ?? '';
       if (refresh.isEmpty) {
@@ -378,6 +473,11 @@ class GoogleDriveSyncEngine {
         return const GoogleDriveSyncResult.fail('missing_refresh_token');
       }
       _cachedTokens = result.tokens;
+      _logDebug(
+        'GDrive sign-in ok email=${result.email} '
+        'scopes=${result.tokens.scope} '
+        'refreshRotated=true',
+      );
       await ref.read(appSettingsProvider.notifier).setGoogleDriveSync(
             enabled: true,
             accountEmail: result.email ?? '',
@@ -385,7 +485,7 @@ class GoogleDriveSyncEngine {
             syncPassphrase: passphrase.trim(),
             syncRole: kGoogleDriveSyncRoleOwner,
           );
-      return syncNow();
+      return syncNow(allowInteractiveReauth: true);
     } on GoogleOAuthException catch (e, st) {
       _logError(
         'Google Drive sign-in failed code=${e.code}',
@@ -546,12 +646,17 @@ class GoogleDriveSyncEngine {
           content: content,
         );
         sharedId = created.id;
+        _logDebug(
+          'GDrive created shared sync file id=$sharedId '
+          'size=${created.size}',
+        );
       } else {
         await integration.drive.updateFileContent(
           accessToken: accessToken,
           fileId: sharedId,
           content: content,
         );
+        _logDebug('GDrive updated shared sync file before share id=$sharedId');
       }
 
       await integration.drive.shareFileWithEmail(
@@ -569,7 +674,47 @@ class GoogleDriveSyncEngine {
             sharedFileId: sharedId,
             sharedWithEmails: emails,
             syncRole: kGoogleDriveSyncRoleOwner,
+            // Reset shared cursor so the next sync pulls any collaborator
+            // writes instead of skipping on a stale personal-era timestamp.
+            clearSharedLastSyncedAt: true,
           );
+
+      // Verify the *refreshed* token (not just this session) can still see
+      // the shared file — catches refresh tokens that stayed appdata-only.
+      final storedRefresh =
+          (ref.read(appSettingsProvider).value ?? settings)
+              .googleDriveRefreshToken;
+      try {
+        final verified = await integration.oauth.refreshAccessToken(
+          refreshToken: storedRefresh,
+        );
+        _cachedTokens = verified;
+        _logDebug(
+          'GDrive share verify refresh scopes=${verified.scope} '
+          'allowsSharedFile=${googleOAuthScopeAllowsSharedFile(verified.scope)}',
+        );
+        final meta = await integration.drive.getFileMeta(
+          accessToken: verified.accessToken,
+          fileId: sharedId,
+        );
+        if (meta == null) {
+          _logWarning(
+            'GDrive share verify: refreshed token cannot read shared file '
+            'id=$sharedId — next Sync now will prompt for drive.file',
+          );
+        } else {
+          _logDebug(
+            'GDrive share verify ok fileId=${meta.id} owner=${meta.ownerEmail}',
+          );
+        }
+      } on DioException catch (e, st) {
+        _logWarning(
+          'GDrive share verify failed ${googleDriveDioDebugSummary(e)}',
+          error: e,
+          stackTrace: st,
+        );
+      }
+
       return const GoogleDriveSyncResult.ok(messageKey: 'shareOk');
     } on GoogleOAuthException catch (e, st) {
       _logError(
@@ -681,6 +826,10 @@ class GoogleDriveSyncEngine {
     if (cached != null &&
         !cached.isExpired &&
         cached.accessToken.isNotEmpty) {
+      _logDebug(
+        'GDrive using cached access token scopes=${cached.scope ?? '(unknown)'} '
+        'expiresAt=${cached.expiresAt.toUtc().toIso8601String()}',
+      );
       return cached.accessToken;
     }
     final integration = ref.read(googleDriveSyncIntegrationProvider);
@@ -688,7 +837,107 @@ class GoogleDriveSyncEngine {
       refreshToken: settings.googleDriveRefreshToken,
     );
     _cachedTokens = tokens;
+    _logDebug(
+      'GDrive token refreshed scopes=${tokens.scope ?? '(unknown)'} '
+      'allowsSharedFile=${googleOAuthScopeAllowsSharedFile(tokens.scope)} '
+      'expiresAt=${tokens.expiresAt.toUtc().toIso8601String()}',
+    );
     return tokens.accessToken;
+  }
+
+  /// Ensures the access token can read the shared My Drive sync file.
+  ///
+  /// Owner personal sync only needs `drive.appdata`. The shared file lives in
+  /// regular Drive and needs `drive.file`. After share, Google may not rotate
+  /// the refresh token; a later refresh then yields appdata-only tokens and
+  /// every shared fetch/push returns 404 — which previously looked like
+  /// “sync ok” because personal still succeeded.
+  Future<String> _ensureSharedFileAccess({
+    required GoogleDriveRestClient drive,
+    required String accessToken,
+    required AppSettings settings,
+    required String fileId,
+    required bool allowInteractiveReauth,
+  }) async {
+    try {
+      final meta = await drive.getFileMeta(
+        accessToken: accessToken,
+        fileId: fileId,
+      );
+      if (meta != null) {
+        _logDebug(
+          'GDrive shared file probe ok fileId=${meta.id} '
+          'modified=${meta.modifiedTime?.toUtc().toIso8601String()} '
+          'owner=${meta.ownerEmail} '
+          'scopes=${_cachedTokens?.scope ?? '(unknown)'}',
+        );
+        return accessToken;
+      }
+      _logWarning(
+        'GDrive shared file probe returned null fileId=$fileId '
+        'scopes=${_cachedTokens?.scope ?? '(unknown)'}',
+      );
+    } on DioException catch (e) {
+      _logWarning(
+        'GDrive shared file probe failed fileId=$fileId '
+        '${googleDriveDioDebugSummary(e)} '
+        'scopes=${_cachedTokens?.scope ?? '(unknown)'} '
+        'allowsSharedFile=${googleOAuthScopeAllowsSharedFile(_cachedTokens?.scope)}',
+        error: e,
+      );
+      if (!googleDriveDioIsNotFoundOrForbidden(e)) rethrow;
+    }
+
+    if (!allowInteractiveReauth) {
+      throw const GoogleDriveException('shared_file_inaccessible');
+    }
+
+    _logDebug(
+      'GDrive upgrading OAuth to drive.file for shared fileId=$fileId',
+    );
+    final integration = ref.read(googleDriveSyncIntegrationProvider);
+    final result = await integration.oauth.signIn(
+      includeFileScope: true,
+      scopeMode: GoogleDriveOAuthScopeMode.share,
+    );
+    final refresh = result.tokens.refreshToken?.trim();
+    _cachedTokens = result.tokens;
+    if (refresh != null && refresh.isNotEmpty) {
+      await ref.read(appSettingsProvider.notifier).setGoogleDriveSync(
+            refreshToken: refresh,
+            accountEmail: result.email ?? settings.googleDriveAccountEmail,
+          );
+      _logDebug(
+        'GDrive file-scope upgrade stored refresh scopes=${result.tokens.scope}',
+      );
+    } else {
+      _logWarning(
+        'GDrive file-scope upgrade returned no refresh token; '
+        'scopes=${result.tokens.scope} — using session access token only',
+      );
+    }
+
+    try {
+      final meta = await drive.getFileMeta(
+        accessToken: result.tokens.accessToken,
+        fileId: fileId,
+      );
+      if (meta == null) {
+        throw const GoogleDriveException('shared_file_inaccessible');
+      }
+      _logDebug(
+        'GDrive shared file probe ok after upgrade fileId=${meta.id} '
+        'owner=${meta.ownerEmail}',
+      );
+      return result.tokens.accessToken;
+    } on DioException catch (e) {
+      _logError(
+        'GDrive shared file still inaccessible after upgrade '
+        '${googleDriveDioDebugSummary(e)}',
+        error: e,
+      );
+      throw const GoogleDriveException('shared_file_inaccessible');
+    }
   }
 
   Future<GoogleDriveFileMeta?> _resolvePersonalFile(
@@ -817,14 +1066,19 @@ class GoogleDriveSyncController extends Notifier<GoogleDriveSyncState> {
     );
   }
 
-  Future<GoogleDriveSyncResult> syncNow({bool pushOnly = false}) async {
+  Future<GoogleDriveSyncResult> syncNow({
+    bool pushOnly = false,
+    bool allowInteractiveReauth = true,
+  }) async {
     state = state.copyWith(
       status: GoogleDriveSyncStatus.syncing,
       clearMessage: true,
       clearVersionInfo: true,
     );
-    final result =
-        await ref.read(googleDriveSyncEngineProvider).syncNow(pushOnly: pushOnly);
+    final result = await ref.read(googleDriveSyncEngineProvider).syncNow(
+          pushOnly: pushOnly,
+          allowInteractiveReauth: allowInteractiveReauth,
+        );
     state = state.copyWith(
       status: result.success
           ? GoogleDriveSyncStatus.success

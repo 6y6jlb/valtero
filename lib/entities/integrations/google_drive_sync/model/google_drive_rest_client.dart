@@ -220,24 +220,23 @@ class GoogleDriveRestClient {
 
   /// Fetches metadata for a known file id (works with drive.file when the
   /// app created the file, or full drive for shared-with-me files).
+  ///
+  /// Throws [DioException] on HTTP/network failure (callers must not treat
+  /// 403/404 as “file missing from settings” silently).
   Future<GoogleDriveFileMeta?> getFileMeta({
     required String accessToken,
     required String fileId,
   }) async {
-    try {
-      final response = await _dio.get<Map<String, dynamic>>(
-        '$_filesUrl/$fileId',
-        queryParameters: {
-          'fields': 'id,name,modifiedTime,size,owners(emailAddress)',
-        },
-        options: _auth(accessToken),
-      );
-      final data = response.data;
-      if (data == null) return null;
-      return GoogleDriveFileMeta.fromJson(data);
-    } on DioException {
-      return null;
-    }
+    final response = await _dio.get<Map<String, dynamic>>(
+      '$_filesUrl/$fileId',
+      queryParameters: {
+        'fields': 'id,name,modifiedTime,size,owners(emailAddress)',
+      },
+      options: _auth(accessToken),
+    );
+    final data = response.data;
+    if (data == null) return null;
+    return GoogleDriveFileMeta.fromJson(data);
   }
 
   /// Lightweight probe used by Test connection.
@@ -327,4 +326,22 @@ class GoogleDriveException implements Exception {
 
   @override
   String toString() => 'GoogleDriveException($code)';
+}
+
+/// Compact Dio error for debug logs (status + short body, no tokens).
+String googleDriveDioDebugSummary(DioException e) {
+  final status = e.response?.statusCode;
+  final data = e.response?.data;
+  var body = '';
+  if (data != null) {
+    body = data.toString();
+    if (body.length > 240) body = '${body.substring(0, 240)}…';
+  }
+  return 'type=${e.type.name} status=$status '
+      'message=${e.message ?? ''} body=$body';
+}
+
+bool googleDriveDioIsNotFoundOrForbidden(DioException e) {
+  final status = e.response?.statusCode;
+  return status == 404 || status == 403;
 }

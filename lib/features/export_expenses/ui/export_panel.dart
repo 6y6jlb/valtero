@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/integrations/model/integration_registry.dart';
 import 'package:valtero/entities/integrations/telegram/model/telegram_integration.dart';
 import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
+import 'package:valtero/features/export_expenses/model/export_data_type.dart';
 import 'package:valtero/features/export_expenses/model/export_destination.dart';
 import 'package:valtero/features/export_expenses/model/export_readiness.dart';
 import 'package:valtero/features/integrations/ui/integration_config_modal.dart';
@@ -23,6 +24,7 @@ class ExportPanel extends ConsumerStatefulWidget {
 
 class _ExportPanelState extends ConsumerState<ExportPanel> {
   ExportFormat _format = ExportFormat.csv;
+  ExportDataType _dataType = ExportDataType.expenses;
 
   Future<void> _run(ExportDestination destination) async {
     final l10n = AppLocalizations.of(context)!;
@@ -42,6 +44,7 @@ class _ExportPanelState extends ConsumerState<ExportPanel> {
         context,
         format: _format,
         destination: destination,
+        dataType: _dataType,
       );
       if (!mounted || message == null) return;
       showAppToast(context, message);
@@ -80,6 +83,21 @@ class _ExportPanelState extends ConsumerState<ExportPanel> {
         ],
       ),
       children: [
+        SegmentedButton<ExportDataType>(
+          segments: [
+            ButtonSegment(
+              value: ExportDataType.expenses,
+              label: Text(l10n.directionExpenses),
+            ),
+            ButtonSegment(
+              value: ExportDataType.income,
+              label: Text(l10n.directionIncome),
+            ),
+          ],
+          selected: {_dataType},
+          onSelectionChanged: (s) => setState(() => _dataType = s.first),
+        ),
+        const SizedBox(height: 8),
         SegmentedButton<ExportFormat>(
           segments: [
             ButtonSegment(value: ExportFormat.csv, label: Text(l10n.exportCsv)),

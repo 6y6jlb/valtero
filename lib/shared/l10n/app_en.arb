@@ -114,6 +114,7 @@
   "googleDriveShareAdd": "Share with email",
   "googleDriveShareOk": "Shared successfully",
   "googleDriveShareFailed": "Could not share the sync file",
+  "googleDriveSharedFileInaccessible": "Can't access the shared sync file. Sign in again and allow the Drive file permission when Google asks (needed for cross-account sync), or re-share with the collaborator.",
   "googleDriveRevokeOk": "Access revoked",
   "googleDriveRevokeFailed": "Could not revoke access",
   "googleDriveInvalidEmail": "Enter a valid email address",
@@ -241,10 +242,13 @@
   "dataSyncPassphraseWarning": "Store this passphrase safely. Without it, the backup cannot be opened.",
   "dataSyncExportDone": "Backup saved",
   "dataSyncExportFailed": "Could not save the backup",
-  "dataSyncImportDone": "Imported {expenses} expenses, {tags} tags, {payments} payment methods",
+  "dataSyncImportDone": "Imported {expenses} expenses, {incomes} incomes, {tags} tags, {payments} payment methods",
   "@dataSyncImportDone": {
     "placeholders": {
       "expenses": {
+        "type": "int"
+      },
+      "incomes": {
         "type": "int"
       },
       "tags": {
@@ -262,10 +266,13 @@
   "dataSyncGoogleDriveHint": "You can also enable automatic encrypted sync via Google Drive — backups update across devices without manual file exchange.",
   "dataSyncGoogleDriveSetup": "Connect Google Drive Sync",
   "dataSyncGoogleDriveManage": "Open Google Drive Sync settings",
-  "dataSyncImportDoneWithDuplicates": "Imported {expenses} expenses, {tags} tags, {payments} payment methods ({skipped} duplicates skipped)",
+  "dataSyncImportDoneWithDuplicates": "Imported {expenses} expenses, {incomes} incomes, {tags} tags, {payments} payment methods ({skipped} duplicates skipped)",
   "@dataSyncImportDoneWithDuplicates": {
     "placeholders": {
       "expenses": {
+        "type": "int"
+      },
+      "incomes": {
         "type": "int"
       },
       "tags": {
@@ -280,7 +287,7 @@
     }
   },
   "dataSyncDuplicatesFoundTitle": "Possible duplicates found",
-  "dataSyncDuplicatesFoundHint": "These incoming expenses look like ones you already have (same day, amount, and currency). Choose how to handle each.",
+  "dataSyncDuplicatesFoundHint": "These incoming expenses or incomes look like ones you already have (same day, amount, and currency). Choose how to handle each.",
   "dataSyncMarkAsDuplicate": "Mark as duplicate",
   "dataSyncMarkAsUnique": "Mark as unique",
   "dataSyncMarkSelectedAsDuplicate": "Selected → duplicate",
@@ -307,6 +314,8 @@
   "duplicateDeleteMatchAndSave": "Delete match and save",
   "duplicateYourExpense": "Your expense",
   "duplicateMatchingExpense": "Matching expense",
+  "duplicateYourIncome": "Your income",
+  "duplicateMatchingIncome": "Matching income",
   "dashboardRestoreFromBackup": "Restore from backup",
   "selectCountry": "Select country",
   "addExpense": "Add expense",
@@ -353,6 +362,9 @@
   "confirmDeleteExpense": "Delete this expense?",
   "confirmDeleteExpenseDescription": "This expense will be permanently deleted.",
   "expenseDeleted": "Expense deleted",
+  "confirmDeleteIncome": "Delete this income?",
+  "confirmDeleteIncomeDescription": "This income entry will be permanently deleted.",
+  "incomeDeleted": "Income deleted",
   "bulkSelectedCount": "{count} selected",
   "@bulkSelectedCount": {
     "placeholders": {
@@ -428,6 +440,8 @@
   "defaultTags": "Default tags",
   "dismiss": "Dismiss",
   "exportTitle": "Export",
+  "expense": "Expense",
+  "income": "Income",
   "exportCsv": "CSV",
   "exportJson": "JSON",
   "saveFile": "Save file",
@@ -492,6 +506,12 @@
   "tagShopping": "Shopping",
   "tagTravel": "Travel",
   "tagUtilities": "Utilities",
+  "tagSalary": "Salary",
+  "tagSale": "Sale",
+  "tagGift": "Gift",
+  "tagRefund": "Refund",
+  "tagInvestment": "Investment",
+  "tagOtherIncome": "Other income",
   "tagCash": "Cash",
   "tagCard": "Card",
   "tagCrypto": "Crypto",
@@ -533,10 +553,40 @@
   "tagKindSectionCountry": "Country",
   "tagKindSectionTrip": "Trip",
   "tagKindSectionCustom": "Category",
+  "tagKindSectionIncome": "Income category",
   "tagKindUnspecifiedCountry": "Country not set",
   "tagKindUnspecifiedTrip": "Trip not set",
   "tagKindUnspecifiedCustom": "Category not set",
+  "tagKindUnspecifiedIncome": "Income category not set",
   "tagKindSingleSelectHint": "One tag per group; groups are optional",
+  "tagIcon": "Icon",
+  "tagIconNone": "No icon",
+  "addIncome": "Add income",
+  "editIncome": "Edit income",
+  "navIncome": "Income",
+  "directionExpenses": "Expenses",
+  "directionIncome": "Income",
+  "directionCashFlow": "Cash flow",
+  "cashFlowIncome": "Income",
+  "cashFlowExpense": "Expenses",
+  "cashFlowNet": "Net",
+  "exportIncome": "Export income",
+  "duplicateConflictIncomeTitle": "Similar income found",
+  "showIncomeList": "Show income",
+  "noMatchingIncome": "No income matches the filters",
+  "noMatchingOperations": "No operations match the filters",
+  "chartMissingRatesAlertGeneric": "{count, plural, one{1 operation shown without a conversion rate} other{{count} operations shown without conversion rates}}",
+  "@chartMissingRatesAlertGeneric": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "guideSectionIncomeTitle": "Income",
+  "guideSectionIncomeBody": "Switch the Dashboard tab to Income to add receipts with the same amount, currency, payment, country, and date fields as expenses. Income uses its own category tags (salary, sale, gift, and more). Soft-duplicate checks work the same way.",
+  "guideSectionCashFlowTitle": "Cash flow",
+  "guideSectionCashFlowBody": "The Cash flow tab compares income and expenses over day, week, month, or year. Filters apply by date and currency; category and payment filters stay on the Expenses or Income tabs.",
   "paymentMethod": "Payment",
   "paymentMethodNone": "Not set",
   "paymentMethodUnspecified": "Payment not set",

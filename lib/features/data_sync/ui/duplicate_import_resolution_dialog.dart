@@ -28,7 +28,8 @@ Future<ImportDuplicateResolutionResult?> showDuplicateImportResolutionDialog({
   required BuildContext context,
   required List<ImportConflict> conflicts,
   Map<int, String> paymentLabels = const {},
-  Map<int, String> Function(Expense expense)? tagsLabelFor,
+  Map<int, String> Function(Expense expense)? expenseTagsLabelFor,
+  Map<int, String> Function(Income income)? incomeTagsLabelFor,
 }) {
   return showAppModalSheet<ImportDuplicateResolutionResult>(
     context: context,
@@ -37,7 +38,8 @@ Future<ImportDuplicateResolutionResult?> showDuplicateImportResolutionDialog({
     child: DuplicateImportResolutionDialog(
       conflicts: conflicts,
       paymentLabels: paymentLabels,
-      tagsLabelFor: tagsLabelFor,
+      expenseTagsLabelFor: expenseTagsLabelFor,
+      incomeTagsLabelFor: incomeTagsLabelFor,
     ),
   );
 }
@@ -45,13 +47,15 @@ Future<ImportDuplicateResolutionResult?> showDuplicateImportResolutionDialog({
 class DuplicateImportResolutionDialog extends StatefulWidget {
   final List<ImportConflict> conflicts;
   final Map<int, String> paymentLabels;
-  final Map<int, String> Function(Expense expense)? tagsLabelFor;
+  final Map<int, String> Function(Expense expense)? expenseTagsLabelFor;
+  final Map<int, String> Function(Income income)? incomeTagsLabelFor;
 
   const DuplicateImportResolutionDialog({
     super.key,
     required this.conflicts,
     this.paymentLabels = const {},
-    this.tagsLabelFor,
+    this.expenseTagsLabelFor,
+    this.incomeTagsLabelFor,
   });
 
   @override
@@ -68,8 +72,7 @@ class _DuplicateImportResolutionDialogState
   void initState() {
     super.initState();
     _choices = {
-      for (final c in widget.conflicts)
-        c.incoming.clientId: _ConflictChoice.duplicate,
+      for (final c in widget.conflicts) c.clientId: _ConflictChoice.duplicate,
     };
   }
 
@@ -174,9 +177,7 @@ class _DuplicateImportResolutionDialogState
                   } else {
                     _selected
                       ..clear()
-                      ..addAll(
-                        widget.conflicts.map((c) => c.incoming.clientId),
-                      );
+                      ..addAll(widget.conflicts.map((c) => c.clientId));
                   }
                 });
               },
@@ -190,15 +191,18 @@ class _DuplicateImportResolutionDialogState
         const Divider(height: 1),
         for (final conflict in widget.conflicts)
           _ConflictRow(
-            conflict: conflict,
-            choice: _choices[conflict.incoming.clientId]!,
-            selected: _selected.contains(conflict.incoming.clientId),
-            paymentLabels: widget.paymentLabels,
-            tagsLabelFor: widget.tagsLabelFor,
+            view: _ConflictView.from(
+              conflict,
+              paymentLabels: widget.paymentLabels,
+              expenseTagsLabelFor: widget.expenseTagsLabelFor,
+              incomeTagsLabelFor: widget.incomeTagsLabelFor,
+            ),
+            choice: _choices[conflict.clientId]!,
+            selected: _selected.contains(conflict.clientId),
             languageCode: lang,
             onToggleSelected: () {
               setState(() {
-                final id = conflict.incoming.clientId;
+                final id = conflict.clientId;
                 if (_selected.contains(id)) {
                   _selected.remove(id);
                 } else {
@@ -208,7 +212,7 @@ class _DuplicateImportResolutionDialogState
             },
             onChoice: (choice) {
               setState(() {
-                _choices[conflict.incoming.clientId] = choice;
+                _choices[conflict.clientId] = choice;
               });
             },
           ),
@@ -217,22 +221,113 @@ class _DuplicateImportResolutionDialogState
   }
 }
 
+/// Normalizes an [ImportConflict] (expense or income) into primitive fields
+/// so [_ConflictRow] doesn't need to branch on the entity type.
+class _ConflictView {
+  final bool isIncome;
+  final String clientId;
+  final DateTime incomingOccurredAt;
+  final int incomingAmountMinor;
+  final String incomingCurrencyCode;
+  final String? incomingPaymentLabel;
+  final String? incomingCountryCode;
+  final String? incomingNote;
+  final DateTime existingOccurredAt;
+  final int existingAmountMinor;
+  final String existingCurrencyCode;
+  final String? existingPaymentLabel;
+  final String? existingCountryCode;
+  final String? existingNote;
+  final String? existingTagsLabel;
+  final int extraMatchesCount;
+
+  const _ConflictView({
+    required this.isIncome,
+    required this.clientId,
+    required this.incomingOccurredAt,
+    required this.incomingAmountMinor,
+    required this.incomingCurrencyCode,
+    required this.incomingPaymentLabel,
+    required this.incomingCountryCode,
+    required this.incomingNote,
+    required this.existingOccurredAt,
+    required this.existingAmountMinor,
+    required this.existingCurrencyCode,
+    required this.existingPaymentLabel,
+    required this.existingCountryCode,
+    required this.existingNote,
+    required this.existingTagsLabel,
+    required this.extraMatchesCount,
+  });
+
+  factory _ConflictView.from(
+    ImportConflict conflict, {
+    required Map<int, String> paymentLabels,
+    Map<int, String> Function(Expense expense)? expenseTagsLabelFor,
+    Map<int, String> Function(Income income)? incomeTagsLabelFor,
+  }) {
+    if (conflict.isIncome) {
+      final incoming = conflict.incomingIncome!;
+      final existing = conflict.existingIncomeMatches.first;
+      return _ConflictView(
+        isIncome: true,
+        clientId: incoming.clientId,
+        incomingOccurredAt: incoming.occurredAt,
+        incomingAmountMinor: incoming.originalAmountMinor,
+        incomingCurrencyCode: incoming.originalCurrencyCode,
+        incomingPaymentLabel: incoming.paymentName,
+        incomingCountryCode: incoming.countryCode,
+        incomingNote: incoming.note,
+        existingOccurredAt: existing.occurredAt,
+        existingAmountMinor: existing.originalAmountMinor,
+        existingCurrencyCode: existing.originalCurrencyCode,
+        existingPaymentLabel: existing.paymentMethodId == null
+            ? null
+            : paymentLabels[existing.paymentMethodId!],
+        existingCountryCode: existing.countryCode,
+        existingNote: existing.note,
+        existingTagsLabel: incomeTagsLabelFor?.call(existing)[existing.id],
+        extraMatchesCount: conflict.existingIncomeMatches.length - 1,
+      );
+    }
+
+    final incoming = conflict.incomingExpense!;
+    final existing = conflict.existingExpenseMatches.first;
+    return _ConflictView(
+      isIncome: false,
+      clientId: incoming.clientId,
+      incomingOccurredAt: incoming.occurredAt,
+      incomingAmountMinor: incoming.originalAmountMinor,
+      incomingCurrencyCode: incoming.originalCurrencyCode,
+      incomingPaymentLabel: incoming.paymentName,
+      incomingCountryCode: incoming.countryCode,
+      incomingNote: incoming.note,
+      existingOccurredAt: existing.occurredAt,
+      existingAmountMinor: existing.originalAmountMinor,
+      existingCurrencyCode: existing.originalCurrencyCode,
+      existingPaymentLabel: existing.paymentMethodId == null
+          ? null
+          : paymentLabels[existing.paymentMethodId!],
+      existingCountryCode: existing.countryCode,
+      existingNote: existing.note,
+      existingTagsLabel: expenseTagsLabelFor?.call(existing)[existing.id],
+      extraMatchesCount: conflict.existingExpenseMatches.length - 1,
+    );
+  }
+}
+
 class _ConflictRow extends StatelessWidget {
-  final ImportConflict conflict;
+  final _ConflictView view;
   final _ConflictChoice choice;
   final bool selected;
-  final Map<int, String> paymentLabels;
-  final Map<int, String> Function(Expense expense)? tagsLabelFor;
   final String languageCode;
   final VoidCallback onToggleSelected;
   final ValueChanged<_ConflictChoice> onChoice;
 
   const _ConflictRow({
-    required this.conflict,
+    required this.view,
     required this.choice,
     required this.selected,
-    required this.paymentLabels,
-    required this.tagsLabelFor,
     required this.languageCode,
     required this.onToggleSelected,
     required this.onChoice,
@@ -242,11 +337,7 @@ class _ConflictRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final incoming = conflict.incoming;
-    final existing = conflict.existingMatches.first;
 
-    String? paymentFor(Expense e) =>
-        e.paymentMethodId == null ? null : paymentLabels[e.paymentMethodId!];
     String? countryFor(String? code) => code == null || code.isEmpty
         ? null
         : countryDisplayName(code, languageCode: languageCode);
@@ -258,6 +349,14 @@ class _ConflictRow extends StatelessWidget {
           Row(
             children: [
               Checkbox(value: selected, onChanged: (_) => onToggleSelected()),
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Chip(
+                  label: Text(view.isIncome ? l10n.income : l10n.expense),
+                  visualDensity: VisualDensity.compact,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ),
               Expanded(
                 child: SegmentedButton<_ConflictChoice>(
                   segments: [
@@ -285,12 +384,12 @@ class _ConflictRow extends StatelessWidget {
               Expanded(
                 child: ExpenseDuplicateCompareTile(
                   title: l10n.dataSyncIncomingExpense,
-                  occurredAt: incoming.occurredAt,
-                  amountMinor: incoming.originalAmountMinor,
-                  currencyCode: incoming.originalCurrencyCode,
-                  paymentLabel: incoming.paymentName,
-                  countryLabel: countryFor(incoming.countryCode),
-                  note: incoming.note,
+                  occurredAt: view.incomingOccurredAt,
+                  amountMinor: view.incomingAmountMinor,
+                  currencyCode: view.incomingCurrencyCode,
+                  paymentLabel: view.incomingPaymentLabel,
+                  countryLabel: countryFor(view.incomingCountryCode),
+                  note: view.incomingNote,
                   borderColor: theme.colorScheme.primary.withValues(
                     alpha: 0.35,
                   ),
@@ -300,25 +399,25 @@ class _ConflictRow extends StatelessWidget {
               Expanded(
                 child: ExpenseDuplicateCompareTile(
                   title: l10n.dataSyncExistingExpense,
-                  occurredAt: existing.occurredAt,
-                  amountMinor: existing.originalAmountMinor,
-                  currencyCode: existing.originalCurrencyCode,
-                  paymentLabel: paymentFor(existing),
-                  countryLabel: countryFor(existing.countryCode),
-                  tagsLabel: tagsLabelFor?.call(existing)[existing.id],
-                  note: existing.note,
+                  occurredAt: view.existingOccurredAt,
+                  amountMinor: view.existingAmountMinor,
+                  currencyCode: view.existingCurrencyCode,
+                  paymentLabel: view.existingPaymentLabel,
+                  countryLabel: countryFor(view.existingCountryCode),
+                  tagsLabel: view.existingTagsLabel,
+                  note: view.existingNote,
                   borderColor: theme.colorScheme.error.withValues(alpha: 0.35),
                 ),
               ),
             ],
           ),
-          if (conflict.existingMatches.length > 1)
+          if (view.extraMatchesCount > 0)
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  '+${conflict.existingMatches.length - 1}',
+                  '+${view.extraMatchesCount}',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),

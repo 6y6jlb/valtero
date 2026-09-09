@@ -11,6 +11,8 @@ class GroupedTagPicker extends StatelessWidget {
   final ValueChanged<Tag> onTagTap;
   final bool singleSelectPerKind;
   final Map<TagKind, Widget>? sectionTrailing;
+  /// When set, only these kinds are shown (and empty sections still appear).
+  final Iterable<TagKind>? kinds;
 
   const GroupedTagPicker({
     super.key,
@@ -19,6 +21,7 @@ class GroupedTagPicker extends StatelessWidget {
     required this.onTagTap,
     this.singleSelectPerKind = false,
     this.sectionTrailing,
+    this.kinds,
   });
 
   @override
@@ -26,11 +29,12 @@ class GroupedTagPicker extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final grouped = groupTagsByKind(tags);
+    final shownKinds = kinds?.toList() ?? TagKind.values;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final kind in TagKind.values) ...[
+        for (final kind in shownKinds) ...[
           TagKindSectionHeader(kind: kind),
           if (sectionTrailing?[kind] != null) ...[
             sectionTrailing![kind]!,
@@ -40,7 +44,7 @@ class GroupedTagPicker extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              for (final tag in grouped[kind]!)
+              for (final tag in grouped[kind] ?? const <Tag>[])
                 TagChip(
                   tag: tag,
                   selected: selectedIds.contains(tag.id),

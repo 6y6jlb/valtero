@@ -6,7 +6,7 @@ import 'package:valtero/shared/database/schema_version.dart';
 void main() {
   test('schema v6 creates expenses.duplicateDismissed defaulting to false',
       () async {
-    expect(kAppSchemaVersion, 6);
+    expect(kAppSchemaVersion, greaterThanOrEqualTo(6));
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 

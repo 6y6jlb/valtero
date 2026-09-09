@@ -100,6 +100,17 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, Tag> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _iconKeyMeta = const VerificationMeta(
+    'iconKey',
+  );
+  @override
+  late final GeneratedColumn<String> iconKey = GeneratedColumn<String>(
+    'icon_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -110,6 +121,7 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, Tag> {
     kind,
     countryCode,
     stableKey,
+    iconKey,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -173,6 +185,12 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, Tag> {
         stableKey.isAcceptableOrUnknown(data['stable_key']!, _stableKeyMeta),
       );
     }
+    if (data.containsKey('icon_key')) {
+      context.handle(
+        _iconKeyMeta,
+        iconKey.isAcceptableOrUnknown(data['icon_key']!, _iconKeyMeta),
+      );
+    }
     return context;
   }
 
@@ -214,6 +232,10 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, Tag> {
         DriftSqlType.string,
         data['${effectivePrefix}stable_key'],
       ),
+      iconKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}icon_key'],
+      ),
     );
   }
 
@@ -236,6 +258,9 @@ class Tag extends DataClass implements Insertable<Tag> {
 
   /// Stable id for localized defaults/suggestions, e.g. `groceries`.
   final String? stableKey;
+
+  /// Curated icon key from [tag_icons.dart], e.g. `groceries`, `salary`.
+  final String? iconKey;
   const Tag({
     required this.id,
     required this.name,
@@ -245,6 +270,7 @@ class Tag extends DataClass implements Insertable<Tag> {
     required this.kind,
     this.countryCode,
     this.stableKey,
+    this.iconKey,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -262,6 +288,9 @@ class Tag extends DataClass implements Insertable<Tag> {
     }
     if (!nullToAbsent || stableKey != null) {
       map['stable_key'] = Variable<String>(stableKey);
+    }
+    if (!nullToAbsent || iconKey != null) {
+      map['icon_key'] = Variable<String>(iconKey);
     }
     return map;
   }
@@ -282,6 +311,9 @@ class Tag extends DataClass implements Insertable<Tag> {
       stableKey: stableKey == null && nullToAbsent
           ? const Value.absent()
           : Value(stableKey),
+      iconKey: iconKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(iconKey),
     );
   }
 
@@ -299,6 +331,7 @@ class Tag extends DataClass implements Insertable<Tag> {
       kind: serializer.fromJson<String>(json['kind']),
       countryCode: serializer.fromJson<String?>(json['countryCode']),
       stableKey: serializer.fromJson<String?>(json['stableKey']),
+      iconKey: serializer.fromJson<String?>(json['iconKey']),
     );
   }
   @override
@@ -313,6 +346,7 @@ class Tag extends DataClass implements Insertable<Tag> {
       'kind': serializer.toJson<String>(kind),
       'countryCode': serializer.toJson<String?>(countryCode),
       'stableKey': serializer.toJson<String?>(stableKey),
+      'iconKey': serializer.toJson<String?>(iconKey),
     };
   }
 
@@ -325,6 +359,7 @@ class Tag extends DataClass implements Insertable<Tag> {
     String? kind,
     Value<String?> countryCode = const Value.absent(),
     Value<String?> stableKey = const Value.absent(),
+    Value<String?> iconKey = const Value.absent(),
   }) => Tag(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -334,6 +369,7 @@ class Tag extends DataClass implements Insertable<Tag> {
     kind: kind ?? this.kind,
     countryCode: countryCode.present ? countryCode.value : this.countryCode,
     stableKey: stableKey.present ? stableKey.value : this.stableKey,
+    iconKey: iconKey.present ? iconKey.value : this.iconKey,
   );
   Tag copyWithCompanion(TagsCompanion data) {
     return Tag(
@@ -349,6 +385,7 @@ class Tag extends DataClass implements Insertable<Tag> {
           ? data.countryCode.value
           : this.countryCode,
       stableKey: data.stableKey.present ? data.stableKey.value : this.stableKey,
+      iconKey: data.iconKey.present ? data.iconKey.value : this.iconKey,
     );
   }
 
@@ -362,7 +399,8 @@ class Tag extends DataClass implements Insertable<Tag> {
           ..write('sortOrder: $sortOrder, ')
           ..write('kind: $kind, ')
           ..write('countryCode: $countryCode, ')
-          ..write('stableKey: $stableKey')
+          ..write('stableKey: $stableKey, ')
+          ..write('iconKey: $iconKey')
           ..write(')'))
         .toString();
   }
@@ -377,6 +415,7 @@ class Tag extends DataClass implements Insertable<Tag> {
     kind,
     countryCode,
     stableKey,
+    iconKey,
   );
   @override
   bool operator ==(Object other) =>
@@ -389,7 +428,8 @@ class Tag extends DataClass implements Insertable<Tag> {
           other.sortOrder == this.sortOrder &&
           other.kind == this.kind &&
           other.countryCode == this.countryCode &&
-          other.stableKey == this.stableKey);
+          other.stableKey == this.stableKey &&
+          other.iconKey == this.iconKey);
 }
 
 class TagsCompanion extends UpdateCompanion<Tag> {
@@ -401,6 +441,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
   final Value<String> kind;
   final Value<String?> countryCode;
   final Value<String?> stableKey;
+  final Value<String?> iconKey;
   const TagsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -410,6 +451,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
     this.kind = const Value.absent(),
     this.countryCode = const Value.absent(),
     this.stableKey = const Value.absent(),
+    this.iconKey = const Value.absent(),
   });
   TagsCompanion.insert({
     this.id = const Value.absent(),
@@ -420,6 +462,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
     this.kind = const Value.absent(),
     this.countryCode = const Value.absent(),
     this.stableKey = const Value.absent(),
+    this.iconKey = const Value.absent(),
   }) : name = Value(name);
   static Insertable<Tag> custom({
     Expression<int>? id,
@@ -430,6 +473,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
     Expression<String>? kind,
     Expression<String>? countryCode,
     Expression<String>? stableKey,
+    Expression<String>? iconKey,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -440,6 +484,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
       if (kind != null) 'kind': kind,
       if (countryCode != null) 'country_code': countryCode,
       if (stableKey != null) 'stable_key': stableKey,
+      if (iconKey != null) 'icon_key': iconKey,
     });
   }
 
@@ -452,6 +497,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
     Value<String>? kind,
     Value<String?>? countryCode,
     Value<String?>? stableKey,
+    Value<String?>? iconKey,
   }) {
     return TagsCompanion(
       id: id ?? this.id,
@@ -462,6 +508,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
       kind: kind ?? this.kind,
       countryCode: countryCode ?? this.countryCode,
       stableKey: stableKey ?? this.stableKey,
+      iconKey: iconKey ?? this.iconKey,
     );
   }
 
@@ -492,6 +539,9 @@ class TagsCompanion extends UpdateCompanion<Tag> {
     if (stableKey.present) {
       map['stable_key'] = Variable<String>(stableKey.value);
     }
+    if (iconKey.present) {
+      map['icon_key'] = Variable<String>(iconKey.value);
+    }
     return map;
   }
 
@@ -505,7 +555,8 @@ class TagsCompanion extends UpdateCompanion<Tag> {
           ..write('sortOrder: $sortOrder, ')
           ..write('kind: $kind, ')
           ..write('countryCode: $countryCode, ')
-          ..write('stableKey: $stableKey')
+          ..write('stableKey: $stableKey, ')
+          ..write('iconKey: $iconKey')
           ..write(')'))
         .toString();
   }
@@ -2002,6 +2053,1039 @@ class ExpenseTagsCompanion extends UpdateCompanion<ExpenseTag> {
   }
 }
 
+class $IncomesTable extends Incomes with TableInfo<$IncomesTable, Income> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $IncomesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _occurredAtMeta = const VerificationMeta(
+    'occurredAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> occurredAt = GeneratedColumn<DateTime>(
+    'occurred_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _originalAmountMinorMeta =
+      const VerificationMeta('originalAmountMinor');
+  @override
+  late final GeneratedColumn<int> originalAmountMinor = GeneratedColumn<int>(
+    'original_amount_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _originalCurrencyCodeMeta =
+      const VerificationMeta('originalCurrencyCode');
+  @override
+  late final GeneratedColumn<String> originalCurrencyCode =
+      GeneratedColumn<String>(
+        'original_currency_code',
+        aliasedName,
+        false,
+        additionalChecks: GeneratedColumn.checkTextLength(
+          minTextLength: 3,
+          maxTextLength: 3,
+        ),
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _storedAmountMinorMeta = const VerificationMeta(
+    'storedAmountMinor',
+  );
+  @override
+  late final GeneratedColumn<int> storedAmountMinor = GeneratedColumn<int>(
+    'stored_amount_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _storedCurrencyCodeMeta =
+      const VerificationMeta('storedCurrencyCode');
+  @override
+  late final GeneratedColumn<String> storedCurrencyCode =
+      GeneratedColumn<String>(
+        'stored_currency_code',
+        aliasedName,
+        false,
+        additionalChecks: GeneratedColumn.checkTextLength(
+          minTextLength: 3,
+          maxTextLength: 3,
+        ),
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _rateUsedMeta = const VerificationMeta(
+    'rateUsed',
+  );
+  @override
+  late final GeneratedColumn<double> rateUsed = GeneratedColumn<double>(
+    'rate_used',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _rateTimestampMeta = const VerificationMeta(
+    'rateTimestamp',
+  );
+  @override
+  late final GeneratedColumn<DateTime> rateTimestamp =
+      GeneratedColumn<DateTime>(
+        'rate_timestamp',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _paymentMethodIdMeta = const VerificationMeta(
+    'paymentMethodId',
+  );
+  @override
+  late final GeneratedColumn<int> paymentMethodId = GeneratedColumn<int>(
+    'payment_method_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES payment_methods (id)',
+    ),
+  );
+  static const VerificationMeta _countryCodeMeta = const VerificationMeta(
+    'countryCode',
+  );
+  @override
+  late final GeneratedColumn<String> countryCode = GeneratedColumn<String>(
+    'country_code',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _duplicateDismissedMeta =
+      const VerificationMeta('duplicateDismissed');
+  @override
+  late final GeneratedColumn<bool> duplicateDismissed = GeneratedColumn<bool>(
+    'duplicate_dismissed',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("duplicate_dismissed" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    occurredAt,
+    originalAmountMinor,
+    originalCurrencyCode,
+    storedAmountMinor,
+    storedCurrencyCode,
+    rateUsed,
+    rateTimestamp,
+    paymentMethodId,
+    countryCode,
+    note,
+    createdAt,
+    duplicateDismissed,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'incomes';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Income> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('occurred_at')) {
+      context.handle(
+        _occurredAtMeta,
+        occurredAt.isAcceptableOrUnknown(data['occurred_at']!, _occurredAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_occurredAtMeta);
+    }
+    if (data.containsKey('original_amount_minor')) {
+      context.handle(
+        _originalAmountMinorMeta,
+        originalAmountMinor.isAcceptableOrUnknown(
+          data['original_amount_minor']!,
+          _originalAmountMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_originalAmountMinorMeta);
+    }
+    if (data.containsKey('original_currency_code')) {
+      context.handle(
+        _originalCurrencyCodeMeta,
+        originalCurrencyCode.isAcceptableOrUnknown(
+          data['original_currency_code']!,
+          _originalCurrencyCodeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_originalCurrencyCodeMeta);
+    }
+    if (data.containsKey('stored_amount_minor')) {
+      context.handle(
+        _storedAmountMinorMeta,
+        storedAmountMinor.isAcceptableOrUnknown(
+          data['stored_amount_minor']!,
+          _storedAmountMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_storedAmountMinorMeta);
+    }
+    if (data.containsKey('stored_currency_code')) {
+      context.handle(
+        _storedCurrencyCodeMeta,
+        storedCurrencyCode.isAcceptableOrUnknown(
+          data['stored_currency_code']!,
+          _storedCurrencyCodeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_storedCurrencyCodeMeta);
+    }
+    if (data.containsKey('rate_used')) {
+      context.handle(
+        _rateUsedMeta,
+        rateUsed.isAcceptableOrUnknown(data['rate_used']!, _rateUsedMeta),
+      );
+    }
+    if (data.containsKey('rate_timestamp')) {
+      context.handle(
+        _rateTimestampMeta,
+        rateTimestamp.isAcceptableOrUnknown(
+          data['rate_timestamp']!,
+          _rateTimestampMeta,
+        ),
+      );
+    }
+    if (data.containsKey('payment_method_id')) {
+      context.handle(
+        _paymentMethodIdMeta,
+        paymentMethodId.isAcceptableOrUnknown(
+          data['payment_method_id']!,
+          _paymentMethodIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('country_code')) {
+      context.handle(
+        _countryCodeMeta,
+        countryCode.isAcceptableOrUnknown(
+          data['country_code']!,
+          _countryCodeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('duplicate_dismissed')) {
+      context.handle(
+        _duplicateDismissedMeta,
+        duplicateDismissed.isAcceptableOrUnknown(
+          data['duplicate_dismissed']!,
+          _duplicateDismissedMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Income map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Income(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      occurredAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}occurred_at'],
+      )!,
+      originalAmountMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}original_amount_minor'],
+      )!,
+      originalCurrencyCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}original_currency_code'],
+      )!,
+      storedAmountMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}stored_amount_minor'],
+      )!,
+      storedCurrencyCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}stored_currency_code'],
+      )!,
+      rateUsed: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}rate_used'],
+      ),
+      rateTimestamp: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}rate_timestamp'],
+      ),
+      paymentMethodId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}payment_method_id'],
+      ),
+      countryCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}country_code'],
+      ),
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      duplicateDismissed: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}duplicate_dismissed'],
+      )!,
+    );
+  }
+
+  @override
+  $IncomesTable createAlias(String alias) {
+    return $IncomesTable(attachedDatabase, alias);
+  }
+}
+
+class Income extends DataClass implements Insertable<Income> {
+  final int id;
+  final DateTime occurredAt;
+  final int originalAmountMinor;
+  final String originalCurrencyCode;
+  final int storedAmountMinor;
+  final String storedCurrencyCode;
+  final double? rateUsed;
+  final DateTime? rateTimestamp;
+  final int? paymentMethodId;
+
+  /// ISO 3166-1 alpha-2 country code (e.g. `RU`), not a tag.
+  final String? countryCode;
+  final String? note;
+  final DateTime createdAt;
+
+  /// User confirmed this income is not a duplicate of others sharing
+  /// the same day + original amount + currency fingerprint.
+  final bool duplicateDismissed;
+  const Income({
+    required this.id,
+    required this.occurredAt,
+    required this.originalAmountMinor,
+    required this.originalCurrencyCode,
+    required this.storedAmountMinor,
+    required this.storedCurrencyCode,
+    this.rateUsed,
+    this.rateTimestamp,
+    this.paymentMethodId,
+    this.countryCode,
+    this.note,
+    required this.createdAt,
+    required this.duplicateDismissed,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['occurred_at'] = Variable<DateTime>(occurredAt);
+    map['original_amount_minor'] = Variable<int>(originalAmountMinor);
+    map['original_currency_code'] = Variable<String>(originalCurrencyCode);
+    map['stored_amount_minor'] = Variable<int>(storedAmountMinor);
+    map['stored_currency_code'] = Variable<String>(storedCurrencyCode);
+    if (!nullToAbsent || rateUsed != null) {
+      map['rate_used'] = Variable<double>(rateUsed);
+    }
+    if (!nullToAbsent || rateTimestamp != null) {
+      map['rate_timestamp'] = Variable<DateTime>(rateTimestamp);
+    }
+    if (!nullToAbsent || paymentMethodId != null) {
+      map['payment_method_id'] = Variable<int>(paymentMethodId);
+    }
+    if (!nullToAbsent || countryCode != null) {
+      map['country_code'] = Variable<String>(countryCode);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['duplicate_dismissed'] = Variable<bool>(duplicateDismissed);
+    return map;
+  }
+
+  IncomesCompanion toCompanion(bool nullToAbsent) {
+    return IncomesCompanion(
+      id: Value(id),
+      occurredAt: Value(occurredAt),
+      originalAmountMinor: Value(originalAmountMinor),
+      originalCurrencyCode: Value(originalCurrencyCode),
+      storedAmountMinor: Value(storedAmountMinor),
+      storedCurrencyCode: Value(storedCurrencyCode),
+      rateUsed: rateUsed == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rateUsed),
+      rateTimestamp: rateTimestamp == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rateTimestamp),
+      paymentMethodId: paymentMethodId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(paymentMethodId),
+      countryCode: countryCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(countryCode),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      createdAt: Value(createdAt),
+      duplicateDismissed: Value(duplicateDismissed),
+    );
+  }
+
+  factory Income.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Income(
+      id: serializer.fromJson<int>(json['id']),
+      occurredAt: serializer.fromJson<DateTime>(json['occurredAt']),
+      originalAmountMinor: serializer.fromJson<int>(
+        json['originalAmountMinor'],
+      ),
+      originalCurrencyCode: serializer.fromJson<String>(
+        json['originalCurrencyCode'],
+      ),
+      storedAmountMinor: serializer.fromJson<int>(json['storedAmountMinor']),
+      storedCurrencyCode: serializer.fromJson<String>(
+        json['storedCurrencyCode'],
+      ),
+      rateUsed: serializer.fromJson<double?>(json['rateUsed']),
+      rateTimestamp: serializer.fromJson<DateTime?>(json['rateTimestamp']),
+      paymentMethodId: serializer.fromJson<int?>(json['paymentMethodId']),
+      countryCode: serializer.fromJson<String?>(json['countryCode']),
+      note: serializer.fromJson<String?>(json['note']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      duplicateDismissed: serializer.fromJson<bool>(json['duplicateDismissed']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'occurredAt': serializer.toJson<DateTime>(occurredAt),
+      'originalAmountMinor': serializer.toJson<int>(originalAmountMinor),
+      'originalCurrencyCode': serializer.toJson<String>(originalCurrencyCode),
+      'storedAmountMinor': serializer.toJson<int>(storedAmountMinor),
+      'storedCurrencyCode': serializer.toJson<String>(storedCurrencyCode),
+      'rateUsed': serializer.toJson<double?>(rateUsed),
+      'rateTimestamp': serializer.toJson<DateTime?>(rateTimestamp),
+      'paymentMethodId': serializer.toJson<int?>(paymentMethodId),
+      'countryCode': serializer.toJson<String?>(countryCode),
+      'note': serializer.toJson<String?>(note),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'duplicateDismissed': serializer.toJson<bool>(duplicateDismissed),
+    };
+  }
+
+  Income copyWith({
+    int? id,
+    DateTime? occurredAt,
+    int? originalAmountMinor,
+    String? originalCurrencyCode,
+    int? storedAmountMinor,
+    String? storedCurrencyCode,
+    Value<double?> rateUsed = const Value.absent(),
+    Value<DateTime?> rateTimestamp = const Value.absent(),
+    Value<int?> paymentMethodId = const Value.absent(),
+    Value<String?> countryCode = const Value.absent(),
+    Value<String?> note = const Value.absent(),
+    DateTime? createdAt,
+    bool? duplicateDismissed,
+  }) => Income(
+    id: id ?? this.id,
+    occurredAt: occurredAt ?? this.occurredAt,
+    originalAmountMinor: originalAmountMinor ?? this.originalAmountMinor,
+    originalCurrencyCode: originalCurrencyCode ?? this.originalCurrencyCode,
+    storedAmountMinor: storedAmountMinor ?? this.storedAmountMinor,
+    storedCurrencyCode: storedCurrencyCode ?? this.storedCurrencyCode,
+    rateUsed: rateUsed.present ? rateUsed.value : this.rateUsed,
+    rateTimestamp: rateTimestamp.present
+        ? rateTimestamp.value
+        : this.rateTimestamp,
+    paymentMethodId: paymentMethodId.present
+        ? paymentMethodId.value
+        : this.paymentMethodId,
+    countryCode: countryCode.present ? countryCode.value : this.countryCode,
+    note: note.present ? note.value : this.note,
+    createdAt: createdAt ?? this.createdAt,
+    duplicateDismissed: duplicateDismissed ?? this.duplicateDismissed,
+  );
+  Income copyWithCompanion(IncomesCompanion data) {
+    return Income(
+      id: data.id.present ? data.id.value : this.id,
+      occurredAt: data.occurredAt.present
+          ? data.occurredAt.value
+          : this.occurredAt,
+      originalAmountMinor: data.originalAmountMinor.present
+          ? data.originalAmountMinor.value
+          : this.originalAmountMinor,
+      originalCurrencyCode: data.originalCurrencyCode.present
+          ? data.originalCurrencyCode.value
+          : this.originalCurrencyCode,
+      storedAmountMinor: data.storedAmountMinor.present
+          ? data.storedAmountMinor.value
+          : this.storedAmountMinor,
+      storedCurrencyCode: data.storedCurrencyCode.present
+          ? data.storedCurrencyCode.value
+          : this.storedCurrencyCode,
+      rateUsed: data.rateUsed.present ? data.rateUsed.value : this.rateUsed,
+      rateTimestamp: data.rateTimestamp.present
+          ? data.rateTimestamp.value
+          : this.rateTimestamp,
+      paymentMethodId: data.paymentMethodId.present
+          ? data.paymentMethodId.value
+          : this.paymentMethodId,
+      countryCode: data.countryCode.present
+          ? data.countryCode.value
+          : this.countryCode,
+      note: data.note.present ? data.note.value : this.note,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      duplicateDismissed: data.duplicateDismissed.present
+          ? data.duplicateDismissed.value
+          : this.duplicateDismissed,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Income(')
+          ..write('id: $id, ')
+          ..write('occurredAt: $occurredAt, ')
+          ..write('originalAmountMinor: $originalAmountMinor, ')
+          ..write('originalCurrencyCode: $originalCurrencyCode, ')
+          ..write('storedAmountMinor: $storedAmountMinor, ')
+          ..write('storedCurrencyCode: $storedCurrencyCode, ')
+          ..write('rateUsed: $rateUsed, ')
+          ..write('rateTimestamp: $rateTimestamp, ')
+          ..write('paymentMethodId: $paymentMethodId, ')
+          ..write('countryCode: $countryCode, ')
+          ..write('note: $note, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('duplicateDismissed: $duplicateDismissed')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    occurredAt,
+    originalAmountMinor,
+    originalCurrencyCode,
+    storedAmountMinor,
+    storedCurrencyCode,
+    rateUsed,
+    rateTimestamp,
+    paymentMethodId,
+    countryCode,
+    note,
+    createdAt,
+    duplicateDismissed,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Income &&
+          other.id == this.id &&
+          other.occurredAt == this.occurredAt &&
+          other.originalAmountMinor == this.originalAmountMinor &&
+          other.originalCurrencyCode == this.originalCurrencyCode &&
+          other.storedAmountMinor == this.storedAmountMinor &&
+          other.storedCurrencyCode == this.storedCurrencyCode &&
+          other.rateUsed == this.rateUsed &&
+          other.rateTimestamp == this.rateTimestamp &&
+          other.paymentMethodId == this.paymentMethodId &&
+          other.countryCode == this.countryCode &&
+          other.note == this.note &&
+          other.createdAt == this.createdAt &&
+          other.duplicateDismissed == this.duplicateDismissed);
+}
+
+class IncomesCompanion extends UpdateCompanion<Income> {
+  final Value<int> id;
+  final Value<DateTime> occurredAt;
+  final Value<int> originalAmountMinor;
+  final Value<String> originalCurrencyCode;
+  final Value<int> storedAmountMinor;
+  final Value<String> storedCurrencyCode;
+  final Value<double?> rateUsed;
+  final Value<DateTime?> rateTimestamp;
+  final Value<int?> paymentMethodId;
+  final Value<String?> countryCode;
+  final Value<String?> note;
+  final Value<DateTime> createdAt;
+  final Value<bool> duplicateDismissed;
+  const IncomesCompanion({
+    this.id = const Value.absent(),
+    this.occurredAt = const Value.absent(),
+    this.originalAmountMinor = const Value.absent(),
+    this.originalCurrencyCode = const Value.absent(),
+    this.storedAmountMinor = const Value.absent(),
+    this.storedCurrencyCode = const Value.absent(),
+    this.rateUsed = const Value.absent(),
+    this.rateTimestamp = const Value.absent(),
+    this.paymentMethodId = const Value.absent(),
+    this.countryCode = const Value.absent(),
+    this.note = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.duplicateDismissed = const Value.absent(),
+  });
+  IncomesCompanion.insert({
+    this.id = const Value.absent(),
+    required DateTime occurredAt,
+    required int originalAmountMinor,
+    required String originalCurrencyCode,
+    required int storedAmountMinor,
+    required String storedCurrencyCode,
+    this.rateUsed = const Value.absent(),
+    this.rateTimestamp = const Value.absent(),
+    this.paymentMethodId = const Value.absent(),
+    this.countryCode = const Value.absent(),
+    this.note = const Value.absent(),
+    required DateTime createdAt,
+    this.duplicateDismissed = const Value.absent(),
+  }) : occurredAt = Value(occurredAt),
+       originalAmountMinor = Value(originalAmountMinor),
+       originalCurrencyCode = Value(originalCurrencyCode),
+       storedAmountMinor = Value(storedAmountMinor),
+       storedCurrencyCode = Value(storedCurrencyCode),
+       createdAt = Value(createdAt);
+  static Insertable<Income> custom({
+    Expression<int>? id,
+    Expression<DateTime>? occurredAt,
+    Expression<int>? originalAmountMinor,
+    Expression<String>? originalCurrencyCode,
+    Expression<int>? storedAmountMinor,
+    Expression<String>? storedCurrencyCode,
+    Expression<double>? rateUsed,
+    Expression<DateTime>? rateTimestamp,
+    Expression<int>? paymentMethodId,
+    Expression<String>? countryCode,
+    Expression<String>? note,
+    Expression<DateTime>? createdAt,
+    Expression<bool>? duplicateDismissed,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (occurredAt != null) 'occurred_at': occurredAt,
+      if (originalAmountMinor != null)
+        'original_amount_minor': originalAmountMinor,
+      if (originalCurrencyCode != null)
+        'original_currency_code': originalCurrencyCode,
+      if (storedAmountMinor != null) 'stored_amount_minor': storedAmountMinor,
+      if (storedCurrencyCode != null)
+        'stored_currency_code': storedCurrencyCode,
+      if (rateUsed != null) 'rate_used': rateUsed,
+      if (rateTimestamp != null) 'rate_timestamp': rateTimestamp,
+      if (paymentMethodId != null) 'payment_method_id': paymentMethodId,
+      if (countryCode != null) 'country_code': countryCode,
+      if (note != null) 'note': note,
+      if (createdAt != null) 'created_at': createdAt,
+      if (duplicateDismissed != null) 'duplicate_dismissed': duplicateDismissed,
+    });
+  }
+
+  IncomesCompanion copyWith({
+    Value<int>? id,
+    Value<DateTime>? occurredAt,
+    Value<int>? originalAmountMinor,
+    Value<String>? originalCurrencyCode,
+    Value<int>? storedAmountMinor,
+    Value<String>? storedCurrencyCode,
+    Value<double?>? rateUsed,
+    Value<DateTime?>? rateTimestamp,
+    Value<int?>? paymentMethodId,
+    Value<String?>? countryCode,
+    Value<String?>? note,
+    Value<DateTime>? createdAt,
+    Value<bool>? duplicateDismissed,
+  }) {
+    return IncomesCompanion(
+      id: id ?? this.id,
+      occurredAt: occurredAt ?? this.occurredAt,
+      originalAmountMinor: originalAmountMinor ?? this.originalAmountMinor,
+      originalCurrencyCode: originalCurrencyCode ?? this.originalCurrencyCode,
+      storedAmountMinor: storedAmountMinor ?? this.storedAmountMinor,
+      storedCurrencyCode: storedCurrencyCode ?? this.storedCurrencyCode,
+      rateUsed: rateUsed ?? this.rateUsed,
+      rateTimestamp: rateTimestamp ?? this.rateTimestamp,
+      paymentMethodId: paymentMethodId ?? this.paymentMethodId,
+      countryCode: countryCode ?? this.countryCode,
+      note: note ?? this.note,
+      createdAt: createdAt ?? this.createdAt,
+      duplicateDismissed: duplicateDismissed ?? this.duplicateDismissed,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (occurredAt.present) {
+      map['occurred_at'] = Variable<DateTime>(occurredAt.value);
+    }
+    if (originalAmountMinor.present) {
+      map['original_amount_minor'] = Variable<int>(originalAmountMinor.value);
+    }
+    if (originalCurrencyCode.present) {
+      map['original_currency_code'] = Variable<String>(
+        originalCurrencyCode.value,
+      );
+    }
+    if (storedAmountMinor.present) {
+      map['stored_amount_minor'] = Variable<int>(storedAmountMinor.value);
+    }
+    if (storedCurrencyCode.present) {
+      map['stored_currency_code'] = Variable<String>(storedCurrencyCode.value);
+    }
+    if (rateUsed.present) {
+      map['rate_used'] = Variable<double>(rateUsed.value);
+    }
+    if (rateTimestamp.present) {
+      map['rate_timestamp'] = Variable<DateTime>(rateTimestamp.value);
+    }
+    if (paymentMethodId.present) {
+      map['payment_method_id'] = Variable<int>(paymentMethodId.value);
+    }
+    if (countryCode.present) {
+      map['country_code'] = Variable<String>(countryCode.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (duplicateDismissed.present) {
+      map['duplicate_dismissed'] = Variable<bool>(duplicateDismissed.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('IncomesCompanion(')
+          ..write('id: $id, ')
+          ..write('occurredAt: $occurredAt, ')
+          ..write('originalAmountMinor: $originalAmountMinor, ')
+          ..write('originalCurrencyCode: $originalCurrencyCode, ')
+          ..write('storedAmountMinor: $storedAmountMinor, ')
+          ..write('storedCurrencyCode: $storedCurrencyCode, ')
+          ..write('rateUsed: $rateUsed, ')
+          ..write('rateTimestamp: $rateTimestamp, ')
+          ..write('paymentMethodId: $paymentMethodId, ')
+          ..write('countryCode: $countryCode, ')
+          ..write('note: $note, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('duplicateDismissed: $duplicateDismissed')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $IncomeTagsTable extends IncomeTags
+    with TableInfo<$IncomeTagsTable, IncomeTag> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $IncomeTagsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _incomeIdMeta = const VerificationMeta(
+    'incomeId',
+  );
+  @override
+  late final GeneratedColumn<int> incomeId = GeneratedColumn<int>(
+    'income_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES incomes (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _tagIdMeta = const VerificationMeta('tagId');
+  @override
+  late final GeneratedColumn<int> tagId = GeneratedColumn<int>(
+    'tag_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES tags (id) ON DELETE CASCADE',
+    ),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [incomeId, tagId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'income_tags';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<IncomeTag> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('income_id')) {
+      context.handle(
+        _incomeIdMeta,
+        incomeId.isAcceptableOrUnknown(data['income_id']!, _incomeIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_incomeIdMeta);
+    }
+    if (data.containsKey('tag_id')) {
+      context.handle(
+        _tagIdMeta,
+        tagId.isAcceptableOrUnknown(data['tag_id']!, _tagIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tagIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {incomeId, tagId};
+  @override
+  IncomeTag map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return IncomeTag(
+      incomeId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}income_id'],
+      )!,
+      tagId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}tag_id'],
+      )!,
+    );
+  }
+
+  @override
+  $IncomeTagsTable createAlias(String alias) {
+    return $IncomeTagsTable(attachedDatabase, alias);
+  }
+}
+
+class IncomeTag extends DataClass implements Insertable<IncomeTag> {
+  final int incomeId;
+  final int tagId;
+  const IncomeTag({required this.incomeId, required this.tagId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['income_id'] = Variable<int>(incomeId);
+    map['tag_id'] = Variable<int>(tagId);
+    return map;
+  }
+
+  IncomeTagsCompanion toCompanion(bool nullToAbsent) {
+    return IncomeTagsCompanion(incomeId: Value(incomeId), tagId: Value(tagId));
+  }
+
+  factory IncomeTag.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return IncomeTag(
+      incomeId: serializer.fromJson<int>(json['incomeId']),
+      tagId: serializer.fromJson<int>(json['tagId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'incomeId': serializer.toJson<int>(incomeId),
+      'tagId': serializer.toJson<int>(tagId),
+    };
+  }
+
+  IncomeTag copyWith({int? incomeId, int? tagId}) => IncomeTag(
+    incomeId: incomeId ?? this.incomeId,
+    tagId: tagId ?? this.tagId,
+  );
+  IncomeTag copyWithCompanion(IncomeTagsCompanion data) {
+    return IncomeTag(
+      incomeId: data.incomeId.present ? data.incomeId.value : this.incomeId,
+      tagId: data.tagId.present ? data.tagId.value : this.tagId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('IncomeTag(')
+          ..write('incomeId: $incomeId, ')
+          ..write('tagId: $tagId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(incomeId, tagId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is IncomeTag &&
+          other.incomeId == this.incomeId &&
+          other.tagId == this.tagId);
+}
+
+class IncomeTagsCompanion extends UpdateCompanion<IncomeTag> {
+  final Value<int> incomeId;
+  final Value<int> tagId;
+  final Value<int> rowid;
+  const IncomeTagsCompanion({
+    this.incomeId = const Value.absent(),
+    this.tagId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  IncomeTagsCompanion.insert({
+    required int incomeId,
+    required int tagId,
+    this.rowid = const Value.absent(),
+  }) : incomeId = Value(incomeId),
+       tagId = Value(tagId);
+  static Insertable<IncomeTag> custom({
+    Expression<int>? incomeId,
+    Expression<int>? tagId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (incomeId != null) 'income_id': incomeId,
+      if (tagId != null) 'tag_id': tagId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  IncomeTagsCompanion copyWith({
+    Value<int>? incomeId,
+    Value<int>? tagId,
+    Value<int>? rowid,
+  }) {
+    return IncomeTagsCompanion(
+      incomeId: incomeId ?? this.incomeId,
+      tagId: tagId ?? this.tagId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (incomeId.present) {
+      map['income_id'] = Variable<int>(incomeId.value);
+    }
+    if (tagId.present) {
+      map['tag_id'] = Variable<int>(tagId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('IncomeTagsCompanion(')
+          ..write('incomeId: $incomeId, ')
+          ..write('tagId: $tagId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $ExchangeRatesTable extends ExchangeRates
     with TableInfo<$ExchangeRatesTable, ExchangeRate> {
   @override
@@ -2436,6 +3520,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $PaymentMethodsTable paymentMethods = $PaymentMethodsTable(this);
   late final $ExpensesTable expenses = $ExpensesTable(this);
   late final $ExpenseTagsTable expenseTags = $ExpenseTagsTable(this);
+  late final $IncomesTable incomes = $IncomesTable(this);
+  late final $IncomeTagsTable incomeTags = $IncomeTagsTable(this);
   late final $ExchangeRatesTable exchangeRates = $ExchangeRatesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -2446,6 +3532,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     paymentMethods,
     expenses,
     expenseTags,
+    incomes,
+    incomeTags,
     exchangeRates,
   ];
   @override
@@ -2464,6 +3552,20 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       ),
       result: [TableUpdate('expense_tags', kind: UpdateKind.delete)],
     ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'incomes',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('income_tags', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'tags',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('income_tags', kind: UpdateKind.delete)],
+    ),
   ]);
 }
 
@@ -2477,6 +3579,7 @@ typedef $$TagsTableCreateCompanionBuilder =
       Value<String> kind,
       Value<String?> countryCode,
       Value<String?> stableKey,
+      Value<String?> iconKey,
     });
 typedef $$TagsTableUpdateCompanionBuilder =
     TagsCompanion Function({
@@ -2488,6 +3591,7 @@ typedef $$TagsTableUpdateCompanionBuilder =
       Value<String> kind,
       Value<String?> countryCode,
       Value<String?> stableKey,
+      Value<String?> iconKey,
     });
 
 final class $$TagsTableReferences
@@ -2526,6 +3630,24 @@ final class $$TagsTableReferences
     ).filter((f) => f.tagId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_expenseTagsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$IncomeTagsTable, List<IncomeTag>>
+  _incomeTagsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.incomeTags,
+    aliasName: 'tags__id__income_tags__tag_id',
+  );
+
+  $$IncomeTagsTableProcessedTableManager get incomeTagsRefs {
+    final manager = $$IncomeTagsTableTableManager(
+      $_db,
+      $_db.incomeTags,
+    ).filter((f) => f.tagId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_incomeTagsRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -2580,6 +3702,11 @@ class $$TagsTableFilterComposer extends Composer<_$AppDatabase, $TagsTable> {
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get iconKey => $composableBuilder(
+    column: $table.iconKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> expensesRefs(
     Expression<bool> Function($$ExpensesTableFilterComposer f) f,
   ) {
@@ -2621,6 +3748,31 @@ class $$TagsTableFilterComposer extends Composer<_$AppDatabase, $TagsTable> {
           }) => $$ExpenseTagsTableFilterComposer(
             $db: $db,
             $table: $db.expenseTags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> incomeTagsRefs(
+    Expression<bool> Function($$IncomeTagsTableFilterComposer f) f,
+  ) {
+    final $$IncomeTagsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.incomeTags,
+      getReferencedColumn: (t) => t.tagId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$IncomeTagsTableFilterComposer(
+            $db: $db,
+            $table: $db.incomeTags,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2678,6 +3830,11 @@ class $$TagsTableOrderingComposer extends Composer<_$AppDatabase, $TagsTable> {
     column: $table.stableKey,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get iconKey => $composableBuilder(
+    column: $table.iconKey,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$TagsTableAnnotationComposer
@@ -2716,6 +3873,9 @@ class $$TagsTableAnnotationComposer
 
   GeneratedColumn<String> get stableKey =>
       $composableBuilder(column: $table.stableKey, builder: (column) => column);
+
+  GeneratedColumn<String> get iconKey =>
+      $composableBuilder(column: $table.iconKey, builder: (column) => column);
 
   Expression<T> expensesRefs<T extends Object>(
     Expression<T> Function($$ExpensesTableAnnotationComposer a) f,
@@ -2766,6 +3926,31 @@ class $$TagsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> incomeTagsRefs<T extends Object>(
+    Expression<T> Function($$IncomeTagsTableAnnotationComposer a) f,
+  ) {
+    final $$IncomeTagsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.incomeTags,
+      getReferencedColumn: (t) => t.tagId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$IncomeTagsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.incomeTags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$TagsTableTableManager
@@ -2781,7 +3966,11 @@ class $$TagsTableTableManager
           $$TagsTableUpdateCompanionBuilder,
           (Tag, $$TagsTableReferences),
           Tag,
-          PrefetchHooks Function({bool expensesRefs, bool expenseTagsRefs})
+          PrefetchHooks Function({
+            bool expensesRefs,
+            bool expenseTagsRefs,
+            bool incomeTagsRefs,
+          })
         > {
   $$TagsTableTableManager(_$AppDatabase db, $TagsTable table)
     : super(
@@ -2804,6 +3993,7 @@ class $$TagsTableTableManager
                 Value<String> kind = const Value.absent(),
                 Value<String?> countryCode = const Value.absent(),
                 Value<String?> stableKey = const Value.absent(),
+                Value<String?> iconKey = const Value.absent(),
               }) => TagsCompanion(
                 id: id,
                 name: name,
@@ -2813,6 +4003,7 @@ class $$TagsTableTableManager
                 kind: kind,
                 countryCode: countryCode,
                 stableKey: stableKey,
+                iconKey: iconKey,
               ),
           createCompanionCallback:
               ({
@@ -2824,6 +4015,7 @@ class $$TagsTableTableManager
                 Value<String> kind = const Value.absent(),
                 Value<String?> countryCode = const Value.absent(),
                 Value<String?> stableKey = const Value.absent(),
+                Value<String?> iconKey = const Value.absent(),
               }) => TagsCompanion.insert(
                 id: id,
                 name: name,
@@ -2833,6 +4025,7 @@ class $$TagsTableTableManager
                 kind: kind,
                 countryCode: countryCode,
                 stableKey: stableKey,
+                iconKey: iconKey,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -2841,12 +4034,17 @@ class $$TagsTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({expensesRefs = false, expenseTagsRefs = false}) {
+              ({
+                expensesRefs = false,
+                expenseTagsRefs = false,
+                incomeTagsRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (expensesRefs) db.expenses,
                     if (expenseTagsRefs) db.expenseTags,
+                    if (incomeTagsRefs) db.incomeTags,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -2880,6 +4078,22 @@ class $$TagsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (incomeTagsRefs)
+                        await $_getPrefetchedData<Tag, $TagsTable, IncomeTag>(
+                          currentTable: table,
+                          referencedTable: $$TagsTableReferences
+                              ._incomeTagsRefsTable(db),
+                          managerFromTypedResult: (p0) => $$TagsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).incomeTagsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.tagId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -2900,7 +4114,11 @@ typedef $$TagsTableProcessedTableManager =
       $$TagsTableUpdateCompanionBuilder,
       (Tag, $$TagsTableReferences),
       Tag,
-      PrefetchHooks Function({bool expensesRefs, bool expenseTagsRefs})
+      PrefetchHooks Function({
+        bool expensesRefs,
+        bool expenseTagsRefs,
+        bool incomeTagsRefs,
+      })
     >;
 typedef $$PaymentMethodsTableCreateCompanionBuilder =
     PaymentMethodsCompanion Function({
@@ -2943,6 +4161,25 @@ final class $$PaymentMethodsTableReferences
     ).filter((f) => f.paymentMethodId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_expensesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$IncomesTable, List<Income>> _incomesRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.incomes,
+    aliasName: 'payment_methods__id__incomes__payment_method_id',
+  );
+
+  $$IncomesTableProcessedTableManager get incomesRefs {
+    final manager = $$IncomesTableTableManager(
+      $_db,
+      $_db.incomes,
+    ).filter((f) => f.paymentMethodId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_incomesRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -3004,6 +4241,31 @@ class $$PaymentMethodsTableFilterComposer
           }) => $$ExpensesTableFilterComposer(
             $db: $db,
             $table: $db.expenses,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> incomesRefs(
+    Expression<bool> Function($$IncomesTableFilterComposer f) f,
+  ) {
+    final $$IncomesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.incomes,
+      getReferencedColumn: (t) => t.paymentMethodId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$IncomesTableFilterComposer(
+            $db: $db,
+            $table: $db.incomes,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -3107,6 +4369,31 @@ class $$PaymentMethodsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> incomesRefs<T extends Object>(
+    Expression<T> Function($$IncomesTableAnnotationComposer a) f,
+  ) {
+    final $$IncomesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.incomes,
+      getReferencedColumn: (t) => t.paymentMethodId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$IncomesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.incomes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$PaymentMethodsTableTableManager
@@ -3122,7 +4409,7 @@ class $$PaymentMethodsTableTableManager
           $$PaymentMethodsTableUpdateCompanionBuilder,
           (PaymentMethod, $$PaymentMethodsTableReferences),
           PaymentMethod,
-          PrefetchHooks Function({bool expensesRefs})
+          PrefetchHooks Function({bool expensesRefs, bool incomesRefs})
         > {
   $$PaymentMethodsTableTableManager(
     _$AppDatabase db,
@@ -3177,10 +4464,13 @@ class $$PaymentMethodsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({expensesRefs = false}) {
+          prefetchHooksCallback: ({expensesRefs = false, incomesRefs = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [if (expensesRefs) db.expenses],
+              explicitlyWatchedTables: [
+                if (expensesRefs) db.expenses,
+                if (incomesRefs) db.incomes,
+              ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
                 return [
@@ -3199,6 +4489,27 @@ class $$PaymentMethodsTableTableManager
                             table,
                             p0,
                           ).expensesRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where(
+                            (e) => e.paymentMethodId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
+                  if (incomesRefs)
+                    await $_getPrefetchedData<
+                      PaymentMethod,
+                      $PaymentMethodsTable,
+                      Income
+                    >(
+                      currentTable: table,
+                      referencedTable: $$PaymentMethodsTableReferences
+                          ._incomesRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$PaymentMethodsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).incomesRefs,
                       referencedItemsForCurrentItem: (item, referencedItems) =>
                           referencedItems.where(
                             (e) => e.paymentMethodId == item.id,
@@ -3225,7 +4536,7 @@ typedef $$PaymentMethodsTableProcessedTableManager =
       $$PaymentMethodsTableUpdateCompanionBuilder,
       (PaymentMethod, $$PaymentMethodsTableReferences),
       PaymentMethod,
-      PrefetchHooks Function({bool expensesRefs})
+      PrefetchHooks Function({bool expensesRefs, bool incomesRefs})
     >;
 typedef $$ExpensesTableCreateCompanionBuilder =
     ExpensesCompanion Function({
@@ -4263,6 +5574,923 @@ typedef $$ExpenseTagsTableProcessedTableManager =
       ExpenseTag,
       PrefetchHooks Function({bool expenseId, bool tagId})
     >;
+typedef $$IncomesTableCreateCompanionBuilder =
+    IncomesCompanion Function({
+      Value<int> id,
+      required DateTime occurredAt,
+      required int originalAmountMinor,
+      required String originalCurrencyCode,
+      required int storedAmountMinor,
+      required String storedCurrencyCode,
+      Value<double?> rateUsed,
+      Value<DateTime?> rateTimestamp,
+      Value<int?> paymentMethodId,
+      Value<String?> countryCode,
+      Value<String?> note,
+      required DateTime createdAt,
+      Value<bool> duplicateDismissed,
+    });
+typedef $$IncomesTableUpdateCompanionBuilder =
+    IncomesCompanion Function({
+      Value<int> id,
+      Value<DateTime> occurredAt,
+      Value<int> originalAmountMinor,
+      Value<String> originalCurrencyCode,
+      Value<int> storedAmountMinor,
+      Value<String> storedCurrencyCode,
+      Value<double?> rateUsed,
+      Value<DateTime?> rateTimestamp,
+      Value<int?> paymentMethodId,
+      Value<String?> countryCode,
+      Value<String?> note,
+      Value<DateTime> createdAt,
+      Value<bool> duplicateDismissed,
+    });
+
+final class $$IncomesTableReferences
+    extends BaseReferences<_$AppDatabase, $IncomesTable, Income> {
+  $$IncomesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $PaymentMethodsTable _paymentMethodIdTable(_$AppDatabase db) => db
+      .paymentMethods
+      .createAlias('incomes__payment_method_id__payment_methods__id');
+
+  $$PaymentMethodsTableProcessedTableManager? get paymentMethodId {
+    final $_column = $_itemColumn<int>('payment_method_id');
+    if ($_column == null) return null;
+    final manager = $$PaymentMethodsTableTableManager(
+      $_db,
+      $_db.paymentMethods,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_paymentMethodIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$IncomeTagsTable, List<IncomeTag>>
+  _incomeTagsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.incomeTags,
+    aliasName: 'incomes__id__income_tags__income_id',
+  );
+
+  $$IncomeTagsTableProcessedTableManager get incomeTagsRefs {
+    final manager = $$IncomeTagsTableTableManager(
+      $_db,
+      $_db.incomeTags,
+    ).filter((f) => f.incomeId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_incomeTagsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$IncomesTableFilterComposer
+    extends Composer<_$AppDatabase, $IncomesTable> {
+  $$IncomesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get occurredAt => $composableBuilder(
+    column: $table.occurredAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get originalAmountMinor => $composableBuilder(
+    column: $table.originalAmountMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get originalCurrencyCode => $composableBuilder(
+    column: $table.originalCurrencyCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get storedAmountMinor => $composableBuilder(
+    column: $table.storedAmountMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get storedCurrencyCode => $composableBuilder(
+    column: $table.storedCurrencyCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get rateUsed => $composableBuilder(
+    column: $table.rateUsed,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get rateTimestamp => $composableBuilder(
+    column: $table.rateTimestamp,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get countryCode => $composableBuilder(
+    column: $table.countryCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get duplicateDismissed => $composableBuilder(
+    column: $table.duplicateDismissed,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$PaymentMethodsTableFilterComposer get paymentMethodId {
+    final $$PaymentMethodsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.paymentMethodId,
+      referencedTable: $db.paymentMethods,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PaymentMethodsTableFilterComposer(
+            $db: $db,
+            $table: $db.paymentMethods,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> incomeTagsRefs(
+    Expression<bool> Function($$IncomeTagsTableFilterComposer f) f,
+  ) {
+    final $$IncomeTagsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.incomeTags,
+      getReferencedColumn: (t) => t.incomeId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$IncomeTagsTableFilterComposer(
+            $db: $db,
+            $table: $db.incomeTags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$IncomesTableOrderingComposer
+    extends Composer<_$AppDatabase, $IncomesTable> {
+  $$IncomesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get occurredAt => $composableBuilder(
+    column: $table.occurredAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get originalAmountMinor => $composableBuilder(
+    column: $table.originalAmountMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get originalCurrencyCode => $composableBuilder(
+    column: $table.originalCurrencyCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get storedAmountMinor => $composableBuilder(
+    column: $table.storedAmountMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get storedCurrencyCode => $composableBuilder(
+    column: $table.storedCurrencyCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get rateUsed => $composableBuilder(
+    column: $table.rateUsed,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get rateTimestamp => $composableBuilder(
+    column: $table.rateTimestamp,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get countryCode => $composableBuilder(
+    column: $table.countryCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get duplicateDismissed => $composableBuilder(
+    column: $table.duplicateDismissed,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$PaymentMethodsTableOrderingComposer get paymentMethodId {
+    final $$PaymentMethodsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.paymentMethodId,
+      referencedTable: $db.paymentMethods,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PaymentMethodsTableOrderingComposer(
+            $db: $db,
+            $table: $db.paymentMethods,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$IncomesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $IncomesTable> {
+  $$IncomesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get occurredAt => $composableBuilder(
+    column: $table.occurredAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get originalAmountMinor => $composableBuilder(
+    column: $table.originalAmountMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get originalCurrencyCode => $composableBuilder(
+    column: $table.originalCurrencyCode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get storedAmountMinor => $composableBuilder(
+    column: $table.storedAmountMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get storedCurrencyCode => $composableBuilder(
+    column: $table.storedCurrencyCode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get rateUsed =>
+      $composableBuilder(column: $table.rateUsed, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get rateTimestamp => $composableBuilder(
+    column: $table.rateTimestamp,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get countryCode => $composableBuilder(
+    column: $table.countryCode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get duplicateDismissed => $composableBuilder(
+    column: $table.duplicateDismissed,
+    builder: (column) => column,
+  );
+
+  $$PaymentMethodsTableAnnotationComposer get paymentMethodId {
+    final $$PaymentMethodsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.paymentMethodId,
+      referencedTable: $db.paymentMethods,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PaymentMethodsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.paymentMethods,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> incomeTagsRefs<T extends Object>(
+    Expression<T> Function($$IncomeTagsTableAnnotationComposer a) f,
+  ) {
+    final $$IncomeTagsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.incomeTags,
+      getReferencedColumn: (t) => t.incomeId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$IncomeTagsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.incomeTags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$IncomesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $IncomesTable,
+          Income,
+          $$IncomesTableFilterComposer,
+          $$IncomesTableOrderingComposer,
+          $$IncomesTableAnnotationComposer,
+          $$IncomesTableCreateCompanionBuilder,
+          $$IncomesTableUpdateCompanionBuilder,
+          (Income, $$IncomesTableReferences),
+          Income,
+          PrefetchHooks Function({bool paymentMethodId, bool incomeTagsRefs})
+        > {
+  $$IncomesTableTableManager(_$AppDatabase db, $IncomesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$IncomesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$IncomesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$IncomesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<DateTime> occurredAt = const Value.absent(),
+                Value<int> originalAmountMinor = const Value.absent(),
+                Value<String> originalCurrencyCode = const Value.absent(),
+                Value<int> storedAmountMinor = const Value.absent(),
+                Value<String> storedCurrencyCode = const Value.absent(),
+                Value<double?> rateUsed = const Value.absent(),
+                Value<DateTime?> rateTimestamp = const Value.absent(),
+                Value<int?> paymentMethodId = const Value.absent(),
+                Value<String?> countryCode = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<bool> duplicateDismissed = const Value.absent(),
+              }) => IncomesCompanion(
+                id: id,
+                occurredAt: occurredAt,
+                originalAmountMinor: originalAmountMinor,
+                originalCurrencyCode: originalCurrencyCode,
+                storedAmountMinor: storedAmountMinor,
+                storedCurrencyCode: storedCurrencyCode,
+                rateUsed: rateUsed,
+                rateTimestamp: rateTimestamp,
+                paymentMethodId: paymentMethodId,
+                countryCode: countryCode,
+                note: note,
+                createdAt: createdAt,
+                duplicateDismissed: duplicateDismissed,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required DateTime occurredAt,
+                required int originalAmountMinor,
+                required String originalCurrencyCode,
+                required int storedAmountMinor,
+                required String storedCurrencyCode,
+                Value<double?> rateUsed = const Value.absent(),
+                Value<DateTime?> rateTimestamp = const Value.absent(),
+                Value<int?> paymentMethodId = const Value.absent(),
+                Value<String?> countryCode = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                required DateTime createdAt,
+                Value<bool> duplicateDismissed = const Value.absent(),
+              }) => IncomesCompanion.insert(
+                id: id,
+                occurredAt: occurredAt,
+                originalAmountMinor: originalAmountMinor,
+                originalCurrencyCode: originalCurrencyCode,
+                storedAmountMinor: storedAmountMinor,
+                storedCurrencyCode: storedCurrencyCode,
+                rateUsed: rateUsed,
+                rateTimestamp: rateTimestamp,
+                paymentMethodId: paymentMethodId,
+                countryCode: countryCode,
+                note: note,
+                createdAt: createdAt,
+                duplicateDismissed: duplicateDismissed,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$IncomesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({paymentMethodId = false, incomeTagsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [if (incomeTagsRefs) db.incomeTags],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (paymentMethodId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.paymentMethodId,
+                                    referencedTable: $$IncomesTableReferences
+                                        ._paymentMethodIdTable(db),
+                                    referencedColumn: $$IncomesTableReferences
+                                        ._paymentMethodIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (incomeTagsRefs)
+                        await $_getPrefetchedData<
+                          Income,
+                          $IncomesTable,
+                          IncomeTag
+                        >(
+                          currentTable: table,
+                          referencedTable: $$IncomesTableReferences
+                              ._incomeTagsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$IncomesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).incomeTagsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.incomeId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$IncomesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $IncomesTable,
+      Income,
+      $$IncomesTableFilterComposer,
+      $$IncomesTableOrderingComposer,
+      $$IncomesTableAnnotationComposer,
+      $$IncomesTableCreateCompanionBuilder,
+      $$IncomesTableUpdateCompanionBuilder,
+      (Income, $$IncomesTableReferences),
+      Income,
+      PrefetchHooks Function({bool paymentMethodId, bool incomeTagsRefs})
+    >;
+typedef $$IncomeTagsTableCreateCompanionBuilder =
+    IncomeTagsCompanion Function({
+      required int incomeId,
+      required int tagId,
+      Value<int> rowid,
+    });
+typedef $$IncomeTagsTableUpdateCompanionBuilder =
+    IncomeTagsCompanion Function({
+      Value<int> incomeId,
+      Value<int> tagId,
+      Value<int> rowid,
+    });
+
+final class $$IncomeTagsTableReferences
+    extends BaseReferences<_$AppDatabase, $IncomeTagsTable, IncomeTag> {
+  $$IncomeTagsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $IncomesTable _incomeIdTable(_$AppDatabase db) =>
+      db.incomes.createAlias('income_tags__income_id__incomes__id');
+
+  $$IncomesTableProcessedTableManager get incomeId {
+    final $_column = $_itemColumn<int>('income_id')!;
+
+    final manager = $$IncomesTableTableManager(
+      $_db,
+      $_db.incomes,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_incomeIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $TagsTable _tagIdTable(_$AppDatabase db) =>
+      db.tags.createAlias('income_tags__tag_id__tags__id');
+
+  $$TagsTableProcessedTableManager get tagId {
+    final $_column = $_itemColumn<int>('tag_id')!;
+
+    final manager = $$TagsTableTableManager(
+      $_db,
+      $_db.tags,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_tagIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$IncomeTagsTableFilterComposer
+    extends Composer<_$AppDatabase, $IncomeTagsTable> {
+  $$IncomeTagsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$IncomesTableFilterComposer get incomeId {
+    final $$IncomesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.incomeId,
+      referencedTable: $db.incomes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$IncomesTableFilterComposer(
+            $db: $db,
+            $table: $db.incomes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TagsTableFilterComposer get tagId {
+    final $$TagsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.tagId,
+      referencedTable: $db.tags,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TagsTableFilterComposer(
+            $db: $db,
+            $table: $db.tags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$IncomeTagsTableOrderingComposer
+    extends Composer<_$AppDatabase, $IncomeTagsTable> {
+  $$IncomeTagsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$IncomesTableOrderingComposer get incomeId {
+    final $$IncomesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.incomeId,
+      referencedTable: $db.incomes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$IncomesTableOrderingComposer(
+            $db: $db,
+            $table: $db.incomes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TagsTableOrderingComposer get tagId {
+    final $$TagsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.tagId,
+      referencedTable: $db.tags,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TagsTableOrderingComposer(
+            $db: $db,
+            $table: $db.tags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$IncomeTagsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $IncomeTagsTable> {
+  $$IncomeTagsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$IncomesTableAnnotationComposer get incomeId {
+    final $$IncomesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.incomeId,
+      referencedTable: $db.incomes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$IncomesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.incomes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TagsTableAnnotationComposer get tagId {
+    final $$TagsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.tagId,
+      referencedTable: $db.tags,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TagsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.tags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$IncomeTagsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $IncomeTagsTable,
+          IncomeTag,
+          $$IncomeTagsTableFilterComposer,
+          $$IncomeTagsTableOrderingComposer,
+          $$IncomeTagsTableAnnotationComposer,
+          $$IncomeTagsTableCreateCompanionBuilder,
+          $$IncomeTagsTableUpdateCompanionBuilder,
+          (IncomeTag, $$IncomeTagsTableReferences),
+          IncomeTag,
+          PrefetchHooks Function({bool incomeId, bool tagId})
+        > {
+  $$IncomeTagsTableTableManager(_$AppDatabase db, $IncomeTagsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$IncomeTagsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$IncomeTagsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$IncomeTagsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> incomeId = const Value.absent(),
+                Value<int> tagId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => IncomeTagsCompanion(
+                incomeId: incomeId,
+                tagId: tagId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required int incomeId,
+                required int tagId,
+                Value<int> rowid = const Value.absent(),
+              }) => IncomeTagsCompanion.insert(
+                incomeId: incomeId,
+                tagId: tagId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$IncomeTagsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({incomeId = false, tagId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (incomeId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.incomeId,
+                                referencedTable: $$IncomeTagsTableReferences
+                                    ._incomeIdTable(db),
+                                referencedColumn: $$IncomeTagsTableReferences
+                                    ._incomeIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+                    if (tagId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.tagId,
+                                referencedTable: $$IncomeTagsTableReferences
+                                    ._tagIdTable(db),
+                                referencedColumn: $$IncomeTagsTableReferences
+                                    ._tagIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$IncomeTagsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $IncomeTagsTable,
+      IncomeTag,
+      $$IncomeTagsTableFilterComposer,
+      $$IncomeTagsTableOrderingComposer,
+      $$IncomeTagsTableAnnotationComposer,
+      $$IncomeTagsTableCreateCompanionBuilder,
+      $$IncomeTagsTableUpdateCompanionBuilder,
+      (IncomeTag, $$IncomeTagsTableReferences),
+      IncomeTag,
+      PrefetchHooks Function({bool incomeId, bool tagId})
+    >;
 typedef $$ExchangeRatesTableCreateCompanionBuilder =
     ExchangeRatesCompanion Function({
       Value<int> id,
@@ -4491,6 +6719,10 @@ class $AppDatabaseManager {
       $$ExpensesTableTableManager(_db, _db.expenses);
   $$ExpenseTagsTableTableManager get expenseTags =>
       $$ExpenseTagsTableTableManager(_db, _db.expenseTags);
+  $$IncomesTableTableManager get incomes =>
+      $$IncomesTableTableManager(_db, _db.incomes);
+  $$IncomeTagsTableTableManager get incomeTags =>
+      $$IncomeTagsTableTableManager(_db, _db.incomeTags);
   $$ExchangeRatesTableTableManager get exchangeRates =>
       $$ExchangeRatesTableTableManager(_db, _db.exchangeRates);
 }

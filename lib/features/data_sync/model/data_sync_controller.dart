@@ -7,6 +7,8 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:valtero/entities/expense/model/duplicate_matcher.dart';
+import 'package:valtero/entities/income/model/duplicate_matcher.dart'
+    show indexIncomeByFingerprint;
 import 'package:valtero/features/data_sync/model/backup_crypto.dart';
 import 'package:valtero/features/data_sync/model/backup_format.dart';
 import 'package:valtero/features/data_sync/model/backup_importer.dart';
@@ -24,15 +26,38 @@ final backupSnapshotBuilderProvider =
 final backupImporterProvider =
     Provider<BackupImporter>((ref) => BackupImporter());
 
-/// One incoming backup expense that matches one or more local expenses.
-class ImportConflict {
-  final BackupExpenseData incoming;
-  final List<Expense> existingMatches;
+enum ImportConflictKind { expense, income }
 
-  const ImportConflict({
-    required this.incoming,
-    required this.existingMatches,
-  });
+/// One incoming backup expense/income that matches one or more local rows.
+class ImportConflict {
+  final ImportConflictKind kind;
+  final BackupExpenseData? incomingExpense;
+  final BackupIncomeData? incomingIncome;
+  final List<Expense> existingExpenseMatches;
+  final List<Income> existingIncomeMatches;
+
+  const ImportConflict.expense({
+    required BackupExpenseData incoming,
+    required List<Expense> existingMatches,
+  })  : kind = ImportConflictKind.expense,
+        incomingExpense = incoming,
+        incomingIncome = null,
+        existingExpenseMatches = existingMatches,
+        existingIncomeMatches = const [];
+
+  const ImportConflict.income({
+    required BackupIncomeData incoming,
+    required List<Income> existingMatches,
+  })  : kind = ImportConflictKind.income,
+        incomingExpense = null,
+        incomingIncome = incoming,
+        existingExpenseMatches = const [],
+        existingIncomeMatches = existingMatches;
+
+  bool get isIncome => kind == ImportConflictKind.income;
+
+  String get clientId =>
+      isIncome ? incomingIncome!.clientId : incomingExpense!.clientId;
 }
 
 class DataSyncController {
@@ -172,7 +197,7 @@ class DataSyncController {
     );
   }
 
-  Future<List<ImportConflict>> findDuplicateConflicts(
+  Future<List<ImportConflict>> findExpenseDuplicateConflicts(
     BackupEnvelope envelope,
   ) async {
     final local = await ref.read(appDatabaseProvider).getAllExpenses();
@@ -187,10 +212,40 @@ class DataSyncController {
       final matches = indexed[key];
       if (matches == null || matches.isEmpty) continue;
       conflicts.add(
-        ImportConflict(incoming: expense, existingMatches: matches),
+        ImportConflict.expense(incoming: expense, existingMatches: matches),
       );
     }
     return conflicts;
+  }
+
+  Future<List<ImportConflict>> findIncomeDuplicateConflicts(
+    BackupEnvelope envelope,
+  ) async {
+    final local = await ref.read(appDatabaseProvider).getAllIncome();
+    final indexed = indexIncomeByFingerprint(local);
+    final conflicts = <ImportConflict>[];
+    for (final income in envelope.data.incomes) {
+      final key = fingerprintOf(
+        occurredAt: income.occurredAt,
+        originalAmountMinor: income.originalAmountMinor,
+        originalCurrencyCode: income.originalCurrencyCode,
+      );
+      final matches = indexed[key];
+      if (matches == null || matches.isEmpty) continue;
+      conflicts.add(
+        ImportConflict.income(incoming: income, existingMatches: matches),
+      );
+    }
+    return conflicts;
+  }
+
+  Future<List<ImportConflict>> findDuplicateConflicts(
+    BackupEnvelope envelope,
+  ) async {
+    return [
+      ...await findExpenseDuplicateConflicts(envelope),
+      ...await findIncomeDuplicateConflicts(envelope),
+    ];
   }
 
   Future<ImportReport> applyImport({

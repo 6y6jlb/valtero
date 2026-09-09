@@ -11,6 +11,8 @@ void main() {
       expect(needsGoogleReauth('invalid_grant'), isTrue);
       expect(needsGoogleReauth('missing_refresh_token'), isTrue);
       expect(needsGoogleReauth('connectionInvalidToken'), isTrue);
+      expect(needsGoogleReauth('shared_file_inaccessible'), isTrue);
+      expect(needsGoogleReauth('needs_file_scope'), isTrue);
     });
 
     test('false for unrelated / null message keys', () {
@@ -75,6 +77,23 @@ void main() {
           const GoogleDriveSyncResult.ok(messageKey: 'shareOk'),
         ),
         l10n.googleDriveShareOk,
+      );
+    });
+
+    test('maps shared file inaccessible keys', () {
+      expect(
+        googleDriveSyncResultMessage(
+          l10n,
+          const GoogleDriveSyncResult.fail('shared_file_inaccessible'),
+        ),
+        l10n.googleDriveSharedFileInaccessible,
+      );
+      expect(
+        googleDriveSyncResultMessage(
+          l10n,
+          const GoogleDriveSyncResult.fail('shared_sync_failed'),
+        ),
+        l10n.googleDriveSharedFileInaccessible,
       );
     });
   });

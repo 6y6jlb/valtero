@@ -1,51 +1,13 @@
 import 'package:valtero/shared/database/app_database.dart';
+import 'package:valtero/shared/finance/operation_fingerprint.dart';
 
-/// Calendar-day + original amount/currency identity used for soft duplicate
-/// detection (same day, same original minor units, same original currency).
-class ExpenseFingerprint {
-  final DateTime day;
-  final int originalAmountMinor;
-  final String originalCurrencyCode;
+export 'package:valtero/shared/finance/operation_fingerprint.dart'
+    show OperationFingerprint, fingerprintOf;
 
-  const ExpenseFingerprint({
-    required this.day,
-    required this.originalAmountMinor,
-    required this.originalCurrencyCode,
-  });
+/// Typed alias kept for expense-call-site compatibility.
+typedef ExpenseFingerprint = OperationFingerprint;
 
-  @override
-  bool operator ==(Object other) {
-    return other is ExpenseFingerprint &&
-        other.day.year == day.year &&
-        other.day.month == day.month &&
-        other.day.day == day.day &&
-        other.originalAmountMinor == originalAmountMinor &&
-        other.originalCurrencyCode == originalCurrencyCode;
-  }
-
-  @override
-  int get hashCode => Object.hash(
-        day.year,
-        day.month,
-        day.day,
-        originalAmountMinor,
-        originalCurrencyCode,
-      );
-}
-
-ExpenseFingerprint fingerprintOf({
-  required DateTime occurredAt,
-  required int originalAmountMinor,
-  required String originalCurrencyCode,
-}) {
-  return ExpenseFingerprint(
-    day: DateTime(occurredAt.year, occurredAt.month, occurredAt.day),
-    originalAmountMinor: originalAmountMinor,
-    originalCurrencyCode: originalCurrencyCode.toUpperCase(),
-  );
-}
-
-ExpenseFingerprint fingerprintOfExpense(Expense expense) {
+OperationFingerprint fingerprintOfExpense(Expense expense) {
   return fingerprintOf(
     occurredAt: expense.occurredAt,
     originalAmountMinor: expense.originalAmountMinor,
@@ -55,10 +17,10 @@ ExpenseFingerprint fingerprintOfExpense(Expense expense) {
 
 /// Indexes expenses that are still candidates for duplicate matching
 /// (skips rows the user already marked as not-a-duplicate).
-Map<ExpenseFingerprint, List<Expense>> indexByFingerprint(
+Map<OperationFingerprint, List<Expense>> indexByFingerprint(
   List<Expense> expenses,
 ) {
-  final map = <ExpenseFingerprint, List<Expense>>{};
+  final map = <OperationFingerprint, List<Expense>>{};
   for (final expense in expenses) {
     if (expense.duplicateDismissed) continue;
     final key = fingerprintOfExpense(expense);
@@ -82,7 +44,7 @@ List<List<int>> groupPotentialDuplicates(List<Expense> expenses) {
 /// optionally excluding [excludeId] (the expense being edited).
 List<Expense> findMatches({
   required List<Expense> pool,
-  required ExpenseFingerprint fingerprint,
+  required OperationFingerprint fingerprint,
   int? excludeId,
 }) {
   return pool.where((expense) {

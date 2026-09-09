@@ -7,6 +7,7 @@ import 'package:valtero/features/manage_tags/model/manage_tags_controller.dart';
 import 'package:valtero/features/tag_suggestions/model/country_detection.dart';
 import 'package:valtero/features/tag_suggestions/ui/suggested_tags_section.dart';
 import 'package:valtero/shared/consts/countries.dart';
+import 'package:valtero/shared/consts/tag_icons.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
@@ -62,6 +63,7 @@ class TagsSheetBody extends ConsumerWidget {
               await ref.read(manageTagsControllerProvider).addTag(
                     result.name,
                     colorValue: result.colorValue,
+                    iconKey: result.iconKey,
                   );
             },
           ),
@@ -90,15 +92,49 @@ class TagsSheetBody extends ConsumerWidget {
         const SuggestedTagsSection(),
         const SizedBox(height: 16),
         for (final kind in TagKind.values) ...[
-          TagKindSectionHeader(kind: kind),
+          Row(
+            children: [
+              Expanded(child: TagKindSectionHeader(kind: kind)),
+              IconButton(
+                icon: const Icon(Icons.add),
+                tooltip: l10n.addTag,
+                onPressed: () async {
+                  final result = await showTagEditDialog(
+                    context,
+                    title: l10n.newTag,
+                    confirmLabel: l10n.add,
+                  );
+                  if (result == null) return;
+                  await ref.read(manageTagsControllerProvider).addTag(
+                        result.name,
+                        colorValue: result.colorValue,
+                        iconKey: result.iconKey,
+                        kind: tagKindDbValue(kind),
+                      );
+                },
+              ),
+            ],
+          ),
           for (final tag in grouped[kind]!)
             ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: tag.colorValue != null
-                      ? Color(tag.colorValue!)
-                      : Theme.of(context).colorScheme.surfaceContainerHighest,
-                  radius: 12,
-                ),
+                leading: () {
+                  final icon = iconDataForTagKey(tag.iconKey);
+                  if (icon != null) {
+                    return CircleAvatar(
+                      backgroundColor: tag.colorValue != null
+                          ? Color(tag.colorValue!)
+                          : Theme.of(context).colorScheme.surfaceContainerHighest,
+                      radius: 12,
+                      child: Icon(icon, size: 14),
+                    );
+                  }
+                  return CircleAvatar(
+                    backgroundColor: tag.colorValue != null
+                        ? Color(tag.colorValue!)
+                        : Theme.of(context).colorScheme.surfaceContainerHighest,
+                    radius: 12,
+                  );
+                }(),
                 title: Text(localizedTagLabel(context, tag)),
                 subtitle: tag.isDefault ? Text(l10n.defaultTags) : null,
                 trailing: IconButton(
@@ -114,13 +150,19 @@ class TagsSheetBody extends ConsumerWidget {
                     title: l10n.tag,
                     initialName: currentLabel,
                     initialColor: tag.colorValue,
+                    initialIconKey: tag.iconKey,
                     confirmLabel: l10n.save,
                   );
                   if (result == null) return;
                   final controller = ref.read(manageTagsControllerProvider);
                   await controller.setTagColor(tag, result.colorValue);
+                  await controller.setTagIcon(tag, result.iconKey);
                   if (result.name != currentLabel) {
-                    await controller.renameTag(tag, result.name);
+                    await controller.renameTag(
+                      tag,
+                      result.name,
+                      iconKey: result.iconKey,
+                    );
                   }
                 },
               ),

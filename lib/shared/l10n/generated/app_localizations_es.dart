@@ -278,6 +278,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get googleDriveShareFailed => 'No se pudo compartir el archivo';
 
   @override
+  String get googleDriveSharedFileInaccessible =>
+      'No se puede acceder al archivo de sincronización compartido. Vuelve a iniciar sesión y concede el permiso de archivos de Drive cuando Google lo pida (necesario para sincronizar entre cuentas), o vuelve a compartir con el colaborador.';
+
+  @override
   String get googleDriveRevokeOk => 'Acceso revocado';
 
   @override
@@ -521,8 +525,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dataSyncExportFailed => 'No se pudo guardar la copia';
 
   @override
-  String dataSyncImportDone(int expenses, int tags, int payments) {
-    return 'Importados $expenses gastos, $tags etiquetas, $payments métodos de pago';
+  String dataSyncImportDone(int expenses, int incomes, int tags, int payments) {
+    return 'Importados $expenses gastos, $incomes ingresos, $tags etiquetas, $payments métodos de pago';
   }
 
   @override
@@ -553,11 +557,12 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String dataSyncImportDoneWithDuplicates(
     int expenses,
+    int incomes,
     int tags,
     int payments,
     int skipped,
   ) {
-    return 'Importados $expenses gastos, $tags etiquetas, $payments métodos de pago ($skipped duplicados omitidos)';
+    return 'Importados $expenses gastos, $incomes ingresos, $tags etiquetas, $payments métodos de pago ($skipped duplicados omitidos)';
   }
 
   @override
@@ -565,7 +570,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get dataSyncDuplicatesFoundHint =>
-      'Estos gastos entrantes se parecen a los que ya tienes (mismo día, importe y moneda). Elige cómo tratar cada uno.';
+      'Estos gastos o ingresos entrantes se parecen a los que ya tienes (mismo día, importe y moneda). Elige cómo tratar cada uno.';
 
   @override
   String get dataSyncMarkAsDuplicate => 'Marcar como duplicado';
@@ -626,6 +631,12 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get duplicateMatchingExpense => 'Gasto coincidente';
+
+  @override
+  String get duplicateYourIncome => 'Tu ingreso';
+
+  @override
+  String get duplicateMatchingIncome => 'Ingreso coincidente';
 
   @override
   String get dashboardRestoreFromBackup => 'Restaurar desde copia';
@@ -718,6 +729,16 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get expenseDeleted => 'Gasto eliminado';
+
+  @override
+  String get confirmDeleteIncome => '¿Eliminar este ingreso?';
+
+  @override
+  String get confirmDeleteIncomeDescription =>
+      'Este ingreso se eliminará permanentemente.';
+
+  @override
+  String get incomeDeleted => 'Ingreso eliminado';
 
   @override
   String bulkSelectedCount(int count) {
@@ -837,6 +858,12 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get exportTitle => 'Exportar';
+
+  @override
+  String get expense => 'Gasto';
+
+  @override
+  String get income => 'Ingreso';
 
   @override
   String get exportCsv => 'CSV';
@@ -1015,6 +1042,24 @@ class AppLocalizationsEs extends AppLocalizations {
   String get tagUtilities => 'Suministros';
 
   @override
+  String get tagSalary => 'Salario';
+
+  @override
+  String get tagSale => 'Venta';
+
+  @override
+  String get tagGift => 'Regalo';
+
+  @override
+  String get tagRefund => 'Reembolso';
+
+  @override
+  String get tagInvestment => 'Inversión';
+
+  @override
+  String get tagOtherIncome => 'Otros ingresos';
+
+  @override
   String get tagCash => 'Efectivo';
 
   @override
@@ -1111,6 +1156,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get tagKindSectionCustom => 'Categoría';
 
   @override
+  String get tagKindSectionIncome => 'Categoría de ingreso';
+
+  @override
   String get tagKindUnspecifiedCountry => 'País no definido';
 
   @override
@@ -1120,8 +1168,85 @@ class AppLocalizationsEs extends AppLocalizations {
   String get tagKindUnspecifiedCustom => 'Categoría no definida';
 
   @override
+  String get tagKindUnspecifiedIncome => 'Categoría de ingreso no definida';
+
+  @override
   String get tagKindSingleSelectHint =>
       'Una etiqueta por grupo; los grupos son opcionales';
+
+  @override
+  String get tagIcon => 'Icono';
+
+  @override
+  String get tagIconNone => 'Sin icono';
+
+  @override
+  String get addIncome => 'Añadir ingreso';
+
+  @override
+  String get editIncome => 'Editar ingreso';
+
+  @override
+  String get navIncome => 'Ingresos';
+
+  @override
+  String get directionExpenses => 'Gastos';
+
+  @override
+  String get directionIncome => 'Ingresos';
+
+  @override
+  String get directionCashFlow => 'Flujo de caja';
+
+  @override
+  String get cashFlowIncome => 'Ingresos';
+
+  @override
+  String get cashFlowExpense => 'Gastos';
+
+  @override
+  String get cashFlowNet => 'Neto';
+
+  @override
+  String get exportIncome => 'Exportar ingresos';
+
+  @override
+  String get duplicateConflictIncomeTitle => 'Ingreso similar encontrado';
+
+  @override
+  String get showIncomeList => 'Ver ingresos';
+
+  @override
+  String get noMatchingIncome => 'Ningún ingreso coincide con los filtros';
+
+  @override
+  String get noMatchingOperations =>
+      'Ninguna operación coincide con los filtros';
+
+  @override
+  String chartMissingRatesAlertGeneric(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count operaciones mostradas sin tipos de cambio',
+      one: '1 operación mostrada sin tipo de cambio',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get guideSectionIncomeTitle => 'Ingresos';
+
+  @override
+  String get guideSectionIncomeBody =>
+      'En la pestaña Ingresos del panel puedes añadir cobros con los mismos campos de importe, moneda, pago, país y fecha que los gastos. Los ingresos usan sus propias categorías (salario, venta, regalo, etc.). La detección de posibles duplicados funciona igual.';
+
+  @override
+  String get guideSectionCashFlowTitle => 'Flujo de caja';
+
+  @override
+  String get guideSectionCashFlowBody =>
+      'La pestaña Flujo de caja compara ingresos y gastos por día, semana, mes o año. Los filtros de fecha y moneda aplican; categoría y pago quedan en las pestañas Gastos o Ingresos.';
 
   @override
   String get paymentMethod => 'Pago';

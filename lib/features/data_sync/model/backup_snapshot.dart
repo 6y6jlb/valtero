@@ -16,6 +16,9 @@ class BackupSnapshotBuilder {
     final expenses = await db.getAllExpenses();
     final tagIdsByExpense =
         await db.getTagIdsByExpenseIds(expenses.map((e) => e.id).toList());
+    final incomes = await db.getAllIncome();
+    final tagIdsByIncome =
+        await db.getTagIdsByIncomeIds(incomes.map((e) => e.id).toList());
     final allRates = await db.getAllExchangeRates();
 
     final tagById = {for (final t in tags) t.id: t};
@@ -31,6 +34,7 @@ class BackupSnapshotBuilder {
             isDefault: t.isDefault,
             sortOrder: t.sortOrder,
             countryCode: t.countryCode,
+            iconKey: t.iconKey,
           ),
         )
         .toList();
@@ -88,6 +92,47 @@ class BackupSnapshotBuilder {
       }
     }
 
+    final backupIncomes = <BackupIncomeData>[];
+    final backupIncomeTags = <BackupIncomeTagData>[];
+
+    for (final income in incomes) {
+      final clientId = 'i${income.id}';
+      final payment = income.paymentMethodId == null
+          ? null
+          : methodById[income.paymentMethodId!];
+      backupIncomes.add(
+        BackupIncomeData(
+          clientId: clientId,
+          occurredAt: income.occurredAt,
+          originalAmountMinor: income.originalAmountMinor,
+          originalCurrencyCode: income.originalCurrencyCode,
+          storedAmountMinor: income.storedAmountMinor,
+          storedCurrencyCode: income.storedCurrencyCode,
+          rateUsed: income.rateUsed,
+          rateTimestamp: income.rateTimestamp,
+          paymentStableKey: payment?.stableKey,
+          paymentName: payment?.name,
+          countryCode: income.countryCode,
+          note: income.note,
+          createdAt: income.createdAt,
+          duplicateDismissed: income.duplicateDismissed,
+        ),
+      );
+
+      for (final tagId in tagIdsByIncome[income.id] ?? const <int>[]) {
+        final tag = tagById[tagId];
+        if (tag == null) continue;
+        backupIncomeTags.add(
+          BackupIncomeTagData(
+            incomeClientId: clientId,
+            tagStableKey: tag.stableKey,
+            tagName: tag.name,
+            tagKind: tag.kind,
+          ),
+        );
+      }
+    }
+
     final overrides = allRates
         .map(
           (r) => BackupExchangeRateOverrideData(
@@ -127,6 +172,8 @@ class BackupSnapshotBuilder {
         paymentMethods: backupMethods,
         expenses: backupExpenses,
         expenseTags: backupExpenseTags,
+        incomes: backupIncomes,
+        incomeTags: backupIncomeTags,
         exchangeRateOverrides: overrides,
         settings: settingsData,
       ),

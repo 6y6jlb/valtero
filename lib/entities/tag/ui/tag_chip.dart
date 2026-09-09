@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:valtero/shared/consts/tag_icons.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
 
@@ -17,6 +18,10 @@ class TagChip extends StatelessWidget {
   });
 
   Widget? _avatar() {
+    final fromIconKey = iconDataForTagKey(tag.iconKey);
+    if (fromIconKey != null) {
+      return Icon(fromIconKey, size: 18);
+    }
     final resourceIcon = switch (tag.stableKey) {
       'cash' => Icons.payments_outlined,
       'card' => Icons.credit_card,

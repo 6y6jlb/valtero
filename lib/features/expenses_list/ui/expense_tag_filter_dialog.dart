@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:valtero/entities/tag/model/tag_kind.dart';
 import 'package:valtero/entities/tag/ui/grouped_tag_picker.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
@@ -13,6 +14,7 @@ Future<Set<int>?> showExpenseTagFilterDialog(
   BuildContext context, {
   required List<Tag> tags,
   required Set<int> initialSelection,
+  List<TagKind> kinds = const [TagKind.custom],
 }) {
   return showAppModalSheet<Set<int>>(
     context: context,
@@ -22,6 +24,7 @@ Future<Set<int>?> showExpenseTagFilterDialog(
     child: _ExpenseTagFilterSheet(
       tags: tags,
       initialSelection: initialSelection,
+      kinds: kinds,
     ),
   );
 }
@@ -29,10 +32,12 @@ Future<Set<int>?> showExpenseTagFilterDialog(
 class _ExpenseTagFilterSheet extends StatefulWidget {
   final List<Tag> tags;
   final Set<int> initialSelection;
+  final List<TagKind> kinds;
 
   const _ExpenseTagFilterSheet({
     required this.tags,
     required this.initialSelection,
+    required this.kinds,
   });
 
   @override
@@ -71,6 +76,7 @@ class _ExpenseTagFilterSheetState extends State<_ExpenseTagFilterSheet> {
       children: [
         GroupedTagPicker(
           tags: widget.tags,
+          kinds: widget.kinds,
           selectedIds: _selected,
           onTagTap: (tag) {
             setState(() {

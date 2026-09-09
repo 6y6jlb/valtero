@@ -11,4 +11,6 @@ class Tags extends Table {
   TextColumn get countryCode => text().nullable()();
   /// Stable id for localized defaults/suggestions, e.g. `groceries`.
   TextColumn get stableKey => text().nullable()();
+  /// Curated icon key from [tag_icons.dart], e.g. `groceries`, `salary`.
+  TextColumn get iconKey => text().nullable()();
 }

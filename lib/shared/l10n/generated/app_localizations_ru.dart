@@ -276,6 +276,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get googleDriveShareFailed => 'Не удалось расшарить файл';
 
   @override
+  String get googleDriveSharedFileInaccessible =>
+      'Нет доступа к общему файлу синхронизации. Войдите снова и разрешите доступ к файлам Drive, когда Google спросит (нужно для синхронизации между аккаунтами), или поделитесь файлом с соавтором ещё раз.';
+
+  @override
   String get googleDriveRevokeOk => 'Доступ отозван';
 
   @override
@@ -517,8 +521,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get dataSyncExportFailed => 'Не удалось сохранить резервную копию';
 
   @override
-  String dataSyncImportDone(int expenses, int tags, int payments) {
-    return 'Импортировано: $expenses трат, $tags тегов, $payments способов оплаты';
+  String dataSyncImportDone(int expenses, int incomes, int tags, int payments) {
+    return 'Импортировано: $expenses трат, $incomes доходов, $tags тегов, $payments способов оплаты';
   }
 
   @override
@@ -549,11 +553,12 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String dataSyncImportDoneWithDuplicates(
     int expenses,
+    int incomes,
     int tags,
     int payments,
     int skipped,
   ) {
-    return 'Импортировано: $expenses трат, $tags тегов, $payments способов оплаты (пропущено дублей: $skipped)';
+    return 'Импортировано: $expenses трат, $incomes доходов, $tags тегов, $payments способов оплаты (пропущено дублей: $skipped)';
   }
 
   @override
@@ -561,7 +566,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get dataSyncDuplicatesFoundHint =>
-      'Эти входящие траты похожи на уже существующие (тот же день, сумма и валюта). Выберите, как поступить с каждой.';
+      'Эти входящие траты или доходы похожи на уже существующие (тот же день, сумма и валюта). Выберите, как поступить с каждой.';
 
   @override
   String get dataSyncMarkAsDuplicate => 'Пометить как дубль';
@@ -622,6 +627,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get duplicateMatchingExpense => 'Похожая трата';
+
+  @override
+  String get duplicateYourIncome => 'Ваш доход';
+
+  @override
+  String get duplicateMatchingIncome => 'Похожий доход';
 
   @override
   String get dashboardRestoreFromBackup => 'Восстановить из копии';
@@ -714,6 +725,16 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get expenseDeleted => 'Трата удалена';
+
+  @override
+  String get confirmDeleteIncome => 'Удалить этот доход?';
+
+  @override
+  String get confirmDeleteIncomeDescription =>
+      'Эта запись о доходе будет удалена безвозвратно.';
+
+  @override
+  String get incomeDeleted => 'Доход удалён';
 
   @override
   String bulkSelectedCount(int count) {
@@ -833,6 +854,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get exportTitle => 'Экспорт';
+
+  @override
+  String get expense => 'Трата';
+
+  @override
+  String get income => 'Доход';
 
   @override
   String get exportCsv => 'CSV';
@@ -1010,6 +1037,24 @@ class AppLocalizationsRu extends AppLocalizations {
   String get tagUtilities => 'Коммуналка';
 
   @override
+  String get tagSalary => 'Зарплата';
+
+  @override
+  String get tagSale => 'Продажа';
+
+  @override
+  String get tagGift => 'Подарок';
+
+  @override
+  String get tagRefund => 'Возврат';
+
+  @override
+  String get tagInvestment => 'Инвестиции';
+
+  @override
+  String get tagOtherIncome => 'Прочий доход';
+
+  @override
   String get tagCash => 'Наличка';
 
   @override
@@ -1108,6 +1153,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get tagKindSectionCustom => 'Категория';
 
   @override
+  String get tagKindSectionIncome => 'Категория дохода';
+
+  @override
   String get tagKindUnspecifiedCountry => 'Страна не указана';
 
   @override
@@ -1117,8 +1165,86 @@ class AppLocalizationsRu extends AppLocalizations {
   String get tagKindUnspecifiedCustom => 'Категория не указана';
 
   @override
+  String get tagKindUnspecifiedIncome => 'Категория дохода не указана';
+
+  @override
   String get tagKindSingleSelectHint =>
       'Один тег из группы; группы необязательны';
+
+  @override
+  String get tagIcon => 'Иконка';
+
+  @override
+  String get tagIconNone => 'Без иконки';
+
+  @override
+  String get addIncome => 'Добавить доход';
+
+  @override
+  String get editIncome => 'Изменить доход';
+
+  @override
+  String get navIncome => 'Доходы';
+
+  @override
+  String get directionExpenses => 'Расходы';
+
+  @override
+  String get directionIncome => 'Доходы';
+
+  @override
+  String get directionCashFlow => 'Баланс';
+
+  @override
+  String get cashFlowIncome => 'Доходы';
+
+  @override
+  String get cashFlowExpense => 'Расходы';
+
+  @override
+  String get cashFlowNet => 'Итого';
+
+  @override
+  String get exportIncome => 'Экспорт доходов';
+
+  @override
+  String get duplicateConflictIncomeTitle => 'Найден похожий доход';
+
+  @override
+  String get showIncomeList => 'Показать доходы';
+
+  @override
+  String get noMatchingIncome => 'Нет доходов по выбранным фильтрам';
+
+  @override
+  String get noMatchingOperations => 'Нет операций по выбранным фильтрам';
+
+  @override
+  String chartMissingRatesAlertGeneric(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count операции показаны без курса конвертации',
+      many: '$count операций показано без курса конвертации',
+      few: '$count операции показаны без курса конвертации',
+      one: '1 операция показана без курса конвертации',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get guideSectionIncomeTitle => 'Доходы';
+
+  @override
+  String get guideSectionIncomeBody =>
+      'На вкладке «Доходы» на главной можно добавить поступление с теми же полями суммы, валюты, оплаты, страны и даты, что и у трат. Для доходов — свои категории (зарплата, продажа, подарок и др.). Проверка возможных дублей работает так же.';
+
+  @override
+  String get guideSectionCashFlowTitle => 'Баланс';
+
+  @override
+  String get guideSectionCashFlowBody =>
+      'Вкладка «Баланс» сравнивает доходы и расходы по дням, неделям, месяцам или годам. Фильтры по дате и валюте общие; категории и оплата остаются на вкладках «Расходы» и «Доходы».';
 
   @override
   String get paymentMethod => 'Оплата';

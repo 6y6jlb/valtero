@@ -305,7 +305,11 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final settings = ref.watch(appSettingsProvider).value;
-    final tags = ref.watch(tagsStreamProvider).value ?? const [];
+    final allTags = ref.watch(tagsStreamProvider).value ?? const [];
+    final tags = [
+      for (final t in allTags)
+        if (tagKindOf(t) == TagKind.custom) t
+    ];
     final paymentMethods =
         ref.watch(paymentMethodsStreamProvider).value ?? const [];
     final tagById = {for (final t in tags) t.id: t};
@@ -438,6 +442,7 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
                 onTagTap: (tag) => _toggleTag(tag, tagById),
                 newTagController: _newTagController,
                 onAddTag: _addTag,
+                tagKinds: const [TagKind.custom],
               ),
               const SizedBox(height: 8),
               TextField(

@@ -3,10 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
 import 'package:valtero/entities/expense/model/expense_tags_provider.dart';
 import 'package:valtero/entities/expense/model/expenses_provider.dart';
+import 'package:valtero/entities/income/model/income_provider.dart';
+import 'package:valtero/entities/income/model/income_tags_provider.dart';
 import 'package:valtero/entities/payment_method/model/payment_methods_provider.dart';
+import 'package:valtero/entities/tag/model/tag_kind.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
 import 'package:valtero/features/currency_settings/ui/rates_sheet.dart';
 import 'package:valtero/features/data_sync/ui/data_sync_flow.dart';
+import 'package:valtero/features/expenses_list/model/cash_flow_aggregator.dart';
 import 'package:valtero/features/expenses_list/model/dashboard_sample_slices.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/model/expense_chart_aggregator.dart';
@@ -15,6 +19,9 @@ import 'package:valtero/features/expenses_list/model/expense_list_filtering.dart
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/expenses_list/model/expenses_list_display_prefs.dart';
+import 'package:valtero/features/expenses_list/model/income_chart_aggregator.dart';
+import 'package:valtero/features/expenses_list/model/income_list_filtering.dart';
+import 'package:valtero/features/expenses_list/model/transaction_direction.dart';
 import 'package:valtero/features/expenses_list/ui/dashboard_body.dart';
 import 'package:valtero/features/expenses_list/ui/expense_payment_filter_dialog.dart';
 import 'package:valtero/features/expenses_list/ui/expense_tag_filter_dialog.dart';
@@ -47,6 +54,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   ExpenseListQuery? _customQuery;
   /// Bumps [DashboardBody] key so recent pagination resets after filter apply.
   int _filterGeneration = 0;
+  TransactionDirection _direction = TransactionDirection.expenses;
 
   ExpenseListQuery _resolveQuery(String timeZoneId) {
     if (_hasCustomFilter && _customQuery != null) return _customQuery!;
@@ -65,6 +73,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     ref.read(appSettingsProvider.notifier).setExpensesListDisplay(
           chartType: next.name,
         );
+  }
+
+  void _changeDirection(TransactionDirection next) {
+    if (next == _direction) return;
+    setState(() {
+      _direction = next;
+      _filterGeneration++;
+    });
   }
 
   void _openSettings(BuildContext context) {
@@ -105,6 +121,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           context,
           tags: tags,
           initialSelection: draft.tagIds,
+          kinds: _direction == TransactionDirection.income
+              ? const [TagKind.income]
+              : const [TagKind.custom],
         );
         if (selected == null) return null;
         return draft.copyWith(tagIds: selected);
@@ -139,7 +158,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       sliceKey: slice.key,
     );
     if (query == null) return;
-    ExpensesPage.open(context, initial: query);
+    ExpensesPage.open(
+      context,
+      initial: query,
+      direction: _direction == TransactionDirection.cashFlow
+          ? TransactionDirection.expenses
+          : _direction,
+    );
   }
 
   Widget _dashboardBody({
@@ -155,12 +180,17 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     required List<PaymentMethod> paymentMethods,
     required List<Expense> recentExpenses,
     required Map<int, List<int>> expenseTags,
+    List<Income> recentIncomes = const [],
+    Map<int, List<int>> incomeTags = const {},
+    List<CashFlowBucket> cashFlowBuckets = const [],
     required ExpenseListQuery applied,
     required bool isSample,
     required bool loading,
   }) {
     return DashboardBody(
-      key: ValueKey(_filterGeneration),
+      key: ValueKey('${_direction.name}-$_filterGeneration'),
+      direction: _direction,
+      onDirectionChanged: _changeDirection,
       slices: slices,
       missingRateCount: missingRateCount,
       displayCurrency: displayCurrency,
@@ -169,6 +199,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       applied: applied,
       recentExpenses: recentExpenses,
       expenseTags: expenseTags,
+      recentIncomes: recentIncomes,
+      incomeTags: incomeTags,
+      cashFlowBuckets: cashFlowBuckets,
       tagLabels: tagLabels,
       paymentLabels: paymentLabels,
       isSample: isSample,
@@ -197,10 +230,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final l10n = AppLocalizations.of(context)!;
     final settings = ref.watch(appSettingsProvider).value;
     final expenses = ref.watch(allExpensesProvider).value ?? const [];
+    final incomes = ref.watch(allIncomeProvider).value ?? const [];
     final tags = ref.watch(tagsStreamProvider).value ?? const [];
     final paymentMethods =
         ref.watch(paymentMethodsStreamProvider).value ?? const [];
     final expenseTags = ref.watch(expenseTagIdsProvider).value ?? const {};
+    final incomeTags = ref.watch(incomeTagIdsProvider).value ?? const {};
     final breakdown = settings != null
         ? expensesChartBreakdownFromSettings(settings)
         : ExpenseChartBreakdown.currency;
@@ -219,20 +254,184 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     };
     final currencyOptions = <String>{
       for (final e in expenses) e.storedCurrencyCode,
+      for (final i in incomes) i.storedCurrencyCode,
     }.toList()
       ..sort();
 
     final timeZoneId = settings?.timeZoneId ?? kSystemTimeZoneId;
     final applied = _resolveQuery(timeZoneId);
 
-    final filtered = filterExpenses(
+    final filteredExpenses = filterExpenses(
       all: expenses,
       query: applied,
       expenseTags: expenseTags,
       timeZoneId: timeZoneId,
     );
-    final isSample = expenses.isEmpty;
+    final filteredIncomes = filterIncomes(
+      all: incomes,
+      query: applied,
+      incomeTags: incomeTags,
+      timeZoneId: timeZoneId,
+    );
+    final isSample =
+        _direction == TransactionDirection.expenses && expenses.isEmpty;
     final lang = Localizations.localeOf(context).languageCode;
+
+    Widget body;
+    if (isSample) {
+      body = _dashboardBody(
+        slices: dashboardSampleSlices(l10n, breakdown),
+        missingRateCount: 0,
+        displayCurrency: displayCurrency,
+        breakdown: breakdown,
+        chartType: chartType,
+        currencyOptions: currencyOptions,
+        tagLabels: tagLabels,
+        paymentLabels: paymentLabels,
+        tags: tags,
+        paymentMethods: paymentMethods,
+        recentExpenses: const [],
+        expenseTags: expenseTags,
+        applied: applied,
+        isSample: true,
+        loading: false,
+      );
+    } else if (_direction == TransactionDirection.income) {
+      body = FutureBuilder<IncomeChartAggregation>(
+        future: aggregateIncomesForChart(
+          incomes: filteredIncomes,
+          primaryCurrency: displayCurrency,
+          resolver: ref.read(rateResolverProvider),
+          breakdown: breakdown,
+          incomeTags: incomeTags,
+          tagLabels: tagLabels,
+          tagById: tagById,
+          untaggedLabel: unspecifiedLabelForChartBreakdown(l10n, breakdown),
+          paymentById: paymentById,
+          paymentLabels: paymentLabels,
+          countryLabel: (code) =>
+              countryDisplayName(code, languageCode: lang),
+          timeZoneId: timeZoneId,
+        ),
+        builder: (context, snapshot) {
+          final aggregation = snapshot.data ??
+              (slices: const <DonutChartSlice>[], missingRateCount: 0);
+          return _dashboardBody(
+            slices: aggregation.slices,
+            missingRateCount: aggregation.missingRateCount,
+            displayCurrency: displayCurrency,
+            breakdown: breakdown,
+            chartType: chartType,
+            currencyOptions: currencyOptions,
+            tagLabels: tagLabels,
+            paymentLabels: paymentLabels,
+            tags: tags,
+            paymentMethods: paymentMethods,
+            recentExpenses: const [],
+            expenseTags: expenseTags,
+            recentIncomes: filteredIncomes,
+            incomeTags: incomeTags,
+            applied: applied,
+            isSample: false,
+            loading: snapshot.connectionState == ConnectionState.waiting,
+          );
+        },
+      );
+    } else if (_direction == TransactionDirection.cashFlow) {
+      final cashFlowQuery = applied.copyWith(
+        tagIds: {},
+        paymentMethodIds: {},
+        countryCodes: {},
+      );
+      final cfExpenses = filterExpenses(
+        all: expenses,
+        query: cashFlowQuery,
+        expenseTags: expenseTags,
+        timeZoneId: timeZoneId,
+      );
+      final cfIncomes = filterIncomes(
+        all: incomes,
+        query: cashFlowQuery,
+        incomeTags: incomeTags,
+        timeZoneId: timeZoneId,
+      );
+      body = FutureBuilder<CashFlowAggregation>(
+        future: aggregateCashFlow(
+          expenses: cfExpenses,
+          incomes: cfIncomes,
+          primaryCurrency: displayCurrency,
+          resolver: ref.read(rateResolverProvider),
+          breakdown: breakdown,
+          timeZoneId: timeZoneId,
+        ),
+        builder: (context, snapshot) {
+          final aggregation = snapshot.data ??
+              (buckets: const <CashFlowBucket>[], missingRateCount: 0);
+          return _dashboardBody(
+            slices: const [],
+            missingRateCount: aggregation.missingRateCount,
+            displayCurrency: displayCurrency,
+            breakdown: breakdown,
+            chartType: chartType,
+            currencyOptions: currencyOptions,
+            tagLabels: tagLabels,
+            paymentLabels: paymentLabels,
+            tags: tags,
+            paymentMethods: paymentMethods,
+            recentExpenses: cfExpenses,
+            expenseTags: expenseTags,
+            recentIncomes: cfIncomes,
+            incomeTags: incomeTags,
+            cashFlowBuckets: aggregation.buckets,
+            applied: applied,
+            isSample: false,
+            loading: snapshot.connectionState == ConnectionState.waiting,
+          );
+        },
+      );
+    } else {
+      body = FutureBuilder<ExpenseChartAggregation>(
+        future: aggregateExpensesForChart(
+          expenses: filteredExpenses,
+          primaryCurrency: displayCurrency,
+          resolver: ref.read(rateResolverProvider),
+          breakdown: breakdown,
+          expenseTags: expenseTags,
+          tagLabels: tagLabels,
+          tagById: tagById,
+          paymentById: paymentById,
+          paymentLabels: paymentLabels,
+          untaggedLabel: unspecifiedLabelForChartBreakdown(
+            l10n,
+            breakdown,
+          ),
+          countryLabel: (code) =>
+              countryDisplayName(code, languageCode: lang),
+          timeZoneId: timeZoneId,
+        ),
+        builder: (context, snapshot) {
+          final aggregation = snapshot.data ??
+              (slices: const <DonutChartSlice>[], missingRateCount: 0);
+          return _dashboardBody(
+            slices: aggregation.slices,
+            missingRateCount: aggregation.missingRateCount,
+            displayCurrency: displayCurrency,
+            breakdown: breakdown,
+            chartType: chartType,
+            currencyOptions: currencyOptions,
+            tagLabels: tagLabels,
+            paymentLabels: paymentLabels,
+            tags: tags,
+            paymentMethods: paymentMethods,
+            recentExpenses: filteredExpenses,
+            expenseTags: expenseTags,
+            applied: applied,
+            isSample: false,
+            loading: snapshot.connectionState == ConnectionState.waiting,
+          );
+        },
+      );
+    }
 
     return AppPageScaffold(
       appBar: AppBar(
@@ -252,74 +451,22 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         ],
       ),
       addExpenseHeroTag: 'dashboard_add_expense',
+      addIncomeHeroTag: 'dashboard_add_income',
+      showAddExpenseFab: _direction != TransactionDirection.income,
+      showAddIncomeFab: _direction != TransactionDirection.expenses,
       extraFabs: [
         FloatingActionButton.extended(
           heroTag: 'dashboard_show_expenses',
-          onPressed: () => ExpensesPage.open(context),
+          onPressed: () => ExpensesPage.open(context, direction: _direction),
           icon: const Icon(Icons.list_alt),
-          label: Text(l10n.showExpenses),
+          label: Text(
+            _direction == TransactionDirection.income
+                ? l10n.showIncomeList
+                : l10n.showExpenses,
+          ),
         ),
       ],
-      body: isSample
-          ? _dashboardBody(
-              slices: dashboardSampleSlices(l10n, breakdown),
-              missingRateCount: 0,
-              displayCurrency: displayCurrency,
-              breakdown: breakdown,
-              chartType: chartType,
-              currencyOptions: currencyOptions,
-              tagLabels: tagLabels,
-              paymentLabels: paymentLabels,
-              tags: tags,
-              paymentMethods: paymentMethods,
-              recentExpenses: const [],
-              expenseTags: expenseTags,
-              applied: applied,
-              isSample: true,
-              loading: false,
-            )
-          : FutureBuilder<ExpenseChartAggregation>(
-              future: aggregateExpensesForChart(
-                expenses: filtered,
-                primaryCurrency: displayCurrency,
-                resolver: ref.read(rateResolverProvider),
-                breakdown: breakdown,
-                expenseTags: expenseTags,
-                tagLabels: tagLabels,
-                tagById: tagById,
-                paymentById: paymentById,
-                paymentLabels: paymentLabels,
-                untaggedLabel: unspecifiedLabelForChartBreakdown(
-                  l10n,
-                  breakdown,
-                ),
-                countryLabel: (code) =>
-                    countryDisplayName(code, languageCode: lang),
-                timeZoneId: timeZoneId,
-              ),
-              builder: (context, snapshot) {
-                final aggregation = snapshot.data ??
-                    (slices: const <DonutChartSlice>[], missingRateCount: 0);
-                return _dashboardBody(
-                  slices: aggregation.slices,
-                  missingRateCount: aggregation.missingRateCount,
-                  displayCurrency: displayCurrency,
-                  breakdown: breakdown,
-                  chartType: chartType,
-                  currencyOptions: currencyOptions,
-                  tagLabels: tagLabels,
-                  paymentLabels: paymentLabels,
-                  tags: tags,
-                  paymentMethods: paymentMethods,
-                  recentExpenses: filtered,
-                  expenseTags: expenseTags,
-                  applied: applied,
-                  isSample: false,
-                  loading:
-                      snapshot.connectionState == ConnectionState.waiting,
-                );
-              },
-            ),
+      body: body,
     );
   }
 }

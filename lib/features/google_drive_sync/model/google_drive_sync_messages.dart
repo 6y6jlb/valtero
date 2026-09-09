@@ -10,6 +10,8 @@ const _kGoogleReauthMessageKeys = {
   'invalid_grant',
   'missing_refresh_token',
   'connectionInvalidToken',
+  'shared_file_inaccessible',
+  'needs_file_scope',
 };
 
 /// True when [messageKey] means the user must sign in with Google again
@@ -62,6 +64,10 @@ String googleDriveSyncResultMessage(
     'shareOk' => l10n.googleDriveShareOk,
     'revokeOk' => l10n.googleDriveRevokeOk,
     'invalid_email' => l10n.googleDriveInvalidEmail,
+    'shared_file_inaccessible' ||
+    'needs_file_scope' ||
+    'shared_sync_failed' =>
+      l10n.googleDriveSharedFileInaccessible,
     'remote_newer_schema' => l10n.googleDriveRemoteNewerSchema(
         result.remoteSchemaVersion ?? 0,
         result.localSchemaVersion ?? 0,

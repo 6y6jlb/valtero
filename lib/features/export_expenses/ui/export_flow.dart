@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/integrations/model/integration_registry.dart';
 import 'package:valtero/entities/integrations/telegram/model/telegram_integration.dart';
 import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
+import 'package:valtero/features/export_expenses/model/export_data_type.dart';
 import 'package:valtero/features/export_expenses/model/export_destination.dart';
 import 'package:valtero/features/export_expenses/model/export_readiness.dart';
 import 'package:valtero/features/export_expenses/ui/export_panel.dart';
@@ -56,6 +57,7 @@ Future<void> performExport(
   WidgetRef ref, {
   required ExportFormat format,
   required ExportDestination destination,
+  ExportDataType dataType = ExportDataType.expenses,
   Future<String?> Function()? run,
   bool allowSetupSheet = true,
 }) async {
@@ -79,6 +81,7 @@ Future<void> performExport(
         context,
         format: format,
         destination: destination,
+        dataType: dataType,
       );
     }
     if (!context.mounted || message == null) return;

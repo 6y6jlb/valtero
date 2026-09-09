@@ -1,11 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:valtero/entities/expense/model/expenses_provider.dart';
+import 'package:valtero/entities/income/model/income_provider.dart';
 import 'package:valtero/entities/integrations/model/integration_registry.dart';
 import 'package:valtero/entities/payment_method/model/payment_methods_provider.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
 import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
+import 'package:valtero/features/export_expenses/data/income_exporter.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/database/database_provider.dart';
 import 'package:valtero/shared/logging/logging_providers.dart';
@@ -13,6 +17,10 @@ import 'package:valtero/shared/settings/app_settings_provider.dart';
 
 final expenseExporterProvider = Provider<ExpenseExporter>((ref) {
   return ExpenseExporter();
+});
+
+final incomeExporterProvider = Provider<IncomeExporter>((ref) {
+  return IncomeExporter();
 });
 
 class ExportController {
@@ -167,13 +175,20 @@ class ExportController {
     required String content,
     required ExportFormat format,
   }) async {
-    final settings = ref.read(appSettingsProvider).value;
-    if (settings == null) throw StateError('no_settings');
-    final logger = ref.read(appLoggerProvider);
     final file = await ref.read(expenseExporterProvider).writeTempFile(
           content: content,
           format: format,
         );
+    await _sendTelegramFile(file, format: format);
+  }
+
+  Future<void> _sendTelegramFile(
+    File file, {
+    required ExportFormat format,
+  }) async {
+    final settings = ref.read(appSettingsProvider).value;
+    if (settings == null) throw StateError('no_settings');
+    final logger = ref.read(appLoggerProvider);
     try {
       await ref.read(telegramIntegrationProvider).exportFile(
             file: file,
@@ -187,6 +202,62 @@ class ExportController {
       logger.error('Telegram export failed', error: e, stackTrace: st);
       rethrow;
     }
+  }
+
+  Future<String> buildIncomeContent(ExportFormat format) async {
+    final incomes = ref.read(allIncomeProvider).value ?? const [];
+    final tags = ref.read(tagsStreamProvider).value ?? const [];
+    final methods = ref.read(paymentMethodsStreamProvider).value ?? const [];
+    final tagNames = {for (final t in tags) t.id: t.name};
+    final paymentNames = {for (final m in methods) m.id: m.name};
+    final tagsByIncome = await ref
+        .read(appDatabaseProvider)
+        .getTagIdsByIncomeIds(incomes.map((e) => e.id).toList());
+    final exporter = ref.read(incomeExporterProvider);
+    return format == ExportFormat.csv
+        ? exporter.buildCsv(
+            incomes,
+            tagNames,
+            tagsByIncome,
+            paymentNames: paymentNames,
+          )
+        : exporter.buildJson(
+            incomes,
+            tagNames,
+            tagsByIncome,
+            paymentNames: paymentNames,
+          );
+  }
+
+  Future<String?> saveIncomeFile(ExportFormat format) async {
+    final content = await buildIncomeContent(format);
+    return ref.read(incomeExporterProvider).saveWithDialog(
+          content: content,
+          format: format,
+        );
+  }
+
+  Future<void> shareIncome(ExportFormat format) async {
+    final content = await buildIncomeContent(format);
+    final file = await ref.read(incomeExporterProvider).writeTempFile(
+          content: content,
+          format: format,
+        );
+    await ref.read(incomeExporterProvider).shareFile(file);
+  }
+
+  Future<void> copyIncome(ExportFormat format) async {
+    final content = await buildIncomeContent(format);
+    await Clipboard.setData(ClipboardData(text: content));
+  }
+
+  Future<void> sendIncomeTelegram(ExportFormat format) async {
+    final content = await buildIncomeContent(format);
+    final file = await ref.read(incomeExporterProvider).writeTempFile(
+          content: content,
+          format: format,
+        );
+    await _sendTelegramFile(file, format: format);
   }
 }
 

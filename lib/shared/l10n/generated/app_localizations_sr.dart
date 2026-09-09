@@ -275,6 +275,10 @@ class AppLocalizationsSr extends AppLocalizations {
   String get googleDriveShareFailed => 'Nije moguće podeliti fajl';
 
   @override
+  String get googleDriveSharedFileInaccessible =>
+      'Nema pristupa deljenom fajlu za sinhronizaciju. Prijavite se ponovo i dozvolite pristup Drive fajlovima kada Google zatraži (potrebno za sinhronizaciju između naloga), ili ponovo podelite sa saradnikom.';
+
+  @override
   String get googleDriveRevokeOk => 'Pristup opozvan';
 
   @override
@@ -516,8 +520,8 @@ class AppLocalizationsSr extends AppLocalizations {
   String get dataSyncExportFailed => 'Nije moguće sačuvati rezervnu kopiju';
 
   @override
-  String dataSyncImportDone(int expenses, int tags, int payments) {
-    return 'Uvezeno $expenses troškova, $tags oznaka, $payments načina plaćanja';
+  String dataSyncImportDone(int expenses, int incomes, int tags, int payments) {
+    return 'Uvezeno $expenses troškova, $incomes prihoda, $tags oznaka, $payments načina plaćanja';
   }
 
   @override
@@ -549,11 +553,12 @@ class AppLocalizationsSr extends AppLocalizations {
   @override
   String dataSyncImportDoneWithDuplicates(
     int expenses,
+    int incomes,
     int tags,
     int payments,
     int skipped,
   ) {
-    return 'Uvezeno $expenses troškova, $tags oznaka, $payments načina plaćanja (preskočeno duplikata: $skipped)';
+    return 'Uvezeno $expenses troškova, $incomes prihoda, $tags oznaka, $payments načina plaćanja (preskočeno duplikata: $skipped)';
   }
 
   @override
@@ -561,7 +566,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get dataSyncDuplicatesFoundHint =>
-      'Ovi dolazni troškovi liče na one koje već imate (isti dan, iznos i valuta). Izaberite kako da postupite sa svakim.';
+      'Ovi dolazni troškovi ili prihodi liče na one koje već imate (isti dan, iznos i valuta). Izaberite kako da postupite sa svakim.';
 
   @override
   String get dataSyncMarkAsDuplicate => 'Označi kao duplikat';
@@ -622,6 +627,12 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get duplicateMatchingExpense => 'Podudarni trošak';
+
+  @override
+  String get duplicateYourIncome => 'Vaš prihod';
+
+  @override
+  String get duplicateMatchingIncome => 'Podudarni prihod';
 
   @override
   String get dashboardRestoreFromBackup => 'Vrati iz rezervne kopije';
@@ -714,6 +725,16 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get expenseDeleted => 'Trošak obrisan';
+
+  @override
+  String get confirmDeleteIncome => 'Obrisati ovaj prihod?';
+
+  @override
+  String get confirmDeleteIncomeDescription =>
+      'Ovaj prihod biće trajno obrisan.';
+
+  @override
+  String get incomeDeleted => 'Prihod obrisan';
 
   @override
   String bulkSelectedCount(int count) {
@@ -833,6 +854,12 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get exportTitle => 'Izvoz';
+
+  @override
+  String get expense => 'Trošak';
+
+  @override
+  String get income => 'Prihod';
 
   @override
   String get exportCsv => 'CSV';
@@ -1011,6 +1038,24 @@ class AppLocalizationsSr extends AppLocalizations {
   String get tagUtilities => 'Režije';
 
   @override
+  String get tagSalary => 'Plata';
+
+  @override
+  String get tagSale => 'Prodaja';
+
+  @override
+  String get tagGift => 'Poklon';
+
+  @override
+  String get tagRefund => 'Povraćaj';
+
+  @override
+  String get tagInvestment => 'Investicija';
+
+  @override
+  String get tagOtherIncome => 'Ostali prihod';
+
+  @override
   String get tagCash => 'Gotovina';
 
   @override
@@ -1108,6 +1153,9 @@ class AppLocalizationsSr extends AppLocalizations {
   String get tagKindSectionCustom => 'Kategorija';
 
   @override
+  String get tagKindSectionIncome => 'Kategorija prihoda';
+
+  @override
   String get tagKindUnspecifiedCountry => 'Zemlja nije postavljena';
 
   @override
@@ -1117,8 +1165,85 @@ class AppLocalizationsSr extends AppLocalizations {
   String get tagKindUnspecifiedCustom => 'Kategorija nije postavljena';
 
   @override
+  String get tagKindUnspecifiedIncome => 'Kategorija prihoda nije postavljena';
+
+  @override
   String get tagKindSingleSelectHint =>
       'Jedna oznaka po grupi; grupe su opcione';
+
+  @override
+  String get tagIcon => 'Ikona';
+
+  @override
+  String get tagIconNone => 'Bez ikone';
+
+  @override
+  String get addIncome => 'Dodaj prihod';
+
+  @override
+  String get editIncome => 'Izmeni prihod';
+
+  @override
+  String get navIncome => 'Prihodi';
+
+  @override
+  String get directionExpenses => 'Troškovi';
+
+  @override
+  String get directionIncome => 'Prihodi';
+
+  @override
+  String get directionCashFlow => 'Tok novca';
+
+  @override
+  String get cashFlowIncome => 'Prihodi';
+
+  @override
+  String get cashFlowExpense => 'Troškovi';
+
+  @override
+  String get cashFlowNet => 'Neto';
+
+  @override
+  String get exportIncome => 'Izvezi prihode';
+
+  @override
+  String get duplicateConflictIncomeTitle => 'Pronađen sličan prihod';
+
+  @override
+  String get showIncomeList => 'Prikaži prihode';
+
+  @override
+  String get noMatchingIncome => 'Nema prihoda koji odgovaraju filterima';
+
+  @override
+  String get noMatchingOperations => 'Nema operacija koje odgovaraju filterima';
+
+  @override
+  String chartMissingRatesAlertGeneric(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count operacija prikazano bez kursa konverzije',
+      few: '$count operacije prikazane bez kursa konverzije',
+      one: '1 operacija prikazana bez kursa konverzije',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get guideSectionIncomeTitle => 'Prihodi';
+
+  @override
+  String get guideSectionIncomeBody =>
+      'Na kartici Prihodi na početnoj možete dodati uplatu sa istim poljima iznosa, valute, plaćanja, zemlje i datuma kao kod troškova. Prihodi imaju svoje kategorije (plata, prodaja, poklon…). Provera mogućih duplikata radi isto.';
+
+  @override
+  String get guideSectionCashFlowTitle => 'Tok novca';
+
+  @override
+  String get guideSectionCashFlowBody =>
+      'Kartica Tok novca poredi prihode i troškove po danu, nedelji, mesecu ili godini. Filteri datuma i valute važe; kategorija i plaćanje ostaju na karticama Troškovi ili Prihodi.';
 
   @override
   String get paymentMethod => 'Plaćanje';

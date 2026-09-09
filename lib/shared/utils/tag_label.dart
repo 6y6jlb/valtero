@@ -18,6 +18,12 @@ String tagLabelForKey(AppLocalizations l10n, String key, {String? languageCode})
     'crypto' => l10n.tagCrypto,
     'transfer' => l10n.tagTransfer,
     'ewallet' => l10n.tagEwallet,
+    'salary' => l10n.tagSalary,
+    'sale' => l10n.tagSale,
+    'gift' => l10n.tagGift,
+    'refund' => l10n.tagRefund,
+    'investment' => l10n.tagInvestment,
+    'other_income' => l10n.tagOtherIncome,
     _ => key,
   };
 }

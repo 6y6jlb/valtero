@@ -114,6 +114,7 @@
   "googleDriveShareAdd": "Compartir por correo",
   "googleDriveShareOk": "Compartido correctamente",
   "googleDriveShareFailed": "No se pudo compartir el archivo",
+  "googleDriveSharedFileInaccessible": "No se puede acceder al archivo de sincronización compartido. Vuelve a iniciar sesión y concede el permiso de archivos de Drive cuando Google lo pida (necesario para sincronizar entre cuentas), o vuelve a compartir con el colaborador.",
   "googleDriveRevokeOk": "Acceso revocado",
   "googleDriveRevokeFailed": "No se pudo revocar el acceso",
   "googleDriveInvalidEmail": "Introduce un correo válido",
@@ -241,10 +242,13 @@
   "dataSyncPassphraseWarning": "Guarda esta frase en un lugar seguro. Sin ella no se puede abrir la copia.",
   "dataSyncExportDone": "Copia guardada",
   "dataSyncExportFailed": "No se pudo guardar la copia",
-  "dataSyncImportDone": "Importados {expenses} gastos, {tags} etiquetas, {payments} métodos de pago",
+  "dataSyncImportDone": "Importados {expenses} gastos, {incomes} ingresos, {tags} etiquetas, {payments} métodos de pago",
   "@dataSyncImportDone": {
     "placeholders": {
       "expenses": {
+        "type": "int"
+      },
+      "incomes": {
         "type": "int"
       },
       "tags": {
@@ -262,10 +266,13 @@
   "dataSyncGoogleDriveHint": "También puedes activar la sincronización cifrada automática con Google Drive — las copias se actualizan entre dispositivos sin intercambiar archivos manualmente.",
   "dataSyncGoogleDriveSetup": "Conectar Google Drive Sync",
   "dataSyncGoogleDriveManage": "Abrir ajustes de Google Drive Sync",
-  "dataSyncImportDoneWithDuplicates": "Importados {expenses} gastos, {tags} etiquetas, {payments} métodos de pago ({skipped} duplicados omitidos)",
+  "dataSyncImportDoneWithDuplicates": "Importados {expenses} gastos, {incomes} ingresos, {tags} etiquetas, {payments} métodos de pago ({skipped} duplicados omitidos)",
   "@dataSyncImportDoneWithDuplicates": {
     "placeholders": {
       "expenses": {
+        "type": "int"
+      },
+      "incomes": {
         "type": "int"
       },
       "tags": {
@@ -280,7 +287,7 @@
     }
   },
   "dataSyncDuplicatesFoundTitle": "Posibles duplicados encontrados",
-  "dataSyncDuplicatesFoundHint": "Estos gastos entrantes se parecen a los que ya tienes (mismo día, importe y moneda). Elige cómo tratar cada uno.",
+  "dataSyncDuplicatesFoundHint": "Estos gastos o ingresos entrantes se parecen a los que ya tienes (mismo día, importe y moneda). Elige cómo tratar cada uno.",
   "dataSyncMarkAsDuplicate": "Marcar como duplicado",
   "dataSyncMarkAsUnique": "Marcar como único",
   "dataSyncMarkSelectedAsDuplicate": "Seleccionados → duplicados",
@@ -307,6 +314,8 @@
   "duplicateDeleteMatchAndSave": "Eliminar coincidencia y guardar",
   "duplicateYourExpense": "Tu gasto",
   "duplicateMatchingExpense": "Gasto coincidente",
+  "duplicateYourIncome": "Tu ingreso",
+  "duplicateMatchingIncome": "Ingreso coincidente",
   "dashboardRestoreFromBackup": "Restaurar desde copia",
   "selectCountry": "Seleccionar país",
   "addExpense": "Añadir gasto",
@@ -353,6 +362,9 @@
   "confirmDeleteExpense": "¿Eliminar este gasto?",
   "confirmDeleteExpenseDescription": "Este gasto se eliminará permanentemente.",
   "expenseDeleted": "Gasto eliminado",
+  "confirmDeleteIncome": "¿Eliminar este ingreso?",
+  "confirmDeleteIncomeDescription": "Este ingreso se eliminará permanentemente.",
+  "incomeDeleted": "Ingreso eliminado",
   "bulkSelectedCount": "{count} seleccionados",
   "@bulkSelectedCount": {
     "placeholders": {
@@ -428,6 +440,8 @@
   "defaultTags": "Etiquetas predeterminadas",
   "dismiss": "Descartar",
   "exportTitle": "Exportar",
+  "expense": "Gasto",
+  "income": "Ingreso",
   "exportCsv": "CSV",
   "exportJson": "JSON",
   "saveFile": "Guardar archivo",
@@ -492,6 +506,12 @@
   "tagShopping": "Compras",
   "tagTravel": "Viajes",
   "tagUtilities": "Suministros",
+  "tagSalary": "Salario",
+  "tagSale": "Venta",
+  "tagGift": "Regalo",
+  "tagRefund": "Reembolso",
+  "tagInvestment": "Inversión",
+  "tagOtherIncome": "Otros ingresos",
   "tagCash": "Efectivo",
   "tagCard": "Tarjeta",
   "tagCrypto": "Cripto",
@@ -533,10 +553,40 @@
   "tagKindSectionCountry": "País",
   "tagKindSectionTrip": "Viaje",
   "tagKindSectionCustom": "Categoría",
+  "tagKindSectionIncome": "Categoría de ingreso",
   "tagKindUnspecifiedCountry": "País no definido",
   "tagKindUnspecifiedTrip": "Viaje no definido",
   "tagKindUnspecifiedCustom": "Categoría no definida",
+  "tagKindUnspecifiedIncome": "Categoría de ingreso no definida",
   "tagKindSingleSelectHint": "Una etiqueta por grupo; los grupos son opcionales",
+  "tagIcon": "Icono",
+  "tagIconNone": "Sin icono",
+  "addIncome": "Añadir ingreso",
+  "editIncome": "Editar ingreso",
+  "navIncome": "Ingresos",
+  "directionExpenses": "Gastos",
+  "directionIncome": "Ingresos",
+  "directionCashFlow": "Flujo de caja",
+  "cashFlowIncome": "Ingresos",
+  "cashFlowExpense": "Gastos",
+  "cashFlowNet": "Neto",
+  "exportIncome": "Exportar ingresos",
+  "duplicateConflictIncomeTitle": "Ingreso similar encontrado",
+  "showIncomeList": "Ver ingresos",
+  "noMatchingIncome": "Ningún ingreso coincide con los filtros",
+  "noMatchingOperations": "Ninguna operación coincide con los filtros",
+  "chartMissingRatesAlertGeneric": "{count, plural, one{1 operación mostrada sin tipo de cambio} other{{count} operaciones mostradas sin tipos de cambio}}",
+  "@chartMissingRatesAlertGeneric": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "guideSectionIncomeTitle": "Ingresos",
+  "guideSectionIncomeBody": "En la pestaña Ingresos del panel puedes añadir cobros con los mismos campos de importe, moneda, pago, país y fecha que los gastos. Los ingresos usan sus propias categorías (salario, venta, regalo, etc.). La detección de posibles duplicados funciona igual.",
+  "guideSectionCashFlowTitle": "Flujo de caja",
+  "guideSectionCashFlowBody": "La pestaña Flujo de caja compara ingresos y gastos por día, semana, mes o año. Los filtros de fecha y moneda aplican; categoría y pago quedan en las pestañas Gastos o Ingresos.",
   "paymentMethod": "Pago",
   "paymentMethodNone": "No definido",
   "paymentMethodUnspecified": "Pago no definido",

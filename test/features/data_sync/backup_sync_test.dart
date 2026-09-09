@@ -1,14 +1,18 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:valtero/features/data_sync/model/backup_crypto.dart';
 import 'package:valtero/features/data_sync/model/backup_format.dart';
 import 'package:valtero/features/data_sync/model/backup_importer.dart';
 import 'package:valtero/features/data_sync/model/backup_snapshot.dart';
+import 'package:valtero/features/data_sync/model/data_sync_controller.dart';
 import 'package:valtero/features/data_sync/model/passphrase_generator.dart';
 import 'package:valtero/shared/database/app_database.dart';
+import 'package:valtero/shared/database/database_provider.dart';
 import 'package:valtero/shared/database/schema_version.dart';
 import 'package:valtero/shared/settings/app_settings.dart';
 
@@ -382,6 +386,156 @@ void main() {
       expect(byAmount.containsKey(100), isFalse);
     });
 
+    test('imports incomes with tags and reports counts', () async {
+      await db.ensureTagByStableKey(
+        stableKey: 'salary',
+        fallbackName: 'Salary',
+      );
+
+      final envelope = BackupEnvelope(
+        formatVersion: kBackupFormatVersion,
+        schemaVersion: kAppSchemaVersion,
+        exportedAt: DateTime.utc(2026, 4, 1),
+        appVersion: '1.0.0',
+        data: BackupPayloadData(
+          tags: const [],
+          paymentMethods: const [],
+          expenses: const [],
+          expenseTags: const [],
+          incomes: [
+            BackupIncomeData(
+              clientId: 'i1',
+              occurredAt: DateTime.utc(2026, 4, 2),
+              originalAmountMinor: 500000,
+              originalCurrencyCode: 'USD',
+              storedAmountMinor: 500000,
+              storedCurrencyCode: 'USD',
+              rateUsed: null,
+              rateTimestamp: null,
+              paymentStableKey: null,
+              paymentName: null,
+              countryCode: 'US',
+              note: 'paycheck',
+              createdAt: DateTime.utc(2026, 4, 2),
+            ),
+          ],
+          incomeTags: const [
+            BackupIncomeTagData(
+              incomeClientId: 'i1',
+              tagStableKey: 'salary',
+              tagName: 'Salary',
+              tagKind: 'normal',
+            ),
+          ],
+          exchangeRateOverrides: const [],
+          settings: BackupSettingsData(
+            reportingCurrencies: const ['USD'],
+            primaryCurrency: 'USD',
+            customCurrencyCodes: const [],
+            themeMode: 'system',
+            locale: 'system',
+            moneyDisplayFormat: 'localeCode',
+            dateDisplayFormat: 'isoYmd',
+            timeZoneId: 'system',
+            dismissedTagSuggestions: const [],
+          ),
+        ),
+      );
+
+      final report = await BackupImporter().importEnvelope(
+        db: db,
+        envelope: envelope,
+        currentSettings: AppSettings.initial(),
+        saveSettings: (_) async {},
+      );
+
+      expect(report.incomesAdded, 1);
+      expect(report.incomesSkippedDuplicate, 0);
+      final incomes = await db.getAllIncome();
+      expect(incomes, hasLength(1));
+      final tagIds = await db.getTagIdsForIncome(incomes.first.id);
+      expect(tagIds, hasLength(1));
+    });
+
+    test(
+      'skipClientIds/forceUniqueClientIds apply independently to income ids',
+      () async {
+        final occurred = DateTime.utc(2026, 4, 10);
+        final envelope = BackupEnvelope(
+          formatVersion: kBackupFormatVersion,
+          schemaVersion: kAppSchemaVersion,
+          exportedAt: occurred,
+          appVersion: '1.0.0',
+          data: BackupPayloadData(
+            tags: const [],
+            paymentMethods: const [],
+            expenses: const [],
+            expenseTags: const [],
+            incomes: [
+              BackupIncomeData(
+                clientId: 'i-skip',
+                occurredAt: occurred,
+                originalAmountMinor: 100,
+                originalCurrencyCode: 'USD',
+                storedAmountMinor: 100,
+                storedCurrencyCode: 'USD',
+                rateUsed: null,
+                rateTimestamp: null,
+                paymentStableKey: null,
+                paymentName: null,
+                countryCode: null,
+                note: null,
+                createdAt: occurred,
+              ),
+              BackupIncomeData(
+                clientId: 'i-unique',
+                occurredAt: occurred,
+                originalAmountMinor: 200,
+                originalCurrencyCode: 'USD',
+                storedAmountMinor: 200,
+                storedCurrencyCode: 'USD',
+                rateUsed: null,
+                rateTimestamp: null,
+                paymentStableKey: null,
+                paymentName: null,
+                countryCode: null,
+                note: null,
+                createdAt: occurred,
+              ),
+            ],
+            incomeTags: const [],
+            exchangeRateOverrides: const [],
+            settings: BackupSettingsData(
+              reportingCurrencies: const ['USD'],
+              primaryCurrency: 'USD',
+              customCurrencyCodes: const [],
+              themeMode: 'system',
+              locale: 'system',
+              moneyDisplayFormat: 'localeCode',
+              dateDisplayFormat: 'isoYmd',
+              timeZoneId: 'system',
+              dismissedTagSuggestions: const [],
+            ),
+          ),
+        );
+
+        final report = await BackupImporter().importEnvelope(
+          db: db,
+          envelope: envelope,
+          currentSettings: AppSettings.initial(),
+          saveSettings: (_) async {},
+          skipClientIds: {'i-skip'},
+          forceUniqueClientIds: {'i-unique'},
+        );
+
+        expect(report.incomesAdded, 1);
+        expect(report.incomesSkippedDuplicate, 1);
+        final incomes = await db.getAllIncome();
+        expect(incomes, hasLength(1));
+        expect(incomes.first.duplicateDismissed, isTrue);
+      },
+    );
+
     test('rates merge LWW by fetchedAt and max lastRateRefreshAt', () async {
       final older = DateTime.utc(2026, 3, 1, 10);
       final newer = DateTime.utc(2026, 3, 1, 12);
@@ -571,6 +725,185 @@ void main() {
       expect(encoded.contains('collab@example.com'), isTrue);
       expect(encoded.contains('shared-file-123'), isTrue);
       expect(encoded.contains('gdrive-refresh'), isFalse);
+    });
+
+    test('exports incomes with i-prefixed clientId, tags, and iconKey',
+        () async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+
+      final tagId = await db.insertTag(
+        TagsCompanion.insert(
+          name: 'Salary',
+          stableKey: const Value('salary'),
+          iconKey: const Value('salary'),
+        ),
+      );
+      final incomeId = await db.insertIncome(
+        IncomesCompanion.insert(
+          occurredAt: DateTime.utc(2026, 5, 1),
+          originalAmountMinor: 400000,
+          originalCurrencyCode: 'USD',
+          storedAmountMinor: 400000,
+          storedCurrencyCode: 'USD',
+          createdAt: DateTime.utc(2026, 5, 1),
+        ),
+      );
+      await db.setIncomeTags(incomeId, [tagId]);
+
+      final envelope = await BackupSnapshotBuilder().build(
+        db: db,
+        settings: AppSettings.initial(),
+      );
+
+      expect(envelope.data.incomes, hasLength(1));
+      expect(envelope.data.incomes.first.clientId, 'i$incomeId');
+      expect(envelope.data.incomeTags, hasLength(1));
+      expect(envelope.data.incomeTags.first.incomeClientId, 'i$incomeId');
+      expect(envelope.data.incomeTags.first.tagStableKey, 'salary');
+      final salaryTag =
+          envelope.data.tags.firstWhere((t) => t.stableKey == 'salary');
+      expect(salaryTag.iconKey, 'salary');
+    });
+  });
+
+  group('BackupPayloadData backward compatibility', () {
+    test('fromJson defaults incomes/incomeTags to empty when keys missing',
+        () {
+      final legacyJson = {
+        'tags': <dynamic>[],
+        'paymentMethods': <dynamic>[],
+        'expenses': <dynamic>[],
+        'expenseTags': <dynamic>[],
+        'exchangeRateOverrides': <dynamic>[],
+        'settings': {
+          'reportingCurrencies': ['USD'],
+          'primaryCurrency': 'USD',
+          'customCurrencyCodes': <dynamic>[],
+          'themeMode': 'system',
+          'locale': 'system',
+          'moneyDisplayFormat': 'localeCode',
+          'dateDisplayFormat': 'isoYmd',
+          'timeZoneId': 'system',
+          'dismissedTagSuggestions': <dynamic>[],
+        },
+      };
+
+      final data = BackupPayloadData.fromJson(legacyJson);
+
+      expect(data.incomes, isEmpty);
+      expect(data.incomeTags, isEmpty);
+    });
+  });
+
+  group('DataSyncController conflict detection', () {
+    late AppDatabase db;
+    late ProviderContainer container;
+
+    setUp(() {
+      db = AppDatabase(NativeDatabase.memory());
+      container = ProviderContainer(
+        overrides: [appDatabaseProvider.overrideWithValue(db)],
+      );
+    });
+
+    tearDown(() async {
+      container.dispose();
+      await db.close();
+    });
+
+    test('finds both expense and income duplicates', () async {
+      final occurred = DateTime.utc(2026, 6, 1);
+      await db.insertExpense(
+        ExpensesCompanion.insert(
+          occurredAt: occurred,
+          originalAmountMinor: 1000,
+          originalCurrencyCode: 'USD',
+          storedAmountMinor: 1000,
+          storedCurrencyCode: 'USD',
+          createdAt: occurred,
+        ),
+      );
+      await db.insertIncome(
+        IncomesCompanion.insert(
+          occurredAt: occurred,
+          originalAmountMinor: 5000,
+          originalCurrencyCode: 'USD',
+          storedAmountMinor: 5000,
+          storedCurrencyCode: 'USD',
+          createdAt: occurred,
+        ),
+      );
+
+      final envelope = BackupEnvelope(
+        formatVersion: kBackupFormatVersion,
+        schemaVersion: kAppSchemaVersion,
+        exportedAt: occurred,
+        appVersion: '1.0.0',
+        data: BackupPayloadData(
+          tags: const [],
+          paymentMethods: const [],
+          expenses: [
+            BackupExpenseData(
+              clientId: 'e1',
+              occurredAt: occurred,
+              originalAmountMinor: 1000,
+              originalCurrencyCode: 'USD',
+              storedAmountMinor: 1000,
+              storedCurrencyCode: 'USD',
+              rateUsed: null,
+              rateTimestamp: null,
+              paymentStableKey: null,
+              paymentName: null,
+              countryCode: null,
+              note: null,
+              createdAt: occurred,
+            ),
+          ],
+          expenseTags: const [],
+          incomes: [
+            BackupIncomeData(
+              clientId: 'i1',
+              occurredAt: occurred,
+              originalAmountMinor: 5000,
+              originalCurrencyCode: 'USD',
+              storedAmountMinor: 5000,
+              storedCurrencyCode: 'USD',
+              rateUsed: null,
+              rateTimestamp: null,
+              paymentStableKey: null,
+              paymentName: null,
+              countryCode: null,
+              note: null,
+              createdAt: occurred,
+            ),
+          ],
+          incomeTags: const [],
+          exchangeRateOverrides: const [],
+          settings: BackupSettingsData(
+            reportingCurrencies: const ['USD'],
+            primaryCurrency: 'USD',
+            customCurrencyCodes: const [],
+            themeMode: 'system',
+            locale: 'system',
+            moneyDisplayFormat: 'localeCode',
+            dateDisplayFormat: 'isoYmd',
+            timeZoneId: 'system',
+            dismissedTagSuggestions: const [],
+          ),
+        ),
+      );
+
+      final controller = container.read(dataSyncControllerProvider);
+      final conflicts = await controller.findDuplicateConflicts(envelope);
+
+      expect(conflicts, hasLength(2));
+      final expenseConflict =
+          conflicts.firstWhere((c) => !c.isIncome);
+      final incomeConflict = conflicts.firstWhere((c) => c.isIncome);
+      expect(expenseConflict.clientId, 'e1');
+      expect(incomeConflict.clientId, 'i1');
+      expect(incomeConflict.existingIncomeMatches, hasLength(1));
     });
   });
 }

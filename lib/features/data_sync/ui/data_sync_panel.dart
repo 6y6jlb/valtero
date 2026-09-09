@@ -233,15 +233,19 @@ class _DataSyncPanelState extends ConsumerState<DataSyncPanel> {
         markUniqueClientIds: markUniqueClientIds,
       );
       if (!mounted) return;
-      final message = report.expensesSkippedDuplicate > 0
+      final skippedDuplicates =
+          report.expensesSkippedDuplicate + report.incomesSkippedDuplicate;
+      final message = skippedDuplicates > 0
           ? l10n.dataSyncImportDoneWithDuplicates(
               report.expensesAdded,
+              report.incomesAdded,
               report.tagsAdded,
               report.paymentsAdded,
-              report.expensesSkippedDuplicate,
+              skippedDuplicates,
             )
           : l10n.dataSyncImportDone(
               report.expensesAdded,
+              report.incomesAdded,
               report.tagsAdded,
               report.paymentsAdded,
             );

@@ -177,3 +177,12 @@ String googleDriveSyncScopes({
       ].join(' ');
   }
 }
+
+/// True when [scope] (space-separated, from a token response) includes
+/// [kGoogleDriveFileScope] or full Drive (which subsumes file access).
+bool googleOAuthScopeAllowsSharedFile(String? scope) {
+  if (scope == null || scope.trim().isEmpty) return false;
+  final parts = scope.split(RegExp(r'\s+'));
+  return parts.contains(kGoogleDriveFileScope) ||
+      parts.contains(kGoogleDriveFullScope);
+}

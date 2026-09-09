@@ -273,6 +273,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get googleDriveShareFailed => 'Could not share the sync file';
 
   @override
+  String get googleDriveSharedFileInaccessible =>
+      'Can\'t access the shared sync file. Sign in again and allow the Drive file permission when Google asks (needed for cross-account sync), or re-share with the collaborator.';
+
+  @override
   String get googleDriveRevokeOk => 'Access revoked';
 
   @override
@@ -512,8 +516,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dataSyncExportFailed => 'Could not save the backup';
 
   @override
-  String dataSyncImportDone(int expenses, int tags, int payments) {
-    return 'Imported $expenses expenses, $tags tags, $payments payment methods';
+  String dataSyncImportDone(int expenses, int incomes, int tags, int payments) {
+    return 'Imported $expenses expenses, $incomes incomes, $tags tags, $payments payment methods';
   }
 
   @override
@@ -542,11 +546,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String dataSyncImportDoneWithDuplicates(
     int expenses,
+    int incomes,
     int tags,
     int payments,
     int skipped,
   ) {
-    return 'Imported $expenses expenses, $tags tags, $payments payment methods ($skipped duplicates skipped)';
+    return 'Imported $expenses expenses, $incomes incomes, $tags tags, $payments payment methods ($skipped duplicates skipped)';
   }
 
   @override
@@ -554,7 +559,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dataSyncDuplicatesFoundHint =>
-      'These incoming expenses look like ones you already have (same day, amount, and currency). Choose how to handle each.';
+      'These incoming expenses or incomes look like ones you already have (same day, amount, and currency). Choose how to handle each.';
 
   @override
   String get dataSyncMarkAsDuplicate => 'Mark as duplicate';
@@ -615,6 +620,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get duplicateMatchingExpense => 'Matching expense';
+
+  @override
+  String get duplicateYourIncome => 'Your income';
+
+  @override
+  String get duplicateMatchingIncome => 'Matching income';
 
   @override
   String get dashboardRestoreFromBackup => 'Restore from backup';
@@ -707,6 +718,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expenseDeleted => 'Expense deleted';
+
+  @override
+  String get confirmDeleteIncome => 'Delete this income?';
+
+  @override
+  String get confirmDeleteIncomeDescription =>
+      'This income entry will be permanently deleted.';
+
+  @override
+  String get incomeDeleted => 'Income deleted';
 
   @override
   String bulkSelectedCount(int count) {
@@ -826,6 +847,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exportTitle => 'Export';
+
+  @override
+  String get expense => 'Expense';
+
+  @override
+  String get income => 'Income';
 
   @override
   String get exportCsv => 'CSV';
@@ -1004,6 +1031,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tagUtilities => 'Utilities';
 
   @override
+  String get tagSalary => 'Salary';
+
+  @override
+  String get tagSale => 'Sale';
+
+  @override
+  String get tagGift => 'Gift';
+
+  @override
+  String get tagRefund => 'Refund';
+
+  @override
+  String get tagInvestment => 'Investment';
+
+  @override
+  String get tagOtherIncome => 'Other income';
+
+  @override
   String get tagCash => 'Cash';
 
   @override
@@ -1100,6 +1145,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tagKindSectionCustom => 'Category';
 
   @override
+  String get tagKindSectionIncome => 'Income category';
+
+  @override
   String get tagKindUnspecifiedCountry => 'Country not set';
 
   @override
@@ -1109,8 +1157,84 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tagKindUnspecifiedCustom => 'Category not set';
 
   @override
+  String get tagKindUnspecifiedIncome => 'Income category not set';
+
+  @override
   String get tagKindSingleSelectHint =>
       'One tag per group; groups are optional';
+
+  @override
+  String get tagIcon => 'Icon';
+
+  @override
+  String get tagIconNone => 'No icon';
+
+  @override
+  String get addIncome => 'Add income';
+
+  @override
+  String get editIncome => 'Edit income';
+
+  @override
+  String get navIncome => 'Income';
+
+  @override
+  String get directionExpenses => 'Expenses';
+
+  @override
+  String get directionIncome => 'Income';
+
+  @override
+  String get directionCashFlow => 'Cash flow';
+
+  @override
+  String get cashFlowIncome => 'Income';
+
+  @override
+  String get cashFlowExpense => 'Expenses';
+
+  @override
+  String get cashFlowNet => 'Net';
+
+  @override
+  String get exportIncome => 'Export income';
+
+  @override
+  String get duplicateConflictIncomeTitle => 'Similar income found';
+
+  @override
+  String get showIncomeList => 'Show income';
+
+  @override
+  String get noMatchingIncome => 'No income matches the filters';
+
+  @override
+  String get noMatchingOperations => 'No operations match the filters';
+
+  @override
+  String chartMissingRatesAlertGeneric(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count operations shown without conversion rates',
+      one: '1 operation shown without a conversion rate',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get guideSectionIncomeTitle => 'Income';
+
+  @override
+  String get guideSectionIncomeBody =>
+      'Switch the Dashboard tab to Income to add receipts with the same amount, currency, payment, country, and date fields as expenses. Income uses its own category tags (salary, sale, gift, and more). Soft-duplicate checks work the same way.';
+
+  @override
+  String get guideSectionCashFlowTitle => 'Cash flow';
+
+  @override
+  String get guideSectionCashFlowBody =>
+      'The Cash flow tab compares income and expenses over day, week, month, or year. Filters apply by date and currency; category and payment filters stay on the Expenses or Income tabs.';
 
   @override
   String get paymentMethod => 'Payment';

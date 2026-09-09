@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:dio/dio.dart';
@@ -47,6 +46,9 @@ class GoogleOAuthService {
           includeFileScope: includeFileScope,
           mode: scopeMode,
         ),
+        // Keep previously granted scopes when upgrading (e.g. appdata →
+        // appdata+drive.file after the owner shares with another account).
+        'include_granted_scopes': 'true',
         'code_challenge': challenge,
         'code_challenge_method': 'S256',
         'access_type': 'offline',

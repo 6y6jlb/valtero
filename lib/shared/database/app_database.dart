@@ -7,15 +7,26 @@ import 'package:path_provider/path_provider.dart';
 import 'package:valtero/entities/exchange_rate/data/exchange_rates_table.dart';
 import 'package:valtero/entities/expense/data/expense_tags_table.dart';
 import 'package:valtero/entities/expense/data/expenses_table.dart';
+import 'package:valtero/entities/income/data/income_tags_table.dart';
+import 'package:valtero/entities/income/data/incomes_table.dart';
 import 'package:valtero/entities/payment_method/data/payment_methods_table.dart';
 import 'package:valtero/entities/tag/data/tags_table.dart';
 import 'package:valtero/shared/database/migrations/migrate_to_v6.dart';
+import 'package:valtero/shared/database/migrations/migrate_to_v7.dart';
 import 'package:valtero/shared/database/schema_version.dart';
 
 part 'app_database.g.dart';
 
 @DriftDatabase(
-  tables: [Tags, Expenses, ExpenseTags, ExchangeRates, PaymentMethods],
+  tables: [
+    Tags,
+    Expenses,
+    ExpenseTags,
+    Incomes,
+    IncomeTags,
+    ExchangeRates,
+    PaymentMethods,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
@@ -32,6 +43,7 @@ class AppDatabase extends _$AppDatabase {
           // Production: stepwise migrate_to_vN only — never wipe user data.
           // Baseline schema is v5.
           if (from < 6) await migrateToV6(m, this);
+          if (from < 7) await migrateToV7(m, this);
         },
       );
 
@@ -45,7 +57,8 @@ class AppDatabase extends _$AppDatabase {
 
   Future<bool> updateTagRow(Tag row) => update(tags).replace(row);
 
-  Future<int> deleteTagById(int id) => (delete(tags)..where((t) => t.id.equals(id))).go();
+  Future<int> deleteTagById(int id) =>
+      (delete(tags)..where((t) => t.id.equals(id))).go();
 
   Future<Tag?> findByStableKey(String key) {
     return (select(tags)..where((t) => t.stableKey.equals(key))).getSingleOrNull();
@@ -57,6 +70,7 @@ class AppDatabase extends _$AppDatabase {
     bool isDefault = false,
     String kind = 'normal',
     int? colorValue,
+    String? iconKey,
   }) async {
     final existing = await findByStableKey(stableKey);
     if (existing != null) {
@@ -66,6 +80,9 @@ class AppDatabase extends _$AppDatabase {
       }
       if (existing.colorValue == null && colorValue != null) {
         updated = updated.copyWith(colorValue: Value(colorValue));
+      }
+      if (existing.iconKey == null && iconKey != null) {
+        updated = updated.copyWith(iconKey: Value(iconKey));
       }
       if (updated != existing) {
         await updateTagRow(updated);
@@ -81,6 +98,7 @@ class AppDatabase extends _$AppDatabase {
         kind: Value(kind),
         colorValue: Value(colorValue),
         stableKey: Value(stableKey),
+        iconKey: Value(iconKey),
         isDefault: Value(isDefault),
         sortOrder: Value(nextOrder),
       ),
@@ -133,6 +151,101 @@ class AppDatabase extends _$AppDatabase {
 
   Future<int> insertExpense(ExpensesCompanion entry) => into(expenses).insert(entry);
 
+  Stream<List<Income>> watchIncome({
+    int? tagId,
+    String? currencyCode,
+    DateTime? from,
+    DateTime? to,
+  }) {
+    if (tagId != null) {
+      final query = select(incomes).join([
+        innerJoin(
+          incomeTags,
+          incomeTags.incomeId.equalsExp(incomes.id),
+        ),
+      ])
+        ..where(incomeTags.tagId.equals(tagId))
+        ..orderBy([OrderingTerm.desc(incomes.occurredAt)]);
+      if (currencyCode != null && currencyCode.isNotEmpty) {
+        query.where(incomes.storedCurrencyCode.equals(currencyCode));
+      }
+      if (from != null) {
+        query.where(incomes.occurredAt.isBiggerOrEqualValue(from));
+      }
+      if (to != null) {
+        query.where(incomes.occurredAt.isSmallerOrEqualValue(to));
+      }
+      return query.watch().map((rows) => rows.map((r) => r.readTable(incomes)).toList());
+    }
+
+    final query = select(incomes)..orderBy([(e) => OrderingTerm.desc(e.occurredAt)]);
+    if (currencyCode != null && currencyCode.isNotEmpty) {
+      query.where((e) => e.storedCurrencyCode.equals(currencyCode));
+    }
+    if (from != null) {
+      query.where((e) => e.occurredAt.isBiggerOrEqualValue(from));
+    }
+    if (to != null) {
+      query.where((e) => e.occurredAt.isSmallerOrEqualValue(to));
+    }
+    return query.watch();
+  }
+
+  Future<List<Income>> getAllIncome() {
+    return (select(incomes)..orderBy([(e) => OrderingTerm.desc(e.occurredAt)])).get();
+  }
+
+  Future<int> insertIncome(IncomesCompanion entry) => into(incomes).insert(entry);
+
+  Future<bool> updateIncomeRow(Income row) => update(incomes).replace(row);
+
+  Future<int> deleteIncomeById(int id) async {
+    await (delete(incomeTags)..where((it) => it.incomeId.equals(id))).go();
+    return (delete(incomes)..where((e) => e.id.equals(id))).go();
+  }
+
+  Future<Income?> getIncomeById(int id) {
+    return (select(incomes)..where((e) => e.id.equals(id))).getSingleOrNull();
+  }
+
+  Future<void> setIncomeTags(int incomeId, List<int> tagIds) async {
+    await (delete(incomeTags)..where((it) => it.incomeId.equals(incomeId))).go();
+    for (final tagId in tagIds.toSet()) {
+      await into(incomeTags).insert(
+        IncomeTagsCompanion.insert(incomeId: incomeId, tagId: tagId),
+      );
+    }
+  }
+
+  Future<List<int>> getTagIdsForIncome(int incomeId) async {
+    final rows = await (select(incomeTags)
+          ..where((it) => it.incomeId.equals(incomeId)))
+        .get();
+    return rows.map((r) => r.tagId).toList();
+  }
+
+  Future<Map<int, List<int>>> getTagIdsByIncomeIds(List<int> incomeIds) async {
+    if (incomeIds.isEmpty) return {};
+    final rows = await (select(incomeTags)
+          ..where((it) => it.incomeId.isIn(incomeIds)))
+        .get();
+    final map = <int, List<int>>{};
+    for (final row in rows) {
+      map.putIfAbsent(row.incomeId, () => []).add(row.tagId);
+    }
+    return map;
+  }
+
+  Stream<Map<int, List<int>>> watchAllIncomeTagIds() {
+    return select(incomeTags).watch().map((rows) {
+      final map = <int, List<int>>{};
+      for (final row in rows) {
+        map.putIfAbsent(row.incomeId, () => []).add(row.tagId);
+      }
+      return map;
+    });
+  }
+
   Stream<List<PaymentMethod>> watchAllPaymentMethods() {
     return (select(paymentMethods)
           ..orderBy([(p) => OrderingTerm.asc(p.sortOrder)]))
@@ -159,6 +272,9 @@ class AppDatabase extends _$AppDatabase {
   Future<int> deletePaymentMethodById(int id) async {
     await (update(expenses)..where((e) => e.paymentMethodId.equals(id))).write(
       const ExpensesCompanion(paymentMethodId: Value(null)),
+    );
+    await (update(incomes)..where((e) => e.paymentMethodId.equals(id))).write(
+      const IncomesCompanion(paymentMethodId: Value(null)),
     );
     return (delete(paymentMethods)..where((p) => p.id.equals(id))).go();
   }
@@ -350,12 +466,32 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<List<String>> distinctStoredCurrencies() async {
-    final rows = await select(expenses).get();
-    return rows.map((e) => e.storedCurrencyCode).toSet().toList()..sort();
+    final expenseRows = await select(expenses).get();
+    final incomeRows = await select(incomes).get();
+    return {
+      ...expenseRows.map((e) => e.storedCurrencyCode),
+      ...incomeRows.map((e) => e.storedCurrencyCode),
+    }.toList()
+      ..sort();
   }
 
   Future<List<String>> distinctOriginalCurrencies() async {
-    final rows = await select(expenses).get();
+    final expenseRows = await select(expenses).get();
+    final incomeRows = await select(incomes).get();
+    return {
+      ...expenseRows.map((e) => e.originalCurrencyCode),
+      ...incomeRows.map((e) => e.originalCurrencyCode),
+    }.toList()
+      ..sort();
+  }
+
+  Future<List<String>> distinctStoredIncomeCurrencies() async {
+    final rows = await select(incomes).get();
+    return rows.map((e) => e.storedCurrencyCode).toSet().toList()..sort();
+  }
+
+  Future<List<String>> distinctOriginalIncomeCurrencies() async {
+    final rows = await select(incomes).get();
     return rows.map((e) => e.originalCurrencyCode).toSet().toList()..sort();
   }
 }

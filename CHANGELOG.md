@@ -8,13 +8,43 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
-## [1.5.5] - 2026-09-09
+## [1.6.0] - 2026-09-09
+
+### Added
+
+- **Income tracking**: separate income entries with the same money fields as
+  expenses (amount/currency, convert-to reporting currency, payment method,
+  country, note, date), soft-duplicate checks, and income-only category tags
+  (salary, sale, gift, refund, investment, …).
+- **Cash flow** dashboard tab: grouped bars comparing income vs expenses by
+  day/week/month/year, plus a merged recent-operations feed.
+- **Direction tabs** on the Dashboard (Expenses / Income / Cash flow) above the
+  filter bar; FAB opens add-expense or add-income based on the active tab.
+- **Tag icons**: curated icon keys on tags (`Tags.iconKey`) with picker in the
+  Tags sheet; seeded categories get default icons on upgrade.
+- Export CSV/JSON for income alongside expenses; encrypted backup / Google Drive
+  sync include income rows (schema **v7**).
+- In-app platform guide sections for Income and Cash flow; public `site/` pages
+  updated for expense + income positioning.
+
+### Changed
+
+- Schema version **v7**: `Incomes` / `IncomeTags` tables and `Tags.iconKey`.
+- Soft-duplicate fingerprint core moved to shared `operation_fingerprint` for
+  reuse by expenses and income.
 
 ### Fixed
 
-- Google Drive Sync: owners no longer skip pulling the **shared** sync file after
-  syncing their personal appData snapshot (separate last-synced timestamps per
-  target). Cross-account changes with the same passphrase now merge correctly.
+- Google Drive Sync: owner shared-file sync no longer fails silently with HTTP
+  404 after personal sync succeeds. Missing `drive.file` on the refresh token
+  (common after personal-only re-sign-in) now triggers a scoped re-auth / clear
+  error, and debug logs include token scopes, pull reasons, Dio status bodies,
+  and local expense/income counts.
+- Debug log file now starts each session (and each share/copy) with a header:
+  product code, app version, schema, platform, locale, UTC timestamp,
+  installId / sessionId, and Google account email when connected.
+
+## [1.5.5] - 2026-09-09
 
 ### Added
 
@@ -26,6 +56,12 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
   readable.
 - With Debug & logs enabled, Google Drive Sync writes fetch / decrypt / pull /
   import / push summaries to the app log file.
+
+### Fixed
+
+- Google Drive Sync: owners no longer skip pulling the **shared** sync file after
+  syncing their personal appData snapshot (separate last-synced timestamps per
+  target). Cross-account changes with the same passphrase now merge correctly.
 
 ## [1.5.4] - 2026-09-09
 

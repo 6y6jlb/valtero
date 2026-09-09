@@ -145,6 +145,7 @@ class BackupTagData {
   final bool isDefault;
   final int sortOrder;
   final String? countryCode;
+  final String? iconKey;
 
   const BackupTagData({
     required this.stableKey,
@@ -154,6 +155,7 @@ class BackupTagData {
     required this.isDefault,
     required this.sortOrder,
     required this.countryCode,
+    this.iconKey,
   });
 
   Map<String, dynamic> toJson() => {
@@ -164,6 +166,7 @@ class BackupTagData {
         'isDefault': isDefault,
         'sortOrder': sortOrder,
         'countryCode': countryCode,
+        'iconKey': iconKey,
       };
 
   factory BackupTagData.fromJson(Map<String, dynamic> json) {
@@ -175,6 +178,7 @@ class BackupTagData {
       isDefault: json['isDefault'] as bool? ?? false,
       sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 0,
       countryCode: json['countryCode'] as String?,
+      iconKey: json['iconKey'] as String?,
     );
   }
 }
@@ -321,6 +325,114 @@ class BackupExpenseTagData {
   }
 }
 
+class BackupIncomeData {
+  /// Export-local id referenced by [BackupIncomeTagData.incomeClientId].
+  final String clientId;
+  final DateTime occurredAt;
+  final int originalAmountMinor;
+  final String originalCurrencyCode;
+  final int storedAmountMinor;
+  final String storedCurrencyCode;
+  final double? rateUsed;
+  final DateTime? rateTimestamp;
+  final String? paymentStableKey;
+  final String? paymentName;
+  final String? countryCode;
+  final String? note;
+  final DateTime createdAt;
+  final bool duplicateDismissed;
+
+  const BackupIncomeData({
+    required this.clientId,
+    required this.occurredAt,
+    required this.originalAmountMinor,
+    required this.originalCurrencyCode,
+    required this.storedAmountMinor,
+    required this.storedCurrencyCode,
+    required this.rateUsed,
+    required this.rateTimestamp,
+    required this.paymentStableKey,
+    required this.paymentName,
+    required this.countryCode,
+    required this.note,
+    required this.createdAt,
+    this.duplicateDismissed = false,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'clientId': clientId,
+        'occurredAt': occurredAt.toIso8601String(),
+        'originalAmountMinor': originalAmountMinor,
+        'originalCurrencyCode': originalCurrencyCode,
+        'storedAmountMinor': storedAmountMinor,
+        'storedCurrencyCode': storedCurrencyCode,
+        'rateUsed': rateUsed,
+        'rateTimestamp': rateTimestamp?.toIso8601String(),
+        'paymentStableKey': paymentStableKey,
+        'paymentName': paymentName,
+        'countryCode': countryCode,
+        'note': note,
+        'createdAt': createdAt.toIso8601String(),
+        'duplicateDismissed': duplicateDismissed,
+      };
+
+  factory BackupIncomeData.fromJson(Map<String, dynamic> json) {
+    final occurredAt = DateTime.tryParse(json['occurredAt'] as String? ?? '');
+    final createdAt = DateTime.tryParse(json['createdAt'] as String? ?? '');
+    if (occurredAt == null || createdAt == null) {
+      throw const BackupUnsupportedFormatException();
+    }
+    return BackupIncomeData(
+      clientId: json['clientId'] as String? ?? '',
+      occurredAt: occurredAt,
+      originalAmountMinor: (json['originalAmountMinor'] as num?)?.toInt() ?? 0,
+      originalCurrencyCode: json['originalCurrencyCode'] as String? ?? 'XXX',
+      storedAmountMinor: (json['storedAmountMinor'] as num?)?.toInt() ?? 0,
+      storedCurrencyCode: json['storedCurrencyCode'] as String? ?? 'XXX',
+      rateUsed: (json['rateUsed'] as num?)?.toDouble(),
+      rateTimestamp: json['rateTimestamp'] != null
+          ? DateTime.tryParse(json['rateTimestamp'] as String)
+          : null,
+      paymentStableKey: json['paymentStableKey'] as String?,
+      paymentName: json['paymentName'] as String?,
+      countryCode: json['countryCode'] as String?,
+      note: json['note'] as String?,
+      createdAt: createdAt,
+      duplicateDismissed: json['duplicateDismissed'] as bool? ?? false,
+    );
+  }
+}
+
+class BackupIncomeTagData {
+  final String incomeClientId;
+  final String? tagStableKey;
+  final String? tagName;
+  final String? tagKind;
+
+  const BackupIncomeTagData({
+    required this.incomeClientId,
+    required this.tagStableKey,
+    required this.tagName,
+    required this.tagKind,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'incomeClientId': incomeClientId,
+        'tagStableKey': tagStableKey,
+        'tagName': tagName,
+        'tagKind': tagKind,
+      };
+
+  factory BackupIncomeTagData.fromJson(Map<String, dynamic> json) {
+    return BackupIncomeTagData(
+      incomeClientId: json['incomeClientId'] as String? ?? '',
+      tagStableKey: json['tagStableKey'] as String?,
+      tagName: json['tagName'] as String?,
+      tagKind: json['tagKind'] as String?,
+    );
+  }
+}
+
 class BackupExchangeRateOverrideData {
   final String baseCurrencyCode;
   final String targetCurrencyCode;
@@ -366,6 +478,8 @@ class BackupPayloadData {
   final List<BackupPaymentMethodData> paymentMethods;
   final List<BackupExpenseData> expenses;
   final List<BackupExpenseTagData> expenseTags;
+  final List<BackupIncomeData> incomes;
+  final List<BackupIncomeTagData> incomeTags;
   final List<BackupExchangeRateOverrideData> exchangeRateOverrides;
   final BackupSettingsData settings;
 
@@ -374,6 +488,8 @@ class BackupPayloadData {
     required this.paymentMethods,
     required this.expenses,
     required this.expenseTags,
+    this.incomes = const [],
+    this.incomeTags = const [],
     required this.exchangeRateOverrides,
     required this.settings,
   });
@@ -383,6 +499,8 @@ class BackupPayloadData {
         'paymentMethods': paymentMethods.map((e) => e.toJson()).toList(),
         'expenses': expenses.map((e) => e.toJson()).toList(),
         'expenseTags': expenseTags.map((e) => e.toJson()).toList(),
+        'incomes': incomes.map((e) => e.toJson()).toList(),
+        'incomeTags': incomeTags.map((e) => e.toJson()).toList(),
         'exchangeRateOverrides':
             exchangeRateOverrides.map((e) => e.toJson()).toList(),
         'settings': settings.toJson(),
@@ -400,6 +518,11 @@ class BackupPayloadData {
       expenses: _mapList(json['expenses'], BackupExpenseData.fromJson),
       expenseTags:
           _mapList(json['expenseTags'], BackupExpenseTagData.fromJson),
+      // Missing keys mean an older backup without income support — default
+      // to empty lists so import stays backward compatible.
+      incomes: _mapList(json['incomes'], BackupIncomeData.fromJson),
+      incomeTags:
+          _mapList(json['incomeTags'], BackupIncomeTagData.fromJson),
       exchangeRateOverrides: _mapList(
         json['exchangeRateOverrides'],
         BackupExchangeRateOverrideData.fromJson,

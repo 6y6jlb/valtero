@@ -326,6 +326,25 @@ void main() {
       expect(join, contains(kGoogleDriveFullScope));
       expect(join, isNot(contains(kGoogleDriveAppDataScope)));
     });
+
+    test('googleOAuthScopeAllowsSharedFile detects file and full drive', () {
+      expect(googleOAuthScopeAllowsSharedFile(null), isFalse);
+      expect(googleOAuthScopeAllowsSharedFile(''), isFalse);
+      expect(
+        googleOAuthScopeAllowsSharedFile(kGoogleDriveAppDataScope),
+        isFalse,
+      );
+      expect(
+        googleOAuthScopeAllowsSharedFile(
+          '$kGoogleDriveAppDataScope $kGoogleDriveFileScope',
+        ),
+        isTrue,
+      );
+      expect(
+        googleOAuthScopeAllowsSharedFile(kGoogleDriveFullScope),
+        isTrue,
+      );
+    });
   });
 
   group('googleOAuthReverseClientIdScheme', () {

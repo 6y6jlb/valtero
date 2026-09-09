@@ -140,7 +140,14 @@ class _GoogleDriveSyncQuickCardState
     setState(() => _openingIntegration = true);
     final result = await ref
         .read(googleDriveSyncEngineProvider)
-        .connectAndSync(passphrase: passphrase, includeFileScope: false);
+        .connectAndSync(
+          passphrase: passphrase,
+          includeFileScope:
+              ref.read(appSettingsProvider).value?.googleDriveSharedFileId
+                      .trim()
+                      .isNotEmpty ??
+                  false,
+        );
     if (!mounted) return;
     setState(() => _openingIntegration = false);
     if (result.success) {
