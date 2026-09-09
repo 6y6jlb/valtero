@@ -8,6 +8,12 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.6.4] - 2026-09-09
+
+### Changed
+
+- Tags sheet: country detect and suggestions stay above expense/income category tabs.
+
 ## [1.6.3] - 2026-09-09
 
 ### Changed

@@ -82,6 +82,28 @@ class _TagsSheetBodyState extends ConsumerState<TagsSheetBody> {
         ],
       ),
       children: [
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: settings?.detectedCountryCode == null
+              ? const Icon(Icons.public)
+              : FlagIcon.country(settings!.detectedCountryCode!, size: 32),
+          title: Text(l10n.country),
+          subtitle: Text(
+            [
+              countryLabel,
+              if (settings?.detectedCurrency != null)
+                settings!.detectedCurrency!,
+            ].join(' / '),
+          ),
+          trailing: TextButton(
+            onPressed: () async {
+              await ref.read(detectCountryControllerProvider)();
+            },
+            child: Text(l10n.detectCountry),
+          ),
+        ),
+        const SuggestedTagsSection(),
+        const SizedBox(height: 16),
         BookmarkTabs(
           labels: [
             for (final kind in TagKind.values) tagKindSectionTitle(l10n, kind),
@@ -90,30 +112,6 @@ class _TagsSheetBodyState extends ConsumerState<TagsSheetBody> {
           onChanged: (i) => setState(() => _selectedKind = TagKind.values[i]),
         ),
         const SizedBox(height: 12),
-        if (_selectedKind == TagKind.custom) ...[
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: settings?.detectedCountryCode == null
-                ? const Icon(Icons.public)
-                : FlagIcon.country(settings!.detectedCountryCode!, size: 32),
-            title: Text(l10n.country),
-            subtitle: Text(
-              [
-                countryLabel,
-                if (settings?.detectedCurrency != null)
-                  settings!.detectedCurrency!,
-              ].join(' / '),
-            ),
-            trailing: TextButton(
-              onPressed: () async {
-                await ref.read(detectCountryControllerProvider)();
-              },
-              child: Text(l10n.detectCountry),
-            ),
-          ),
-          const SuggestedTagsSection(),
-          const SizedBox(height: 8),
-        ],
         for (final tag in kindTags)
           ListTile(
             leading: () {
