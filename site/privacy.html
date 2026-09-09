@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy — Valtero</title>
+  <meta name="description" content="Privacy Policy for Valtero, a multi-currency personal expense tracker.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <a class="brand" href="index.html">Valtero</a>
+      <nav>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+        <a href="https://github.com/6y6jlb/valtero">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <h1>Privacy Policy</h1>
+    <p class="lead">
+      This Privacy Policy describes how Valtero (“the App”) handles information
+      when you use the desktop or Android application.
+    </p>
+    <p>
+      Valtero is a personal expense tracker. There is no Valtero-operated
+      backend server that collects or stores your expenses. Your expense data
+      stays on your device unless you choose an optional integration described
+      below.
+    </p>
+
+    <h2>1. Information stored on your device</h2>
+    <p>
+      The App stores expenses, tags, payment methods, exchange-rate cache,
+      settings, and similar data locally using on-device SQLite (Drift) and Hive.
+      This information is not sent to the developer by default.
+    </p>
+
+    <h2>2. Google Drive Sync (optional)</h2>
+    <p>
+      If you enable Google Drive Sync, the App uses Google OAuth 2.0 with PKCE
+      to request access to Google APIs on your behalf. Depending on the sync
+      flow you choose, the App may request:
+    </p>
+    <ul>
+      <li><strong>drive.appdata</strong> — read/write an encrypted sync snapshot in Google Drive’s app-specific folder for personal sync</li>
+      <li><strong>drive.file</strong> — only when you create a cross-account shared sync file that the App created</li>
+      <li><strong>drive</strong> (full Drive access) — only when a second Google account joins a shared sync, so the App can discover files shared with that account</li>
+      <li><strong>userinfo.email</strong> — to show which Google account is connected</li>
+    </ul>
+    <p>
+      Sync snapshots use client-side encryption (encrypted <code>.valterobackup</code>
+      files). Your sync passphrase stays on your device and is not sent to Google
+      or to the developer. Encrypted data stored in Google Drive is also subject
+      to
+      <a href="https://policies.google.com/privacy">Google’s Privacy Policy</a>.
+    </p>
+    <p>
+      You can disconnect Google Drive Sync in the App and revoke access at any
+      time in your Google Account:
+      <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.
+    </p>
+
+    <h2>3. Other optional integrations</h2>
+    <ul>
+      <li><strong>Telegram</strong> — if connected, your bot token and chat id are used only to send exports you explicitly trigger</li>
+      <li><strong>Frankfurter</strong> and <strong>ExchangeRate-API</strong> — used to fetch currency exchange rates; no personal expense content is sent</li>
+      <li><strong>ip-api.com</strong> — may be used once for country/currency suggestions based on IP geolocation; you can ignore or override suggestions</li>
+    </ul>
+    <p>
+      Integration credentials you enter (API keys, Telegram tokens, Google OAuth
+      tokens, sync passphrase) are stored on your device and are excluded from
+      exported encrypted backups that are designed not to include those secrets.
+    </p>
+
+    <h2>4. Voice input (Android only)</h2>
+    <p>
+      On Android, optional voice expense capture uses the device speech
+      recognition service. Audio and transcripts are not persisted by Valtero;
+      they are held in memory for the capture session only. Recognition errors
+      may be written to the App’s local log without the spoken text.
+    </p>
+
+    <h2>5. Logging</h2>
+    <p>
+      The App can write redacted diagnostic logs to a local file on your device
+      (errors and warnings always; verbose debug breadcrumbs only if you enable
+      them). Logs are not uploaded automatically. Secrets are redacted before
+      being written.
+    </p>
+
+    <h2>6. No advertising or sale of data</h2>
+    <p>
+      Valtero does not include advertising SDKs, analytics/tracking SDKs, or
+      sell your personal data.
+    </p>
+
+    <h2>7. Children</h2>
+    <p>
+      The App is not directed at children under 13 (or the equivalent minimum
+      age in your jurisdiction).
+    </p>
+
+    <h2>8. Your choices</h2>
+    <ul>
+      <li>Do not enable optional integrations if you do not want those network features</li>
+      <li>Disconnect integrations and revoke Google access as described above</li>
+      <li>Uninstalling the App removes local App data from that device (subject to OS backup behavior)</li>
+    </ul>
+
+    <h2>9. Contact</h2>
+    <p>
+      Privacy questions:
+      <a href="mailto:6y6jlbmail@gmail.com">6y6jlbmail@gmail.com</a>
+    </p>
+
+    <p class="meta">Last updated: September 9, 2026</p>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="terms.html">Terms of Service</a>
+        <a href="https://github.com/6y6jlb/valtero">GitHub</a>
+      </nav>
+      <p>&copy; Valtero. Contact: <a href="mailto:6y6jlbmail@gmail.com">6y6jlbmail@gmail.com</a></p>
+    </div>
+  </footer>
+</body>
+</html>
