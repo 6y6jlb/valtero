@@ -8,6 +8,15 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.5.4] - 2026-09-09
+
+### Changed
+
+- Dashboard: filter summary bar sits **above** the chart (same order idea as the
+  expenses list).
+- Dashboard AppBar title is the section name (**Home** / **Главная** / …)
+  instead of the live date/time clock.
+
 ## [1.5.3] - 2026-09-09
 
 ### Added

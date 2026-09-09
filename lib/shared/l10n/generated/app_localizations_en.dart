@@ -12,7 +12,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Valtero';
 
   @override
-  String get navDashboard => 'Dashboard';
+  String get navDashboard => 'Home';
 
   @override
   String get navExpenses => 'Expenses';

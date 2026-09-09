@@ -1,7 +1,7 @@
 {
   "@@locale": "es",
   "appTitle": "Valtero",
-  "navDashboard": "Panel",
+  "navDashboard": "Inicio",
   "navExpenses": "Gastos",
   "recentOperations": "Operaciones recientes",
   "navAdd": "Añadir",

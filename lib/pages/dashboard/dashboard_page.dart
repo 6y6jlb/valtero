@@ -33,7 +33,6 @@ import 'package:valtero/shared/utils/payment_method_label.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
 import 'package:valtero/widgets/app_page_scaffold.dart';
 import 'package:valtero/widgets/app_toast.dart';
-import 'package:valtero/widgets/header_clock.dart';
 import 'package:valtero/widgets/period_picker.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
@@ -237,7 +236,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
     return AppPageScaffold(
       appBar: AppBar(
-        title: const HeaderClock(),
+        title: Text(l10n.navDashboard),
         actions: [
           const GoogleDriveSyncAppBarButton(),
           IconButton(

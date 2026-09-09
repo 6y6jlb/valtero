@@ -12,7 +12,7 @@ class AppLocalizationsSr extends AppLocalizations {
   String get appTitle => 'Valtero';
 
   @override
-  String get navDashboard => 'Pregled';
+  String get navDashboard => 'Početna';
 
   @override
   String get navExpenses => 'Troškovi';

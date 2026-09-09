@@ -12,7 +12,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get appTitle => 'Valtero';
 
   @override
-  String get navDashboard => 'Сводка';
+  String get navDashboard => 'Главная';
 
   @override
   String get navExpenses => 'Траты';

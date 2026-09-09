@@ -1,7 +1,7 @@
 {
   "@@locale": "en",
   "appTitle": "Valtero",
-  "navDashboard": "Dashboard",
+  "navDashboard": "Home",
   "navExpenses": "Expenses",
   "recentOperations": "Recent operations",
   "navAdd": "Add",

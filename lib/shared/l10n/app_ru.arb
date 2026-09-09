@@ -1,7 +1,7 @@
 {
   "@@locale": "ru",
   "appTitle": "Valtero",
-  "navDashboard": "Сводка",
+  "navDashboard": "Главная",
   "navExpenses": "Траты",
   "recentOperations": "Последние операции",
   "navAdd": "Добавить",

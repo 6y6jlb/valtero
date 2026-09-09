@@ -16,7 +16,7 @@ import 'package:valtero/widgets/infinite_scroll_ellipsis.dart';
 const kDashboardRecentInitial = 5;
 const kDashboardRecentBatch = 5;
 
-/// Scrollable dashboard content: sample banner, chart, filters, recent list.
+/// Scrollable dashboard content: sample banner, filters, chart, recent list.
 class DashboardBody extends StatefulWidget {
   final List<DonutChartSlice> slices;
   final int missingRateCount;
@@ -127,6 +127,12 @@ class _DashboardBodyState extends State<DashboardBody> {
                 ],
               ),
             ),
+          ExpensesFilterSummaryBar(
+            draft: widget.applied,
+            onTap: widget.onOpenFilters,
+          ),
+          if (widget.loading) const LinearProgressIndicator(),
+          const SizedBox(height: 12),
           BreakdownChartView(
             key: ValueKey(
               'dash-${widget.breakdown.name}-${widget.slices.length}',
@@ -162,12 +168,6 @@ class _DashboardBodyState extends State<DashboardBody> {
               ),
             ),
           ],
-          const SizedBox(height: 12),
-          ExpensesFilterSummaryBar(
-            draft: widget.applied,
-            onTap: widget.onOpenFilters,
-          ),
-          if (widget.loading) const LinearProgressIndicator(),
           if (!widget.isSample && recentTop.isNotEmpty) ...[
             const SizedBox(height: 20),
             Text(
