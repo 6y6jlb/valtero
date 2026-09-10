@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
-import 'package:valtero/features/add_income/ui/add_income_sheet.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/expand_fab_menu.dart';
 
 /// Theme-colored `+` FAB that expands upward into text actions for expense / income.
 class AddOperationFab extends StatelessWidget {
   final String heroTag;
+  final Future<void> Function() onAddExpense;
+  final Future<void> Function() onAddIncome;
 
   const AddOperationFab({
     super.key,
     required this.heroTag,
+    required this.onAddExpense,
+    required this.onAddIncome,
   });
 
   @override
@@ -23,11 +25,11 @@ class AddOperationFab extends StatelessWidget {
       actions: [
         ExpandFabAction(
           label: l10n.addExpense,
-          onPressed: () => showAddExpenseSheet(context),
+          onPressed: onAddExpense,
         ),
         ExpandFabAction(
           label: l10n.addIncome,
-          onPressed: () => showAddIncomeSheet(context),
+          onPressed: onAddIncome,
         ),
       ],
     );

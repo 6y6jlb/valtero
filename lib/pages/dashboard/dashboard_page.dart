@@ -8,6 +8,8 @@ import 'package:valtero/entities/income/model/income_tags_provider.dart';
 import 'package:valtero/entities/payment_method/model/payment_methods_provider.dart';
 import 'package:valtero/entities/tag/model/tag_kind.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
+import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
+import 'package:valtero/features/add_income/ui/add_income_sheet.dart';
 import 'package:valtero/features/currency_settings/ui/rates_sheet.dart';
 import 'package:valtero/features/data_sync/ui/data_sync_flow.dart';
 import 'package:valtero/features/expenses_list/model/cash_flow_aggregator.dart';
@@ -460,6 +462,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         ],
       ),
       addOperationHeroTag: 'dashboard_add_operation',
+      onAddExpense: () => showAddExpenseSheet(context),
+      onAddIncome: () => showAddIncomeSheet(context),
       extraFabs: [
         ShowListFab(
           heroTag: 'dashboard_show_list',

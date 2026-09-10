@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
+import 'package:valtero/features/add_income/ui/add_income_sheet.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_selection.dart';
 import 'package:valtero/features/expenses_list/model/transaction_direction.dart';
@@ -82,6 +84,8 @@ class _ExpensesPageState extends ConsumerState<ExpensesPage> {
         ],
       ),
       addOperationHeroTag: 'expenses_add_operation',
+      onAddExpense: () => showAddExpenseSheet(context),
+      onAddIncome: () => showAddIncomeSheet(context),
       extraFabs: [
         if (hasSelection) const ExpenseBulkFabActions(),
       ],

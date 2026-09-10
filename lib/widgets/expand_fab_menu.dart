@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/widgets/expand_fab_controller.dart';
 
 /// One expandable menu action (text label, no icon).
 class ExpandFabAction {
@@ -13,6 +14,9 @@ class ExpandFabAction {
 }
 
 /// Theme primary FAB that expands upward into lighter text-only actions.
+///
+/// Open state is owned by [ExpandFabScope] so sibling menus close each other
+/// and [AppPageScaffold] can dismiss on outside tap.
 class ExpandFabMenu extends StatefulWidget {
   final String heroTag;
   final String closedTooltip;
@@ -36,22 +40,18 @@ class ExpandFabMenu extends StatefulWidget {
 }
 
 class _ExpandFabMenuState extends State<ExpandFabMenu> {
-  bool _open = false;
-
-  void _toggle() => setState(() => _open = !_open);
-
-  void _close() {
-    if (_open) setState(() => _open = false);
-  }
+  final Object _id = Object();
 
   Future<void> _run(ExpandFabAction action) async {
-    _close();
+    ExpandFabScope.of(context).close(_id);
     await action.onPressed();
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final controller = ExpandFabScope.of(context);
+    final open = controller.isOpen(_id);
     final scheme = Theme.of(context).colorScheme;
     final actionBg = expandFabActionBackground(scheme);
     final actionFg = expandFabActionForeground(scheme, actionBg);
@@ -64,7 +64,7 @@ class _ExpandFabMenuState extends State<ExpandFabMenu> {
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOut,
           alignment: Alignment.bottomRight,
-          child: _open
+          child: open
               ? Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -87,17 +87,17 @@ class _ExpandFabMenuState extends State<ExpandFabMenu> {
         if (widget.closedExtended)
           FloatingActionButton.extended(
             heroTag: widget.heroTag,
-            tooltip: _open ? l10n.cancel : widget.closedTooltip,
-            onPressed: _toggle,
-            icon: _open ? const Icon(Icons.close) : widget.closedChild,
-            label: Text(_open ? l10n.cancel : (widget.closedLabel ?? '')),
+            tooltip: open ? l10n.cancel : widget.closedTooltip,
+            onPressed: () => controller.toggle(_id),
+            icon: open ? const Icon(Icons.close) : widget.closedChild,
+            label: Text(open ? l10n.cancel : (widget.closedLabel ?? '')),
           )
         else
           FloatingActionButton(
             heroTag: widget.heroTag,
-            tooltip: _open ? l10n.cancel : widget.closedTooltip,
-            onPressed: _toggle,
-            child: _open
+            tooltip: open ? l10n.cancel : widget.closedTooltip,
+            onPressed: () => controller.toggle(_id),
+            child: open
                 ? const Icon(Icons.close, size: 28)
                 : widget.closedChild,
           ),

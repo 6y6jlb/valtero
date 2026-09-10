@@ -8,6 +8,13 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-09-10
+
+### Changed
+
+- Expandable FABs: `AddOperationFab` uses page callbacks (no widgets→features
+  import); opening one menu closes the other; tap outside dismisses.
+
 ## [1.1.0] - 2026-09-10
 
 ### Changed

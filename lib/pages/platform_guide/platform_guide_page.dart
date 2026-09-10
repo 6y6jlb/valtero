@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
+import 'package:valtero/features/add_income/ui/add_income_sheet.dart';
 import 'package:valtero/features/platform_guide/ui/platform_guide_body.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/app_page_scaffold.dart';
@@ -26,6 +28,8 @@ class PlatformGuidePage extends StatelessWidget {
         title: Text(l10n.guideTitle),
       ),
       addOperationHeroTag: 'guide_add_operation',
+      onAddExpense: () => showAddExpenseSheet(context),
+      onAddIncome: () => showAddIncomeSheet(context),
       body: const PlatformGuideBody(
         showHeader: false,
         padding: EdgeInsets.fromLTRB(16, 8, 16, kFabBottomPadding),
