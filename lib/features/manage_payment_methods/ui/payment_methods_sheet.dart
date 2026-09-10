@@ -40,10 +40,11 @@ class PaymentMethodsSheetBody extends ConsumerWidget {
           const AppCloseIconButton(),
           AppFilledButton.tonal(
             onPressed: () async {
-              final result = await showTagEditDialog(
+              final result = await showTagEditSheet(
                 context,
                 title: l10n.paymentMethodNew,
                 confirmLabel: l10n.add,
+                showIconPicker: false,
               );
               if (result == null) return;
               await ref
@@ -94,12 +95,13 @@ class PaymentMethodsSheetBody extends ConsumerWidget {
             ),
             onTap: () async {
               final currentLabel = localizedPaymentMethodLabel(context, method);
-              final result = await showTagEditDialog(
+              final result = await showTagEditSheet(
                 context,
                 title: l10n.paymentMethodEdit,
                 initialName: currentLabel,
                 initialColor: method.colorValue,
                 confirmLabel: l10n.save,
+                showIconPicker: false,
               );
               if (result == null) return;
               final controller = ref.read(

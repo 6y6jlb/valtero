@@ -40,7 +40,7 @@ class _TagsSheetBodyState extends ConsumerState<TagsSheetBody> {
 
   Future<void> _addTagForKind(TagKind kind) async {
     final l10n = AppLocalizations.of(context)!;
-    final result = await showTagEditDialog(
+    final result = await showTagEditSheet(
       context,
       title: l10n.newTag,
       confirmLabel: l10n.add,
@@ -142,7 +142,7 @@ class _TagsSheetBodyState extends ConsumerState<TagsSheetBody> {
             ),
             onTap: () async {
               final currentLabel = localizedTagLabel(context, tag);
-              final result = await showTagEditDialog(
+              final result = await showTagEditSheet(
                 context,
                 title: l10n.tag,
                 initialName: currentLabel,

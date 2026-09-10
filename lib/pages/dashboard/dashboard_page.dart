@@ -41,6 +41,7 @@ import 'package:valtero/shared/utils/tag_label.dart';
 import 'package:valtero/widgets/app_page_scaffold.dart';
 import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/period_picker.dart';
+import 'package:valtero/widgets/show_list_fab.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
@@ -458,42 +459,19 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           ),
         ],
       ),
-      addExpenseHeroTag: 'dashboard_add_expense',
-      addIncomeHeroTag: 'dashboard_add_income',
-      showAddExpenseFab: _direction != TransactionDirection.income,
-      showAddIncomeFab: _direction != TransactionDirection.expenses,
+      addOperationHeroTag: 'dashboard_add_operation',
       extraFabs: [
-        if (_direction == TransactionDirection.cashFlow) ...[
-          FloatingActionButton(
-            heroTag: 'dashboard_show_expenses',
-            tooltip: l10n.showExpenses,
-            onPressed: () => ExpensesPage.open(
-              context,
-              direction: TransactionDirection.expenses,
-            ),
-            child: const Icon(Icons.receipt_long_outlined),
+        ShowListFab(
+          heroTag: 'dashboard_show_list',
+          onShowExpenses: () => ExpensesPage.open(
+            context,
+            direction: TransactionDirection.expenses,
           ),
-          const SizedBox(width: 12),
-          FloatingActionButton(
-            heroTag: 'dashboard_show_income',
-            tooltip: l10n.showIncomeList,
-            onPressed: () => ExpensesPage.open(
-              context,
-              direction: TransactionDirection.income,
-            ),
-            child: const Icon(Icons.account_balance_wallet_outlined),
+          onShowIncome: () => ExpensesPage.open(
+            context,
+            direction: TransactionDirection.income,
           ),
-        ] else
-          FloatingActionButton.extended(
-            heroTag: 'dashboard_show_expenses',
-            onPressed: () => ExpensesPage.open(context, direction: _direction),
-            icon: const Icon(Icons.list_alt),
-            label: Text(
-              _direction == TransactionDirection.income
-                  ? l10n.showIncomeList
-                  : l10n.showExpenses,
-            ),
-          ),
+        ),
       ],
       body: body,
     );

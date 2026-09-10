@@ -71,9 +71,9 @@ Details: [docs/agent-rules/l10n-strings.md](docs/agent-rules/l10n-strings.md)
 ## Navigation
 
 - Home: **Dashboard** (AppBar title `navDashboard` — Home / Главная; no bottom nav). Direction tab above filters: Expenses / Income / Cash flow. If there are **no expenses yet** (and direction is expenses), Dashboard shows a **sample chart** labeled as an example, with a link to the **platform guide**; after the first expense, real chart data appears. The guide is also opened from Settings → Platform guide.
-- **Expenses / Income list**: full page via FAB / “Show expenses” (back arrow); same direction tab + filters; alert banner for possible duplicates when present; per-currency summary card with convert/info icons; empty placeholder; add/edit stays a sheet (`+` opens expense or income based on direction; Cash flow shows both FABs — sticky bottom on Dashboard, list page, and Platform guide — **not** on Settings)
+- **Expenses / Income list**: full page via Show FAB / list link (back arrow); same direction tab + filters; alert banner for possible duplicates when present; per-currency summary card with convert/info icons; empty placeholder; add/edit stays a sheet (theme-colored `+` expands to text actions **Add expense** / **Add income**; Dashboard **Show** expands to **Show expenses** / **Show income** — sticky bottom on Dashboard, list page, and Platform guide — **not** on Settings)
 - Settings via gear in the AppBar → full page with back arrow
-- Sheets (full window width): add/edit expense, **add/edit income**, tags, export, currency, appearance, rates list, filters, **integrations**, **debug logs**, **duplicate review**, **voice expense capture** (Android)
+- Sheets (full window width; **default** for modals — see [modal-sheets.md](docs/agent-rules/modal-sheets.md)): add/edit expense, **add/edit income**, **create/edit tag**, tags list, export, currency, appearance, rates list, filters, **integrations**, **debug logs**, **duplicate review**, **voice expense capture** (Android)
 - Dashboard: direction tab → filter summary bar above the chart → full-screen sheet; one donut **or column** chart (toggle overlay top-right on the chart; choice persisted) for expenses/income, or **cash-flow grouped bars**; shared [BreakdownChartView](lib/features/expenses_list/ui/breakdown_chart_view.dart) / [DonutBreakdownChart](lib/features/expenses_list/ui/donut_breakdown_chart.dart): amounts on segments, legend chips toggle visibility; tap segment → list with filter); breakdown by **country** / payment / category / month / currency via shared [ChartBreakdownIcons](lib/features/expenses_list/ui/chart_breakdown_icons.dart) (cash flow: temporal only); recent operations + “Show expenses”; FABs
 - Expenses/income list columns: date, amount (optional possible-duplicate badge), payment, country, tags; chart view uses the same donut; tap a segment applies that filter and switches to list
 - AppBar titles are section names (`navDashboard` = Home / Главная on Dashboard, `navExpenses` on Expenses, `settings` on Settings); timezone still applies to expense/income dates/filters (Settings → Appearance). Dashboard and Expenses AppBars include a Google Drive sync icon (primary when connected, muted when not) that opens the sync quick sheet
@@ -132,6 +132,7 @@ Details: [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md)
 | [docs/agent-rules/naming.md](docs/agent-rules/naming.md) | No product name in file/class identifiers; intent-based names |
 | [docs/agent-rules/dry.md](docs/agent-rules/dry.md) | Same pattern in **>2** places → extract shared helper/widget |
 | [docs/agent-rules/ui-component-size.md](docs/agent-rules/ui-component-size.md) | ≤ 500 lines per UI component; when/how to split |
+| [docs/agent-rules/modal-sheets.md](docs/agent-rules/modal-sheets.md) | Default modals = bottom sheets (`showAppModalSheet`); dialogs only when stated |
 | [docs/agent-rules/dependencies.md](docs/agent-rules/dependencies.md) | New packages: need / overlap / health + explicit user approve |
 | [docs/agent-rules/tooling-environment.md](docs/agent-rules/tooling-environment.md) | **Never** copy Flutter/Dart/SDKs into the repo; report env failures instead |
 | [docs/agent-rules/platform-guide.md](docs/agent-rules/platform-guide.md) | Keep in-app platform guide in sync with new capabilities |
@@ -157,6 +158,7 @@ To generate Cursor mirrors once locally:
 | `naming` | `alwaysApply: true` |
 | `dry` | `alwaysApply: true` |
 | `ui-component-size` | `globs: lib/**/ui/**,lib/pages/**,lib/widgets/**` |
+| `modal-sheets` | `globs: lib/**/ui/**,lib/pages/**,lib/widgets/**` |
 | `dependencies` | `alwaysApply: true` |
 | `tooling-environment` | `alwaysApply: true` |
 | `platform-guide` | `globs: lib/features/platform_guide/**,lib/pages/platform_guide/**` |

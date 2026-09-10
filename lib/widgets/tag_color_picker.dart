@@ -4,6 +4,10 @@ import 'package:valtero/shared/consts/tag_icons.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/app_button.dart';
 import 'package:valtero/widgets/app_close_icon_button.dart';
+import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 
 /// Compact palette for picking a tag color.
 class TagColorPicker extends StatelessWidget {
@@ -113,72 +117,122 @@ class TagEditResult {
   });
 }
 
-Future<TagEditResult?> showTagEditDialog(
+Future<TagEditResult?> showTagEditSheet(
   BuildContext context, {
   required String title,
   String initialName = '',
   int? initialColor,
   String? initialIconKey,
   required String confirmLabel,
+  bool showIconPicker = true,
 }) {
-  final controller = TextEditingController(text: initialName);
-  var color = initialColor;
-  var iconKey = initialIconKey;
-  return showDialog<TagEditResult>(
+  return showAppModalSheet<TagEditResult>(
     context: context,
-    builder: (context) {
-      final l10n = AppLocalizations.of(context)!;
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: Text(title),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: controller,
-                    decoration: InputDecoration(labelText: l10n.tag),
-                    autofocus: true,
-                  ),
-                  const SizedBox(height: 16),
-                  TagColorPicker(
-                    selected: color,
-                    onChanged: (v) => setState(() => color = v),
-                  ),
-                  const SizedBox(height: 16),
-                  TagIconPicker(
-                    selected: iconKey,
-                    onChanged: (v) => setState(() => iconKey = v),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              AppCloseIconButton(
-                onPressed: () => Navigator.pop(context),
-                label: l10n.cancel,
-              ),
-              AppFilledButton(
-                onPressed: () {
-                  final name = controller.text.trim();
-                  if (name.isEmpty) return;
-                  Navigator.pop(
-                    context,
-                    TagEditResult(
-                      name: name,
-                      colorValue: color,
-                      iconKey: iconKey,
-                    ),
-                  );
-                },
-                icon: Icons.check,
-                label: confirmLabel,
-              ),
-            ],
-          );
-        },
-      );
-    },
+    initialChildSize: 0.72,
+    minChildSize: 0.4,
+    maxChildSize: 0.95,
+    child: _TagEditSheetBody(
+      title: title,
+      initialName: initialName,
+      initialColor: initialColor,
+      initialIconKey: initialIconKey,
+      confirmLabel: confirmLabel,
+      showIconPicker: showIconPicker,
+    ),
   );
+}
+
+class _TagEditSheetBody extends StatefulWidget {
+  final String title;
+  final String initialName;
+  final int? initialColor;
+  final String? initialIconKey;
+  final String confirmLabel;
+  final bool showIconPicker;
+
+  const _TagEditSheetBody({
+    required this.title,
+    required this.initialName,
+    required this.initialColor,
+    required this.initialIconKey,
+    required this.confirmLabel,
+    required this.showIconPicker,
+  });
+
+  @override
+  State<_TagEditSheetBody> createState() => _TagEditSheetBodyState();
+}
+
+class _TagEditSheetBodyState extends State<_TagEditSheetBody> {
+  late final TextEditingController _controller;
+  late int? _color;
+  late String? _iconKey;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialName);
+    _color = widget.initialColor;
+    _iconKey = widget.initialIconKey;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _confirm() {
+    final name = _controller.text.trim();
+    if (name.isEmpty) return;
+    Navigator.pop(
+      context,
+      TagEditResult(
+        name: name,
+        colorValue: _color,
+        iconKey: widget.showIconPicker ? _iconKey : null,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return AppSheetScaffold(
+      header: AppSheetHeader(title: widget.title),
+      actions: AppSheetActionsBar(
+        children: [
+          AppCloseIconButton(
+            onPressed: () => Navigator.pop(context),
+            label: l10n.cancel,
+          ),
+          AppFilledButton(
+            onPressed: _confirm,
+            icon: Icons.check,
+            label: widget.confirmLabel,
+          ),
+        ],
+      ),
+      children: [
+        TextField(
+          controller: _controller,
+          decoration: InputDecoration(labelText: l10n.tag),
+          autofocus: true,
+          onSubmitted: (_) => _confirm(),
+        ),
+        const SizedBox(height: 16),
+        TagColorPicker(
+          selected: _color,
+          onChanged: (v) => setState(() => _color = v),
+        ),
+        if (widget.showIconPicker) ...[
+          const SizedBox(height: 16),
+          TagIconPicker(
+            selected: _iconKey,
+            onChanged: (v) => setState(() => _iconKey = v),
+          ),
+        ],
+      ],
+    );
+  }
 }

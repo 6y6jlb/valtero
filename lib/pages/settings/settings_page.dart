@@ -269,7 +269,7 @@ class SettingsPage extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return AppPageScaffold(
-      showAddExpenseFab: false,
+      showAddOperationFab: false,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),

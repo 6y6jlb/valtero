@@ -81,10 +81,7 @@ class _ExpensesPageState extends ConsumerState<ExpensesPage> {
           GoogleDriveSyncAppBarButton(),
         ],
       ),
-      addExpenseHeroTag: 'expenses_add_expense',
-      addIncomeHeroTag: 'expenses_add_income',
-      showAddExpenseFab: _direction != TransactionDirection.income,
-      showAddIncomeFab: _direction != TransactionDirection.expenses,
+      addOperationHeroTag: 'expenses_add_operation',
       extraFabs: [
         if (hasSelection) const ExpenseBulkFabActions(),
       ],

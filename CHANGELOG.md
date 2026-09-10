@@ -8,6 +8,19 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-09-10
+
+### Changed
+
+- Single theme-colored `+` FAB expands to text actions for Add expense / Add income
+  (replaces separate red/green FABs); menu actions use a slightly lighter fill than
+  the primary FAB.
+- Dashboard **Show** FAB expands to Show expenses / Show income (replaces the
+  direction-specific list FAB); sibling FABs stay bottom-aligned when a menu opens.
+- Create/edit tag (and payment method) use the standard bottom sheet instead of a
+  centered dialog.
+- Agent rule: default modals are bottom sheets (`docs/agent-rules/modal-sheets.md`).
+
 ## [1.0.0] - 2026-09-09
 
 ### Changed

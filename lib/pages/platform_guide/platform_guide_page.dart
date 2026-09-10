@@ -25,7 +25,7 @@ class PlatformGuidePage extends StatelessWidget {
         ),
         title: Text(l10n.guideTitle),
       ),
-      addExpenseHeroTag: 'guide_add_expense',
+      addOperationHeroTag: 'guide_add_operation',
       body: const PlatformGuideBody(
         showHeader: false,
         padding: EdgeInsets.fromLTRB(16, 8, 16, kFabBottomPadding),

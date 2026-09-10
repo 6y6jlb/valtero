@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:valtero/widgets/add_expense_fab.dart';
-import 'package:valtero/widgets/add_income_fab.dart';
+import 'package:valtero/widgets/add_operation_fab.dart';
 
 /// Bottom inset so scrollable content clears the FAB row.
 const double kFabBottomPadding = 96;
 
-/// Page scaffold with optional add-expense / add-income FABs.
+/// Page scaffold with optional add-operation FAB (`+` → expense / income).
 ///
-/// Put extra FABs (e.g. “Show expenses”) in [extraFabs]; they appear to the
-/// left of the add button(s).
+/// Put extra FABs (e.g. Show list menu) in [extraFabs]; they appear to the
+/// left of the add button and stay bottom-aligned when a menu expands.
 class AppPageScaffold extends StatelessWidget {
   final PreferredSizeWidget? appBar;
   final Widget body;
-  final bool showAddExpenseFab;
-  final bool showAddIncomeFab;
-  final String addExpenseHeroTag;
-  final String addIncomeHeroTag;
+  final bool showAddOperationFab;
+  final String addOperationHeroTag;
   final List<Widget> extraFabs;
   final Widget? floatingActionButton;
 
@@ -23,10 +20,8 @@ class AppPageScaffold extends StatelessWidget {
     super.key,
     this.appBar,
     required this.body,
-    this.showAddExpenseFab = true,
-    this.showAddIncomeFab = false,
-    this.addExpenseHeroTag = 'add_expense',
-    this.addIncomeHeroTag = 'add_income',
+    this.showAddOperationFab = true,
+    this.addOperationHeroTag = 'add_operation',
     this.extraFabs = const [],
     this.floatingActionButton,
   });
@@ -34,24 +29,21 @@ class AppPageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget? fab = floatingActionButton;
-    if (fab == null &&
-        (showAddExpenseFab || showAddIncomeFab || extraFabs.isNotEmpty)) {
+    if (fab == null && (showAddOperationFab || extraFabs.isNotEmpty)) {
       final children = <Widget>[
         ...extraFabs,
-        if ((showAddExpenseFab || showAddIncomeFab) && extraFabs.isNotEmpty)
+        if (showAddOperationFab && extraFabs.isNotEmpty)
           const SizedBox(width: 12),
-        if (showAddExpenseFab && showAddIncomeFab) ...[
-          addExpenseFab(context, heroTag: addExpenseHeroTag),
-          const SizedBox(width: 12),
-          addIncomeFab(context, heroTag: addIncomeHeroTag),
-        ] else if (showAddIncomeFab)
-          addIncomeFab(context, heroTag: addIncomeHeroTag)
-        else if (showAddExpenseFab)
-          addExpenseFab(context, heroTag: addExpenseHeroTag),
+        if (showAddOperationFab)
+          AddOperationFab(heroTag: addOperationHeroTag),
       ];
       fab = children.length == 1
           ? children.first
-          : Row(mainAxisSize: MainAxisSize.min, children: children);
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: children,
+            );
     }
 
     return Scaffold(

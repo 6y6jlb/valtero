@@ -1206,6 +1206,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get showIncomeList => 'Show income';
 
   @override
+  String get fabShow => 'Show';
+
+  @override
   String get noIncomeYet => 'No income yet';
 
   @override
@@ -1236,7 +1239,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideSectionIncomeBody =>
-      'Switch the Dashboard tab to Income to add receipts with the same amount, currency, payment, country, and date fields as expenses. Income uses its own category tags (salary, sale, gift, and more). Soft-duplicate checks work the same way.';
+      'Tap + and choose Add income (or switch the Dashboard tab to Income). Receipts use the same amount, currency, payment, country, and date fields as expenses, with their own category tags (salary, sale, gift, and more). Soft-duplicate checks work the same way.';
 
   @override
   String get guideSectionCashFlowTitle => 'Cash flow';
@@ -1653,7 +1656,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideSectionGettingStartedBody =>
-      'Tap the + button at the bottom of the screen to open the add-expense form. Enter an amount and currency, optionally convert into a reporting currency, pick a country and category tags, and save. If another expense already has the same day, amount, and currency, you can mark yours as unique, delete the match, or cancel. Tap an existing expense to edit it in the same form. Until then, the dashboard shows a sample chart with a link to this guide.';
+      'Tap the + button at the bottom of the screen, then choose Add expense or Add income. Enter an amount and currency, optionally convert into a reporting currency, pick a country and category tags, and save. If another expense already has the same day, amount, and currency, you can mark yours as unique, delete the match, or cancel. Tap an existing expense to edit it in the same form. Until then, the dashboard shows a sample chart with a link to this guide.';
 
   @override
   String get guideSectionExpenseTrackingTitle => 'Expense tracking';

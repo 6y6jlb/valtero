@@ -18,7 +18,7 @@ const kFabBottomPadding = 96;
 // file: app_page_scaffold.dart
 ```
 
-Same for features: `platform_guide`, `AppModalSheet`, `addExpenseFab` — not `valteroGuide`, `ValteroSheet`, etc.
+Same for features: `platform_guide`, `AppModalSheet`, `AddOperationFab` — not `valteroGuide`, `ValteroSheet`, etc.
 
 **OK to use the product name in:**
 

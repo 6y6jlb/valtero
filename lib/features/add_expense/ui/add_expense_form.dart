@@ -149,7 +149,7 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
 
   Future<void> _addTag() async {
     final l10n = AppLocalizations.of(context)!;
-    final result = await showTagEditDialog(
+    final result = await showTagEditSheet(
       context,
       title: l10n.newTag,
       initialName: _newTagController.text,

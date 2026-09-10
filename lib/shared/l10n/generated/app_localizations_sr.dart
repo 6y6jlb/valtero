@@ -1214,6 +1214,9 @@ class AppLocalizationsSr extends AppLocalizations {
   String get showIncomeList => 'Prikaži prihode';
 
   @override
+  String get fabShow => 'Prikaži';
+
+  @override
   String get noIncomeYet => 'Još nema prihoda';
 
   @override
@@ -1245,7 +1248,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get guideSectionIncomeBody =>
-      'Na kartici Prihodi na početnoj možete dodati uplatu sa istim poljima iznosa, valute, plaćanja, zemlje i datuma kao kod troškova. Prihodi imaju svoje kategorije (plata, prodaja, poklon…). Provera mogućih duplikata radi isto.';
+      'Dodirnite + i izaberite Dodaj prihod (ili otvorite karticu Prihodi). Uplate imaju ista polja iznosa, valute, plaćanja, zemlje i datuma kao troškovi, sa sopstvenim kategorijama (plata, prodaja, poklon…). Provera mogućih duplikata radi isto.';
 
   @override
   String get guideSectionCashFlowTitle => 'Tok novca';
@@ -1664,7 +1667,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get guideSectionGettingStartedBody =>
-      'Dodirnite + na dnu ekrana da otvorite formular troška. Unesite iznos i valutu, po želji konvertujte u izveštajnu valutu, izaberite zemlju i kategorije, pa sačuvajte. Ako već postoji trošak sa istim danom, iznosom i valutom, možete sačuvati kao jedinstven, obrisati podudaranje ili otkazati. Dodirnite postojeći trošak da ga izmenite u istom formularu. Do tada kontrolna tabla pokazuje primer grafikona sa linkom na ovaj vodič.';
+      'Dodirnite + na dnu ekrana, zatim izaberite Dodaj trošak ili Dodaj prihod. Unesite iznos i valutu, po želji konvertujte u izveštajnu valutu, izaberite zemlju i kategorije, pa sačuvajte. Ako već postoji trošak sa istim danom, iznosom i valutom, možete sačuvati kao jedinstven, obrisati podudaranje ili otkazati. Dodirnite postojeći trošak da ga izmenite u istom formularu. Do tada kontrolna tabla pokazuje primer grafikona sa linkom na ovaj vodič.';
 
   @override
   String get guideSectionExpenseTrackingTitle => 'Praćenje troškova';

@@ -2260,6 +2260,12 @@ abstract class AppLocalizations {
   /// **'Show income'**
   String get showIncomeList;
 
+  /// No description provided for @fabShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get fabShow;
+
   /// No description provided for @noIncomeYet.
   ///
   /// In en, this message translates to:
@@ -2305,7 +2311,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionIncomeBody.
   ///
   /// In en, this message translates to:
-  /// **'Switch the Dashboard tab to Income to add receipts with the same amount, currency, payment, country, and date fields as expenses. Income uses its own category tags (salary, sale, gift, and more). Soft-duplicate checks work the same way.'**
+  /// **'Tap + and choose Add income (or switch the Dashboard tab to Income). Receipts use the same amount, currency, payment, country, and date fields as expenses, with their own category tags (salary, sale, gift, and more). Soft-duplicate checks work the same way.'**
   String get guideSectionIncomeBody;
 
   /// No description provided for @guideSectionCashFlowTitle.
@@ -3067,7 +3073,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionGettingStartedBody.
   ///
   /// In en, this message translates to:
-  /// **'Tap the + button at the bottom of the screen to open the add-expense form. Enter an amount and currency, optionally convert into a reporting currency, pick a country and category tags, and save. If another expense already has the same day, amount, and currency, you can mark yours as unique, delete the match, or cancel. Tap an existing expense to edit it in the same form. Until then, the dashboard shows a sample chart with a link to this guide.'**
+  /// **'Tap the + button at the bottom of the screen, then choose Add expense or Add income. Enter an amount and currency, optionally convert into a reporting currency, pick a country and category tags, and save. If another expense already has the same day, amount, and currency, you can mark yours as unique, delete the match, or cancel. Tap an existing expense to edit it in the same form. Until then, the dashboard shows a sample chart with a link to this guide.'**
   String get guideSectionGettingStartedBody;
 
   /// No description provided for @guideSectionExpenseTrackingTitle.

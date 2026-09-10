@@ -1217,6 +1217,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get showIncomeList => 'Ver ingresos';
 
   @override
+  String get fabShow => 'Ver';
+
+  @override
   String get noIncomeYet => 'Aún no hay ingresos';
 
   @override
@@ -1248,7 +1251,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guideSectionIncomeBody =>
-      'En la pestaña Ingresos del panel puedes añadir cobros con los mismos campos de importe, moneda, pago, país y fecha que los gastos. Los ingresos usan sus propias categorías (salario, venta, regalo, etc.). La detección de posibles duplicados funciona igual.';
+      'Toca + y elige Añadir ingreso (o abre la pestaña Ingresos). Los cobros usan los mismos campos de importe, moneda, pago, país y fecha que los gastos, con sus propias categorías (salario, venta, regalo, etc.). La detección de posibles duplicados funciona igual.';
 
   @override
   String get guideSectionCashFlowTitle => 'Flujo de caja';
@@ -1666,7 +1669,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guideSectionGettingStartedBody =>
-      'Toca el botón + en la parte inferior para abrir el formulario de gasto. Introduce importe y moneda, opcionalmente convierte a una moneda de informe, elige país y categorías, y guarda. Si ya existe un gasto con el mismo día, importe y moneda, puedes guardarlo como único, eliminar la coincidencia o cancelar. Toca un gasto existente para editarlo en el mismo formulario. Hasta entonces, el panel muestra un gráfico de ejemplo con enlace a esta guía.';
+      'Toca el botón + en la parte inferior y elige Añadir gasto o Añadir ingreso. Introduce importe y moneda, opcionalmente convierte a una moneda de informe, elige país y categorías, y guarda. Si ya existe un gasto con el mismo día, importe y moneda, puedes guardarlo como único, eliminar la coincidencia o cancelar. Toca un gasto existente para editarlo en el mismo formulario. Hasta entonces, el panel muestra un gráfico de ejemplo con enlace a esta guía.';
 
   @override
   String get guideSectionExpenseTrackingTitle => 'Seguimiento de gastos';
