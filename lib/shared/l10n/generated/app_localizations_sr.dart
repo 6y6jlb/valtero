@@ -1217,6 +1217,9 @@ class AppLocalizationsSr extends AppLocalizations {
   String get fabShow => 'Prikaži';
 
   @override
+  String get showCashFlow => 'Prikaži tok novca';
+
+  @override
   String get noIncomeYet => 'Još nema prihoda';
 
   @override
@@ -1631,7 +1634,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get dashboardSampleChartLabel =>
-      'Primer — ovako će izgledati tvoj grafikon kada dodaš troškove';
+      'Primer — ovako će izgledati tvoj grafikon kada dodaš troškove ili prihode';
 
   @override
   String get dashboardOpenGuide => 'Šta aplikacija može';

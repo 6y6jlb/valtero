@@ -178,6 +178,16 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     }
   }
 
+  Future<void> setLastIncomeTagId(int? id) async {
+    final current = state.value;
+    if (current == null) return;
+    if (id == null) {
+      await _save(current.copyWith(clearLastIncomeTagId: true));
+    } else {
+      await _save(current.copyWith(lastIncomeTagId: id));
+    }
+  }
+
   Future<void> setDefaultPaymentMethodId(int? id) async {
     final current = state.value;
     if (current == null) return;
@@ -222,6 +232,13 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       incomeChartType: chartType,
       incomeChartDatePeriod: chartDatePeriod,
     ));
+  }
+
+  Future<void> setDashboardDirection(String direction) async {
+    final current = state.value;
+    if (current == null) return;
+    if (current.dashboardDirection == direction) return;
+    await _save(current.copyWith(dashboardDirection: direction));
   }
 
   Future<void> setDebugLoggingEnabled(bool enabled) async {

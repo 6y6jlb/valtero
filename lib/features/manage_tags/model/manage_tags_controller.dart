@@ -144,8 +144,12 @@ class ManageTagsController {
   Future<void> deleteTag(int id) async {
     await _db.deleteTagById(id);
     final settings = ref.read(appSettingsProvider).value;
+    final notifier = ref.read(appSettingsProvider.notifier);
     if (settings?.defaultTagId == id) {
-      await ref.read(appSettingsProvider.notifier).setDefaultTagId(null);
+      await notifier.setDefaultTagId(null);
+    }
+    if (settings?.lastIncomeTagId == id) {
+      await notifier.setLastIncomeTagId(null);
     }
   }
 }

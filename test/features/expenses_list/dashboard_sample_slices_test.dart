@@ -18,4 +18,23 @@ void main() {
         dashboardSampleSlices(l10n, ExpenseChartBreakdown.month, now: now);
     expect(slices.map((s) => s.key), ['2026-06', '2026-07', '2026-08']);
   });
+
+  test('dashboardSampleCashFlowBuckets includes income and expenses', () {
+    final buckets = dashboardSampleCashFlowBuckets(
+      ExpenseChartBreakdown.month,
+      now: now,
+    );
+    expect(buckets, hasLength(3));
+    expect(buckets.every((b) => b.incomeTotalMinor > 0), isTrue);
+    expect(buckets.every((b) => b.expenseTotalMinor > 0), isTrue);
+    expect(buckets.map((b) => b.key), ['2026-06', '2026-07', '2026-08']);
+  });
+
+  test('dashboardSampleCashFlowBuckets falls back to month for non-temporal', () {
+    final buckets = dashboardSampleCashFlowBuckets(
+      ExpenseChartBreakdown.currency,
+      now: now,
+    );
+    expect(buckets.map((b) => b.key), ['2026-06', '2026-07', '2026-08']);
+  });
 }

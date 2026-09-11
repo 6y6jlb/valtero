@@ -1209,6 +1209,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fabShow => 'Show';
 
   @override
+  String get showCashFlow => 'Show cash flow';
+
+  @override
   String get noIncomeYet => 'No income yet';
 
   @override
@@ -1620,7 +1623,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashboardSampleChartLabel =>
-      'Example — your chart will look like this after you add expenses';
+      'Example — your chart will look like this after you add expenses or income';
 
   @override
   String get dashboardOpenGuide => 'What the app can do';

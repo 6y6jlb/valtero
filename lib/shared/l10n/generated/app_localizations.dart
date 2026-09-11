@@ -2266,6 +2266,12 @@ abstract class AppLocalizations {
   /// **'Show'**
   String get fabShow;
 
+  /// No description provided for @showCashFlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show cash flow'**
+  String get showCashFlow;
+
   /// No description provided for @noIncomeYet.
   ///
   /// In en, this message translates to:
@@ -3007,7 +3013,7 @@ abstract class AppLocalizations {
   /// No description provided for @dashboardSampleChartLabel.
   ///
   /// In en, this message translates to:
-  /// **'Example — your chart will look like this after you add expenses'**
+  /// **'Example — your chart will look like this after you add expenses or income'**
   String get dashboardSampleChartLabel;
 
   /// No description provided for @dashboardOpenGuide.

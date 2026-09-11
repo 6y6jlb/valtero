@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/expand_fab_menu.dart';
 
-/// Theme-colored Show FAB that expands upward into Show expenses / Show income.
+/// Theme-colored Show FAB → Show cash flow / expenses / income.
 class ShowListFab extends StatelessWidget {
   final String heroTag;
+  final Future<void> Function() onShowCashFlow;
   final Future<void> Function() onShowExpenses;
   final Future<void> Function() onShowIncome;
 
   const ShowListFab({
     super.key,
     required this.heroTag,
+    required this.onShowCashFlow,
     required this.onShowExpenses,
     required this.onShowIncome,
   });
@@ -25,6 +27,10 @@ class ShowListFab extends StatelessWidget {
       closedLabel: l10n.fabShow,
       closedChild: const Icon(Icons.list_alt),
       actions: [
+        ExpandFabAction(
+          label: l10n.showCashFlow,
+          onPressed: onShowCashFlow,
+        ),
         ExpandFabAction(
           label: l10n.showExpenses,
           onPressed: onShowExpenses,

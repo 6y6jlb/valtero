@@ -80,11 +80,20 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
 
     final settings = ref.read(appSettingsProvider).value;
     if (settings != null) {
+      final lastTagId = settings.defaultTagId;
+      var applyLastTag = false;
+      if (lastTagId != null) {
+        final tags = await ref.read(appDatabaseProvider).watchTagsList();
+        applyLastTag = tags.any(
+          (t) => t.id == lastTagId && tagKindOf(t) == TagKind.custom,
+        );
+      }
+      if (!mounted) return;
       setState(() {
         _currency = settings.primaryCurrency;
         _targetCurrency = settings.primaryCurrency;
-        if (settings.defaultTagId != null) {
-          _tagIds.add(settings.defaultTagId!);
+        if (applyLastTag) {
+          _tagIds.add(lastTagId!);
         }
         _paymentMethodId = settings.defaultPaymentMethodId;
         final detected = settings.detectedCountryCode;

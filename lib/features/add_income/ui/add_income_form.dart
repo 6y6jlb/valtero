@@ -78,9 +78,21 @@ class _AddIncomeFormState extends ConsumerState<AddIncomeForm> {
 
     final settings = ref.read(appSettingsProvider).value;
     if (settings != null) {
+      final lastTagId = settings.lastIncomeTagId;
+      var applyLastTag = false;
+      if (lastTagId != null) {
+        final tags = await ref.read(appDatabaseProvider).watchTagsList();
+        applyLastTag = tags.any(
+          (t) => t.id == lastTagId && tagKindOf(t) == TagKind.income,
+        );
+      }
+      if (!mounted) return;
       setState(() {
         _currency = settings.primaryCurrency;
         _targetCurrency = settings.primaryCurrency;
+        if (applyLastTag) {
+          _tagIds.add(lastTagId!);
+        }
         _paymentMethodId = settings.defaultPaymentMethodId;
         final detected = settings.detectedCountryCode;
         if (detected != null && detected.isNotEmpty) {

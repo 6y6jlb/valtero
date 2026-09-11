@@ -23,13 +23,13 @@ class ExpensesPage extends ConsumerStatefulWidget {
   const ExpensesPage({
     super.key,
     this.initial,
-    this.initialDirection = TransactionDirection.expenses,
+    this.initialDirection = TransactionDirection.cashFlow,
   });
 
   static Future<void> open(
     BuildContext context, {
     ExpenseListQuery? initial,
-    TransactionDirection direction = TransactionDirection.expenses,
+    TransactionDirection direction = TransactionDirection.cashFlow,
   }) {
     return Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
@@ -49,6 +49,12 @@ class _ExpensesPageState extends ConsumerState<ExpensesPage> {
   void initState() {
     super.initState();
     _direction = widget.initialDirection;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref
+          .read(appSettingsProvider.notifier)
+          .setDashboardDirection(widget.initialDirection.settingsValue);
+    });
   }
 
   @override
@@ -95,7 +101,12 @@ class _ExpensesPageState extends ConsumerState<ExpensesPage> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             child: OperationDirectionTabs(
               selected: _direction,
-              onChanged: (next) => setState(() => _direction = next),
+              onChanged: (next) {
+                setState(() => _direction = next);
+                ref
+                    .read(appSettingsProvider.notifier)
+                    .setDashboardDirection(next.settingsValue);
+              },
             ),
           ),
           Expanded(child: body),

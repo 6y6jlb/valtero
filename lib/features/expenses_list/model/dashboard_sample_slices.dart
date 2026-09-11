@@ -1,3 +1,4 @@
+import 'package:valtero/features/expenses_list/model/cash_flow_aggregator.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/shared/consts/palette.dart';
@@ -193,4 +194,70 @@ List<DonutChartSlice> dashboardSampleSlices(
         ),
       ];
   }
+}
+
+/// Demo income vs expense buckets for an empty cash-flow dashboard.
+List<CashFlowBucket> dashboardSampleCashFlowBuckets(
+  ExpenseChartBreakdown breakdown, {
+  DateTime? now,
+}) {
+  final clock = now ?? DateTime.now();
+  final temporal = breakdown == ExpenseChartBreakdown.day ||
+          breakdown == ExpenseChartBreakdown.week ||
+          breakdown == ExpenseChartBreakdown.month ||
+          breakdown == ExpenseChartBreakdown.year
+      ? breakdown
+      : ExpenseChartBreakdown.month;
+
+  String keyFor(DateTime d) {
+    return switch (temporal) {
+      ExpenseChartBreakdown.day =>
+        '${d.year}-${d.month.toString().padLeft(2, '0')}-'
+            '${d.day.toString().padLeft(2, '0')}',
+      ExpenseChartBreakdown.week => () {
+          final monday = DateTime(d.year, d.month, d.day)
+              .subtract(Duration(days: d.weekday - DateTime.monday));
+          return '${monday.year}-${monday.month.toString().padLeft(2, '0')}-'
+              '${monday.day.toString().padLeft(2, '0')}';
+        }(),
+      ExpenseChartBreakdown.year => '${d.year}',
+      _ => '${d.year}-${d.month.toString().padLeft(2, '0')}',
+    };
+  }
+
+  final points = switch (temporal) {
+    ExpenseChartBreakdown.day => [
+        clock.subtract(const Duration(days: 2)),
+        clock.subtract(const Duration(days: 1)),
+        clock,
+      ],
+    ExpenseChartBreakdown.week => [
+        clock.subtract(const Duration(days: 14)),
+        clock.subtract(const Duration(days: 7)),
+        clock,
+      ],
+    ExpenseChartBreakdown.year => [
+        DateTime(clock.year - 2),
+        DateTime(clock.year - 1),
+        clock,
+      ],
+    _ => [
+        DateTime(clock.year, clock.month - 2),
+        DateTime(clock.year, clock.month - 1),
+        clock,
+      ],
+  };
+
+  const incomes = [480000, 520000, 510000];
+  const expenses = [310000, 450000, 280000];
+
+  return [
+    for (var i = 0; i < points.length; i++)
+      CashFlowBucket(
+        key: keyFor(points[i]),
+        label: keyFor(points[i]),
+        incomeTotalMinor: incomes[i],
+        expenseTotalMinor: expenses[i],
+      ),
+  ];
 }

@@ -57,7 +57,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   ExpenseListQuery? _customQuery;
   /// Bumps [DashboardBody] key so recent pagination resets after filter apply.
   int _filterGeneration = 0;
-  TransactionDirection _direction = TransactionDirection.expenses;
+  TransactionDirection? _directionOverride;
+
+  TransactionDirection get _direction {
+    if (_directionOverride != null) return _directionOverride!;
+    final raw = ref.watch(appSettingsProvider).value?.dashboardDirection;
+    return TransactionDirectionPersistence.fromSettings(raw);
+  }
 
   ExpenseListQuery _resolveQuery(String timeZoneId) {
     if (_hasCustomFilter && _customQuery != null) return _customQuery!;
@@ -67,8 +73,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   void _changeBreakdown(ExpenseChartBreakdown next) {
     ref.read(appSettingsProvider.notifier).setExpensesListDisplay(
           chartBreakdown: next.name,
-          chartDatePeriod:
-              isDateChartBreakdown(next) ? next.name : null,
+          chartDatePeriod: isDateChartBreakdown(next) ? next.name : null,
         );
   }
 
@@ -81,9 +86,21 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   void _changeDirection(TransactionDirection next) {
     if (next == _direction) return;
     setState(() {
-      _direction = next;
+      _directionOverride = next;
       _filterGeneration++;
     });
+    ref
+        .read(appSettingsProvider.notifier)
+        .setDashboardDirection(next.settingsValue);
+    if (next == TransactionDirection.cashFlow) {
+      final settings = ref.read(appSettingsProvider).value;
+      final breakdown = settings != null
+          ? expensesChartBreakdownFromSettings(settings)
+          : ExpenseChartBreakdown.currency;
+      if (!isDateChartBreakdown(breakdown)) {
+        _changeBreakdown(ExpenseChartBreakdown.month);
+      }
+    }
   }
 
   void _openSettings(BuildContext context) {
@@ -241,9 +258,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         ref.watch(paymentMethodsStreamProvider).value ?? const [];
     final expenseTags = ref.watch(expenseTagIdsProvider).value ?? const {};
     final incomeTags = ref.watch(incomeTagIdsProvider).value ?? const {};
-    final breakdown = settings != null
+    final rawBreakdown = settings != null
         ? expensesChartBreakdownFromSettings(settings)
         : ExpenseChartBreakdown.currency;
+    final breakdown =
+        _direction == TransactionDirection.cashFlow &&
+                !isDateChartBreakdown(rawBreakdown)
+            ? ExpenseChartBreakdown.month
+            : rawBreakdown;
     final chartType = settings != null
         ? expensesChartTypeFromSettings(settings)
         : ExpenseChartType.donut;
@@ -278,12 +300,35 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       incomeTags: incomeTags,
       timeZoneId: timeZoneId,
     );
-    final isSample =
+    final isExpenseSample =
         _direction == TransactionDirection.expenses && expenses.isEmpty;
+    final isCashFlowSample = _direction == TransactionDirection.cashFlow &&
+        expenses.isEmpty &&
+        incomes.isEmpty;
     final lang = Localizations.localeOf(context).languageCode;
 
     Widget body;
-    if (isSample) {
+    if (isCashFlowSample) {
+      body = _dashboardBody(
+        slices: const [],
+        missingRateCount: 0,
+        displayCurrency: displayCurrency,
+        breakdown: breakdown,
+        chartType: chartType,
+        currencyOptions: currencyOptions,
+        tagLabels: tagLabels,
+        paymentLabels: paymentLabels,
+        tags: tags,
+        paymentMethods: paymentMethods,
+        recentExpenses: const [],
+        expenseTags: expenseTags,
+        cashFlowBuckets: dashboardSampleCashFlowBuckets(breakdown),
+        applied: applied,
+        isSample: true,
+        loading: false,
+        hasSourceData: false,
+      );
+    } else if (isExpenseSample) {
       body = _dashboardBody(
         slices: dashboardSampleSlices(l10n, breakdown),
         missingRateCount: 0,
@@ -467,6 +512,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       extraFabs: [
         ShowListFab(
           heroTag: 'dashboard_show_list',
+          onShowCashFlow: () => ExpensesPage.open(
+            context,
+            direction: TransactionDirection.cashFlow,
+          ),
           onShowExpenses: () => ExpensesPage.open(
             context,
             direction: TransactionDirection.expenses,

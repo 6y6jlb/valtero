@@ -4,7 +4,11 @@ class AppSettings {
   final String? exchangeRateApiKey;
   final String activeRateProviderId;
   final DateTime? lastRateRefreshAt;
+  /// Last expense category tag used on save (primed on next create).
+  /// Field name kept for existing Hive/backup payloads.
   final int? defaultTagId;
+  /// Last income category tag used on save (primed on next create).
+  final int? lastIncomeTagId;
   final int? defaultPaymentMethodId;
   final String? detectedCountryCode;
   final String? detectedCurrency;
@@ -43,6 +47,9 @@ class AppSettings {
   final String incomeChartType;
   /// Last income date-chart period: `day` | `week` | `month` | `year`.
   final String incomeChartDatePeriod;
+  /// Last dashboard / list direction tab: `cashFlow` | `expenses` | `income`.
+  /// Defaults to cash flow on first launch.
+  final String dashboardDirection;
   /// When true, verbose debug breadcrumbs are written to the app log file.
   /// Error/warning logs are always written regardless of this flag.
   final bool debugLoggingEnabled;
@@ -70,6 +77,7 @@ class AppSettings {
     this.activeRateProviderId = 'frankfurter',
     this.lastRateRefreshAt,
     this.defaultTagId,
+    this.lastIncomeTagId,
     this.defaultPaymentMethodId,
     this.detectedCountryCode,
     this.detectedCurrency,
@@ -94,6 +102,7 @@ class AppSettings {
     this.incomeChartBreakdown = 'currency',
     this.incomeChartType = 'donut',
     this.incomeChartDatePeriod = 'month',
+    this.dashboardDirection = 'cashFlow',
     this.debugLoggingEnabled = false,
     this.googleDriveSyncEnabled = false,
     this.googleDriveAccountEmail = '',
@@ -124,6 +133,8 @@ class AppSettings {
     bool clearLastRateRefreshAt = false,
     int? defaultTagId,
     bool clearDefaultTagId = false,
+    int? lastIncomeTagId,
+    bool clearLastIncomeTagId = false,
     int? defaultPaymentMethodId,
     bool clearDefaultPaymentMethodId = false,
     String? detectedCountryCode,
@@ -149,6 +160,7 @@ class AppSettings {
     String? incomeChartBreakdown,
     String? incomeChartType,
     String? incomeChartDatePeriod,
+    String? dashboardDirection,
     bool? debugLoggingEnabled,
     bool? googleDriveSyncEnabled,
     String? googleDriveAccountEmail,
@@ -173,6 +185,9 @@ class AppSettings {
           ? null
           : (lastRateRefreshAt ?? this.lastRateRefreshAt),
       defaultTagId: clearDefaultTagId ? null : (defaultTagId ?? this.defaultTagId),
+      lastIncomeTagId: clearLastIncomeTagId
+          ? null
+          : (lastIncomeTagId ?? this.lastIncomeTagId),
       defaultPaymentMethodId: clearDefaultPaymentMethodId
           ? null
           : (defaultPaymentMethodId ?? this.defaultPaymentMethodId),
@@ -203,6 +218,7 @@ class AppSettings {
       incomeChartType: incomeChartType ?? this.incomeChartType,
       incomeChartDatePeriod:
           incomeChartDatePeriod ?? this.incomeChartDatePeriod,
+      dashboardDirection: dashboardDirection ?? this.dashboardDirection,
       debugLoggingEnabled: debugLoggingEnabled ?? this.debugLoggingEnabled,
       googleDriveSyncEnabled:
           googleDriveSyncEnabled ?? this.googleDriveSyncEnabled,
@@ -236,6 +252,7 @@ class AppSettings {
         'activeRateProviderId': activeRateProviderId,
         'lastRateRefreshAt': lastRateRefreshAt?.toIso8601String(),
         'defaultTagId': defaultTagId,
+        'lastIncomeTagId': lastIncomeTagId,
         'defaultPaymentMethodId': defaultPaymentMethodId,
         'detectedCountryCode': detectedCountryCode,
         'detectedCurrency': detectedCurrency,
@@ -260,6 +277,7 @@ class AppSettings {
         'incomeChartBreakdown': incomeChartBreakdown,
         'incomeChartType': incomeChartType,
         'incomeChartDatePeriod': incomeChartDatePeriod,
+        'dashboardDirection': dashboardDirection,
         'debugLoggingEnabled': debugLoggingEnabled,
         'googleDriveSyncEnabled': googleDriveSyncEnabled,
         'googleDriveAccountEmail': googleDriveAccountEmail,
@@ -287,6 +305,7 @@ class AppSettings {
           ? DateTime.tryParse(json['lastRateRefreshAt'] as String)
           : null,
       defaultTagId: json['defaultTagId'] as int?,
+      lastIncomeTagId: json['lastIncomeTagId'] as int?,
       defaultPaymentMethodId: json['defaultPaymentMethodId'] as int?,
       detectedCountryCode: json['detectedCountryCode'] as String?,
       detectedCurrency: json['detectedCurrency'] as String?,
@@ -342,6 +361,13 @@ class AppSettings {
           return breakdown;
         }
         return 'month';
+      }(),
+      dashboardDirection: () {
+        final raw = json['dashboardDirection'] as String? ?? 'cashFlow';
+        if (raw == 'expenses' || raw == 'income' || raw == 'cashFlow') {
+          return raw;
+        }
+        return 'cashFlow';
       }(),
       debugLoggingEnabled: json['debugLoggingEnabled'] as bool? ?? false,
       googleDriveSyncEnabled: json['googleDriveSyncEnabled'] as bool? ?? false,

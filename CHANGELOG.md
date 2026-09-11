@@ -8,6 +8,35 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-09-11
+
+### Added
+
+- Show FAB includes **Show cash flow**; cash-flow sample chart (income + expenses)
+  when the dashboard is empty.
+
+### Changed
+
+- Direction tabs order: Cash flow (default on first launch) → Expenses → Income;
+  last selected tab is persisted across app restarts.
+- New expense / income forms preselect the last category tag used for that
+  operation type (user can change before saving).
+- Sample chart copy mentions expenses or income.
+- Expandable `+` / Show FABs keep a stable widget tree (trigger animation
+  controller survives open/close); sub-actions stay mounted and animate with
+  height-factor + opacity; each FAB is anchored with a fixed `Positioned(right: …)`
+  so neighbors never shift; open trigger still uses two-phase × (appear, then
+  180° spin).
+
+### Fixed
+
+- Expandable FAB open/close animation no longer vanishes (trigger was remounted
+  on every toggle; dismiss barrier stays mounted so Stack indices stay stable).
+- Expandable FAB open, sub-action, and close respond on the first tap
+  (dismiss barrier behind the cluster; invisible × no longer steals hits).
+- Opening one FAB submenu no longer shoves the other FAB sideways.
+- Show FAB no longer clips/overlaps the `+` button when closed or open.
+
 ## [1.1.1] - 2026-09-10
 
 ### Changed

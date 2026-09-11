@@ -1217,6 +1217,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get fabShow => 'Показать';
 
   @override
+  String get showCashFlow => 'Показать баланс';
+
+  @override
   String get noIncomeYet => 'Пока нет доходов';
 
   @override
@@ -1633,7 +1636,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get dashboardSampleChartLabel =>
-      'Пример — так будет выглядеть график после добавления трат';
+      'Пример — так будет выглядеть график после добавления трат или доходов';
 
   @override
   String get dashboardOpenGuide => 'Что умеет приложение';

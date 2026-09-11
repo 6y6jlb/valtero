@@ -7,6 +7,7 @@ import 'package:valtero/features/add_expense/model/add_expense_controller.dart';
 import 'package:valtero/features/add_expense/ui/duplicate_conflict_dialog.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/payment_method_label.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
 import 'package:valtero/widgets/app_toast.dart';
@@ -77,6 +78,12 @@ Future<bool> saveExpenseWithDuplicateCheck({
     await controller.update(editing.id, input, markUnique: markUnique);
   } else {
     await controller.save(input, markUnique: markUnique);
+  }
+  if (!context.mounted) return false;
+
+  final lastTagId = input.tagIds.isEmpty ? null : input.tagIds.first;
+  if (lastTagId != null) {
+    await ref.read(appSettingsProvider.notifier).setDefaultTagId(lastTagId);
   }
   if (!context.mounted) return false;
 

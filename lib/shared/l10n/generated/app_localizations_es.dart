@@ -1220,6 +1220,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get fabShow => 'Ver';
 
   @override
+  String get showCashFlow => 'Ver flujo de caja';
+
+  @override
   String get noIncomeYet => 'Aún no hay ingresos';
 
   @override
@@ -1633,7 +1636,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get dashboardSampleChartLabel =>
-      'Ejemplo — así se verá tu gráfico cuando añadas gastos';
+      'Ejemplo — así se verá tu gráfico cuando añadas gastos o ingresos';
 
   @override
   String get dashboardOpenGuide => 'Qué puede hacer la app';
