@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:valtero/features/add_income/ui/add_income_sheet.dart';
-import 'package:valtero/features/add_income/ui/income_delete_flow.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/ui/possible_duplicate_badge.dart';
 import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/database/app_database.dart';
@@ -8,18 +7,21 @@ import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/date_text.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/money_text.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const double _kColGap = 16;
+const double _kSelectW = 40;
 const double _kDateW = 110;
 const double _kAmountW = 120;
 const double _kOriginalAmountW = 120;
 const double _kPaymentW = 100;
 const double _kCountryW = 110;
+const double _kTagsW = 140;
 const double _kEditW = 40;
 const double _kDeleteW = 40;
 
 const double _kTableMinWidth = 16 * 2 +
+    _kSelectW +
+    _kColGap +
     _kDateW +
     _kColGap +
     _kAmountW +
@@ -30,13 +32,12 @@ const double _kTableMinWidth = 16 * 2 +
     _kColGap +
     _kCountryW +
     _kColGap +
-    140 +
+    _kTagsW +
     _kColGap +
     _kEditW +
     _kColGap +
     _kDeleteW;
 
-/// Income list table (no multi-select — parity without bulk actions).
 class IncomeTable extends StatelessWidget {
   final List<Income> items;
   final Map<int, List<int>> incomeTags;
@@ -45,6 +46,13 @@ class IncomeTable extends StatelessWidget {
   final String untaggedLabel;
   final String? displayCurrency;
   final int? Function(Income income) convertedMinor;
+  final ValueChanged<int> onDelete;
+  final ValueChanged<Income>? onOpen;
+  final ValueChanged<Income>? onEdit;
+  final Set<int> selectedIds;
+  final ValueChanged<int> onToggleSelected;
+  final VoidCallback? onToggleSelectAll;
+  final bool allSelectableSelected;
   final Set<int> possibleDuplicateIds;
 
   const IncomeTable({
@@ -56,8 +64,17 @@ class IncomeTable extends StatelessWidget {
     required this.untaggedLabel,
     required this.displayCurrency,
     required this.convertedMinor,
+    required this.onDelete,
+    this.onOpen,
+    this.onEdit,
+    this.selectedIds = const {},
+    required this.onToggleSelected,
+    this.onToggleSelectAll,
+    this.allSelectableSelected = false,
     this.possibleDuplicateIds = const {},
   });
+
+  bool get _hasSelection => selectedIds.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +83,8 @@ class IncomeTable extends StatelessWidget {
     final headerStyle = theme.textTheme.labelMedium?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
+    final someSelected =
+        _hasSelection && !allSelectableSelected && items.isNotEmpty;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -85,6 +104,22 @@ class IncomeTable extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
+                      SizedBox(
+                        width: _kSelectW,
+                        child: Checkbox(
+                          tristate: true,
+                          value: allSelectableSelected
+                              ? true
+                              : (someSelected ? null : false),
+                          onChanged: onToggleSelectAll == null
+                              ? null
+                              : (_) => onToggleSelectAll!(),
+                          visualDensity: VisualDensity.compact,
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ),
+                      const SizedBox(width: _kColGap),
                       SizedBox(
                         width: _kDateW,
                         child: Text(l10n.columnDate, style: headerStyle),
@@ -125,7 +160,7 @@ class IncomeTable extends StatelessWidget {
                 ),
                 const Divider(height: 1),
                 for (final income in items)
-                  _IncomeTableRow(
+                  IncomeTableRow(
                     income: income,
                     tagLabel: _tagLabel(income.id),
                     paymentLabel: income.paymentMethodId == null
@@ -134,8 +169,14 @@ class IncomeTable extends StatelessWidget {
                             l10n.paymentMethodNone),
                     displayCurrency: displayCurrency,
                     convertedAmountMinor: convertedMinor(income),
+                    selected: selectedIds.contains(income.id),
+                    selectionActive: _hasSelection,
                     showPossibleDuplicate:
                         possibleDuplicateIds.contains(income.id),
+                    onToggleSelected: () => onToggleSelected(income.id),
+                    onDelete: () => onDelete(income.id),
+                    onOpen: onOpen == null ? null : () => onOpen!(income),
+                    onEdit: onEdit == null ? null : () => onEdit!(income),
                   ),
               ],
             ),
@@ -152,21 +193,34 @@ class IncomeTable extends StatelessWidget {
   }
 }
 
-class _IncomeTableRow extends ConsumerWidget {
+class IncomeTableRow extends ConsumerWidget {
   final Income income;
   final String tagLabel;
   final String paymentLabel;
   final String? displayCurrency;
   final int? convertedAmountMinor;
+  final bool selected;
+  final bool selectionActive;
   final bool showPossibleDuplicate;
+  final VoidCallback onToggleSelected;
+  final VoidCallback onDelete;
+  final VoidCallback? onOpen;
+  final VoidCallback? onEdit;
 
-  const _IncomeTableRow({
+  const IncomeTableRow({
+    super.key,
     required this.income,
     required this.tagLabel,
     required this.paymentLabel,
     required this.displayCurrency,
     required this.convertedAmountMinor,
+    required this.selected,
+    required this.selectionActive,
     this.showPossibleDuplicate = false,
+    required this.onToggleSelected,
+    required this.onDelete,
+    this.onOpen,
+    this.onEdit,
   });
 
   @override
@@ -287,7 +341,7 @@ class _IncomeTableRow extends ConsumerWidget {
             child: IconButton(
               icon: const Icon(Icons.edit_outlined, size: 20),
               tooltip: l10n.editIncome,
-              onPressed: () => showAddIncomeSheet(context, income: income),
+              onPressed: selectionActive || onEdit == null ? null : onEdit,
               visualDensity: VisualDensity.compact,
             ),
           ),
@@ -297,12 +351,7 @@ class _IncomeTableRow extends ConsumerWidget {
             child: IconButton(
               icon: const Icon(Icons.delete_outline, size: 20),
               tooltip: l10n.delete,
-              onPressed: () => confirmAndDeleteIncome(
-                context,
-                ref,
-                income.id,
-                income: income,
-              ),
+              onPressed: selectionActive ? null : onDelete,
               visualDensity: VisualDensity.compact,
             ),
           ),
@@ -310,13 +359,37 @@ class _IncomeTableRow extends ConsumerWidget {
       ),
     );
 
+    VoidCallback? rowTap;
+    if (selectionActive) {
+      rowTap = onToggleSelected;
+    } else if (onOpen != null) {
+      rowTap = onOpen;
+    } else if (onEdit != null) {
+      rowTap = onEdit;
+    }
+
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: InkWell(
-            onTap: () => showAddIncomeSheet(context, income: income),
-            child: content,
+          child: Row(
+            children: [
+              SizedBox(
+                width: _kSelectW,
+                child: Checkbox(
+                  value: selected,
+                  onChanged: (_) => onToggleSelected(),
+                  visualDensity: VisualDensity.compact,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ),
+              const SizedBox(width: _kColGap),
+              Expanded(
+                child: rowTap == null
+                    ? content
+                    : InkWell(onTap: rowTap, child: content),
+              ),
+            ],
           ),
         ),
         const Divider(height: 1),

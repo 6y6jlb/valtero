@@ -27,10 +27,25 @@ class RecentOperation {
     this.income,
   });
 
+  /// Underlying row; `Expense` and `Income` are the same Drift type.
+  Operation get row => (expense ?? income)!;
+
   int? get paymentMethodId =>
       expense?.paymentMethodId ?? income?.paymentMethodId;
 
   String? get countryCode => expense?.countryCode ?? income?.countryCode;
+
+  int get originalAmountMinor => row.originalAmountMinor;
+
+  String get originalCurrencyCode => row.originalCurrencyCode;
+
+  double? get rateUsed => row.rateUsed;
+
+  String? get note => row.note;
+
+  /// Signed amount for cash-flow math: income positive, expenses negative.
+  int get signedAmountMinor =>
+      kind == OperationKind.income ? amountMinor : -amountMinor;
 
   factory RecentOperation.fromExpense(
     Expense expense, {

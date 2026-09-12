@@ -421,6 +421,45 @@
       "count": { "type": "int" }
     }
   },
+  "bulkDeleteTitleIncome": "Удалить пополнения?",
+  "bulkDeleteDescriptionIncome": "Эти пополнения будут удалены безвозвратно:\n{list}",
+  "@bulkDeleteDescriptionIncome": {
+    "placeholders": {
+      "list": { "type": "String" }
+    }
+  },
+  "bulkIncomeDeleted": "Удалено пополнений: {count}",
+  "@bulkIncomeDeleted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkIncomeUpdated": "Обновлено пополнений: {count}",
+  "@bulkIncomeUpdated": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkDeleteTitleCashFlow": "Удалить операции?",
+  "bulkDeleteDescriptionCashFlow": "Эти операции будут удалены безвозвратно:\n{list}",
+  "@bulkDeleteDescriptionCashFlow": {
+    "placeholders": {
+      "list": { "type": "String" }
+    }
+  },
+  "bulkCashFlowDeleted": "Удалено операций: {count}",
+  "@bulkCashFlowDeleted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkCashFlowUpdated": "Обновлено операций: {count}",
+  "@bulkCashFlowUpdated": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkChangeTagsMixedKinds": "Для изменения тегов выберите только траты или только пополнения",
   "bulkCurrencyRateUnavailable": "Не удалось конвертировать: курс недоступен",
   "add": "Добавить",
   "settings": "Настройки",
@@ -570,6 +609,20 @@
   "cashFlowIncome": "Доходы",
   "cashFlowExpense": "Расходы",
   "cashFlowNet": "Итого",
+  "summaryCashFlow": "Денежный поток",
+  "cashFlowSummaryHelpTitle": "Сводка по денежному потоку",
+  "cashFlowSummaryHelpBody": "Показывает доходы, расходы и итог по каждой валюте. Конвертация использует текущие курсы; операции без курса не включаются в общий итог.",
+  "summaryPerCurrencyOperationCount": "{count, plural, one{1 операция} few{{count} операции} many{{count} операций} other{{count} операции}}",
+  "@summaryPerCurrencyOperationCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "columnType": "Тип",
+  "operationTypeIncome": "Доход",
+  "operationTypeExpense": "Расход",
   "exportIncome": "Экспорт доходов",
   "duplicateConflictIncomeTitle": "Найден похожий доход",
   "showIncomeList": "Показать доходы",

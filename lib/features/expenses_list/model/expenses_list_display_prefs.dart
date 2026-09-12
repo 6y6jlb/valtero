@@ -1,5 +1,6 @@
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
+import 'package:valtero/features/expenses_list/model/grouping/cash_flow_grouper_for.dart';
 import 'package:valtero/shared/settings/app_settings.dart';
 
 ExpenseListViewMode expensesViewModeFromSettings(AppSettings settings) {
@@ -114,3 +115,52 @@ ExpenseChartBreakdown incomeChartDatePeriodFromSettings(AppSettings settings) {
       chartType: chartType,
       chartDatePeriod: chartDatePeriod,
     );
+
+ExpenseListViewMode cashFlowViewModeFromSettings(AppSettings settings) {
+  return ExpenseListViewMode.values.firstWhere(
+    (v) => v.name == settings.cashFlowListView,
+    orElse: () => ExpenseListViewMode.list,
+  );
+}
+
+/// Cash flow groups by currency / date / country / payment only; anything
+/// else (including the tag groups persisted by the other directions) falls
+/// back to currency.
+ExpenseListGroup cashFlowGroupFromSettings(AppSettings settings) {
+  final group = ExpenseListGroup.values.firstWhere(
+    (g) => g.name == settings.cashFlowListGroup,
+    orElse: () => ExpenseListGroup.currency,
+  );
+  return cashFlowGroupOptions.contains(group)
+      ? group
+      : ExpenseListGroup.currency;
+}
+
+ExpenseChartBreakdown cashFlowChartDatePeriodFromSettings(
+  AppSettings settings,
+) {
+  return expenseChartDatePeriodFromName(settings.cashFlowChartDatePeriod);
+}
+
+/// Values to persist for the cash-flow list (no chart shape / breakdown: the
+/// cash-flow chart is always temporal grouped bars).
+({
+  String view,
+  String group,
+  String chartDatePeriod,
+}) cashFlowListDisplayPersistValues({
+  required ExpenseListViewMode view,
+  required ExpenseListGroup appliedGroup,
+  required ExpenseChartBreakdown chartDatePeriod,
+}) {
+  final nextGroup = cashFlowGroupOptions.contains(appliedGroup)
+      ? appliedGroup
+      : ExpenseListGroup.currency;
+  return (
+    view: view.name,
+    group: nextGroup.name,
+    chartDatePeriod: isDateChartBreakdown(chartDatePeriod)
+        ? chartDatePeriod.name
+        : ExpenseChartBreakdown.month.name,
+  );
+}

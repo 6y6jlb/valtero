@@ -8,6 +8,24 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.3] - 2026-09-12
+
+### Added
+
+- Cash flow list parity with expenses/income: filters, per-currency summary
+  (income / expense / net), list / grouping / chart views, merged CSV/JSON
+  export, and persisted display preferences.
+- Multi-select bulk actions on income and cash-flow lists (delete, change
+  tags, country, currency) — same set as expenses; cash-flow tag change is
+  disabled when the selection mixes expenses and income.
+
+### Fixed
+
+- Amount field autofocuses when opening add/edit expense or income sheets
+  (keyboard opens immediately on mobile).
+- Direction-tab switch no longer flashes a progress stripe between the
+  filter bar and the chart (layout no longer jumps).
+
 ## [1.1.2] - 2026-09-11
 
 ### Added

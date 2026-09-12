@@ -19,6 +19,7 @@ import 'package:valtero/features/expenses_list/model/grouping/income_grouper.dar
 import 'package:valtero/features/expenses_list/model/income_chart_aggregator.dart';
 import 'package:valtero/features/expenses_list/model/income_list_export.dart';
 import 'package:valtero/features/expenses_list/model/income_list_filtering.dart';
+import 'package:valtero/features/expenses_list/model/income_list_selection.dart';
 import 'package:valtero/features/expenses_list/model/income_summary_aggregator.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_display_rates_controller.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_filter_summary_bar.dart';
@@ -46,7 +47,7 @@ const _kIncomeListInitial = 25;
 const _kIncomeListBatch = 15;
 
 /// Full income listing: filters, summary (+ convert), list/group/chart views,
-/// sort, export, duplicates — mirrors [ExpensesSheetBody] without bulk select.
+/// sort, export, duplicates, and list multi-select bulk actions.
 class IncomeListBody extends ConsumerStatefulWidget {
   final ExpenseListQuery initial;
 
@@ -174,6 +175,7 @@ class _IncomeListBodyState extends ConsumerState<IncomeListBody> {
       );
       _visibleCount = _kIncomeListInitial;
     });
+    ref.read(incomeListSelectionProvider.notifier).clear();
     showAppToast(context, AppLocalizations.of(context)!.filtersApplied);
   }
 
@@ -211,6 +213,7 @@ class _IncomeListBodyState extends ConsumerState<IncomeListBody> {
       _visibleCount = _kIncomeListInitial;
       _view = ExpenseListViewMode.list;
     });
+    ref.read(incomeListSelectionProvider.notifier).clear();
     _persistDisplayPrefs(view: ExpenseListViewMode.list);
     showAppToast(context, AppLocalizations.of(context)!.filtersApplied);
   }
@@ -295,6 +298,9 @@ class _IncomeListBodyState extends ConsumerState<IncomeListBody> {
                 ),
               )
             : null;
+
+        final selectedIds = ref.watch(incomeListSelectionProvider);
+        final selection = ref.read(incomeListSelectionProvider.notifier);
 
         return NotificationListener<ScrollNotification>(
           onNotification: (notification) {
@@ -416,6 +422,9 @@ class _IncomeListBodyState extends ConsumerState<IncomeListBody> {
                                   );
                                 }
                               });
+                              ref
+                                  .read(incomeListSelectionProvider.notifier)
+                                  .clear();
                               _persistDisplayPrefs(view: v);
                             },
                             onGroupChanged: (g) {
@@ -446,6 +455,15 @@ class _IncomeListBodyState extends ConsumerState<IncomeListBody> {
                                     possibleDuplicateIds: dupState
                                         .groupByIncomeId.keys
                                         .toSet(),
+                                    selectedIds: selectedIds,
+                                    onToggleSelected: selection.toggle,
+                                    onToggleSelectAll: () => selection.toggleAll(
+                                      filtered.map((e) => e.id),
+                                    ),
+                                    allSelectableSelected: filtered.isNotEmpty &&
+                                        filtered.every(
+                                          (e) => selectedIds.contains(e.id),
+                                        ),
                                     displayCurrency: displayCurrency,
                                     convertedMinor: (income) =>
                                         incomeConvertedMinor(

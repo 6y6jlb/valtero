@@ -26,6 +26,11 @@ class ExpensesListingCard extends StatelessWidget {
   /// to) expenses. Income list passes [showExpensesExport]: false.
   final bool showIncomeExport;
   final bool showExpensesExport;
+  /// When true, the export menu offers the merged expenses + income document.
+  final bool showCashFlowExport;
+  /// Restricts the group-by picker; defaults to every expense group. The
+  /// cash-flow list passes the subset without category grouping.
+  final List<ExpenseListGroup>? groupOptions;
   final Widget child;
 
   const ExpensesListingCard({
@@ -41,6 +46,8 @@ class ExpensesListingCard extends StatelessWidget {
     this.showTelegram = false,
     this.showIncomeExport = false,
     this.showExpensesExport = true,
+    this.showCashFlowExport = false,
+    this.groupOptions,
     required this.child,
   });
 
@@ -60,21 +67,40 @@ class ExpensesListingCard extends StatelessWidget {
     if (next != null) onViewChanged(next);
   }
 
+  static const _kDefaultGroupOptions = [
+    ExpenseListGroup.currency,
+    ExpenseListGroup.date,
+    ExpenseListGroup.country,
+    ExpenseListGroup.payment,
+    ExpenseListGroup.tagCustom,
+  ];
+
   Future<void> _pickGroup(BuildContext context, AppLocalizations l10n) async {
     final next = await showSingleChoiceSheet<ExpenseListGroup>(
       context: context,
       title: l10n.groupBy,
       selected: group,
       options: [
-        (value: ExpenseListGroup.currency, label: l10n.groupCurrency),
-        (value: ExpenseListGroup.date, label: l10n.groupDate),
-        (value: ExpenseListGroup.country, label: l10n.groupTagCountry),
-        (value: ExpenseListGroup.payment, label: l10n.groupPayment),
-        (value: ExpenseListGroup.tagCustom, label: l10n.groupTagCustom),
+        for (final option in groupOptions ?? _kDefaultGroupOptions)
+          (value: option, label: _groupOptionLabel(l10n, option)),
       ],
     );
     if (next != null) onGroupChanged(next);
   }
+
+  static String _groupOptionLabel(
+    AppLocalizations l10n,
+    ExpenseListGroup group,
+  ) =>
+      switch (group) {
+        ExpenseListGroup.date => l10n.groupDate,
+        ExpenseListGroup.country => l10n.groupTagCountry,
+        ExpenseListGroup.payment => l10n.groupPayment,
+        ExpenseListGroup.tagCustom || ExpenseListGroup.tag =>
+          l10n.groupTagCustom,
+        ExpenseListGroup.currency || ExpenseListGroup.none =>
+          l10n.groupCurrency,
+      };
 
   Future<void> _pickSort(BuildContext context, AppLocalizations l10n) async {
     final options = <({String value, String label})>[
@@ -110,16 +136,8 @@ class ExpensesListingCard extends StatelessWidget {
         ExpenseListViewMode.chart => l10n.viewChart,
       };
 
-  String _groupLabel(AppLocalizations l10n) => switch (group) {
-        ExpenseListGroup.currency => l10n.groupCurrency,
-        ExpenseListGroup.date => l10n.groupDate,
-        ExpenseListGroup.country => l10n.groupTagCountry,
-        ExpenseListGroup.payment => l10n.groupPayment,
-        ExpenseListGroup.tagCustom ||
-        ExpenseListGroup.tag =>
-          l10n.groupTagCustom,
-        ExpenseListGroup.none => l10n.groupCurrency,
-      };
+  String _groupLabel(AppLocalizations l10n) =>
+      _groupOptionLabel(l10n, group);
 
   String _sortLabel(AppLocalizations l10n) {
     final fieldLabel = switch (sort) {
@@ -206,6 +224,7 @@ class ExpensesListingCard extends StatelessWidget {
                         showTelegram: showTelegram,
                         showIncome: showIncomeExport,
                         showExpenses: showExpensesExport,
+                        showCashFlow: showCashFlowExport,
                       ),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(

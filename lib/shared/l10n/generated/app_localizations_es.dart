@@ -802,6 +802,46 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get bulkDeleteTitleIncome => '¿Eliminar ingresos?';
+
+  @override
+  String bulkDeleteDescriptionIncome(String list) {
+    return 'Estos ingresos se eliminarán permanentemente:\n$list';
+  }
+
+  @override
+  String bulkIncomeDeleted(int count) {
+    return '$count ingresos eliminados';
+  }
+
+  @override
+  String bulkIncomeUpdated(int count) {
+    return '$count ingresos actualizados';
+  }
+
+  @override
+  String get bulkDeleteTitleCashFlow => '¿Eliminar operaciones?';
+
+  @override
+  String bulkDeleteDescriptionCashFlow(String list) {
+    return 'Estas operaciones se eliminarán permanentemente:\n$list';
+  }
+
+  @override
+  String bulkCashFlowDeleted(int count) {
+    return '$count operaciones eliminadas';
+  }
+
+  @override
+  String bulkCashFlowUpdated(int count) {
+    return '$count operaciones actualizadas';
+  }
+
+  @override
+  String get bulkChangeTagsMixedKinds =>
+      'Seleccione solo gastos o solo ingresos para cambiar etiquetas';
+
+  @override
   String get bulkCurrencyRateUnavailable =>
       'No se pudo convertir: tipo de cambio no disponible';
 
@@ -1206,6 +1246,36 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get cashFlowNet => 'Neto';
+
+  @override
+  String get summaryCashFlow => 'Flujo de caja';
+
+  @override
+  String get cashFlowSummaryHelpTitle => 'Resumen de flujo de caja';
+
+  @override
+  String get cashFlowSummaryHelpBody =>
+      'Muestra ingresos, gastos y el neto por cada divisa. La conversión usa los tipos actuales; las operaciones sin tipo no se incluyen en el total.';
+
+  @override
+  String summaryPerCurrencyOperationCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count operaciones',
+      one: '1 operación',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get columnType => 'Tipo';
+
+  @override
+  String get operationTypeIncome => 'Ingreso';
+
+  @override
+  String get operationTypeExpense => 'Gasto';
 
   @override
   String get exportIncome => 'Exportar ingresos';

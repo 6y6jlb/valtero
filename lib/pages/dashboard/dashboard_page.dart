@@ -205,7 +205,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     List<CashFlowBucket> cashFlowBuckets = const [],
     required ExpenseListQuery applied,
     required bool isSample,
-    required bool loading,
     bool hasSourceData = false,
   }) {
     return DashboardBody(
@@ -226,7 +225,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       tagLabels: tagLabels,
       paymentLabels: paymentLabels,
       isSample: isSample,
-      loading: loading,
       hasSourceData: hasSourceData,
       onBreakdownChanged: _changeBreakdown,
       onChartTypeChanged: _changeChartType,
@@ -325,7 +323,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         cashFlowBuckets: dashboardSampleCashFlowBuckets(breakdown),
         applied: applied,
         isSample: true,
-        loading: false,
         hasSourceData: false,
       );
     } else if (isExpenseSample) {
@@ -344,7 +341,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         expenseTags: expenseTags,
         applied: applied,
         isSample: true,
-        loading: false,
         hasSourceData: false,
       );
     } else if (_direction == TransactionDirection.income) {
@@ -386,7 +382,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             incomeTags: incomeTags,
             applied: applied,
             isSample: false,
-            loading: snapshot.connectionState == ConnectionState.waiting,
             hasSourceData: incomes.isNotEmpty,
           );
         },
@@ -439,7 +434,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             cashFlowBuckets: aggregation.buckets,
             applied: applied,
             isSample: false,
-            loading: snapshot.connectionState == ConnectionState.waiting,
             hasSourceData: expenses.isNotEmpty || incomes.isNotEmpty,
           );
         },
@@ -482,7 +476,6 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             expenseTags: expenseTags,
             applied: applied,
             isSample: false,
-            loading: snapshot.connectionState == ConnectionState.waiting,
             hasSourceData: expenses.isNotEmpty,
           );
         },

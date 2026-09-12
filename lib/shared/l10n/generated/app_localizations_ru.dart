@@ -798,6 +798,46 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get bulkDeleteTitleIncome => 'Удалить пополнения?';
+
+  @override
+  String bulkDeleteDescriptionIncome(String list) {
+    return 'Эти пополнения будут удалены безвозвратно:\n$list';
+  }
+
+  @override
+  String bulkIncomeDeleted(int count) {
+    return 'Удалено пополнений: $count';
+  }
+
+  @override
+  String bulkIncomeUpdated(int count) {
+    return 'Обновлено пополнений: $count';
+  }
+
+  @override
+  String get bulkDeleteTitleCashFlow => 'Удалить операции?';
+
+  @override
+  String bulkDeleteDescriptionCashFlow(String list) {
+    return 'Эти операции будут удалены безвозвратно:\n$list';
+  }
+
+  @override
+  String bulkCashFlowDeleted(int count) {
+    return 'Удалено операций: $count';
+  }
+
+  @override
+  String bulkCashFlowUpdated(int count) {
+    return 'Обновлено операций: $count';
+  }
+
+  @override
+  String get bulkChangeTagsMixedKinds =>
+      'Для изменения тегов выберите только траты или только пополнения';
+
+  @override
   String get bulkCurrencyRateUnavailable =>
       'Не удалось конвертировать: курс недоступен';
 
@@ -1203,6 +1243,38 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cashFlowNet => 'Итого';
+
+  @override
+  String get summaryCashFlow => 'Денежный поток';
+
+  @override
+  String get cashFlowSummaryHelpTitle => 'Сводка по денежному потоку';
+
+  @override
+  String get cashFlowSummaryHelpBody =>
+      'Показывает доходы, расходы и итог по каждой валюте. Конвертация использует текущие курсы; операции без курса не включаются в общий итог.';
+
+  @override
+  String summaryPerCurrencyOperationCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count операции',
+      many: '$count операций',
+      few: '$count операции',
+      one: '1 операция',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get columnType => 'Тип';
+
+  @override
+  String get operationTypeIncome => 'Доход';
+
+  @override
+  String get operationTypeExpense => 'Расход';
 
   @override
   String get exportIncome => 'Экспорт доходов';

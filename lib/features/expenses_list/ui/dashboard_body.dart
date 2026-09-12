@@ -48,7 +48,6 @@ class DashboardBody extends ConsumerStatefulWidget {
   final Map<int, String> tagLabels;
   final Map<int, String> paymentLabels;
   final bool isSample;
-  final bool loading;
   /// True when the user has any rows of the active kind (before filters).
   /// Used so empty charts say "nothing matches" vs "none yet".
   final bool hasSourceData;
@@ -77,7 +76,6 @@ class DashboardBody extends ConsumerStatefulWidget {
     required this.tagLabels,
     required this.paymentLabels,
     required this.isSample,
-    required this.loading,
     this.hasSourceData = false,
     required this.onBreakdownChanged,
     required this.onChartTypeChanged,
@@ -270,7 +268,6 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
               draft: widget.applied,
               onTap: widget.onOpenFilters,
             ),
-            if (widget.loading) const LinearProgressIndicator(),
             const SizedBox(height: 12),
             _buildChart(l10n),
             const SizedBox(height: 8),

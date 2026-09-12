@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 
-/// Floating icon action strip shown when one or more expenses are selected.
-class ExpenseBulkActionBar extends StatelessWidget {
+/// Floating icon action strip shown when one or more operations are selected.
+class OperationBulkActionBar extends StatelessWidget {
   final int selectedCount;
   final VoidCallback? onDelete;
   final VoidCallback? onChangeTags;
   final VoidCallback? onChangeCountry;
   final VoidCallback? onChangeCurrency;
 
-  const ExpenseBulkActionBar({
+  const OperationBulkActionBar({
     super.key,
     required this.selectedCount,
     this.onDelete,

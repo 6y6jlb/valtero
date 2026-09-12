@@ -421,6 +421,45 @@
       "count": { "type": "int" }
     }
   },
+  "bulkDeleteTitleIncome": "Delete income?",
+  "bulkDeleteDescriptionIncome": "These income entries will be permanently deleted:\n{list}",
+  "@bulkDeleteDescriptionIncome": {
+    "placeholders": {
+      "list": { "type": "String" }
+    }
+  },
+  "bulkIncomeDeleted": "{count} income entries deleted",
+  "@bulkIncomeDeleted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkIncomeUpdated": "{count} income entries updated",
+  "@bulkIncomeUpdated": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkDeleteTitleCashFlow": "Delete operations?",
+  "bulkDeleteDescriptionCashFlow": "These operations will be permanently deleted:\n{list}",
+  "@bulkDeleteDescriptionCashFlow": {
+    "placeholders": {
+      "list": { "type": "String" }
+    }
+  },
+  "bulkCashFlowDeleted": "{count} operations deleted",
+  "@bulkCashFlowDeleted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkCashFlowUpdated": "{count} operations updated",
+  "@bulkCashFlowUpdated": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkChangeTagsMixedKinds": "Select only expenses or only income to change tags",
   "bulkCurrencyRateUnavailable": "Could not convert: exchange rate unavailable",
   "add": "Add",
   "settings": "Settings",
@@ -570,6 +609,20 @@
   "cashFlowIncome": "Income",
   "cashFlowExpense": "Expenses",
   "cashFlowNet": "Net",
+  "summaryCashFlow": "Cash flow",
+  "cashFlowSummaryHelpTitle": "Cash flow summary",
+  "cashFlowSummaryHelpBody": "Shows income, expenses, and net per stored currency. Converted totals use current rates; operations without a rate are excluded from the converted total.",
+  "summaryPerCurrencyOperationCount": "{count, plural, one{1 operation} other{{count} operations}}",
+  "@summaryPerCurrencyOperationCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "columnType": "Type",
+  "operationTypeIncome": "Income",
+  "operationTypeExpense": "Expense",
   "exportIncome": "Export income",
   "duplicateConflictIncomeTitle": "Similar income found",
   "showIncomeList": "Show income",

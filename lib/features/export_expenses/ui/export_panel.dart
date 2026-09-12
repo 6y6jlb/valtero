@@ -93,6 +93,10 @@ class _ExportPanelState extends ConsumerState<ExportPanel> {
               value: ExportDataType.income,
               label: Text(l10n.directionIncome),
             ),
+            ButtonSegment(
+              value: ExportDataType.cashFlow,
+              label: Text(l10n.directionCashFlow),
+            ),
           ],
           selected: {_dataType},
           onSelectionChanged: (s) => setState(() => _dataType = s.first),

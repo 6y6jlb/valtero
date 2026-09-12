@@ -7,6 +7,8 @@ import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/expenses_list/model/income_chart_aggregator.dart';
 import 'package:valtero/features/expenses_list/ui/grouped_expense_table.dart';
 import 'package:valtero/features/expenses_list/ui/income_chart.dart';
+import 'package:valtero/features/add_income/ui/add_income_sheet.dart';
+import 'package:valtero/features/add_income/ui/income_delete_flow.dart';
 import 'package:valtero/features/expenses_list/ui/income_table.dart';
 import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/database/app_database.dart';
@@ -26,6 +28,10 @@ class IncomeSheetListingViews extends ConsumerWidget {
   final List<Tag> tags;
   final List<PaymentMethod> paymentMethods;
   final Set<int> possibleDuplicateIds;
+  final Set<int> selectedIds;
+  final ValueChanged<int> onToggleSelected;
+  final VoidCallback onToggleSelectAll;
+  final bool allSelectableSelected;
   final String? displayCurrency;
   final int? Function(Income income) convertedMinor;
   final String summaryCurrency;
@@ -52,6 +58,10 @@ class IncomeSheetListingViews extends ConsumerWidget {
     required this.tags,
     required this.paymentMethods,
     required this.possibleDuplicateIds,
+    required this.selectedIds,
+    required this.onToggleSelected,
+    required this.onToggleSelectAll,
+    required this.allSelectableSelected,
     required this.displayCurrency,
     required this.convertedMinor,
     required this.summaryCurrency,
@@ -81,6 +91,21 @@ class IncomeSheetListingViews extends ConsumerWidget {
               displayCurrency: displayCurrency,
               convertedMinor: convertedMinor,
               possibleDuplicateIds: possibleDuplicateIds,
+              selectedIds: selectedIds,
+              onToggleSelected: onToggleSelected,
+              onToggleSelectAll: onToggleSelectAll,
+              allSelectableSelected: allSelectableSelected,
+              onDelete: (id) {
+                final match = filtered.where((e) => e.id == id);
+                confirmAndDeleteIncome(
+                  context,
+                  ref,
+                  id,
+                  income: match.isEmpty ? null : match.first,
+                );
+              },
+              onOpen: (income) => showAddIncomeSheet(context, income: income),
+              onEdit: (income) => showAddIncomeSheet(context, income: income),
             ),
             if (hasMoreList) const InfiniteScrollEllipsis(),
           ],

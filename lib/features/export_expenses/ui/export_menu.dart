@@ -15,7 +15,11 @@ String exportMenuValue(
   ExportDestination destination, [
   ExportDataType dataType = ExportDataType.expenses,
 ]) {
-  final typeKey = dataType == ExportDataType.income ? 'income' : 'expenses';
+  final typeKey = switch (dataType) {
+    ExportDataType.income => 'income',
+    ExportDataType.cashFlow => 'cashFlow',
+    ExportDataType.expenses => 'expenses',
+  };
   final formatKey = format == ExportFormat.csv ? 'csv' : 'json';
   return '${typeKey}_${formatKey}_${destination.name}';
 }
@@ -25,6 +29,7 @@ ExportMenuSelection? parseExportMenuValue(String value) {
   if (parts.length != 3) return null;
   final dataType = switch (parts[0]) {
     'income' => ExportDataType.income,
+    'cashFlow' => ExportDataType.cashFlow,
     'expenses' => ExportDataType.expenses,
     _ => null,
   };
@@ -40,14 +45,16 @@ ExportMenuSelection? parseExportMenuValue(String value) {
   return (format: format, destination: destination, dataType: dataType);
 }
 
-/// [showIncome] adds income export entries. [showExpenses] defaults to true;
-/// pass false on the income list so the menu only offers income exports.
+/// [showIncome] adds income export entries, [showCashFlow] the merged
+/// expenses + income document. [showExpenses] defaults to true; pass false on
+/// the income / cash-flow lists so the menu only offers their own exports.
 List<PopupMenuEntry<String>> buildExportMenuItems(
   AppLocalizations l10n, {
   bool showShare = true,
   bool showTelegram = false,
   bool showIncome = false,
   bool showExpenses = true,
+  bool showCashFlow = false,
 }) {
   PopupMenuItem<String> item({
     required ExportFormat format,
@@ -64,10 +71,20 @@ List<PopupMenuEntry<String>> buildExportMenuItems(
   String formatLabel(ExportFormat format) =>
       format == ExportFormat.csv ? l10n.exportCsv : l10n.exportJson;
 
+  final shownTypes = [
+    if (showExpenses) ExportDataType.expenses,
+    if (showIncome) ExportDataType.income,
+    if (showCashFlow) ExportDataType.cashFlow,
+  ];
+
   List<PopupMenuEntry<String>> itemsFor(ExportDataType dataType) {
-    final prefix = dataType == ExportDataType.income && showExpenses
-        ? '${l10n.income} · '
-        : '';
+    final prefix = shownTypes.length < 2
+        ? ''
+        : switch (dataType) {
+            ExportDataType.expenses => '${l10n.directionExpenses} · ',
+            ExportDataType.income => '${l10n.income} · ',
+            ExportDataType.cashFlow => '${l10n.directionCashFlow} · ',
+          };
     return [
       for (final format in ExportFormat.values) ...[
         item(
@@ -100,8 +117,5 @@ List<PopupMenuEntry<String>> buildExportMenuItems(
     ];
   }
 
-  return [
-    if (showExpenses) ...itemsFor(ExportDataType.expenses),
-    if (showIncome) ...itemsFor(ExportDataType.income),
-  ];
+  return [for (final dataType in shownTypes) ...itemsFor(dataType)];
 }

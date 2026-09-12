@@ -421,6 +421,45 @@
       "count": { "type": "int" }
     }
   },
+  "bulkDeleteTitleIncome": "¿Eliminar ingresos?",
+  "bulkDeleteDescriptionIncome": "Estos ingresos se eliminarán permanentemente:\n{list}",
+  "@bulkDeleteDescriptionIncome": {
+    "placeholders": {
+      "list": { "type": "String" }
+    }
+  },
+  "bulkIncomeDeleted": "{count} ingresos eliminados",
+  "@bulkIncomeDeleted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkIncomeUpdated": "{count} ingresos actualizados",
+  "@bulkIncomeUpdated": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkDeleteTitleCashFlow": "¿Eliminar operaciones?",
+  "bulkDeleteDescriptionCashFlow": "Estas operaciones se eliminarán permanentemente:\n{list}",
+  "@bulkDeleteDescriptionCashFlow": {
+    "placeholders": {
+      "list": { "type": "String" }
+    }
+  },
+  "bulkCashFlowDeleted": "{count} operaciones eliminadas",
+  "@bulkCashFlowDeleted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkCashFlowUpdated": "{count} operaciones actualizadas",
+  "@bulkCashFlowUpdated": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkChangeTagsMixedKinds": "Seleccione solo gastos o solo ingresos para cambiar etiquetas",
   "bulkCurrencyRateUnavailable": "No se pudo convertir: tipo de cambio no disponible",
   "add": "Añadir",
   "settings": "Ajustes",
@@ -570,6 +609,20 @@
   "cashFlowIncome": "Ingresos",
   "cashFlowExpense": "Gastos",
   "cashFlowNet": "Neto",
+  "summaryCashFlow": "Flujo de caja",
+  "cashFlowSummaryHelpTitle": "Resumen de flujo de caja",
+  "cashFlowSummaryHelpBody": "Muestra ingresos, gastos y el neto por cada divisa. La conversión usa los tipos actuales; las operaciones sin tipo no se incluyen en el total.",
+  "summaryPerCurrencyOperationCount": "{count, plural, one{1 operación} other{{count} operaciones}}",
+  "@summaryPerCurrencyOperationCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "columnType": "Tipo",
+  "operationTypeIncome": "Ingreso",
+  "operationTypeExpense": "Gasto",
   "exportIncome": "Exportar ingresos",
   "duplicateConflictIncomeTitle": "Ingreso similar encontrado",
   "showIncomeList": "Ver ingresos",

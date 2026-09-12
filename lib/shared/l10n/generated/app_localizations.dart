@@ -1474,6 +1474,60 @@ abstract class AppLocalizations {
   /// **'{count} expenses updated'**
   String bulkExpensesUpdated(int count);
 
+  /// No description provided for @bulkDeleteTitleIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete income?'**
+  String get bulkDeleteTitleIncome;
+
+  /// No description provided for @bulkDeleteDescriptionIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'These income entries will be permanently deleted:\n{list}'**
+  String bulkDeleteDescriptionIncome(String list);
+
+  /// No description provided for @bulkIncomeDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} income entries deleted'**
+  String bulkIncomeDeleted(int count);
+
+  /// No description provided for @bulkIncomeUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} income entries updated'**
+  String bulkIncomeUpdated(int count);
+
+  /// No description provided for @bulkDeleteTitleCashFlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete operations?'**
+  String get bulkDeleteTitleCashFlow;
+
+  /// No description provided for @bulkDeleteDescriptionCashFlow.
+  ///
+  /// In en, this message translates to:
+  /// **'These operations will be permanently deleted:\n{list}'**
+  String bulkDeleteDescriptionCashFlow(String list);
+
+  /// No description provided for @bulkCashFlowDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} operations deleted'**
+  String bulkCashFlowDeleted(int count);
+
+  /// No description provided for @bulkCashFlowUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} operations updated'**
+  String bulkCashFlowUpdated(int count);
+
+  /// No description provided for @bulkChangeTagsMixedKinds.
+  ///
+  /// In en, this message translates to:
+  /// **'Select only expenses or only income to change tags'**
+  String get bulkChangeTagsMixedKinds;
+
   /// No description provided for @bulkCurrencyRateUnavailable.
   ///
   /// In en, this message translates to:
@@ -2241,6 +2295,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Net'**
   String get cashFlowNet;
+
+  /// No description provided for @summaryCashFlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash flow'**
+  String get summaryCashFlow;
+
+  /// No description provided for @cashFlowSummaryHelpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash flow summary'**
+  String get cashFlowSummaryHelpTitle;
+
+  /// No description provided for @cashFlowSummaryHelpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows income, expenses, and net per stored currency. Converted totals use current rates; operations without a rate are excluded from the converted total.'**
+  String get cashFlowSummaryHelpBody;
+
+  /// No description provided for @summaryPerCurrencyOperationCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 operation} other{{count} operations}}'**
+  String summaryPerCurrencyOperationCount(int count);
+
+  /// No description provided for @columnType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get columnType;
+
+  /// No description provided for @operationTypeIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get operationTypeIncome;
+
+  /// No description provided for @operationTypeExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get operationTypeExpense;
 
   /// No description provided for @exportIncome.
   ///

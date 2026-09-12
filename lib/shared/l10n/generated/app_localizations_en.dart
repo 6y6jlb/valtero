@@ -791,6 +791,46 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get bulkDeleteTitleIncome => 'Delete income?';
+
+  @override
+  String bulkDeleteDescriptionIncome(String list) {
+    return 'These income entries will be permanently deleted:\n$list';
+  }
+
+  @override
+  String bulkIncomeDeleted(int count) {
+    return '$count income entries deleted';
+  }
+
+  @override
+  String bulkIncomeUpdated(int count) {
+    return '$count income entries updated';
+  }
+
+  @override
+  String get bulkDeleteTitleCashFlow => 'Delete operations?';
+
+  @override
+  String bulkDeleteDescriptionCashFlow(String list) {
+    return 'These operations will be permanently deleted:\n$list';
+  }
+
+  @override
+  String bulkCashFlowDeleted(int count) {
+    return '$count operations deleted';
+  }
+
+  @override
+  String bulkCashFlowUpdated(int count) {
+    return '$count operations updated';
+  }
+
+  @override
+  String get bulkChangeTagsMixedKinds =>
+      'Select only expenses or only income to change tags';
+
+  @override
   String get bulkCurrencyRateUnavailable =>
       'Could not convert: exchange rate unavailable';
 
@@ -1195,6 +1235,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cashFlowNet => 'Net';
+
+  @override
+  String get summaryCashFlow => 'Cash flow';
+
+  @override
+  String get cashFlowSummaryHelpTitle => 'Cash flow summary';
+
+  @override
+  String get cashFlowSummaryHelpBody =>
+      'Shows income, expenses, and net per stored currency. Converted totals use current rates; operations without a rate are excluded from the converted total.';
+
+  @override
+  String summaryPerCurrencyOperationCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count operations',
+      one: '1 operation',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get columnType => 'Type';
+
+  @override
+  String get operationTypeIncome => 'Income';
+
+  @override
+  String get operationTypeExpense => 'Expense';
 
   @override
   String get exportIncome => 'Export income';

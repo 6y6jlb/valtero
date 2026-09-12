@@ -421,6 +421,45 @@
       "count": { "type": "int" }
     }
   },
+  "bulkDeleteTitleIncome": "Obrisati prihode?",
+  "bulkDeleteDescriptionIncome": "Ovi prihodi biće trajno obrisani:\n{list}",
+  "@bulkDeleteDescriptionIncome": {
+    "placeholders": {
+      "list": { "type": "String" }
+    }
+  },
+  "bulkIncomeDeleted": "Obrisano prihoda: {count}",
+  "@bulkIncomeDeleted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkIncomeUpdated": "Ažurirano prihoda: {count}",
+  "@bulkIncomeUpdated": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkDeleteTitleCashFlow": "Obrisati operacije?",
+  "bulkDeleteDescriptionCashFlow": "Ove operacije biće trajno obrisane:\n{list}",
+  "@bulkDeleteDescriptionCashFlow": {
+    "placeholders": {
+      "list": { "type": "String" }
+    }
+  },
+  "bulkCashFlowDeleted": "Obrisano operacija: {count}",
+  "@bulkCashFlowDeleted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkCashFlowUpdated": "Ažurirano operacija: {count}",
+  "@bulkCashFlowUpdated": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "bulkChangeTagsMixedKinds": "Za promenu oznaka izaberite samo troškove ili samo prihode",
   "bulkCurrencyRateUnavailable": "Nije moguće konvertovati: kurs nije dostupan",
   "add": "Dodaj",
   "settings": "Podešavanja",
@@ -570,6 +609,20 @@
   "cashFlowIncome": "Prihodi",
   "cashFlowExpense": "Troškovi",
   "cashFlowNet": "Neto",
+  "summaryCashFlow": "Novčani tok",
+  "cashFlowSummaryHelpTitle": "Pregled novčanog toka",
+  "cashFlowSummaryHelpBody": "Prikazuje prihode, troškove i neto po valuti. Konverzija koristi trenutne kurseve; operacije bez kursa nisu u ukupnom zbiru.",
+  "summaryPerCurrencyOperationCount": "{count, plural, one{1 operacija} few{{count} operacije} other{{count} operacija}}",
+  "@summaryPerCurrencyOperationCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "columnType": "Tip",
+  "operationTypeIncome": "Prihod",
+  "operationTypeExpense": "Trošak",
   "exportIncome": "Izvezi prihode",
   "duplicateConflictIncomeTitle": "Pronađen sličan prihod",
   "showIncomeList": "Prikaži prihode",

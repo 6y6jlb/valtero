@@ -798,6 +798,46 @@ class AppLocalizationsSr extends AppLocalizations {
   }
 
   @override
+  String get bulkDeleteTitleIncome => 'Obrisati prihode?';
+
+  @override
+  String bulkDeleteDescriptionIncome(String list) {
+    return 'Ovi prihodi biće trajno obrisani:\n$list';
+  }
+
+  @override
+  String bulkIncomeDeleted(int count) {
+    return 'Obrisano prihoda: $count';
+  }
+
+  @override
+  String bulkIncomeUpdated(int count) {
+    return 'Ažurirano prihoda: $count';
+  }
+
+  @override
+  String get bulkDeleteTitleCashFlow => 'Obrisati operacije?';
+
+  @override
+  String bulkDeleteDescriptionCashFlow(String list) {
+    return 'Ove operacije biće trajno obrisane:\n$list';
+  }
+
+  @override
+  String bulkCashFlowDeleted(int count) {
+    return 'Obrisano operacija: $count';
+  }
+
+  @override
+  String bulkCashFlowUpdated(int count) {
+    return 'Ažurirano operacija: $count';
+  }
+
+  @override
+  String get bulkChangeTagsMixedKinds =>
+      'Za promenu oznaka izaberite samo troškove ili samo prihode';
+
+  @override
   String get bulkCurrencyRateUnavailable =>
       'Nije moguće konvertovati: kurs nije dostupan';
 
@@ -1203,6 +1243,37 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get cashFlowNet => 'Neto';
+
+  @override
+  String get summaryCashFlow => 'Novčani tok';
+
+  @override
+  String get cashFlowSummaryHelpTitle => 'Pregled novčanog toka';
+
+  @override
+  String get cashFlowSummaryHelpBody =>
+      'Prikazuje prihode, troškove i neto po valuti. Konverzija koristi trenutne kurseve; operacije bez kursa nisu u ukupnom zbiru.';
+
+  @override
+  String summaryPerCurrencyOperationCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count operacija',
+      few: '$count operacije',
+      one: '1 operacija',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get columnType => 'Tip';
+
+  @override
+  String get operationTypeIncome => 'Prihod';
+
+  @override
+  String get operationTypeExpense => 'Trošak';
 
   @override
   String get exportIncome => 'Izvezi prihode';

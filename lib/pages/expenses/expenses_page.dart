@@ -3,10 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
 import 'package:valtero/features/add_income/ui/add_income_sheet.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
+import 'package:valtero/features/expenses_list/model/cash_flow_list_selection.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_selection.dart';
+import 'package:valtero/features/expenses_list/model/income_list_selection.dart';
 import 'package:valtero/features/expenses_list/model/transaction_direction.dart';
+import 'package:valtero/features/expenses_list/ui/cash_flow_bulk_fab_actions.dart';
 import 'package:valtero/features/expenses_list/ui/cash_flow_list_body.dart';
 import 'package:valtero/features/expenses_list/ui/expense_bulk_fab_actions.dart';
+import 'package:valtero/features/expenses_list/ui/income_bulk_fab_actions.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_sheet.dart';
 import 'package:valtero/features/expenses_list/ui/income_list_body.dart';
 import 'package:valtero/features/expenses_list/ui/operation_direction_tabs.dart';
@@ -62,8 +66,12 @@ class _ExpensesPageState extends ConsumerState<ExpensesPage> {
     final l10n = AppLocalizations.of(context)!;
     final tzId =
         ref.watch(appSettingsProvider).value?.timeZoneId ?? kSystemTimeZoneId;
-    final hasSelection = _direction == TransactionDirection.expenses &&
+    final hasExpenseSelection = _direction == TransactionDirection.expenses &&
         ref.watch(expenseListSelectionProvider).isNotEmpty;
+    final hasIncomeSelection = _direction == TransactionDirection.income &&
+        ref.watch(incomeListSelectionProvider).isNotEmpty;
+    final hasCashFlowSelection = _direction == TransactionDirection.cashFlow &&
+        ref.watch(cashFlowListSelectionProvider).isNotEmpty;
     final initialQuery =
         widget.initial ?? ExpenseListQuery.sessionDefaults(timeZoneId: tzId);
 
@@ -93,7 +101,9 @@ class _ExpensesPageState extends ConsumerState<ExpensesPage> {
       onAddExpense: () => showAddExpenseSheet(context),
       onAddIncome: () => showAddIncomeSheet(context),
       extraFabs: [
-        if (hasSelection) const ExpenseBulkFabActions(),
+        if (hasExpenseSelection) const ExpenseBulkFabActions(),
+        if (hasIncomeSelection) const IncomeBulkFabActions(),
+        if (hasCashFlowSelection) const CashFlowBulkFabActions(),
       ],
       body: Column(
         children: [

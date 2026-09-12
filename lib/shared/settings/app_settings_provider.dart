@@ -234,6 +234,20 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     ));
   }
 
+  Future<void> setCashFlowListDisplay({
+    String? view,
+    String? group,
+    String? chartDatePeriod,
+  }) async {
+    final current = state.value;
+    if (current == null) return;
+    await _save(current.copyWith(
+      cashFlowListView: view,
+      cashFlowListGroup: group,
+      cashFlowChartDatePeriod: chartDatePeriod,
+    ));
+  }
+
   Future<void> setDashboardDirection(String direction) async {
     final current = state.value;
     if (current == null) return;

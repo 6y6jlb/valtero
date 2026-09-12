@@ -36,33 +36,34 @@ Future<String?> runExportDestination(
 }) async {
   final controller = ref.read(exportControllerProvider);
   final l10n = AppLocalizations.of(context)!;
-  final isIncome = dataType == ExportDataType.income;
   switch (destination) {
     case ExportDestination.save:
-      final path = isIncome
-          ? await controller.saveIncomeFile(format)
-          : await controller.saveFile(format);
+      final path = await switch (dataType) {
+        ExportDataType.income => controller.saveIncomeFile(format),
+        ExportDataType.cashFlow => controller.saveCashFlowFile(format),
+        ExportDataType.expenses => controller.saveFile(format),
+      };
       return path == null ? null : l10n.exportDone;
     case ExportDestination.share:
-      if (isIncome) {
-        await controller.shareIncome(format);
-      } else {
-        await controller.share(format);
-      }
+      await switch (dataType) {
+        ExportDataType.income => controller.shareIncome(format),
+        ExportDataType.cashFlow => controller.shareCashFlow(format),
+        ExportDataType.expenses => controller.share(format),
+      };
       return l10n.exportDone;
     case ExportDestination.copy:
-      if (isIncome) {
-        await controller.copyIncome(format);
-      } else {
-        await controller.copy(format);
-      }
+      await switch (dataType) {
+        ExportDataType.income => controller.copyIncome(format),
+        ExportDataType.cashFlow => controller.copyCashFlow(format),
+        ExportDataType.expenses => controller.copy(format),
+      };
       return l10n.copiedToClipboard;
     case ExportDestination.telegram:
-      if (isIncome) {
-        await controller.sendIncomeTelegram(format);
-      } else {
-        await controller.sendTelegram(format);
-      }
+      await switch (dataType) {
+        ExportDataType.income => controller.sendIncomeTelegram(format),
+        ExportDataType.cashFlow => controller.sendCashFlowTelegram(format),
+        ExportDataType.expenses => controller.sendTelegram(format),
+      };
       return l10n.telegramSent;
   }
 }

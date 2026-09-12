@@ -324,6 +324,7 @@ class _AddIncomeFormState extends ConsumerState<AddIncomeForm> {
       children: [
               TextField(
                 controller: _amountController,
+                autofocus: true,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [

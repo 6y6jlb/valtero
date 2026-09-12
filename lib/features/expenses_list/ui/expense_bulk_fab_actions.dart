@@ -60,7 +60,7 @@ class _ExpenseBulkFabActionsState extends ConsumerState<ExpenseBulkFabActions> {
       constraints: BoxConstraints(maxWidth: maxWidth.clamp(120, 480)),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        child: ExpenseBulkActionBar(
+        child: OperationBulkActionBar(
           selectedCount: validSelected.length,
           onDelete: _busy
               ? null
