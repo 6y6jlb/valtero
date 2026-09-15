@@ -78,6 +78,7 @@ class ExpensesSheetListingViews extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final tagParentIds = {for (final t in tags) t.id: t.parentTagId};
     return switch (view) {
       ExpenseListViewMode.list => Column(
           children: [
@@ -85,6 +86,7 @@ class ExpensesSheetListingViews extends ConsumerWidget {
               items: pageItems,
               expenseTags: expenseTags,
               tagLabels: tagLabels,
+              tagParentIds: tagParentIds,
               paymentLabels: paymentLabels,
               untaggedLabel: l10n.untagged,
               displayCurrency: displayCurrency,

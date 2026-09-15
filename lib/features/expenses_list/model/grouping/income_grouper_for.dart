@@ -62,9 +62,23 @@ final class _TagIncomeGrouper extends IncomeGrouperBase {
     final matching = <int>[
       for (final id in ids)
         if (context.tagById[id] != null &&
-            tagKindOf(context.tagById[id]!) == TagKind.income)
+            tagKindOf(context.tagById[id]!) == TagKind.income &&
+            context.tagById[id]!.parentTagId == null)
           id,
     ];
+    if (matching.isEmpty) {
+      for (final id in ids) {
+        final tag = context.tagById[id];
+        if (tag == null || tag.parentTagId == null) continue;
+        if (tagKindOf(tag) != TagKind.income) continue;
+        final parent = context.tagById[tag.parentTagId!];
+        if (parent != null &&
+            parent.parentTagId == null &&
+            tagKindOf(parent) == TagKind.income) {
+          matching.add(parent.id);
+        }
+      }
+    }
     if (matching.isEmpty) return [context.unspecifiedIncomeLabel];
     matching.sort(
       (a, b) => (context.tagById[a]?.sortOrder ?? 0)

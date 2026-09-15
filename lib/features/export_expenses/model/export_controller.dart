@@ -57,6 +57,7 @@ class ExportController {
     required Map<int, String> tagNames,
     required Map<int, List<int>> tagsByExpense,
     Map<int, String> paymentNames = const {},
+    Map<int, int?> tagParentIds = const {},
   }) {
     final exporter = ref.read(expenseExporterProvider);
     return format == ExportFormat.csv
@@ -65,12 +66,14 @@ class ExportController {
             tagNames,
             tagsByExpense,
             paymentNames: paymentNames,
+            tagParentIds: tagParentIds,
           )
         : exporter.buildJson(
             expenses,
             tagNames,
             tagsByExpense,
             paymentNames: paymentNames,
+            tagParentIds: tagParentIds,
           );
   }
 
@@ -88,6 +91,7 @@ class ExportController {
     required Map<int, String> tagNames,
     required Map<int, List<int>> tagsByExpense,
     Map<int, String> paymentNames = const {},
+    Map<int, int?> tagParentIds = const {},
   }) {
     final content = buildContentFor(
       format,
@@ -95,6 +99,7 @@ class ExportController {
       tagNames: tagNames,
       tagsByExpense: tagsByExpense,
       paymentNames: paymentNames,
+      tagParentIds: tagParentIds,
     );
     return ref.read(expenseExporterProvider).saveWithDialog(
           content: content,
@@ -117,6 +122,7 @@ class ExportController {
     required Map<int, String> tagNames,
     required Map<int, List<int>> tagsByExpense,
     Map<int, String> paymentNames = const {},
+    Map<int, int?> tagParentIds = const {},
   }) async {
     final content = buildContentFor(
       format,
@@ -124,6 +130,7 @@ class ExportController {
       tagNames: tagNames,
       tagsByExpense: tagsByExpense,
       paymentNames: paymentNames,
+      tagParentIds: tagParentIds,
     );
     final file = await ref.read(expenseExporterProvider).writeTempFile(
           content: content,
@@ -143,6 +150,7 @@ class ExportController {
     required Map<int, String> tagNames,
     required Map<int, List<int>> tagsByExpense,
     Map<int, String> paymentNames = const {},
+    Map<int, int?> tagParentIds = const {},
   }) async {
     final content = buildContentFor(
       format,
@@ -150,6 +158,7 @@ class ExportController {
       tagNames: tagNames,
       tagsByExpense: tagsByExpense,
       paymentNames: paymentNames,
+      tagParentIds: tagParentIds,
     );
     await Clipboard.setData(ClipboardData(text: content));
   }
@@ -165,6 +174,7 @@ class ExportController {
     required Map<int, String> tagNames,
     required Map<int, List<int>> tagsByExpense,
     Map<int, String> paymentNames = const {},
+    Map<int, int?> tagParentIds = const {},
   }) async {
     final content = buildContentFor(
       format,
@@ -172,6 +182,7 @@ class ExportController {
       tagNames: tagNames,
       tagsByExpense: tagsByExpense,
       paymentNames: paymentNames,
+      tagParentIds: tagParentIds,
     );
     await _sendTelegramContent(content: content, format: format);
   }
@@ -271,6 +282,7 @@ class ExportController {
     required Map<int, String> tagNames,
     required Map<int, List<int>> tagsByIncome,
     Map<int, String> paymentNames = const {},
+    Map<int, int?> tagParentIds = const {},
   }) {
     final exporter = ref.read(incomeExporterProvider);
     return format == ExportFormat.csv
@@ -279,12 +291,14 @@ class ExportController {
             tagNames,
             tagsByIncome,
             paymentNames: paymentNames,
+            tagParentIds: tagParentIds,
           )
         : exporter.buildJson(
             incomes,
             tagNames,
             tagsByIncome,
             paymentNames: paymentNames,
+            tagParentIds: tagParentIds,
           );
   }
 
@@ -294,6 +308,7 @@ class ExportController {
     required Map<int, String> tagNames,
     required Map<int, List<int>> tagsByIncome,
     Map<int, String> paymentNames = const {},
+    Map<int, int?> tagParentIds = const {},
   }) {
     final content = buildIncomeContentFor(
       format,
@@ -301,6 +316,7 @@ class ExportController {
       tagNames: tagNames,
       tagsByIncome: tagsByIncome,
       paymentNames: paymentNames,
+      tagParentIds: tagParentIds,
     );
     return ref.read(incomeExporterProvider).saveWithDialog(
           content: content,
@@ -314,6 +330,7 @@ class ExportController {
     required Map<int, String> tagNames,
     required Map<int, List<int>> tagsByIncome,
     Map<int, String> paymentNames = const {},
+    Map<int, int?> tagParentIds = const {},
   }) async {
     final content = buildIncomeContentFor(
       format,
@@ -321,6 +338,7 @@ class ExportController {
       tagNames: tagNames,
       tagsByIncome: tagsByIncome,
       paymentNames: paymentNames,
+      tagParentIds: tagParentIds,
     );
     final file = await ref.read(incomeExporterProvider).writeTempFile(
           content: content,
@@ -335,6 +353,7 @@ class ExportController {
     required Map<int, String> tagNames,
     required Map<int, List<int>> tagsByIncome,
     Map<int, String> paymentNames = const {},
+    Map<int, int?> tagParentIds = const {},
   }) async {
     final content = buildIncomeContentFor(
       format,
@@ -342,6 +361,7 @@ class ExportController {
       tagNames: tagNames,
       tagsByIncome: tagsByIncome,
       paymentNames: paymentNames,
+      tagParentIds: tagParentIds,
     );
     await Clipboard.setData(ClipboardData(text: content));
   }
@@ -352,6 +372,7 @@ class ExportController {
     required Map<int, String> tagNames,
     required Map<int, List<int>> tagsByIncome,
     Map<int, String> paymentNames = const {},
+    Map<int, int?> tagParentIds = const {},
   }) async {
     final content = buildIncomeContentFor(
       format,
@@ -359,6 +380,7 @@ class ExportController {
       tagNames: tagNames,
       tagsByIncome: tagsByIncome,
       paymentNames: paymentNames,
+      tagParentIds: tagParentIds,
     );
     final file = await ref.read(incomeExporterProvider).writeTempFile(
           content: content,

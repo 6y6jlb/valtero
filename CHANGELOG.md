@@ -8,6 +8,34 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.4] - 2026-09-15
+
+### Added
+
+- Optional one-level subcategories under expense and income category tags,
+  with default seeds per category (incl. dacha, home repairs, transit,
+  dentistry, and more), nested management in Settings → Tags, and last-used
+  subcategory remembered on create (same as categories).
+- Add/edit operation sheet shows the selected category (and subcategory)
+  as colored chips instead of a “N selected” count.
+
+### Changed
+
+- Lists, recent rows, detail, filters, and CSV/JSON export show category
+  and subcategory together (e.g. “Health · Doctor”). Charts by category
+  still roll up to the parent only (no subcategory breakdown).
+- Encrypted backup / Drive sync includes optional `parentStableKey` (and
+  name+kind fallback for custom parents) for subcategory hierarchy
+  (schema v9).
+
+### Fixed
+
+- Add subcategory from the operation sheet when the category has no children yet.
+- Seeded subcategory no longer re-attached after the user promotes it to top-level.
+- Charts/grouping roll up subtag-only operations to the parent category.
+- Recent/detail/duplicate labels and bulk tag change respect category · subcategory.
+- Voice expense match of a subcategory also selects its parent category.
+
 ## [1.1.3] - 2026-09-12
 
 ### Added

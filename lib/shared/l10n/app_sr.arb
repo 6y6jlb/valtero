@@ -122,9 +122,15 @@
   "googleDriveRemoteNewerSchema": "Podaci u oblaku su napisani novijom aplikacijom (šema {remoteSchema}, app {remoteApp}). Ovaj uređaj ima šemu {localSchema}. Sinhronizacija je zaustavljena da se ne bi pregazili noviji podaci. Ažurirajte aplikaciju i pokušajte ponovo.",
   "@googleDriveRemoteNewerSchema": {
     "placeholders": {
-      "remoteSchema": { "type": "int" },
-      "localSchema": { "type": "int" },
-      "remoteApp": { "type": "String" }
+      "remoteSchema": {
+        "type": "int"
+      },
+      "localSchema": {
+        "type": "int"
+      },
+      "remoteApp": {
+        "type": "String"
+      }
     }
   },
   "googleDriveUnsupportedFormat": "Format fajla sinhronizacije nije podržan ovom verzijom aplikacije",
@@ -207,7 +213,7 @@
   "openTelegramIntegration": "Otvori Telegram podešavanja",
   "openExchangeRateApiIntegration": "Podesi ExchangeRate-API",
   "rateSourceConnected": "Kursevi: ExchangeRate-API (povezano)",
-  "rateSourceFrankfurter": "Kursevi: Frankfurter (ključ nije potreban)",
+  "rateSourceFrankfurter": "Frankfurter",
   "debugLoggingEnabled": "Detaljno logovanje",
   "debugLoggingDescription": "Kada je uključeno, pišu se detaljni događaji. Greške se uvek beleže. Tajne (API ključevi, tokeni, chat id, fraze) nikad se ne pišu.",
   "debugViewLogs": "Sadržaj loga",
@@ -368,20 +374,26 @@
   "bulkSelectedCount": "Izabrano: {count}",
   "@bulkSelectedCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkAndMore": "…i još {count}",
   "@bulkAndMore": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkDeleteTitle": "Obrisati troškove?",
   "bulkDeleteDescription": "Ovi troškovi biće trajno obrisani:\n{list}",
   "@bulkDeleteDescription": {
     "placeholders": {
-      "list": { "type": "String" }
+      "list": {
+        "type": "String"
+      }
     }
   },
   "bulkChangeTags": "Promeni oznake",
@@ -389,7 +401,9 @@
   "bulkChangeTagsDescription": "Nove oznake zameniće postojeće na:\n{list}",
   "@bulkChangeTagsDescription": {
     "placeholders": {
-      "list": { "type": "String" }
+      "list": {
+        "type": "String"
+      }
     }
   },
   "bulkChangeCountry": "Promeni zemlju",
@@ -397,7 +411,9 @@
   "bulkChangeCountryDescription": "Zemlja će biti ažurirana za:\n{list}",
   "@bulkChangeCountryDescription": {
     "placeholders": {
-      "list": { "type": "String" }
+      "list": {
+        "type": "String"
+      }
     }
   },
   "bulkChangeCurrency": "Promeni valutu",
@@ -405,58 +421,78 @@
   "bulkChangeCurrencyDescription": "Iznosi će biti konvertovani u {currency} za:\n{list}",
   "@bulkChangeCurrencyDescription": {
     "placeholders": {
-      "currency": { "type": "String" },
-      "list": { "type": "String" }
+      "currency": {
+        "type": "String"
+      },
+      "list": {
+        "type": "String"
+      }
     }
   },
   "bulkExpensesDeleted": "Obrisano troškova: {count}",
   "@bulkExpensesDeleted": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkExpensesUpdated": "Ažurirano troškova: {count}",
   "@bulkExpensesUpdated": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkDeleteTitleIncome": "Obrisati prihode?",
   "bulkDeleteDescriptionIncome": "Ovi prihodi biće trajno obrisani:\n{list}",
   "@bulkDeleteDescriptionIncome": {
     "placeholders": {
-      "list": { "type": "String" }
+      "list": {
+        "type": "String"
+      }
     }
   },
   "bulkIncomeDeleted": "Obrisano prihoda: {count}",
   "@bulkIncomeDeleted": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkIncomeUpdated": "Ažurirano prihoda: {count}",
   "@bulkIncomeUpdated": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkDeleteTitleCashFlow": "Obrisati operacije?",
   "bulkDeleteDescriptionCashFlow": "Ove operacije biće trajno obrisane:\n{list}",
   "@bulkDeleteDescriptionCashFlow": {
     "placeholders": {
-      "list": { "type": "String" }
+      "list": {
+        "type": "String"
+      }
     }
   },
   "bulkCashFlowDeleted": "Obrisano operacija: {count}",
   "@bulkCashFlowDeleted": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkCashFlowUpdated": "Ažurirano operacija: {count}",
   "@bulkCashFlowUpdated": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkChangeTagsMixedKinds": "Za promenu oznaka izaberite samo troškove ili samo prihode",
@@ -723,7 +759,6 @@
   "addRate": "Dodaj kurs",
   "noRatesYet": "Još nema sačuvanih kurseva — osveži ili dodaj ručni kurs",
   "rateSourceApi": "ExchangeRate-API",
-  "rateSourceFrankfurter": "Frankfurter",
   "rateSourceManual": "Ručno",
   "currencyFiat": "Fiat",
   "currencyCrypto": "Kripto",
@@ -904,5 +939,69 @@
   "voiceExpenseCreate": "Kreiraj",
   "voiceExpenseRetry": "Pokušaj ponovo",
   "voiceExpenseUnavailable": "Prepoznavanje govora nije dostupno. Proverite dozvolu za mikrofon.",
-  "voiceExpenseEmpty": "Ništa nije prepoznato. Pokušajte ponovo."
+  "voiceExpenseEmpty": "Ništa nije prepoznato. Pokušajte ponovo.",
+  "subcategory": "Podkategorija",
+  "subcategoryNone": "Nema",
+  "addSubcategory": "Dodaj podkategoriju",
+  "parentCategory": "Nadređena kategorija",
+  "topLevelCategory": "Kategorija najvišeg nivoa",
+  "tagHouseholdSupplies": "Kućne potrepštine",
+  "tagAlcohol": "Alkohol",
+  "tagSnacks": "Grickalice",
+  "tagFuel": "Gorivo",
+  "tagRepair": "Popravka",
+  "tagTuning": "Tuning",
+  "tagRent": "Kirija",
+  "tagUtilitiesBill": "Komunalije",
+  "tagFurniture": "Nameštaj",
+  "tagRestaurant": "Restoran",
+  "tagCafe": "Kafić",
+  "tagDelivery": "Dostava",
+  "tagLabTests": "Analize",
+  "tagDoctor": "Lekar",
+  "tagMedications": "Lekovi",
+  "tagCinema": "Bioskop",
+  "tagGames": "Igre",
+  "tagStreaming": "Striming",
+  "tagClothing": "Odeća",
+  "tagElectronics": "Elektronika",
+  "tagGiftsShopping": "Pokloni",
+  "tagFlights": "Letovi",
+  "tagHotels": "Hoteli",
+  "tagTours": "Ture",
+  "tagBonus": "Bonus",
+  "tagOvertime": "Prekovremeno",
+  "tagAdvance": "Avans",
+  "tagPersonalItems": "Lične stvari",
+  "tagPropertySale": "Nekretnina",
+  "tagVehicleSale": "Vozilo",
+  "tagFamilyGift": "Porodica",
+  "tagFriendsGift": "Prijatelji",
+  "tagHolidayGift": "Praznik",
+  "tagTaxRefund": "Poreski povraćaj",
+  "tagPurchaseRefund": "Povraćaj kupovine",
+  "tagInsuranceRefund": "Osiguranje",
+  "tagDividends": "Dividende",
+  "tagInterestIncome": "Kamata",
+  "tagCapitalGains": "Kapitalna dobit",
+  "tagFreelance": "Frilens",
+  "tagCashback": "Kešbek",
+  "tagSideGig": "Dodatni posao",
+  "tagPetFood": "Hrana za ljubimce",
+  "tagBabyFood": "Bebi hrana",
+  "tagParking": "Parking",
+  "tagTaxi": "Taksi",
+  "tagPublicTransit": "Javni prevoz",
+  "tagDacha": "Vikendica",
+  "tagHomeRepairs": "Popravke kuće",
+  "tagCleaning": "Čišćenje",
+  "tagInternet": "Internet",
+  "tagDentistry": "Stomatologija",
+  "tagOptics": "Optika",
+  "tagEvents": "Događaji",
+  "tagHobbies": "Hobiji",
+  "tagHomeGoods": "Kućni artikli",
+  "tagBeauty": "Lepota",
+  "tagTravelInsurance": "Putno osiguranje",
+  "tagVisas": "Vize"
 }

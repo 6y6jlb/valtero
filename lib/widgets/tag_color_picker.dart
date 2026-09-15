@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/shared/consts/palette.dart';
 import 'package:valtero/shared/consts/tag_icons.dart';
+import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/shared/utils/tag_label.dart';
 import 'package:valtero/widgets/app_button.dart';
 import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
@@ -109,11 +111,13 @@ class TagEditResult {
   final String name;
   final int? colorValue;
   final String? iconKey;
+  final int? parentTagId;
 
   const TagEditResult({
     required this.name,
     this.colorValue,
     this.iconKey,
+    this.parentTagId,
   });
 }
 
@@ -123,8 +127,13 @@ Future<TagEditResult?> showTagEditSheet(
   String initialName = '',
   int? initialColor,
   String? initialIconKey,
+  int? initialParentTagId,
+  List<Tag>? parentOptions,
   required String confirmLabel,
   bool showIconPicker = true,
+  bool showParentPicker = true,
+  /// When true, hides the "top-level" chip so parent stays required.
+  bool requireParent = false,
 }) {
   return showAppModalSheet<TagEditResult>(
     context: context,
@@ -136,8 +145,12 @@ Future<TagEditResult?> showTagEditSheet(
       initialName: initialName,
       initialColor: initialColor,
       initialIconKey: initialIconKey,
+      initialParentTagId: initialParentTagId,
+      parentOptions: parentOptions ?? const [],
       confirmLabel: confirmLabel,
       showIconPicker: showIconPicker,
+      showParentPicker: showParentPicker && (parentOptions?.isNotEmpty ?? false),
+      requireParent: requireParent,
     ),
   );
 }
@@ -147,16 +160,24 @@ class _TagEditSheetBody extends StatefulWidget {
   final String initialName;
   final int? initialColor;
   final String? initialIconKey;
+  final int? initialParentTagId;
+  final List<Tag> parentOptions;
   final String confirmLabel;
   final bool showIconPicker;
+  final bool showParentPicker;
+  final bool requireParent;
 
   const _TagEditSheetBody({
     required this.title,
     required this.initialName,
     required this.initialColor,
     required this.initialIconKey,
+    required this.initialParentTagId,
+    required this.parentOptions,
     required this.confirmLabel,
     required this.showIconPicker,
+    required this.showParentPicker,
+    this.requireParent = false,
   });
 
   @override
@@ -167,6 +188,7 @@ class _TagEditSheetBodyState extends State<_TagEditSheetBody> {
   late final TextEditingController _controller;
   late int? _color;
   late String? _iconKey;
+  late int? _parentTagId;
 
   @override
   void initState() {
@@ -174,6 +196,7 @@ class _TagEditSheetBodyState extends State<_TagEditSheetBody> {
     _controller = TextEditingController(text: widget.initialName);
     _color = widget.initialColor;
     _iconKey = widget.initialIconKey;
+    _parentTagId = widget.initialParentTagId;
   }
 
   @override
@@ -191,6 +214,7 @@ class _TagEditSheetBodyState extends State<_TagEditSheetBody> {
         name: name,
         colorValue: _color,
         iconKey: widget.showIconPicker ? _iconKey : null,
+        parentTagId: _parentTagId,
       ),
     );
   }
@@ -220,6 +244,29 @@ class _TagEditSheetBodyState extends State<_TagEditSheetBody> {
           autofocus: true,
           onSubmitted: (_) => _confirm(),
         ),
+        if (widget.showParentPicker) ...[
+          const SizedBox(height: 16),
+          Text(l10n.parentCategory, style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              if (!widget.requireParent)
+                ChoiceChip(
+                  label: Text(l10n.topLevelCategory),
+                  selected: _parentTagId == null,
+                  onSelected: (_) => setState(() => _parentTagId = null),
+                ),
+              for (final parent in widget.parentOptions)
+                ChoiceChip(
+                  label: Text(localizedTagLabel(context, parent)),
+                  selected: _parentTagId == parent.id,
+                  onSelected: (_) => setState(() => _parentTagId = parent.id),
+                ),
+            ],
+          ),
+        ],
         const SizedBox(height: 16),
         TagColorPicker(
           selected: _color,

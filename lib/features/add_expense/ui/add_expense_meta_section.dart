@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/entities/payment_method/ui/payment_method_chip.dart';
+import 'package:valtero/entities/tag/model/tag_hierarchy.dart';
 import 'package:valtero/entities/tag/model/tag_kind.dart';
 import 'package:valtero/entities/tag/ui/grouped_tag_picker.dart';
+import 'package:valtero/entities/tag/ui/tag_chip.dart';
 import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
@@ -19,10 +21,15 @@ class AddExpenseMetaSection extends StatelessWidget {
   final VoidCallback onClearCountry;
   final List<Tag> tags;
   final Set<int> tagIds;
-  final String tagsSubtitle;
+  /// Selected tags shown in the collapsed subtitle (category then subcategory).
+  final List<Tag> selectedTags;
   final ValueChanged<Tag> onTagTap;
+  final ValueChanged<Tag>? onSubtagTap;
+  final VoidCallback? onClearSubtag;
   final TextEditingController newTagController;
   final Future<void> Function() onAddTag;
+  final TextEditingController? newSubtagController;
+  final Future<void> Function()? onAddSubtag;
   final Iterable<TagKind>? tagKinds;
 
   const AddExpenseMetaSection({
@@ -37,10 +44,14 @@ class AddExpenseMetaSection extends StatelessWidget {
     required this.onClearCountry,
     required this.tags,
     required this.tagIds,
-    required this.tagsSubtitle,
+    required this.selectedTags,
     required this.onTagTap,
     required this.newTagController,
     required this.onAddTag,
+    this.onSubtagTap,
+    this.onClearSubtag,
+    this.newSubtagController,
+    this.onAddSubtag,
     this.tagKinds,
   });
 
@@ -52,6 +63,17 @@ class AddExpenseMetaSection extends StatelessWidget {
     final subtitleStyle = theme.textTheme.bodySmall?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
+    final tagById = {for (final t in tags) t.id: t};
+    final kind = tagKinds?.isNotEmpty == true
+        ? tagKinds!.first
+        : TagKind.custom;
+    final selectedParentId = selectedTopLevelTagId(tagIds, tagById, kind);
+    final subtags = selectedParentId == null
+        ? const <Tag>[]
+        : childrenOf(tags, selectedParentId);
+    final selectedSubId = selectedParentId == null
+        ? null
+        : selectedSubtagId(tagIds, tagById, selectedParentId);
 
     return Column(
       children: [
@@ -130,8 +152,18 @@ class AddExpenseMetaSection extends StatelessWidget {
             initiallyExpanded: false,
             shape: const Border(),
             collapsedShape: const Border(),
+            expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
             title: Text(l10n.tag),
-            subtitle: Text(tagsSubtitle, style: subtitleStyle),
+            subtitle: selectedTags.isEmpty
+                ? Text(l10n.tagsNoneSelected, style: subtitleStyle)
+                : Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    children: [
+                      for (final tag in selectedTags)
+                        TagChip(tag: tag, selected: true),
+                    ],
+                  ),
             childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
             children: [
               GroupedTagPicker(
@@ -140,6 +172,7 @@ class AddExpenseMetaSection extends StatelessWidget {
                 singleSelectPerKind: true,
                 onTagTap: onTagTap,
                 kinds: tagKinds,
+                topLevelOnly: true,
               ),
               const SizedBox(height: 8),
               Row(
@@ -157,6 +190,50 @@ class AddExpenseMetaSection extends StatelessWidget {
                   ),
                 ],
               ),
+              if (selectedParentId != null && onSubtagTap != null) ...[
+                const SizedBox(height: 12),
+                Text(
+                  l10n.subcategory,
+                  style: theme.textTheme.titleSmall,
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    FilterChip(
+                      label: Text(l10n.subcategoryNone),
+                      selected: selectedSubId == null,
+                      onSelected: (_) => onClearSubtag?.call(),
+                    ),
+                    for (final tag in subtags)
+                      TagChip(
+                        tag: tag,
+                        selected: selectedSubId == tag.id,
+                        onTap: () => onSubtagTap!(tag),
+                      ),
+                  ],
+                ),
+                if (newSubtagController != null && onAddSubtag != null) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: newSubtagController,
+                          decoration:
+                              InputDecoration(labelText: l10n.addSubcategory),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: onAddSubtag,
+                        icon: const Icon(Icons.add),
+                        tooltip: l10n.addSubcategory,
+                      ),
+                    ],
+                  ),
+                ],
+              ],
             ],
           ),
         ),

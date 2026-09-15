@@ -146,6 +146,10 @@ class BackupTagData {
   final int sortOrder;
   final String? countryCode;
   final String? iconKey;
+  final String? parentStableKey;
+  /// Fallback when parent has no [stableKey] (user-created categories).
+  final String? parentName;
+  final String? parentKind;
 
   const BackupTagData({
     required this.stableKey,
@@ -156,6 +160,9 @@ class BackupTagData {
     required this.sortOrder,
     required this.countryCode,
     this.iconKey,
+    this.parentStableKey,
+    this.parentName,
+    this.parentKind,
   });
 
   Map<String, dynamic> toJson() => {
@@ -167,6 +174,9 @@ class BackupTagData {
         'sortOrder': sortOrder,
         'countryCode': countryCode,
         'iconKey': iconKey,
+        'parentStableKey': parentStableKey,
+        'parentName': parentName,
+        'parentKind': parentKind,
       };
 
   factory BackupTagData.fromJson(Map<String, dynamic> json) {
@@ -179,6 +189,9 @@ class BackupTagData {
       sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 0,
       countryCode: json['countryCode'] as String?,
       iconKey: json['iconKey'] as String?,
+      parentStableKey: json['parentStableKey'] as String?,
+      parentName: json['parentName'] as String?,
+      parentKind: json['parentKind'] as String?,
     );
   }
 }

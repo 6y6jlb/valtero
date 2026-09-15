@@ -77,6 +77,41 @@ class BackupImporter {
       if (resolved.created) tagsAdded++;
     }
 
+    // Second pass: wire parentTagId once all tags exist (parent may follow child).
+    for (final tag in data.tags) {
+      int? parentId;
+      final parentKey = tag.parentStableKey?.trim();
+      if (parentKey != null && parentKey.isNotEmpty) {
+        parentId = tagIdByStableKey[parentKey];
+      }
+      if (parentId == null &&
+          tag.parentName != null &&
+          tag.parentName!.trim().isNotEmpty) {
+        parentId = tagIdByNameKind[_nameKindKey(
+          tag.parentName!,
+          tag.parentKind ?? tag.kind,
+        )];
+      }
+      if (parentId == null) continue;
+      final childStable = tag.stableKey?.trim();
+      int? childId;
+      if (childStable != null && childStable.isNotEmpty) {
+        childId = tagIdByStableKey[childStable];
+      }
+      childId ??= tagIdByNameKind[_nameKindKey(tag.name, tag.kind)];
+      if (childId == null) continue;
+      final resolvedChildId = childId;
+      final existing = await (db.select(db.tags)
+            ..where((t) => t.id.equals(resolvedChildId)))
+          .getSingleOrNull();
+      if (existing == null) continue;
+      if (existing.parentTagId == parentId) continue;
+      await (db.update(db.tags)..where((t) => t.id.equals(resolvedChildId)))
+          .write(
+        TagsCompanion(parentTagId: Value(parentId)),
+      );
+    }
+
     for (final method in data.paymentMethods) {
       final resolved = await _resolveOrCreatePayment(
         db: db,

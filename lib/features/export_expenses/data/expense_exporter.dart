@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/utils/money.dart';
+import 'package:valtero/shared/utils/tag_label.dart';
 
 enum ExportFormat { csv, json }
 
@@ -17,6 +18,7 @@ class ExpenseExporter {
     Map<int, String> tagNames,
     Map<int, List<int>> tagsByExpense, {
     Map<int, String> paymentNames = const {},
+    Map<int, int?> tagParentIds = const {},
   }) {
     final rows = <List<dynamic>>[
       [
@@ -45,7 +47,10 @@ class ExpenseExporter {
               ? ''
               : (paymentNames[e.paymentMethodId!] ?? ''),
           e.countryCode ?? '',
-          (tagsByExpense[e.id] ?? const [])
+          orderTagIdsParentFirst(
+            tagsByExpense[e.id] ?? const [],
+            tagParentIds,
+          )
               .map((id) => tagNames[id] ?? '')
               .where((n) => n.isNotEmpty)
               .join('|'),
@@ -60,6 +65,7 @@ class ExpenseExporter {
     Map<int, String> tagNames,
     Map<int, List<int>> tagsByExpense, {
     Map<int, String> paymentNames = const {},
+    Map<int, int?> tagParentIds = const {},
   }) {
     final list = expenses
         .map(
@@ -75,7 +81,10 @@ class ExpenseExporter {
                 ? null
                 : paymentNames[e.paymentMethodId!],
             'countryCode': e.countryCode,
-            'tags': (tagsByExpense[e.id] ?? const [])
+            'tags': orderTagIdsParentFirst(
+              tagsByExpense[e.id] ?? const [],
+              tagParentIds,
+            )
                 .map((id) => tagNames[id])
                 .whereType<String>()
                 .toList(),

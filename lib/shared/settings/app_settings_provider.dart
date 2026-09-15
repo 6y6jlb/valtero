@@ -188,6 +188,26 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     }
   }
 
+  Future<void> setDefaultSubtagId(int? id) async {
+    final current = state.value;
+    if (current == null) return;
+    if (id == null) {
+      await _save(current.copyWith(clearDefaultSubtagId: true));
+    } else {
+      await _save(current.copyWith(defaultSubtagId: id));
+    }
+  }
+
+  Future<void> setLastIncomeSubtagId(int? id) async {
+    final current = state.value;
+    if (current == null) return;
+    if (id == null) {
+      await _save(current.copyWith(clearLastIncomeSubtagId: true));
+    } else {
+      await _save(current.copyWith(lastIncomeSubtagId: id));
+    }
+  }
+
   Future<void> setDefaultPaymentMethodId(int? id) async {
     final current = state.value;
     if (current == null) return;

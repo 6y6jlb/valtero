@@ -111,6 +111,20 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, Tag> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _parentTagIdMeta = const VerificationMeta(
+    'parentTagId',
+  );
+  @override
+  late final GeneratedColumn<int> parentTagId = GeneratedColumn<int>(
+    'parent_tag_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES tags (id) ON DELETE SET NULL',
+    ),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -122,6 +136,7 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, Tag> {
     countryCode,
     stableKey,
     iconKey,
+    parentTagId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -191,6 +206,15 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, Tag> {
         iconKey.isAcceptableOrUnknown(data['icon_key']!, _iconKeyMeta),
       );
     }
+    if (data.containsKey('parent_tag_id')) {
+      context.handle(
+        _parentTagIdMeta,
+        parentTagId.isAcceptableOrUnknown(
+          data['parent_tag_id']!,
+          _parentTagIdMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -236,6 +260,10 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, Tag> {
         DriftSqlType.string,
         data['${effectivePrefix}icon_key'],
       ),
+      parentTagId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}parent_tag_id'],
+      ),
     );
   }
 
@@ -261,6 +289,11 @@ class Tag extends DataClass implements Insertable<Tag> {
 
   /// Curated icon key from [tag_icons.dart], e.g. `groceries`, `salary`.
   final String? iconKey;
+
+  /// Parent category tag id when this tag is a subcategory. Null = top-level
+  /// category. Exactly one level deep (a subcategory's parent must itself be
+  /// top-level) — enforced in app code, not the schema.
+  final int? parentTagId;
   const Tag({
     required this.id,
     required this.name,
@@ -271,6 +304,7 @@ class Tag extends DataClass implements Insertable<Tag> {
     this.countryCode,
     this.stableKey,
     this.iconKey,
+    this.parentTagId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -291,6 +325,9 @@ class Tag extends DataClass implements Insertable<Tag> {
     }
     if (!nullToAbsent || iconKey != null) {
       map['icon_key'] = Variable<String>(iconKey);
+    }
+    if (!nullToAbsent || parentTagId != null) {
+      map['parent_tag_id'] = Variable<int>(parentTagId);
     }
     return map;
   }
@@ -314,6 +351,9 @@ class Tag extends DataClass implements Insertable<Tag> {
       iconKey: iconKey == null && nullToAbsent
           ? const Value.absent()
           : Value(iconKey),
+      parentTagId: parentTagId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(parentTagId),
     );
   }
 
@@ -332,6 +372,7 @@ class Tag extends DataClass implements Insertable<Tag> {
       countryCode: serializer.fromJson<String?>(json['countryCode']),
       stableKey: serializer.fromJson<String?>(json['stableKey']),
       iconKey: serializer.fromJson<String?>(json['iconKey']),
+      parentTagId: serializer.fromJson<int?>(json['parentTagId']),
     );
   }
   @override
@@ -347,6 +388,7 @@ class Tag extends DataClass implements Insertable<Tag> {
       'countryCode': serializer.toJson<String?>(countryCode),
       'stableKey': serializer.toJson<String?>(stableKey),
       'iconKey': serializer.toJson<String?>(iconKey),
+      'parentTagId': serializer.toJson<int?>(parentTagId),
     };
   }
 
@@ -360,6 +402,7 @@ class Tag extends DataClass implements Insertable<Tag> {
     Value<String?> countryCode = const Value.absent(),
     Value<String?> stableKey = const Value.absent(),
     Value<String?> iconKey = const Value.absent(),
+    Value<int?> parentTagId = const Value.absent(),
   }) => Tag(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -370,6 +413,7 @@ class Tag extends DataClass implements Insertable<Tag> {
     countryCode: countryCode.present ? countryCode.value : this.countryCode,
     stableKey: stableKey.present ? stableKey.value : this.stableKey,
     iconKey: iconKey.present ? iconKey.value : this.iconKey,
+    parentTagId: parentTagId.present ? parentTagId.value : this.parentTagId,
   );
   Tag copyWithCompanion(TagsCompanion data) {
     return Tag(
@@ -386,6 +430,9 @@ class Tag extends DataClass implements Insertable<Tag> {
           : this.countryCode,
       stableKey: data.stableKey.present ? data.stableKey.value : this.stableKey,
       iconKey: data.iconKey.present ? data.iconKey.value : this.iconKey,
+      parentTagId: data.parentTagId.present
+          ? data.parentTagId.value
+          : this.parentTagId,
     );
   }
 
@@ -400,7 +447,8 @@ class Tag extends DataClass implements Insertable<Tag> {
           ..write('kind: $kind, ')
           ..write('countryCode: $countryCode, ')
           ..write('stableKey: $stableKey, ')
-          ..write('iconKey: $iconKey')
+          ..write('iconKey: $iconKey, ')
+          ..write('parentTagId: $parentTagId')
           ..write(')'))
         .toString();
   }
@@ -416,6 +464,7 @@ class Tag extends DataClass implements Insertable<Tag> {
     countryCode,
     stableKey,
     iconKey,
+    parentTagId,
   );
   @override
   bool operator ==(Object other) =>
@@ -429,7 +478,8 @@ class Tag extends DataClass implements Insertable<Tag> {
           other.kind == this.kind &&
           other.countryCode == this.countryCode &&
           other.stableKey == this.stableKey &&
-          other.iconKey == this.iconKey);
+          other.iconKey == this.iconKey &&
+          other.parentTagId == this.parentTagId);
 }
 
 class TagsCompanion extends UpdateCompanion<Tag> {
@@ -442,6 +492,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
   final Value<String?> countryCode;
   final Value<String?> stableKey;
   final Value<String?> iconKey;
+  final Value<int?> parentTagId;
   const TagsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -452,6 +503,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
     this.countryCode = const Value.absent(),
     this.stableKey = const Value.absent(),
     this.iconKey = const Value.absent(),
+    this.parentTagId = const Value.absent(),
   });
   TagsCompanion.insert({
     this.id = const Value.absent(),
@@ -463,6 +515,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
     this.countryCode = const Value.absent(),
     this.stableKey = const Value.absent(),
     this.iconKey = const Value.absent(),
+    this.parentTagId = const Value.absent(),
   }) : name = Value(name);
   static Insertable<Tag> custom({
     Expression<int>? id,
@@ -474,6 +527,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
     Expression<String>? countryCode,
     Expression<String>? stableKey,
     Expression<String>? iconKey,
+    Expression<int>? parentTagId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -485,6 +539,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
       if (countryCode != null) 'country_code': countryCode,
       if (stableKey != null) 'stable_key': stableKey,
       if (iconKey != null) 'icon_key': iconKey,
+      if (parentTagId != null) 'parent_tag_id': parentTagId,
     });
   }
 
@@ -498,6 +553,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
     Value<String?>? countryCode,
     Value<String?>? stableKey,
     Value<String?>? iconKey,
+    Value<int?>? parentTagId,
   }) {
     return TagsCompanion(
       id: id ?? this.id,
@@ -509,6 +565,7 @@ class TagsCompanion extends UpdateCompanion<Tag> {
       countryCode: countryCode ?? this.countryCode,
       stableKey: stableKey ?? this.stableKey,
       iconKey: iconKey ?? this.iconKey,
+      parentTagId: parentTagId ?? this.parentTagId,
     );
   }
 
@@ -542,6 +599,9 @@ class TagsCompanion extends UpdateCompanion<Tag> {
     if (iconKey.present) {
       map['icon_key'] = Variable<String>(iconKey.value);
     }
+    if (parentTagId.present) {
+      map['parent_tag_id'] = Variable<int>(parentTagId.value);
+    }
     return map;
   }
 
@@ -556,7 +616,8 @@ class TagsCompanion extends UpdateCompanion<Tag> {
           ..write('kind: $kind, ')
           ..write('countryCode: $countryCode, ')
           ..write('stableKey: $stableKey, ')
-          ..write('iconKey: $iconKey')
+          ..write('iconKey: $iconKey, ')
+          ..write('parentTagId: $parentTagId')
           ..write(')'))
         .toString();
   }
@@ -2510,6 +2571,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
     WritePropagation(
       on: TableUpdateQuery.onTableName(
+        'tags',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('tags', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
         'operations',
         limitUpdateKind: UpdateKind.delete,
       ),
@@ -2536,6 +2604,7 @@ typedef $$TagsTableCreateCompanionBuilder =
       Value<String?> countryCode,
       Value<String?> stableKey,
       Value<String?> iconKey,
+      Value<int?> parentTagId,
     });
 typedef $$TagsTableUpdateCompanionBuilder =
     TagsCompanion Function({
@@ -2548,11 +2617,29 @@ typedef $$TagsTableUpdateCompanionBuilder =
       Value<String?> countryCode,
       Value<String?> stableKey,
       Value<String?> iconKey,
+      Value<int?> parentTagId,
     });
 
 final class $$TagsTableReferences
     extends BaseReferences<_$AppDatabase, $TagsTable, Tag> {
   $$TagsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $TagsTable _parentTagIdTable(_$AppDatabase db) =>
+      db.tags.createAlias('tags__parent_tag_id__tags__id');
+
+  $$TagsTableProcessedTableManager? get parentTagId {
+    final $_column = $_itemColumn<int>('parent_tag_id');
+    if ($_column == null) return null;
+    final manager = $$TagsTableTableManager(
+      $_db,
+      $_db.tags,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_parentTagIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
 
   static MultiTypedResultKey<$OperationTagsTable, List<OperationTag>>
   _operationTagsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
@@ -2625,6 +2712,29 @@ class $$TagsTableFilterComposer extends Composer<_$AppDatabase, $TagsTable> {
     column: $table.iconKey,
     builder: (column) => ColumnFilters(column),
   );
+
+  $$TagsTableFilterComposer get parentTagId {
+    final $$TagsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.parentTagId,
+      referencedTable: $db.tags,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TagsTableFilterComposer(
+            $db: $db,
+            $table: $db.tags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 
   Expression<bool> operationTagsRefs(
     Expression<bool> Function($$OperationTagsTableFilterComposer f) f,
@@ -2704,6 +2814,29 @@ class $$TagsTableOrderingComposer extends Composer<_$AppDatabase, $TagsTable> {
     column: $table.iconKey,
     builder: (column) => ColumnOrderings(column),
   );
+
+  $$TagsTableOrderingComposer get parentTagId {
+    final $$TagsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.parentTagId,
+      referencedTable: $db.tags,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TagsTableOrderingComposer(
+            $db: $db,
+            $table: $db.tags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$TagsTableAnnotationComposer
@@ -2746,6 +2879,29 @@ class $$TagsTableAnnotationComposer
   GeneratedColumn<String> get iconKey =>
       $composableBuilder(column: $table.iconKey, builder: (column) => column);
 
+  $$TagsTableAnnotationComposer get parentTagId {
+    final $$TagsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.parentTagId,
+      referencedTable: $db.tags,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TagsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.tags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   Expression<T> operationTagsRefs<T extends Object>(
     Expression<T> Function($$OperationTagsTableAnnotationComposer a) f,
   ) {
@@ -2785,7 +2941,7 @@ class $$TagsTableTableManager
           $$TagsTableUpdateCompanionBuilder,
           (Tag, $$TagsTableReferences),
           Tag,
-          PrefetchHooks Function({bool operationTagsRefs})
+          PrefetchHooks Function({bool parentTagId, bool operationTagsRefs})
         > {
   $$TagsTableTableManager(_$AppDatabase db, $TagsTable table)
     : super(
@@ -2809,6 +2965,7 @@ class $$TagsTableTableManager
                 Value<String?> countryCode = const Value.absent(),
                 Value<String?> stableKey = const Value.absent(),
                 Value<String?> iconKey = const Value.absent(),
+                Value<int?> parentTagId = const Value.absent(),
               }) => TagsCompanion(
                 id: id,
                 name: name,
@@ -2819,6 +2976,7 @@ class $$TagsTableTableManager
                 countryCode: countryCode,
                 stableKey: stableKey,
                 iconKey: iconKey,
+                parentTagId: parentTagId,
               ),
           createCompanionCallback:
               ({
@@ -2831,6 +2989,7 @@ class $$TagsTableTableManager
                 Value<String?> countryCode = const Value.absent(),
                 Value<String?> stableKey = const Value.absent(),
                 Value<String?> iconKey = const Value.absent(),
+                Value<int?> parentTagId = const Value.absent(),
               }) => TagsCompanion.insert(
                 id: id,
                 name: name,
@@ -2841,6 +3000,7 @@ class $$TagsTableTableManager
                 countryCode: countryCode,
                 stableKey: stableKey,
                 iconKey: iconKey,
+                parentTagId: parentTagId,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -2848,33 +3008,71 @@ class $$TagsTableTableManager
                     (e.readTable(table), $$TagsTableReferences(db, table, e)),
               )
               .toList(),
-          prefetchHooksCallback: ({operationTagsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (operationTagsRefs) db.operationTags,
-              ],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (operationTagsRefs)
-                    await $_getPrefetchedData<Tag, $TagsTable, OperationTag>(
-                      currentTable: table,
-                      referencedTable: $$TagsTableReferences
-                          ._operationTagsRefsTable(db),
-                      managerFromTypedResult: (p0) => $$TagsTableReferences(
-                        db,
-                        table,
-                        p0,
-                      ).operationTagsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.tagId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({parentTagId = false, operationTagsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (operationTagsRefs) db.operationTags,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (parentTagId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.parentTagId,
+                                    referencedTable: $$TagsTableReferences
+                                        ._parentTagIdTable(db),
+                                    referencedColumn: $$TagsTableReferences
+                                        ._parentTagIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (operationTagsRefs)
+                        await $_getPrefetchedData<
+                          Tag,
+                          $TagsTable,
+                          OperationTag
+                        >(
+                          currentTable: table,
+                          referencedTable: $$TagsTableReferences
+                              ._operationTagsRefsTable(db),
+                          managerFromTypedResult: (p0) => $$TagsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).operationTagsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.tagId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -2891,7 +3089,7 @@ typedef $$TagsTableProcessedTableManager =
       $$TagsTableUpdateCompanionBuilder,
       (Tag, $$TagsTableReferences),
       Tag,
-      PrefetchHooks Function({bool operationTagsRefs})
+      PrefetchHooks Function({bool parentTagId, bool operationTagsRefs})
     >;
 typedef $$PaymentMethodsTableCreateCompanionBuilder =
     PaymentMethodsCompanion Function({

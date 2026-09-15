@@ -13,4 +13,9 @@ class Tags extends Table {
   TextColumn get stableKey => text().nullable()();
   /// Curated icon key from [tag_icons.dart], e.g. `groceries`, `salary`.
   TextColumn get iconKey => text().nullable()();
+  /// Parent category tag id when this tag is a subcategory. Null = top-level
+  /// category. Exactly one level deep (a subcategory's parent must itself be
+  /// top-level) — enforced in app code, not the schema.
+  IntColumn get parentTagId =>
+      integer().nullable().references(Tags, #id, onDelete: KeyAction.setNull)();
 }

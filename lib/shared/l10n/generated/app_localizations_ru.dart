@@ -1873,4 +1873,196 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get voiceExpenseEmpty => 'Ничего не распознано. Попробуйте ещё раз.';
+
+  @override
+  String get subcategory => 'Подкатегория';
+
+  @override
+  String get subcategoryNone => 'Нет';
+
+  @override
+  String get addSubcategory => 'Добавить подкатегорию';
+
+  @override
+  String get parentCategory => 'Родительская категория';
+
+  @override
+  String get topLevelCategory => 'Категория верхнего уровня';
+
+  @override
+  String get tagHouseholdSupplies => 'Хозтовары';
+
+  @override
+  String get tagAlcohol => 'Алкоголь';
+
+  @override
+  String get tagSnacks => 'Снеки';
+
+  @override
+  String get tagFuel => 'Бензин';
+
+  @override
+  String get tagRepair => 'Ремонт';
+
+  @override
+  String get tagTuning => 'Тюнинг';
+
+  @override
+  String get tagRent => 'Аренда';
+
+  @override
+  String get tagUtilitiesBill => 'Коммунальные';
+
+  @override
+  String get tagFurniture => 'Мебель';
+
+  @override
+  String get tagRestaurant => 'Ресторан';
+
+  @override
+  String get tagCafe => 'Кафе';
+
+  @override
+  String get tagDelivery => 'Доставка';
+
+  @override
+  String get tagLabTests => 'Анализы';
+
+  @override
+  String get tagDoctor => 'Врач';
+
+  @override
+  String get tagMedications => 'Лекарства';
+
+  @override
+  String get tagCinema => 'Кино';
+
+  @override
+  String get tagGames => 'Игры';
+
+  @override
+  String get tagStreaming => 'Стриминг';
+
+  @override
+  String get tagClothing => 'Одежда';
+
+  @override
+  String get tagElectronics => 'Электроника';
+
+  @override
+  String get tagGiftsShopping => 'Подарки';
+
+  @override
+  String get tagFlights => 'Авиабилеты';
+
+  @override
+  String get tagHotels => 'Отели';
+
+  @override
+  String get tagTours => 'Экскурсии';
+
+  @override
+  String get tagBonus => 'Премия';
+
+  @override
+  String get tagOvertime => 'Сверхурочные';
+
+  @override
+  String get tagAdvance => 'Аванс';
+
+  @override
+  String get tagPersonalItems => 'Личные вещи';
+
+  @override
+  String get tagPropertySale => 'Недвижимость';
+
+  @override
+  String get tagVehicleSale => 'Автомобиль';
+
+  @override
+  String get tagFamilyGift => 'Семья';
+
+  @override
+  String get tagFriendsGift => 'Друзья';
+
+  @override
+  String get tagHolidayGift => 'Праздник';
+
+  @override
+  String get tagTaxRefund => 'Налоговый возврат';
+
+  @override
+  String get tagPurchaseRefund => 'Возврат покупки';
+
+  @override
+  String get tagInsuranceRefund => 'Страховой возврат';
+
+  @override
+  String get tagDividends => 'Дивиденды';
+
+  @override
+  String get tagInterestIncome => 'Проценты';
+
+  @override
+  String get tagCapitalGains => 'Прирост капитала';
+
+  @override
+  String get tagFreelance => 'Фриланс';
+
+  @override
+  String get tagCashback => 'Кэшбэк';
+
+  @override
+  String get tagSideGig => 'Подработка';
+
+  @override
+  String get tagPetFood => 'Корм для животных';
+
+  @override
+  String get tagBabyFood => 'Детское питание';
+
+  @override
+  String get tagParking => 'Парковка';
+
+  @override
+  String get tagTaxi => 'Такси';
+
+  @override
+  String get tagPublicTransit => 'Общественный транспорт';
+
+  @override
+  String get tagDacha => 'Дача';
+
+  @override
+  String get tagHomeRepairs => 'Ремонт дома';
+
+  @override
+  String get tagCleaning => 'Уборка';
+
+  @override
+  String get tagInternet => 'Интернет';
+
+  @override
+  String get tagDentistry => 'Стоматология';
+
+  @override
+  String get tagOptics => 'Оптика';
+
+  @override
+  String get tagEvents => 'Мероприятия';
+
+  @override
+  String get tagHobbies => 'Хобби';
+
+  @override
+  String get tagHomeGoods => 'Товары для дома';
+
+  @override
+  String get tagBeauty => 'Красота';
+
+  @override
+  String get tagTravelInsurance => 'Страховка';
+
+  @override
+  String get tagVisas => 'Визы';
 }

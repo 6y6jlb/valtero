@@ -45,6 +45,7 @@ class DuplicateReviewSheet extends ConsumerWidget {
     final tagLabels = {
       for (final t in tags) t.id: localizedTagLabel(context, t),
     };
+    final tagParentIds = {for (final t in tags) t.id: t.parentTagId};
     final paymentLabels = {
       for (final m in payments) m.id: localizedPaymentMethodLabel(context, m),
     };
@@ -77,6 +78,7 @@ class DuplicateReviewSheet extends ConsumerWidget {
               byId: byId,
               expenseTags: expenseTags,
               tagLabels: tagLabels,
+              tagParentIds: tagParentIds,
               paymentLabels: paymentLabels,
               languageCode: lang,
             ),
@@ -91,6 +93,7 @@ class _DuplicateGroupCard extends ConsumerWidget {
   final Map<int, Expense> byId;
   final Map<int, List<int>> expenseTags;
   final Map<int, String> tagLabels;
+  final Map<int, int?> tagParentIds;
   final Map<int, String> paymentLabels;
   final String languageCode;
 
@@ -99,6 +102,7 @@ class _DuplicateGroupCard extends ConsumerWidget {
     required this.byId,
     required this.expenseTags,
     required this.tagLabels,
+    required this.tagParentIds,
     required this.paymentLabels,
     required this.languageCode,
   });
@@ -106,7 +110,7 @@ class _DuplicateGroupCard extends ConsumerWidget {
   String _tagsLabel(int expenseId) {
     final ids = expenseTags[expenseId] ?? const <int>[];
     if (ids.isEmpty) return '';
-    return ids.map((id) => tagLabels[id] ?? '?').join(', ');
+    return formatTagLabelsCombined(ids, tagLabels, tagParentIds);
   }
 
   @override

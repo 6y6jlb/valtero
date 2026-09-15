@@ -1870,4 +1870,196 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get voiceExpenseEmpty => 'Ništa nije prepoznato. Pokušajte ponovo.';
+
+  @override
+  String get subcategory => 'Podkategorija';
+
+  @override
+  String get subcategoryNone => 'Nema';
+
+  @override
+  String get addSubcategory => 'Dodaj podkategoriju';
+
+  @override
+  String get parentCategory => 'Nadređena kategorija';
+
+  @override
+  String get topLevelCategory => 'Kategorija najvišeg nivoa';
+
+  @override
+  String get tagHouseholdSupplies => 'Kućne potrepštine';
+
+  @override
+  String get tagAlcohol => 'Alkohol';
+
+  @override
+  String get tagSnacks => 'Grickalice';
+
+  @override
+  String get tagFuel => 'Gorivo';
+
+  @override
+  String get tagRepair => 'Popravka';
+
+  @override
+  String get tagTuning => 'Tuning';
+
+  @override
+  String get tagRent => 'Kirija';
+
+  @override
+  String get tagUtilitiesBill => 'Komunalije';
+
+  @override
+  String get tagFurniture => 'Nameštaj';
+
+  @override
+  String get tagRestaurant => 'Restoran';
+
+  @override
+  String get tagCafe => 'Kafić';
+
+  @override
+  String get tagDelivery => 'Dostava';
+
+  @override
+  String get tagLabTests => 'Analize';
+
+  @override
+  String get tagDoctor => 'Lekar';
+
+  @override
+  String get tagMedications => 'Lekovi';
+
+  @override
+  String get tagCinema => 'Bioskop';
+
+  @override
+  String get tagGames => 'Igre';
+
+  @override
+  String get tagStreaming => 'Striming';
+
+  @override
+  String get tagClothing => 'Odeća';
+
+  @override
+  String get tagElectronics => 'Elektronika';
+
+  @override
+  String get tagGiftsShopping => 'Pokloni';
+
+  @override
+  String get tagFlights => 'Letovi';
+
+  @override
+  String get tagHotels => 'Hoteli';
+
+  @override
+  String get tagTours => 'Ture';
+
+  @override
+  String get tagBonus => 'Bonus';
+
+  @override
+  String get tagOvertime => 'Prekovremeno';
+
+  @override
+  String get tagAdvance => 'Avans';
+
+  @override
+  String get tagPersonalItems => 'Lične stvari';
+
+  @override
+  String get tagPropertySale => 'Nekretnina';
+
+  @override
+  String get tagVehicleSale => 'Vozilo';
+
+  @override
+  String get tagFamilyGift => 'Porodica';
+
+  @override
+  String get tagFriendsGift => 'Prijatelji';
+
+  @override
+  String get tagHolidayGift => 'Praznik';
+
+  @override
+  String get tagTaxRefund => 'Poreski povraćaj';
+
+  @override
+  String get tagPurchaseRefund => 'Povraćaj kupovine';
+
+  @override
+  String get tagInsuranceRefund => 'Osiguranje';
+
+  @override
+  String get tagDividends => 'Dividende';
+
+  @override
+  String get tagInterestIncome => 'Kamata';
+
+  @override
+  String get tagCapitalGains => 'Kapitalna dobit';
+
+  @override
+  String get tagFreelance => 'Frilens';
+
+  @override
+  String get tagCashback => 'Kešbek';
+
+  @override
+  String get tagSideGig => 'Dodatni posao';
+
+  @override
+  String get tagPetFood => 'Hrana za ljubimce';
+
+  @override
+  String get tagBabyFood => 'Bebi hrana';
+
+  @override
+  String get tagParking => 'Parking';
+
+  @override
+  String get tagTaxi => 'Taksi';
+
+  @override
+  String get tagPublicTransit => 'Javni prevoz';
+
+  @override
+  String get tagDacha => 'Vikendica';
+
+  @override
+  String get tagHomeRepairs => 'Popravke kuće';
+
+  @override
+  String get tagCleaning => 'Čišćenje';
+
+  @override
+  String get tagInternet => 'Internet';
+
+  @override
+  String get tagDentistry => 'Stomatologija';
+
+  @override
+  String get tagOptics => 'Optika';
+
+  @override
+  String get tagEvents => 'Događaji';
+
+  @override
+  String get tagHobbies => 'Hobiji';
+
+  @override
+  String get tagHomeGoods => 'Kućni artikli';
+
+  @override
+  String get tagBeauty => 'Lepota';
+
+  @override
+  String get tagTravelInsurance => 'Putno osiguranje';
+
+  @override
+  String get tagVisas => 'Vize';
 }

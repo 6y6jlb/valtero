@@ -10,6 +10,7 @@ import 'package:valtero/entities/operation/data/operations_table.dart';
 import 'package:valtero/entities/operation/model/operation_kind.dart';
 import 'package:valtero/entities/payment_method/data/payment_methods_table.dart';
 import 'package:valtero/entities/tag/data/tags_table.dart';
+import 'package:valtero/shared/database/migrations/migrate_to_v9.dart';
 import 'package:valtero/shared/database/schema_version.dart';
 
 part 'app_database.g.dart';
@@ -41,13 +42,16 @@ class AppDatabase extends _$AppDatabase {
         onUpgrade: (Migrator m, int from, int to) async {
           // Baseline is v8. Pre-baseline DBs are refused — never wipe.
           // Future bumps: stepwise migrate_to_vN only (v9+).
-          if (from < kAppSchemaVersion) {
+          if (from < 8) {
             throw StateError(
               'Database schema $from is older than supported baseline '
-              '$kAppSchemaVersion. Restore from a backup created with the '
+              '8. Restore from a backup created with the '
               'current app, or open once with the last pre-1.0 build to '
               'upgrade in place before installing this version.',
             );
+          }
+          if (from < 9) {
+            await migrateToV9(m, this);
           }
         },
       );
@@ -76,6 +80,7 @@ class AppDatabase extends _$AppDatabase {
     String kind = 'normal',
     int? colorValue,
     String? iconKey,
+    int? parentTagId,
   }) async {
     final existing = await findByStableKey(stableKey);
     if (existing != null) {
@@ -89,6 +94,8 @@ class AppDatabase extends _$AppDatabase {
       if (existing.iconKey == null && iconKey != null) {
         updated = updated.copyWith(iconKey: Value(iconKey));
       }
+      // Do not backfill parentTagId on existing rows — user may have
+      // promoted a seeded subcategory to top-level.
       if (updated != existing) {
         await updateTagRow(updated);
       }
@@ -106,6 +113,7 @@ class AppDatabase extends _$AppDatabase {
         iconKey: Value(iconKey),
         isDefault: Value(isDefault),
         sortOrder: Value(nextOrder),
+        parentTagId: Value(parentTagId),
       ),
     );
   }

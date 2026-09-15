@@ -78,6 +78,7 @@ class _ExpenseTagFilterSheetState extends State<_ExpenseTagFilterSheet> {
           tags: widget.tags,
           kinds: widget.kinds,
           selectedIds: _selected,
+          nestSubcategories: true,
           onTagTap: (tag) {
             setState(() {
               if (_selected.contains(tag.id)) {

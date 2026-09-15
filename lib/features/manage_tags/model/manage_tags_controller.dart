@@ -16,7 +16,7 @@ class ManageTagsController {
   AppDatabase get _db => ref.read(appDatabaseProvider);
 
   /// Seeds category tags on first launch; also backfills icons/income seeds
-  /// for installs that already had expense tags before income was added.
+  /// and default subcategories for upgrades.
   Future<void> seedDefaultsIfEmpty() async {
     final existing = await _db.watchTagsList();
     if (existing.isEmpty) {
@@ -58,7 +58,9 @@ class ManageTagsController {
 
     // Income seeds are ensured independently so upgrades from an
     // expense-only install still get default income categories.
-    final hasIncomeTags = existing.any((t) => tagKindOf(t) == TagKind.income);
+    final afterExpense = await _db.watchTagsList();
+    final hasIncomeTags =
+        afterExpense.any((t) => tagKindOf(t) == TagKind.income);
     if (!hasIncomeTags) {
       for (final key in defaultSeedIncomeTagKeys) {
         await _db.ensureTagByStableKey(
@@ -71,6 +73,50 @@ class ManageTagsController {
         );
       }
     }
+
+    await _seedDefaultSubtags();
+  }
+
+  /// Ensures default subcategories exist under seeded parent categories.
+  Future<void> _seedDefaultSubtags() async {
+    final tags = await _db.watchTagsList();
+    final byStableKey = <String, Tag>{
+      for (final t in tags)
+        if (t.stableKey != null) t.stableKey!: t,
+    };
+
+    Future<void> seedMap(
+      Map<String, List<String>> map,
+      String kind,
+    ) async {
+      for (final entry in map.entries) {
+        final parent = byStableKey[entry.key];
+        if (parent == null || parent.parentTagId != null) continue;
+        for (final childKey in entry.value) {
+          final id = await _db.ensureTagByStableKey(
+            stableKey: childKey,
+            fallbackName: childKey,
+            isDefault: true,
+            kind: kind,
+            colorValue: parent.colorValue ?? defaultTagColorValues[entry.key],
+            parentTagId: parent.id,
+          );
+          // Refresh local cache for subsequent lookups in this pass.
+          final child = await _db.findByStableKey(childKey);
+          if (child != null) byStableKey[childKey] = child;
+          if (id <= 0) continue;
+        }
+      }
+    }
+
+    await seedMap(
+      defaultSeedSubtagKeysByCategory,
+      tagKindDbValue(TagKind.custom),
+    );
+    await seedMap(
+      defaultSeedIncomeSubtagKeysByCategory,
+      tagKindDbValue(TagKind.income),
+    );
   }
 
   Future<int> addTag(
@@ -80,6 +126,7 @@ class ManageTagsController {
     String kind = 'normal',
     int? colorValue,
     String? iconKey,
+    int? parentTagId,
   }) async {
     final trimmed = name.trim();
     if (trimmed.isEmpty && stableKey == null) return -1;
@@ -91,6 +138,7 @@ class ManageTagsController {
         kind: kind,
         colorValue: colorValue ?? defaultTagColorValues[stableKey],
         iconKey: iconKey ?? defaultIconKeyForStableKey(stableKey),
+        parentTagId: parentTagId,
       );
     }
     final tags = await _db.watchTagsList();
@@ -104,6 +152,7 @@ class ManageTagsController {
         iconKey: Value(iconKey),
         isDefault: Value(isDefault),
         sortOrder: Value(nextOrder),
+        parentTagId: Value(parentTagId),
       ),
     );
   }
@@ -114,6 +163,8 @@ class ManageTagsController {
     int? colorValue,
     bool clearColor = false,
     String? iconKey,
+    int? parentTagId,
+    bool clearParent = false,
   }) async {
     final trimmed = name.trim();
     if (trimmed.isEmpty) return;
@@ -125,6 +176,9 @@ class ManageTagsController {
             ? const Value(null)
             : (colorValue != null ? Value(colorValue) : const Value.absent()),
         iconKey: iconKey != null ? Value(iconKey) : const Value.absent(),
+        parentTagId: clearParent
+            ? const Value(null)
+            : (parentTagId != null ? Value(parentTagId) : const Value.absent()),
       ),
     );
   }
@@ -150,6 +204,12 @@ class ManageTagsController {
     }
     if (settings?.lastIncomeTagId == id) {
       await notifier.setLastIncomeTagId(null);
+    }
+    if (settings?.defaultSubtagId == id) {
+      await notifier.setDefaultSubtagId(null);
+    }
+    if (settings?.lastIncomeSubtagId == id) {
+      await notifier.setLastIncomeSubtagId(null);
     }
   }
 }

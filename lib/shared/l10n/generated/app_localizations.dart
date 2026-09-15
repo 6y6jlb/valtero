@@ -3405,6 +3405,390 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing was recognized. Try again.'**
   String get voiceExpenseEmpty;
+
+  /// No description provided for @subcategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Subcategory'**
+  String get subcategory;
+
+  /// No description provided for @subcategoryNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get subcategoryNone;
+
+  /// No description provided for @addSubcategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Add subcategory'**
+  String get addSubcategory;
+
+  /// No description provided for @parentCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent category'**
+  String get parentCategory;
+
+  /// No description provided for @topLevelCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Top-level category'**
+  String get topLevelCategory;
+
+  /// No description provided for @tagHouseholdSupplies.
+  ///
+  /// In en, this message translates to:
+  /// **'Household supplies'**
+  String get tagHouseholdSupplies;
+
+  /// No description provided for @tagAlcohol.
+  ///
+  /// In en, this message translates to:
+  /// **'Alcohol'**
+  String get tagAlcohol;
+
+  /// No description provided for @tagSnacks.
+  ///
+  /// In en, this message translates to:
+  /// **'Snacks'**
+  String get tagSnacks;
+
+  /// No description provided for @tagFuel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel'**
+  String get tagFuel;
+
+  /// No description provided for @tagRepair.
+  ///
+  /// In en, this message translates to:
+  /// **'Repair'**
+  String get tagRepair;
+
+  /// No description provided for @tagTuning.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuning'**
+  String get tagTuning;
+
+  /// No description provided for @tagRent.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent'**
+  String get tagRent;
+
+  /// No description provided for @tagUtilitiesBill.
+  ///
+  /// In en, this message translates to:
+  /// **'Utilities'**
+  String get tagUtilitiesBill;
+
+  /// No description provided for @tagFurniture.
+  ///
+  /// In en, this message translates to:
+  /// **'Furniture'**
+  String get tagFurniture;
+
+  /// No description provided for @tagRestaurant.
+  ///
+  /// In en, this message translates to:
+  /// **'Restaurant'**
+  String get tagRestaurant;
+
+  /// No description provided for @tagCafe.
+  ///
+  /// In en, this message translates to:
+  /// **'Cafe'**
+  String get tagCafe;
+
+  /// No description provided for @tagDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get tagDelivery;
+
+  /// No description provided for @tagLabTests.
+  ///
+  /// In en, this message translates to:
+  /// **'Lab tests'**
+  String get tagLabTests;
+
+  /// No description provided for @tagDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor'**
+  String get tagDoctor;
+
+  /// No description provided for @tagMedications.
+  ///
+  /// In en, this message translates to:
+  /// **'Medications'**
+  String get tagMedications;
+
+  /// No description provided for @tagCinema.
+  ///
+  /// In en, this message translates to:
+  /// **'Cinema'**
+  String get tagCinema;
+
+  /// No description provided for @tagGames.
+  ///
+  /// In en, this message translates to:
+  /// **'Games'**
+  String get tagGames;
+
+  /// No description provided for @tagStreaming.
+  ///
+  /// In en, this message translates to:
+  /// **'Streaming'**
+  String get tagStreaming;
+
+  /// No description provided for @tagClothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Clothing'**
+  String get tagClothing;
+
+  /// No description provided for @tagElectronics.
+  ///
+  /// In en, this message translates to:
+  /// **'Electronics'**
+  String get tagElectronics;
+
+  /// No description provided for @tagGiftsShopping.
+  ///
+  /// In en, this message translates to:
+  /// **'Gifts'**
+  String get tagGiftsShopping;
+
+  /// No description provided for @tagFlights.
+  ///
+  /// In en, this message translates to:
+  /// **'Flights'**
+  String get tagFlights;
+
+  /// No description provided for @tagHotels.
+  ///
+  /// In en, this message translates to:
+  /// **'Hotels'**
+  String get tagHotels;
+
+  /// No description provided for @tagTours.
+  ///
+  /// In en, this message translates to:
+  /// **'Tours'**
+  String get tagTours;
+
+  /// No description provided for @tagBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Bonus'**
+  String get tagBonus;
+
+  /// No description provided for @tagOvertime.
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime'**
+  String get tagOvertime;
+
+  /// No description provided for @tagAdvance.
+  ///
+  /// In en, this message translates to:
+  /// **'Advance'**
+  String get tagAdvance;
+
+  /// No description provided for @tagPersonalItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal items'**
+  String get tagPersonalItems;
+
+  /// No description provided for @tagPropertySale.
+  ///
+  /// In en, this message translates to:
+  /// **'Property'**
+  String get tagPropertySale;
+
+  /// No description provided for @tagVehicleSale.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle'**
+  String get tagVehicleSale;
+
+  /// No description provided for @tagFamilyGift.
+  ///
+  /// In en, this message translates to:
+  /// **'Family'**
+  String get tagFamilyGift;
+
+  /// No description provided for @tagFriendsGift.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get tagFriendsGift;
+
+  /// No description provided for @tagHolidayGift.
+  ///
+  /// In en, this message translates to:
+  /// **'Holiday'**
+  String get tagHolidayGift;
+
+  /// No description provided for @tagTaxRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax refund'**
+  String get tagTaxRefund;
+
+  /// No description provided for @tagPurchaseRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase refund'**
+  String get tagPurchaseRefund;
+
+  /// No description provided for @tagInsuranceRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'Insurance refund'**
+  String get tagInsuranceRefund;
+
+  /// No description provided for @tagDividends.
+  ///
+  /// In en, this message translates to:
+  /// **'Dividends'**
+  String get tagDividends;
+
+  /// No description provided for @tagInterestIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest'**
+  String get tagInterestIncome;
+
+  /// No description provided for @tagCapitalGains.
+  ///
+  /// In en, this message translates to:
+  /// **'Capital gains'**
+  String get tagCapitalGains;
+
+  /// No description provided for @tagFreelance.
+  ///
+  /// In en, this message translates to:
+  /// **'Freelance'**
+  String get tagFreelance;
+
+  /// No description provided for @tagCashback.
+  ///
+  /// In en, this message translates to:
+  /// **'Cashback'**
+  String get tagCashback;
+
+  /// No description provided for @tagSideGig.
+  ///
+  /// In en, this message translates to:
+  /// **'Side gig'**
+  String get tagSideGig;
+
+  /// No description provided for @tagPetFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Pet food'**
+  String get tagPetFood;
+
+  /// No description provided for @tagBabyFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Baby food'**
+  String get tagBabyFood;
+
+  /// No description provided for @tagParking.
+  ///
+  /// In en, this message translates to:
+  /// **'Parking'**
+  String get tagParking;
+
+  /// No description provided for @tagTaxi.
+  ///
+  /// In en, this message translates to:
+  /// **'Taxi'**
+  String get tagTaxi;
+
+  /// No description provided for @tagPublicTransit.
+  ///
+  /// In en, this message translates to:
+  /// **'Public transit'**
+  String get tagPublicTransit;
+
+  /// No description provided for @tagDacha.
+  ///
+  /// In en, this message translates to:
+  /// **'Dacha'**
+  String get tagDacha;
+
+  /// No description provided for @tagHomeRepairs.
+  ///
+  /// In en, this message translates to:
+  /// **'Home repairs'**
+  String get tagHomeRepairs;
+
+  /// No description provided for @tagCleaning.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleaning'**
+  String get tagCleaning;
+
+  /// No description provided for @tagInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'Internet'**
+  String get tagInternet;
+
+  /// No description provided for @tagDentistry.
+  ///
+  /// In en, this message translates to:
+  /// **'Dentistry'**
+  String get tagDentistry;
+
+  /// No description provided for @tagOptics.
+  ///
+  /// In en, this message translates to:
+  /// **'Optics'**
+  String get tagOptics;
+
+  /// No description provided for @tagEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'Events'**
+  String get tagEvents;
+
+  /// No description provided for @tagHobbies.
+  ///
+  /// In en, this message translates to:
+  /// **'Hobbies'**
+  String get tagHobbies;
+
+  /// No description provided for @tagHomeGoods.
+  ///
+  /// In en, this message translates to:
+  /// **'Home goods'**
+  String get tagHomeGoods;
+
+  /// No description provided for @tagBeauty.
+  ///
+  /// In en, this message translates to:
+  /// **'Beauty'**
+  String get tagBeauty;
+
+  /// No description provided for @tagTravelInsurance.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel insurance'**
+  String get tagTravelInsurance;
+
+  /// No description provided for @tagVisas.
+  ///
+  /// In en, this message translates to:
+  /// **'Visas'**
+  String get tagVisas;
 }
 
 class _AppLocalizationsDelegate

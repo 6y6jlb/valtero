@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:valtero/entities/tag/model/tags_provider.dart';
 import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
 import 'package:valtero/features/expenses_list/model/duplicate_expenses_provider.dart';
 import 'package:valtero/features/expenses_list/ui/expense_delete_flow.dart';
@@ -37,6 +38,8 @@ class RecentOperationsList extends ConsumerWidget {
     final timeZoneId = settings?.timeZoneId ?? kSystemTimeZoneId;
     final dateFormat = dateDisplayFormatFromName(settings?.dateDisplayFormat);
     final dupState = ref.watch(duplicateExpensesProvider);
+    final tags = ref.watch(tagsStreamProvider).value ?? const [];
+    final tagParentIds = {for (final t in tags) t.id: t.parentTagId};
 
     final children = <Widget>[];
     String? lastDayKey;
@@ -84,6 +87,7 @@ class RecentOperationsList extends ConsumerWidget {
         expense.id,
         expenseTags,
         tagLabels,
+        tagParentIds: tagParentIds,
       );
       children.add(
         RecentExpenseTile(

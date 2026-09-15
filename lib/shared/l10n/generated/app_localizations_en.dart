@@ -1858,4 +1858,196 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get voiceExpenseEmpty => 'Nothing was recognized. Try again.';
+
+  @override
+  String get subcategory => 'Subcategory';
+
+  @override
+  String get subcategoryNone => 'None';
+
+  @override
+  String get addSubcategory => 'Add subcategory';
+
+  @override
+  String get parentCategory => 'Parent category';
+
+  @override
+  String get topLevelCategory => 'Top-level category';
+
+  @override
+  String get tagHouseholdSupplies => 'Household supplies';
+
+  @override
+  String get tagAlcohol => 'Alcohol';
+
+  @override
+  String get tagSnacks => 'Snacks';
+
+  @override
+  String get tagFuel => 'Fuel';
+
+  @override
+  String get tagRepair => 'Repair';
+
+  @override
+  String get tagTuning => 'Tuning';
+
+  @override
+  String get tagRent => 'Rent';
+
+  @override
+  String get tagUtilitiesBill => 'Utilities';
+
+  @override
+  String get tagFurniture => 'Furniture';
+
+  @override
+  String get tagRestaurant => 'Restaurant';
+
+  @override
+  String get tagCafe => 'Cafe';
+
+  @override
+  String get tagDelivery => 'Delivery';
+
+  @override
+  String get tagLabTests => 'Lab tests';
+
+  @override
+  String get tagDoctor => 'Doctor';
+
+  @override
+  String get tagMedications => 'Medications';
+
+  @override
+  String get tagCinema => 'Cinema';
+
+  @override
+  String get tagGames => 'Games';
+
+  @override
+  String get tagStreaming => 'Streaming';
+
+  @override
+  String get tagClothing => 'Clothing';
+
+  @override
+  String get tagElectronics => 'Electronics';
+
+  @override
+  String get tagGiftsShopping => 'Gifts';
+
+  @override
+  String get tagFlights => 'Flights';
+
+  @override
+  String get tagHotels => 'Hotels';
+
+  @override
+  String get tagTours => 'Tours';
+
+  @override
+  String get tagBonus => 'Bonus';
+
+  @override
+  String get tagOvertime => 'Overtime';
+
+  @override
+  String get tagAdvance => 'Advance';
+
+  @override
+  String get tagPersonalItems => 'Personal items';
+
+  @override
+  String get tagPropertySale => 'Property';
+
+  @override
+  String get tagVehicleSale => 'Vehicle';
+
+  @override
+  String get tagFamilyGift => 'Family';
+
+  @override
+  String get tagFriendsGift => 'Friends';
+
+  @override
+  String get tagHolidayGift => 'Holiday';
+
+  @override
+  String get tagTaxRefund => 'Tax refund';
+
+  @override
+  String get tagPurchaseRefund => 'Purchase refund';
+
+  @override
+  String get tagInsuranceRefund => 'Insurance refund';
+
+  @override
+  String get tagDividends => 'Dividends';
+
+  @override
+  String get tagInterestIncome => 'Interest';
+
+  @override
+  String get tagCapitalGains => 'Capital gains';
+
+  @override
+  String get tagFreelance => 'Freelance';
+
+  @override
+  String get tagCashback => 'Cashback';
+
+  @override
+  String get tagSideGig => 'Side gig';
+
+  @override
+  String get tagPetFood => 'Pet food';
+
+  @override
+  String get tagBabyFood => 'Baby food';
+
+  @override
+  String get tagParking => 'Parking';
+
+  @override
+  String get tagTaxi => 'Taxi';
+
+  @override
+  String get tagPublicTransit => 'Public transit';
+
+  @override
+  String get tagDacha => 'Dacha';
+
+  @override
+  String get tagHomeRepairs => 'Home repairs';
+
+  @override
+  String get tagCleaning => 'Cleaning';
+
+  @override
+  String get tagInternet => 'Internet';
+
+  @override
+  String get tagDentistry => 'Dentistry';
+
+  @override
+  String get tagOptics => 'Optics';
+
+  @override
+  String get tagEvents => 'Events';
+
+  @override
+  String get tagHobbies => 'Hobbies';
+
+  @override
+  String get tagHomeGoods => 'Home goods';
+
+  @override
+  String get tagBeauty => 'Beauty';
+
+  @override
+  String get tagTravelInsurance => 'Travel insurance';
+
+  @override
+  String get tagVisas => 'Visas';
 }

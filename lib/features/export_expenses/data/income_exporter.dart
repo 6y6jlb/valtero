@@ -10,6 +10,7 @@ import 'package:valtero/features/export_expenses/data/expense_exporter.dart'
     show ExportFormat;
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/utils/money.dart';
+import 'package:valtero/shared/utils/tag_label.dart';
 
 /// Mirrors [ExpenseExporter] for [Income] rows.
 class IncomeExporter {
@@ -18,6 +19,7 @@ class IncomeExporter {
     Map<int, String> tagNames,
     Map<int, List<int>> tagsByIncome, {
     Map<int, String> paymentNames = const {},
+    Map<int, int?> tagParentIds = const {},
   }) {
     final rows = <List<dynamic>>[
       [
@@ -46,7 +48,10 @@ class IncomeExporter {
               ? ''
               : (paymentNames[i.paymentMethodId!] ?? ''),
           i.countryCode ?? '',
-          (tagsByIncome[i.id] ?? const [])
+          orderTagIdsParentFirst(
+            tagsByIncome[i.id] ?? const [],
+            tagParentIds,
+          )
               .map((id) => tagNames[id] ?? '')
               .where((n) => n.isNotEmpty)
               .join('|'),
@@ -61,6 +66,7 @@ class IncomeExporter {
     Map<int, String> tagNames,
     Map<int, List<int>> tagsByIncome, {
     Map<int, String> paymentNames = const {},
+    Map<int, int?> tagParentIds = const {},
   }) {
     final list = incomes
         .map(
@@ -76,7 +82,10 @@ class IncomeExporter {
                 ? null
                 : paymentNames[i.paymentMethodId!],
             'countryCode': i.countryCode,
-            'tags': (tagsByIncome[i.id] ?? const [])
+            'tags': orderTagIdsParentFirst(
+              tagsByIncome[i.id] ?? const [],
+              tagParentIds,
+            )
                 .map((id) => tagNames[id])
                 .whereType<String>()
                 .toList(),

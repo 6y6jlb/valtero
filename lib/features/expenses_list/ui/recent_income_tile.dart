@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/ui/possible_duplicate_badge.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/shared/utils/tag_label.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/money_text.dart';
 
@@ -115,9 +116,11 @@ bool _hasDistinctOriginal(Income income) {
 String? recentIncomeTagsLabel(
   int incomeId,
   Map<int, List<int>> incomeTags,
-  Map<int, String> tagLabels,
-) {
+  Map<int, String> tagLabels, {
+  Map<int, int?> tagParentIds = const {},
+}) {
   final ids = incomeTags[incomeId] ?? const <int>[];
   if (ids.isEmpty) return null;
-  return ids.map((id) => tagLabels[id] ?? '?').join(', ');
+  final combined = formatTagLabelsCombined(ids, tagLabels, tagParentIds);
+  return combined.isEmpty ? null : combined;
 }

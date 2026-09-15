@@ -33,6 +33,7 @@ Future<String?> exportFilteredIncomes(
   final tagLabels = {
     for (final t in tags) t.id: localizedTagLabel(context, t),
   };
+  final tagParentIds = {for (final t in tags) t.id: t.parentTagId};
   final paymentLabels = {
     for (final m in methods) m.id: localizedPaymentMethodLabel(context, m),
   };
@@ -61,6 +62,7 @@ Future<String?> exportFilteredIncomes(
         tagNames: tagLabels,
         tagsByIncome: tagsByIncome,
         paymentNames: paymentLabels,
+        tagParentIds: tagParentIds,
       );
       return l10n.exportDone;
     case ExportDestination.copy:
@@ -70,6 +72,7 @@ Future<String?> exportFilteredIncomes(
         tagNames: tagLabels,
         tagsByIncome: tagsByIncome,
         paymentNames: paymentLabels,
+        tagParentIds: tagParentIds,
       );
       return l10n.copiedToClipboard;
     case ExportDestination.telegram:
@@ -79,6 +82,7 @@ Future<String?> exportFilteredIncomes(
         tagNames: tagLabels,
         tagsByIncome: tagsByIncome,
         paymentNames: paymentLabels,
+        tagParentIds: tagParentIds,
       );
       return l10n.telegramSent;
     case ExportDestination.save:
@@ -88,6 +92,7 @@ Future<String?> exportFilteredIncomes(
         tagNames: tagLabels,
         tagsByIncome: tagsByIncome,
         paymentNames: paymentLabels,
+        tagParentIds: tagParentIds,
       );
       return path == null ? null : l10n.exportDone;
   }

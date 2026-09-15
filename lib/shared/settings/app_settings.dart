@@ -9,6 +9,10 @@ class AppSettings {
   final int? defaultTagId;
   /// Last income category tag used on save (primed on next create).
   final int? lastIncomeTagId;
+  /// Last expense subcategory used on save (primed on next create).
+  final int? defaultSubtagId;
+  /// Last income subcategory used on save (primed on next create).
+  final int? lastIncomeSubtagId;
   final int? defaultPaymentMethodId;
   final String? detectedCountryCode;
   final String? detectedCurrency;
@@ -86,6 +90,8 @@ class AppSettings {
     this.lastRateRefreshAt,
     this.defaultTagId,
     this.lastIncomeTagId,
+    this.defaultSubtagId,
+    this.lastIncomeSubtagId,
     this.defaultPaymentMethodId,
     this.detectedCountryCode,
     this.detectedCurrency,
@@ -146,6 +152,10 @@ class AppSettings {
     bool clearDefaultTagId = false,
     int? lastIncomeTagId,
     bool clearLastIncomeTagId = false,
+    int? defaultSubtagId,
+    bool clearDefaultSubtagId = false,
+    int? lastIncomeSubtagId,
+    bool clearLastIncomeSubtagId = false,
     int? defaultPaymentMethodId,
     bool clearDefaultPaymentMethodId = false,
     String? detectedCountryCode,
@@ -202,6 +212,12 @@ class AppSettings {
       lastIncomeTagId: clearLastIncomeTagId
           ? null
           : (lastIncomeTagId ?? this.lastIncomeTagId),
+      defaultSubtagId: clearDefaultSubtagId
+          ? null
+          : (defaultSubtagId ?? this.defaultSubtagId),
+      lastIncomeSubtagId: clearLastIncomeSubtagId
+          ? null
+          : (lastIncomeSubtagId ?? this.lastIncomeSubtagId),
       defaultPaymentMethodId: clearDefaultPaymentMethodId
           ? null
           : (defaultPaymentMethodId ?? this.defaultPaymentMethodId),
@@ -271,6 +287,8 @@ class AppSettings {
         'lastRateRefreshAt': lastRateRefreshAt?.toIso8601String(),
         'defaultTagId': defaultTagId,
         'lastIncomeTagId': lastIncomeTagId,
+        'defaultSubtagId': defaultSubtagId,
+        'lastIncomeSubtagId': lastIncomeSubtagId,
         'defaultPaymentMethodId': defaultPaymentMethodId,
         'detectedCountryCode': detectedCountryCode,
         'detectedCurrency': detectedCurrency,
@@ -327,6 +345,8 @@ class AppSettings {
           : null,
       defaultTagId: json['defaultTagId'] as int?,
       lastIncomeTagId: json['lastIncomeTagId'] as int?,
+      defaultSubtagId: json['defaultSubtagId'] as int?,
+      lastIncomeSubtagId: json['lastIncomeSubtagId'] as int?,
       defaultPaymentMethodId: json['defaultPaymentMethodId'] as int?,
       detectedCountryCode: json['detectedCountryCode'] as String?,
       detectedCurrency: json['detectedCurrency'] as String?,

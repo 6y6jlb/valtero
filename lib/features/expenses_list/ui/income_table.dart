@@ -4,6 +4,7 @@ import 'package:valtero/features/expenses_list/ui/possible_duplicate_badge.dart'
 import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/shared/utils/tag_label.dart';
 import 'package:valtero/widgets/date_text.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/money_text.dart';
@@ -42,6 +43,7 @@ class IncomeTable extends StatelessWidget {
   final List<Income> items;
   final Map<int, List<int>> incomeTags;
   final Map<int, String> tagLabels;
+  final Map<int, int?> tagParentIds;
   final Map<int, String> paymentLabels;
   final String untaggedLabel;
   final String? displayCurrency;
@@ -60,6 +62,7 @@ class IncomeTable extends StatelessWidget {
     required this.items,
     required this.incomeTags,
     required this.tagLabels,
+    this.tagParentIds = const {},
     this.paymentLabels = const {},
     required this.untaggedLabel,
     required this.displayCurrency,
@@ -189,7 +192,9 @@ class IncomeTable extends StatelessWidget {
   String _tagLabel(int incomeId) {
     final ids = incomeTags[incomeId] ?? const <int>[];
     if (ids.isEmpty) return untaggedLabel;
-    return ids.map((id) => tagLabels[id] ?? '?').join(', ');
+    final combined =
+        formatTagLabelsCombined(ids, tagLabels, tagParentIds);
+    return combined.isEmpty ? untaggedLabel : combined;
   }
 }
 

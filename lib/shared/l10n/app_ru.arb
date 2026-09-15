@@ -122,9 +122,15 @@
   "googleDriveRemoteNewerSchema": "Облачный снимок создан более новой версией приложения (схема {remoteSchema}, приложение {remoteApp}). На этом устройстве схема {localSchema}. Синхронизация остановлена, чтобы не перезаписать новые данные. Обновите приложение и повторите попытку.",
   "@googleDriveRemoteNewerSchema": {
     "placeholders": {
-      "remoteSchema": { "type": "int" },
-      "localSchema": { "type": "int" },
-      "remoteApp": { "type": "String" }
+      "remoteSchema": {
+        "type": "int"
+      },
+      "localSchema": {
+        "type": "int"
+      },
+      "remoteApp": {
+        "type": "String"
+      }
     }
   },
   "googleDriveUnsupportedFormat": "Формат файла облачной синхронизации не поддерживается этой версией приложения",
@@ -207,7 +213,7 @@
   "openTelegramIntegration": "Открыть настройки Telegram",
   "openExchangeRateApiIntegration": "Настроить ExchangeRate-API",
   "rateSourceConnected": "Курсы: ExchangeRate-API (подключено)",
-  "rateSourceFrankfurter": "Курсы: Frankfurter (ключ не нужен)",
+  "rateSourceFrankfurter": "Frankfurter",
   "debugLoggingEnabled": "Подробные логи",
   "debugLoggingDescription": "При включении в лог пишутся подробные события. Ошибки пишутся всегда. Секреты (API-ключи, токены бота, chat id, парольные фразы) никогда не записываются.",
   "debugViewLogs": "Содержимое лога",
@@ -368,20 +374,26 @@
   "bulkSelectedCount": "Выбрано: {count}",
   "@bulkSelectedCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkAndMore": "…и ещё {count}",
   "@bulkAndMore": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkDeleteTitle": "Удалить траты?",
   "bulkDeleteDescription": "Эти траты будут удалены безвозвратно:\n{list}",
   "@bulkDeleteDescription": {
     "placeholders": {
-      "list": { "type": "String" }
+      "list": {
+        "type": "String"
+      }
     }
   },
   "bulkChangeTags": "Изменить теги",
@@ -389,7 +401,9 @@
   "bulkChangeTagsDescription": "Новые теги заменят текущие у:\n{list}",
   "@bulkChangeTagsDescription": {
     "placeholders": {
-      "list": { "type": "String" }
+      "list": {
+        "type": "String"
+      }
     }
   },
   "bulkChangeCountry": "Изменить страну",
@@ -397,7 +411,9 @@
   "bulkChangeCountryDescription": "Страна будет обновлена у:\n{list}",
   "@bulkChangeCountryDescription": {
     "placeholders": {
-      "list": { "type": "String" }
+      "list": {
+        "type": "String"
+      }
     }
   },
   "bulkChangeCurrency": "Изменить валюту",
@@ -405,58 +421,78 @@
   "bulkChangeCurrencyDescription": "Суммы будут конвертированы в {currency} у:\n{list}",
   "@bulkChangeCurrencyDescription": {
     "placeholders": {
-      "currency": { "type": "String" },
-      "list": { "type": "String" }
+      "currency": {
+        "type": "String"
+      },
+      "list": {
+        "type": "String"
+      }
     }
   },
   "bulkExpensesDeleted": "Удалено трат: {count}",
   "@bulkExpensesDeleted": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkExpensesUpdated": "Обновлено трат: {count}",
   "@bulkExpensesUpdated": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkDeleteTitleIncome": "Удалить пополнения?",
   "bulkDeleteDescriptionIncome": "Эти пополнения будут удалены безвозвратно:\n{list}",
   "@bulkDeleteDescriptionIncome": {
     "placeholders": {
-      "list": { "type": "String" }
+      "list": {
+        "type": "String"
+      }
     }
   },
   "bulkIncomeDeleted": "Удалено пополнений: {count}",
   "@bulkIncomeDeleted": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkIncomeUpdated": "Обновлено пополнений: {count}",
   "@bulkIncomeUpdated": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkDeleteTitleCashFlow": "Удалить операции?",
   "bulkDeleteDescriptionCashFlow": "Эти операции будут удалены безвозвратно:\n{list}",
   "@bulkDeleteDescriptionCashFlow": {
     "placeholders": {
-      "list": { "type": "String" }
+      "list": {
+        "type": "String"
+      }
     }
   },
   "bulkCashFlowDeleted": "Удалено операций: {count}",
   "@bulkCashFlowDeleted": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkCashFlowUpdated": "Обновлено операций: {count}",
   "@bulkCashFlowUpdated": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkChangeTagsMixedKinds": "Для изменения тегов выберите только траты или только пополнения",
@@ -723,7 +759,6 @@
   "addRate": "Добавить курс",
   "noRatesYet": "Курсов пока нет — обновите или добавьте вручную",
   "rateSourceApi": "ExchangeRate-API",
-  "rateSourceFrankfurter": "Frankfurter",
   "rateSourceManual": "Вручную",
   "currencyFiat": "Фиат",
   "currencyCrypto": "Крипта",
@@ -904,5 +939,69 @@
   "voiceExpenseCreate": "Создать",
   "voiceExpenseRetry": "Ещё раз",
   "voiceExpenseUnavailable": "Распознавание речи недоступно. Проверьте разрешение микрофона.",
-  "voiceExpenseEmpty": "Ничего не распознано. Попробуйте ещё раз."
+  "voiceExpenseEmpty": "Ничего не распознано. Попробуйте ещё раз.",
+  "subcategory": "Подкатегория",
+  "subcategoryNone": "Нет",
+  "addSubcategory": "Добавить подкатегорию",
+  "parentCategory": "Родительская категория",
+  "topLevelCategory": "Категория верхнего уровня",
+  "tagHouseholdSupplies": "Хозтовары",
+  "tagAlcohol": "Алкоголь",
+  "tagSnacks": "Снеки",
+  "tagFuel": "Бензин",
+  "tagRepair": "Ремонт",
+  "tagTuning": "Тюнинг",
+  "tagRent": "Аренда",
+  "tagUtilitiesBill": "Коммунальные",
+  "tagFurniture": "Мебель",
+  "tagRestaurant": "Ресторан",
+  "tagCafe": "Кафе",
+  "tagDelivery": "Доставка",
+  "tagLabTests": "Анализы",
+  "tagDoctor": "Врач",
+  "tagMedications": "Лекарства",
+  "tagCinema": "Кино",
+  "tagGames": "Игры",
+  "tagStreaming": "Стриминг",
+  "tagClothing": "Одежда",
+  "tagElectronics": "Электроника",
+  "tagGiftsShopping": "Подарки",
+  "tagFlights": "Авиабилеты",
+  "tagHotels": "Отели",
+  "tagTours": "Экскурсии",
+  "tagBonus": "Премия",
+  "tagOvertime": "Сверхурочные",
+  "tagAdvance": "Аванс",
+  "tagPersonalItems": "Личные вещи",
+  "tagPropertySale": "Недвижимость",
+  "tagVehicleSale": "Автомобиль",
+  "tagFamilyGift": "Семья",
+  "tagFriendsGift": "Друзья",
+  "tagHolidayGift": "Праздник",
+  "tagTaxRefund": "Налоговый возврат",
+  "tagPurchaseRefund": "Возврат покупки",
+  "tagInsuranceRefund": "Страховой возврат",
+  "tagDividends": "Дивиденды",
+  "tagInterestIncome": "Проценты",
+  "tagCapitalGains": "Прирост капитала",
+  "tagFreelance": "Фриланс",
+  "tagCashback": "Кэшбэк",
+  "tagSideGig": "Подработка",
+  "tagPetFood": "Корм для животных",
+  "tagBabyFood": "Детское питание",
+  "tagParking": "Парковка",
+  "tagTaxi": "Такси",
+  "tagPublicTransit": "Общественный транспорт",
+  "tagDacha": "Дача",
+  "tagHomeRepairs": "Ремонт дома",
+  "tagCleaning": "Уборка",
+  "tagInternet": "Интернет",
+  "tagDentistry": "Стоматология",
+  "tagOptics": "Оптика",
+  "tagEvents": "Мероприятия",
+  "tagHobbies": "Хобби",
+  "tagHomeGoods": "Товары для дома",
+  "tagBeauty": "Красота",
+  "tagTravelInsurance": "Страховка",
+  "tagVisas": "Визы"
 }

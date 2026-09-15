@@ -8,7 +8,7 @@ import 'package:valtero/shared/database/schema_version.dart';
 
 void main() {
   test('fresh DB opens at baseline schema v8 with operations tables', () async {
-    expect(kAppSchemaVersion, 8);
+    expect(kAppSchemaVersion, 9);
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 

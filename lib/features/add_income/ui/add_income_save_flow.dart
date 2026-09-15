@@ -82,10 +82,24 @@ Future<bool> saveIncomeWithDuplicateCheck({
   }
   if (!context.mounted) return false;
 
-  final lastTagId = input.tagIds.isEmpty ? null : input.tagIds.first;
-  if (lastTagId != null) {
-    await ref.read(appSettingsProvider.notifier).setLastIncomeTagId(lastTagId);
+  final tags = ref.read(tagsStreamProvider).value ?? const [];
+  final tagById = {for (final t in tags) t.id: t};
+  int? topLevelId;
+  int? subtagId;
+  for (final id in input.tagIds) {
+    final tag = tagById[id];
+    if (tag == null) continue;
+    if (tag.parentTagId == null) {
+      topLevelId = id;
+    } else {
+      subtagId = id;
+    }
   }
+  final settings = ref.read(appSettingsProvider.notifier);
+  if (topLevelId != null) {
+    await settings.setLastIncomeTagId(topLevelId);
+  }
+  await settings.setLastIncomeSubtagId(subtagId);
   if (!context.mounted) return false;
 
   final overlay = Overlay.of(context);

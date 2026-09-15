@@ -66,9 +66,26 @@ void _aggregateIncomeByTagKind({
   final matching = <int>[
     for (final id in tagIds)
       if (tagById[id] != null &&
+          tagById[id]!.parentTagId == null &&
           _incomeTagMatchesBreakdown(tagById[id]!, breakdown))
         id,
   ];
+
+  if (matching.isEmpty) {
+    final rolled = <int>{};
+    for (final id in tagIds) {
+      final tag = tagById[id];
+      if (tag == null || tag.parentTagId == null) continue;
+      if (!_incomeTagMatchesBreakdown(tag, breakdown)) continue;
+      final parent = tagById[tag.parentTagId!];
+      if (parent != null &&
+          parent.parentTagId == null &&
+          _incomeTagMatchesBreakdown(parent, breakdown)) {
+        rolled.add(parent.id);
+      }
+    }
+    matching.addAll(rolled);
+  }
 
   if (matching.isEmpty) {
     const key = '__untagged__';

@@ -122,9 +122,15 @@
   "googleDriveRemoteNewerSchema": "Cloud sync data was written by a newer app (schema {remoteSchema}, app {remoteApp}). This device is schema {localSchema}. Sync was blocked so newer cloud data is not overwritten. Update the app, then try again.",
   "@googleDriveRemoteNewerSchema": {
     "placeholders": {
-      "remoteSchema": { "type": "int" },
-      "localSchema": { "type": "int" },
-      "remoteApp": { "type": "String" }
+      "remoteSchema": {
+        "type": "int"
+      },
+      "localSchema": {
+        "type": "int"
+      },
+      "remoteApp": {
+        "type": "String"
+      }
     }
   },
   "googleDriveUnsupportedFormat": "Cloud sync file format is not supported by this app version",
@@ -207,7 +213,7 @@
   "openTelegramIntegration": "Open Telegram settings",
   "openExchangeRateApiIntegration": "Configure ExchangeRate-API",
   "rateSourceConnected": "Rates: ExchangeRate-API (connected)",
-  "rateSourceFrankfurter": "Rates: Frankfurter (no key required)",
+  "rateSourceFrankfurter": "Frankfurter",
   "debugLoggingEnabled": "Debug logging",
   "debugLoggingDescription": "When enabled, detailed breadcrumbs are written to the log. Errors are always logged. Secrets (API keys, bot tokens, chat ids, passphrases) are never written.",
   "debugViewLogs": "Log contents",
@@ -368,20 +374,26 @@
   "bulkSelectedCount": "{count} selected",
   "@bulkSelectedCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkAndMore": "…and {count} more",
   "@bulkAndMore": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkDeleteTitle": "Delete expenses?",
   "bulkDeleteDescription": "These expenses will be permanently deleted:\n{list}",
   "@bulkDeleteDescription": {
     "placeholders": {
-      "list": { "type": "String" }
+      "list": {
+        "type": "String"
+      }
     }
   },
   "bulkChangeTags": "Change tags",
@@ -389,7 +401,9 @@
   "bulkChangeTagsDescription": "New tags will replace existing tags on:\n{list}",
   "@bulkChangeTagsDescription": {
     "placeholders": {
-      "list": { "type": "String" }
+      "list": {
+        "type": "String"
+      }
     }
   },
   "bulkChangeCountry": "Change country",
@@ -397,7 +411,9 @@
   "bulkChangeCountryDescription": "Country will be updated for:\n{list}",
   "@bulkChangeCountryDescription": {
     "placeholders": {
-      "list": { "type": "String" }
+      "list": {
+        "type": "String"
+      }
     }
   },
   "bulkChangeCurrency": "Change currency",
@@ -405,58 +421,78 @@
   "bulkChangeCurrencyDescription": "Amounts will be converted to {currency} for:\n{list}",
   "@bulkChangeCurrencyDescription": {
     "placeholders": {
-      "currency": { "type": "String" },
-      "list": { "type": "String" }
+      "currency": {
+        "type": "String"
+      },
+      "list": {
+        "type": "String"
+      }
     }
   },
   "bulkExpensesDeleted": "{count} expenses deleted",
   "@bulkExpensesDeleted": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkExpensesUpdated": "{count} expenses updated",
   "@bulkExpensesUpdated": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkDeleteTitleIncome": "Delete income?",
   "bulkDeleteDescriptionIncome": "These income entries will be permanently deleted:\n{list}",
   "@bulkDeleteDescriptionIncome": {
     "placeholders": {
-      "list": { "type": "String" }
+      "list": {
+        "type": "String"
+      }
     }
   },
   "bulkIncomeDeleted": "{count} income entries deleted",
   "@bulkIncomeDeleted": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkIncomeUpdated": "{count} income entries updated",
   "@bulkIncomeUpdated": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkDeleteTitleCashFlow": "Delete operations?",
   "bulkDeleteDescriptionCashFlow": "These operations will be permanently deleted:\n{list}",
   "@bulkDeleteDescriptionCashFlow": {
     "placeholders": {
-      "list": { "type": "String" }
+      "list": {
+        "type": "String"
+      }
     }
   },
   "bulkCashFlowDeleted": "{count} operations deleted",
   "@bulkCashFlowDeleted": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkCashFlowUpdated": "{count} operations updated",
   "@bulkCashFlowUpdated": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "bulkChangeTagsMixedKinds": "Select only expenses or only income to change tags",
@@ -723,7 +759,6 @@
   "addRate": "Add rate",
   "noRatesYet": "No rates saved yet — refresh or add a manual rate",
   "rateSourceApi": "ExchangeRate-API",
-  "rateSourceFrankfurter": "Frankfurter",
   "rateSourceManual": "Manual",
   "currencyFiat": "Fiat",
   "currencyCrypto": "Crypto",
@@ -904,5 +939,69 @@
   "voiceExpenseCreate": "Create",
   "voiceExpenseRetry": "Try again",
   "voiceExpenseUnavailable": "Speech recognition is unavailable. Check microphone permission.",
-  "voiceExpenseEmpty": "Nothing was recognized. Try again."
+  "voiceExpenseEmpty": "Nothing was recognized. Try again.",
+  "subcategory": "Subcategory",
+  "subcategoryNone": "None",
+  "addSubcategory": "Add subcategory",
+  "parentCategory": "Parent category",
+  "topLevelCategory": "Top-level category",
+  "tagHouseholdSupplies": "Household supplies",
+  "tagAlcohol": "Alcohol",
+  "tagSnacks": "Snacks",
+  "tagFuel": "Fuel",
+  "tagRepair": "Repair",
+  "tagTuning": "Tuning",
+  "tagRent": "Rent",
+  "tagUtilitiesBill": "Utilities",
+  "tagFurniture": "Furniture",
+  "tagRestaurant": "Restaurant",
+  "tagCafe": "Cafe",
+  "tagDelivery": "Delivery",
+  "tagLabTests": "Lab tests",
+  "tagDoctor": "Doctor",
+  "tagMedications": "Medications",
+  "tagCinema": "Cinema",
+  "tagGames": "Games",
+  "tagStreaming": "Streaming",
+  "tagClothing": "Clothing",
+  "tagElectronics": "Electronics",
+  "tagGiftsShopping": "Gifts",
+  "tagFlights": "Flights",
+  "tagHotels": "Hotels",
+  "tagTours": "Tours",
+  "tagBonus": "Bonus",
+  "tagOvertime": "Overtime",
+  "tagAdvance": "Advance",
+  "tagPersonalItems": "Personal items",
+  "tagPropertySale": "Property",
+  "tagVehicleSale": "Vehicle",
+  "tagFamilyGift": "Family",
+  "tagFriendsGift": "Friends",
+  "tagHolidayGift": "Holiday",
+  "tagTaxRefund": "Tax refund",
+  "tagPurchaseRefund": "Purchase refund",
+  "tagInsuranceRefund": "Insurance refund",
+  "tagDividends": "Dividends",
+  "tagInterestIncome": "Interest",
+  "tagCapitalGains": "Capital gains",
+  "tagFreelance": "Freelance",
+  "tagCashback": "Cashback",
+  "tagSideGig": "Side gig",
+  "tagPetFood": "Pet food",
+  "tagBabyFood": "Baby food",
+  "tagParking": "Parking",
+  "tagTaxi": "Taxi",
+  "tagPublicTransit": "Public transit",
+  "tagDacha": "Dacha",
+  "tagHomeRepairs": "Home repairs",
+  "tagCleaning": "Cleaning",
+  "tagInternet": "Internet",
+  "tagDentistry": "Dentistry",
+  "tagOptics": "Optics",
+  "tagEvents": "Events",
+  "tagHobbies": "Hobbies",
+  "tagHomeGoods": "Home goods",
+  "tagBeauty": "Beauty",
+  "tagTravelInsurance": "Travel insurance",
+  "tagVisas": "Visas"
 }

@@ -3,6 +3,7 @@ import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/features/expenses_list/ui/expense_delete_flow.dart';
 import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:valtero/entities/tag/model/tags_provider.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/app_button.dart';
@@ -14,6 +15,7 @@ import 'package:valtero/widgets/app_sheet_scaffold.dart';
 import 'package:valtero/widgets/date_text.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/money_text.dart';
+import 'package:valtero/shared/utils/tag_label.dart';
 
 Future<void> showExpenseDetailSheet(
   BuildContext context, {
@@ -58,8 +60,11 @@ Future<void> openExpenseDetail(
       ? null
       : countryDisplayName(expense.countryCode!, languageCode: lang);
   final tagIds = expenseTags[expense.id] ?? const <int>[];
-  final tagsLabel =
-      tagIds.isEmpty ? null : tagIds.map((id) => tagLabels[id] ?? '?').join(', ');
+  final tags = ref.read(tagsStreamProvider).value ?? const [];
+  final tagParentIds = {for (final t in tags) t.id: t.parentTagId};
+  final tagsLabel = tagIds.isEmpty
+      ? null
+      : formatTagLabelsCombined(tagIds, tagLabels, tagParentIds);
 
   return showExpenseDetailSheet(
     context,

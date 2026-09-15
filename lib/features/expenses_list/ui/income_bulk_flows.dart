@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:valtero/entities/tag/model/tag_hierarchy.dart';
 import 'package:valtero/entities/tag/model/tag_kind.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
 import 'package:valtero/entities/tag/ui/grouped_tag_picker.dart';
@@ -226,14 +227,30 @@ class _BulkIncomeTagsSheetState extends State<_BulkIncomeTagsSheet> {
         kinds: const [TagKind.income],
         selectedIds: _selected,
         singleSelectPerKind: true,
+        nestSubcategories: true,
         onTagTap: (tag) {
           setState(() {
-            toggleTagSelection(
-              selected: _selected,
-              tag: tag,
-              tagById: widget.tagById,
-              singleSelectPerKind: true,
-            );
+            if (tag.parentTagId == null) {
+              selectTopLevelTag(
+                selected: _selected,
+                tag: tag,
+                tagById: widget.tagById,
+              );
+            } else {
+              final parent = widget.tagById[tag.parentTagId!];
+              if (parent != null && !_selected.contains(parent.id)) {
+                selectTopLevelTag(
+                  selected: _selected,
+                  tag: parent,
+                  tagById: widget.tagById,
+                );
+              }
+              selectSubtag(
+                selected: _selected,
+                tag: tag,
+                tagById: widget.tagById,
+              );
+            }
           });
         },
       ),

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/payment_method/model/payment_methods_provider.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
+import 'package:valtero/entities/tag/model/tag_hierarchy.dart';
 import 'package:valtero/entities/tag/model/tag_kind.dart';
 import 'package:valtero/features/add_expense/model/add_expense_controller.dart';
 import 'package:valtero/features/add_expense/ui/add_expense_actions_bar.dart';
@@ -22,6 +23,7 @@ import 'package:valtero/shared/utils/app_timezone.dart';
 import 'package:valtero/shared/utils/money.dart';
 import 'package:valtero/shared/utils/payment_method_label.dart';
 import 'package:valtero/shared/utils/platform_support.dart';
+import 'package:valtero/shared/utils/tag_label.dart';
 import 'package:valtero/widgets/app_button.dart';
 import 'package:valtero/widgets/app_sheet_header.dart';
 import 'package:valtero/widgets/app_sheet_scaffold.dart';
@@ -45,6 +47,7 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
   final _newTagController = TextEditingController();
+  final _newSubtagController = TextEditingController();
 
   String _currency = 'RUB';
   bool _convert = false;
@@ -81,12 +84,21 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
     final settings = ref.read(appSettingsProvider).value;
     if (settings != null) {
       final lastTagId = settings.defaultTagId;
+      final lastSubtagId = settings.defaultSubtagId;
       var applyLastTag = false;
+      var applyLastSubtag = false;
+      final tags = await ref.read(appDatabaseProvider).watchTagsList();
+      final tagById = {for (final t in tags) t.id: t};
       if (lastTagId != null) {
-        final tags = await ref.read(appDatabaseProvider).watchTagsList();
-        applyLastTag = tags.any(
-          (t) => t.id == lastTagId && tagKindOf(t) == TagKind.custom,
-        );
+        final tag = tagById[lastTagId];
+        applyLastTag =
+            tag != null && tag.parentTagId == null && tagKindOf(tag) == TagKind.custom;
+      }
+      if (applyLastTag && lastSubtagId != null) {
+        final sub = tagById[lastSubtagId];
+        applyLastSubtag = sub != null &&
+            tagKindOf(sub) == TagKind.custom &&
+            sub.parentTagId == lastTagId;
       }
       if (!mounted) return;
       setState(() {
@@ -94,6 +106,9 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
         _targetCurrency = settings.primaryCurrency;
         if (applyLastTag) {
           _tagIds.add(lastTagId!);
+          if (applyLastSubtag) {
+            _tagIds.add(lastSubtagId!);
+          }
         }
         _paymentMethodId = settings.defaultPaymentMethodId;
         final detected = settings.detectedCountryCode;
@@ -147,11 +162,33 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
 
   void _toggleTag(Tag tag, Map<int, Tag> tagById) {
     setState(() {
-      toggleTagSelection(
+      selectTopLevelTag(
         selected: _tagIds,
         tag: tag,
         tagById: tagById,
-        singleSelectPerKind: true,
+      );
+    });
+  }
+
+  void _toggleSubtag(Tag tag, Map<int, Tag> tagById) {
+    setState(() {
+      selectSubtag(
+        selected: _tagIds,
+        tag: tag,
+        tagById: tagById,
+      );
+    });
+  }
+
+  void _clearSubtag(Map<int, Tag> tagById) {
+    final parentId =
+        selectedTopLevelTagId(_tagIds, tagById, TagKind.custom);
+    if (parentId == null) return;
+    setState(() {
+      clearSubtagSelection(
+        selected: _tagIds,
+        tagById: tagById,
+        parentId: parentId,
       );
     });
   }
@@ -168,13 +205,63 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
     final id = await ref.read(manageTagsControllerProvider).addTag(
           result.name,
           colorValue: result.colorValue,
+          iconKey: result.iconKey,
+          parentTagId: result.parentTagId,
         );
     if (!mounted || id <= 0) return;
     _newTagController.clear();
+    final tags = ref.read(tagsStreamProvider).value ?? const [];
+    final tagById = {for (final t in tags) t.id: t};
+    final created = tagById[id];
     setState(() {
-      _tagIds
-        ..clear()
-        ..add(id);
+      if (created != null && created.parentTagId != null) {
+        selectSubtag(selected: _tagIds, tag: created, tagById: tagById);
+      } else if (created != null) {
+        selectTopLevelTag(selected: _tagIds, tag: created, tagById: tagById);
+      } else {
+        _tagIds
+          ..clear()
+          ..add(id);
+      }
+    });
+  }
+
+  Future<void> _addSubtag() async {
+    final l10n = AppLocalizations.of(context)!;
+    final tags = ref.read(tagsStreamProvider).value ?? const [];
+    final tagById = {for (final t in tags) t.id: t};
+    final parentId =
+        selectedTopLevelTagId(_tagIds, tagById, TagKind.custom);
+    if (parentId == null) return;
+    final result = await showTagEditSheet(
+      context,
+      title: l10n.addSubcategory,
+      initialName: _newSubtagController.text,
+      confirmLabel: l10n.add,
+      initialParentTagId: parentId,
+      parentOptions: topLevelTags(
+        [for (final t in tags) if (tagKindOf(t) == TagKind.custom) t],
+      ),
+      requireParent: true,
+    );
+    if (result == null || !mounted) return;
+    final id = await ref.read(manageTagsControllerProvider).addTag(
+          result.name,
+          colorValue: result.colorValue,
+          iconKey: result.iconKey,
+          parentTagId: result.parentTagId ?? parentId,
+        );
+    if (!mounted || id <= 0) return;
+    _newSubtagController.clear();
+    final refreshed = ref.read(tagsStreamProvider).value ?? const [];
+    final byId = {for (final t in refreshed) t.id: t};
+    final created = byId[id];
+    setState(() {
+      if (created != null) {
+        selectSubtag(selected: _tagIds, tag: created, tagById: byId);
+      } else {
+        _tagIds.add(id);
+      }
     });
   }
 
@@ -193,9 +280,33 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
         _currency = draft.currencyCode!.toUpperCase();
       }
       if (draft.tagId != null) {
-        _tagIds
-          ..clear()
-          ..add(draft.tagId!);
+        final tags = ref.read(tagsStreamProvider).value ?? const [];
+        final tagById = {for (final t in tags) t.id: t};
+        final matched = tagById[draft.tagId!];
+        _tagIds.clear();
+        if (matched == null) {
+          _tagIds.add(draft.tagId!);
+        } else if (matched.parentTagId != null) {
+          final parent = tagById[matched.parentTagId!];
+          if (parent != null) {
+            selectTopLevelTag(
+              selected: _tagIds,
+              tag: parent,
+              tagById: tagById,
+            );
+          }
+          selectSubtag(
+            selected: _tagIds,
+            tag: matched,
+            tagById: tagById,
+          );
+        } else {
+          selectTopLevelTag(
+            selected: _tagIds,
+            tag: matched,
+            tagById: tagById,
+          );
+        }
       }
       if (draft.paymentMethodId != null) {
         _paymentMethodId = draft.paymentMethodId;
@@ -210,6 +321,7 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
     _amountController.dispose();
     _noteController.dispose();
     _newTagController.dispose();
+    _newSubtagController.dispose();
     super.dispose();
   }
 
@@ -272,7 +384,11 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
         _paymentMethodId == null ? null : paymentLabels[_paymentMethodId!];
     final draftTagsLabel = _tagIds.isEmpty
         ? null
-        : _tagIds.map((id) => tagLabels[id] ?? '?').join(', ');
+        : formatTagLabelsCombined(
+            _tagIds.toList(),
+            tagLabels,
+            {for (final t in tags) t.id: t.parentTagId},
+          );
     final input = AddExpenseInput(
       originalAmountMinor: amount,
       originalCurrencyCode: _currency,
@@ -325,9 +441,7 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
     final reporting = settings?.reportingCurrencies ?? const ['RUB'];
     final theme = Theme.of(context);
     final lang = Localizations.localeOf(context).languageCode;
-    final tagsSubtitle = _tagIds.isEmpty
-        ? l10n.tagsNoneSelected
-        : l10n.tagsSelectedCount(_tagIds.length);
+    final selectedTags = orderedSelectedTags(_tagIds, tagById);
     final paymentSubtitle = () {
       if (_paymentMethodId == null) return l10n.paymentMethodNone;
       for (final m in paymentMethods) {
@@ -448,10 +562,14 @@ class _AddExpenseFormState extends ConsumerState<AddExpenseForm> {
                 onClearCountry: _clearCountry,
                 tags: tags,
                 tagIds: _tagIds,
-                tagsSubtitle: tagsSubtitle,
+                selectedTags: selectedTags,
                 onTagTap: (tag) => _toggleTag(tag, tagById),
+                onSubtagTap: (tag) => _toggleSubtag(tag, tagById),
+                onClearSubtag: () => _clearSubtag(tagById),
                 newTagController: _newTagController,
                 onAddTag: _addTag,
+                newSubtagController: _newSubtagController,
+                onAddSubtag: _addSubtag,
                 tagKinds: const [TagKind.custom],
               ),
               const SizedBox(height: 8),

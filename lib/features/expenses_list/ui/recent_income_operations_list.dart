@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:valtero/entities/tag/model/tags_provider.dart';
 import 'package:valtero/features/add_income/ui/add_income_sheet.dart';
 import 'package:valtero/features/add_income/ui/income_delete_flow.dart';
 import 'package:valtero/features/expenses_list/model/duplicate_income_provider.dart';
@@ -37,6 +38,8 @@ class RecentIncomeOperationsList extends ConsumerWidget {
     final timeZoneId = settings?.timeZoneId ?? kSystemTimeZoneId;
     final dateFormat = dateDisplayFormatFromName(settings?.dateDisplayFormat);
     final dupState = ref.watch(duplicateIncomeProvider);
+    final tags = ref.watch(tagsStreamProvider).value ?? const [];
+    final tagParentIds = {for (final t in tags) t.id: t.parentTagId};
 
     final children = <Widget>[];
     String? lastDayKey;
@@ -81,6 +84,7 @@ class RecentIncomeOperationsList extends ConsumerWidget {
         income.id,
         incomeTags,
         tagLabels,
+        tagParentIds: tagParentIds,
       );
       children.add(
         RecentIncomeTile(

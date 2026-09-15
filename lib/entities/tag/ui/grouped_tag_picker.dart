@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:valtero/entities/tag/model/tag_hierarchy.dart';
 import 'package:valtero/entities/tag/model/tag_kind.dart';
 import 'package:valtero/entities/tag/ui/tag_chip.dart';
 import 'package:valtero/shared/database/app_database.dart';
@@ -13,6 +14,10 @@ class GroupedTagPicker extends StatelessWidget {
   final Map<TagKind, Widget>? sectionTrailing;
   /// When set, only these kinds are shown (and empty sections still appear).
   final Iterable<TagKind>? kinds;
+  /// When true, only top-level tags are listed (subcategories omitted).
+  final bool topLevelOnly;
+  /// When true (and not [topLevelOnly]), nest subcategory chips under each parent.
+  final bool nestSubcategories;
 
   const GroupedTagPicker({
     super.key,
@@ -22,6 +27,8 @@ class GroupedTagPicker extends StatelessWidget {
     this.singleSelectPerKind = false,
     this.sectionTrailing,
     this.kinds,
+    this.topLevelOnly = false,
+    this.nestSubcategories = false,
   });
 
   @override
@@ -44,7 +51,7 @@ class GroupedTagPicker extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              for (final tag in grouped[kind] ?? const <Tag>[])
+              for (final tag in _chipsForKind(grouped[kind] ?? const <Tag>[]))
                 TagChip(
                   tag: tag,
                   selected: selectedIds.contains(tag.id),
@@ -65,6 +72,28 @@ class GroupedTagPicker extends StatelessWidget {
           ),
       ],
     );
+  }
+
+  List<Tag> _chipsForKind(List<Tag> kindTags) {
+    if (topLevelOnly) {
+      return topLevelTags(kindTags);
+    }
+    if (!nestSubcategories) {
+      return kindTags;
+    }
+    final tops = topLevelTags(kindTags);
+    final result = <Tag>[];
+    for (final parent in tops) {
+      result.add(parent);
+      result.addAll(childrenOf(kindTags, parent.id));
+    }
+    // Orphan subcategories (parent missing from list) still shown.
+    for (final t in kindTags) {
+      if (t.parentTagId != null && !result.any((x) => x.id == t.id)) {
+        result.add(t);
+      }
+    }
+    return result;
   }
 }
 

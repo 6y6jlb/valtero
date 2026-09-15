@@ -17,9 +17,25 @@ final class TagKindExpenseGrouper extends ExpenseGrouperBase {
     final matching = <int>[
       for (final id in ids)
         if (context.tagById[id] != null &&
-            tagKindOf(context.tagById[id]!) == kind)
+            tagKindOf(context.tagById[id]!) == kind &&
+            context.tagById[id]!.parentTagId == null)
           id,
     ];
+
+    if (matching.isEmpty) {
+      // Roll up subtag-only attachments to their parent label.
+      for (final id in ids) {
+        final tag = context.tagById[id];
+        if (tag == null || tag.parentTagId == null) continue;
+        if (tagKindOf(tag) != kind) continue;
+        final parent = context.tagById[tag.parentTagId!];
+        if (parent != null &&
+            parent.parentTagId == null &&
+            tagKindOf(parent) == kind) {
+          matching.add(parent.id);
+        }
+      }
+    }
 
     if (matching.isEmpty) {
       return [context.unspecifiedLabelFor(kind)];

@@ -1871,4 +1871,196 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get voiceExpenseEmpty => 'No se reconoció nada. Inténtalo de nuevo.';
+
+  @override
+  String get subcategory => 'Subcategoría';
+
+  @override
+  String get subcategoryNone => 'Ninguna';
+
+  @override
+  String get addSubcategory => 'Añadir subcategoría';
+
+  @override
+  String get parentCategory => 'Categoría principal';
+
+  @override
+  String get topLevelCategory => 'Categoría de nivel superior';
+
+  @override
+  String get tagHouseholdSupplies => 'Artículos del hogar';
+
+  @override
+  String get tagAlcohol => 'Alcohol';
+
+  @override
+  String get tagSnacks => 'Snacks';
+
+  @override
+  String get tagFuel => 'Combustible';
+
+  @override
+  String get tagRepair => 'Reparación';
+
+  @override
+  String get tagTuning => 'Tuning';
+
+  @override
+  String get tagRent => 'Alquiler';
+
+  @override
+  String get tagUtilitiesBill => 'Servicios';
+
+  @override
+  String get tagFurniture => 'Muebles';
+
+  @override
+  String get tagRestaurant => 'Restaurante';
+
+  @override
+  String get tagCafe => 'Café';
+
+  @override
+  String get tagDelivery => 'Delivery';
+
+  @override
+  String get tagLabTests => 'Análisis';
+
+  @override
+  String get tagDoctor => 'Médico';
+
+  @override
+  String get tagMedications => 'Medicamentos';
+
+  @override
+  String get tagCinema => 'Cine';
+
+  @override
+  String get tagGames => 'Juegos';
+
+  @override
+  String get tagStreaming => 'Streaming';
+
+  @override
+  String get tagClothing => 'Ropa';
+
+  @override
+  String get tagElectronics => 'Electrónica';
+
+  @override
+  String get tagGiftsShopping => 'Regalos';
+
+  @override
+  String get tagFlights => 'Vuelos';
+
+  @override
+  String get tagHotels => 'Hoteles';
+
+  @override
+  String get tagTours => 'Tours';
+
+  @override
+  String get tagBonus => 'Bono';
+
+  @override
+  String get tagOvertime => 'Horas extra';
+
+  @override
+  String get tagAdvance => 'Adelanto';
+
+  @override
+  String get tagPersonalItems => 'Objetos personales';
+
+  @override
+  String get tagPropertySale => 'Propiedad';
+
+  @override
+  String get tagVehicleSale => 'Vehículo';
+
+  @override
+  String get tagFamilyGift => 'Familia';
+
+  @override
+  String get tagFriendsGift => 'Amigos';
+
+  @override
+  String get tagHolidayGift => 'Festivo';
+
+  @override
+  String get tagTaxRefund => 'Devolución de impuestos';
+
+  @override
+  String get tagPurchaseRefund => 'Devolución de compra';
+
+  @override
+  String get tagInsuranceRefund => 'Devolución de seguro';
+
+  @override
+  String get tagDividends => 'Dividendos';
+
+  @override
+  String get tagInterestIncome => 'Intereses';
+
+  @override
+  String get tagCapitalGains => 'Ganancias de capital';
+
+  @override
+  String get tagFreelance => 'Freelance';
+
+  @override
+  String get tagCashback => 'Cashback';
+
+  @override
+  String get tagSideGig => 'Trabajo extra';
+
+  @override
+  String get tagPetFood => 'Comida para mascotas';
+
+  @override
+  String get tagBabyFood => 'Comida infantil';
+
+  @override
+  String get tagParking => 'Aparcamiento';
+
+  @override
+  String get tagTaxi => 'Taxi';
+
+  @override
+  String get tagPublicTransit => 'Transporte público';
+
+  @override
+  String get tagDacha => 'Casa de campo';
+
+  @override
+  String get tagHomeRepairs => 'Reformas';
+
+  @override
+  String get tagCleaning => 'Limpieza';
+
+  @override
+  String get tagInternet => 'Internet';
+
+  @override
+  String get tagDentistry => 'Odontología';
+
+  @override
+  String get tagOptics => 'Óptica';
+
+  @override
+  String get tagEvents => 'Eventos';
+
+  @override
+  String get tagHobbies => 'Aficiones';
+
+  @override
+  String get tagHomeGoods => 'Artículos del hogar';
+
+  @override
+  String get tagBeauty => 'Belleza';
+
+  @override
+  String get tagTravelInsurance => 'Seguro de viaje';
+
+  @override
+  String get tagVisas => 'Visados';
 }

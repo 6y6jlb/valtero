@@ -26,16 +26,22 @@ class BackupSnapshotBuilder {
 
     final backupTags = tags
         .map(
-          (t) => BackupTagData(
-            stableKey: t.stableKey,
-            name: t.name,
-            kind: t.kind,
-            colorValue: t.colorValue,
-            isDefault: t.isDefault,
-            sortOrder: t.sortOrder,
-            countryCode: t.countryCode,
-            iconKey: t.iconKey,
-          ),
+          (t) {
+            final parent = t.parentTagId == null ? null : tagById[t.parentTagId!];
+            return BackupTagData(
+              stableKey: t.stableKey,
+              name: t.name,
+              kind: t.kind,
+              colorValue: t.colorValue,
+              isDefault: t.isDefault,
+              sortOrder: t.sortOrder,
+              countryCode: t.countryCode,
+              iconKey: t.iconKey,
+              parentStableKey: parent?.stableKey,
+              parentName: parent?.stableKey == null ? parent?.name : null,
+              parentKind: parent?.stableKey == null ? parent?.kind : null,
+            );
+          },
         )
         .toList();
 
