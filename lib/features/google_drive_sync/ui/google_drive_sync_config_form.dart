@@ -8,6 +8,7 @@ import 'package:valtero/widgets/passphrase_text_field.dart';
 import 'package:valtero/features/google_drive_sync/model/google_drive_sync_engine.dart';
 import 'package:valtero/features/google_drive_sync/model/google_drive_sync_messages.dart';
 import 'package:valtero/features/google_drive_sync/ui/google_drive_join_sheet.dart';
+import 'package:valtero/features/google_drive_sync/ui/google_drive_remote_newer_schema_dialog.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/widgets/app_toast.dart';
@@ -102,14 +103,7 @@ class _GoogleDriveSyncConfigFormState
     );
     if (!result.success && result.messageKey == 'remote_newer_schema') {
       if (!mounted) return;
-      await showDialog<void>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text(l10n.googleDriveRemoteNewerSchemaTitle),
-          content: Text(message),
-          actions: [const AppOkButton()],
-        ),
-      );
+      await showGoogleDriveRemoteNewerSchemaDialog(context, message: message);
       return;
     }
     if (result.success) {
@@ -375,7 +369,8 @@ class _GoogleDriveSyncConfigFormState
         if (syncState.messageKey == 'remote_newer_schema') ...[
           Material(
             color: theme.colorScheme.errorContainer,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
+            clipBehavior: Clip.antiAlias,
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Text(
@@ -388,8 +383,10 @@ class _GoogleDriveSyncConfigFormState
                     localSchemaVersion: syncState.localSchemaVersion,
                   ),
                 ),
+                softWrap: true,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onErrorContainer,
+                  height: 1.35,
                 ),
               ),
             ),

@@ -16,7 +16,7 @@ import 'package:valtero/features/expenses_list/ui/operation_direction_tabs.dart'
 import 'package:valtero/features/expenses_list/ui/recent_cash_flow_operations_list.dart';
 import 'package:valtero/features/expenses_list/ui/recent_income_operations_list.dart';
 import 'package:valtero/features/expenses_list/ui/recent_operations_list.dart';
-import 'package:valtero/features/google_drive_sync/model/google_drive_pull_to_sync.dart';
+import 'package:valtero/features/google_drive_sync/ui/google_drive_pull_to_sync.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/app_page_scaffold.dart';

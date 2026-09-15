@@ -33,7 +33,7 @@ import 'package:valtero/features/expenses_list/ui/possible_duplicates_banner.dar
 import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
 import 'package:valtero/features/export_expenses/model/export_destination.dart';
 import 'package:valtero/features/export_expenses/ui/export_flow.dart';
-import 'package:valtero/features/google_drive_sync/model/google_drive_pull_to_sync.dart';
+import 'package:valtero/features/google_drive_sync/ui/google_drive_pull_to_sync.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';

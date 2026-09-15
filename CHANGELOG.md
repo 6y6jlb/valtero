@@ -8,6 +8,15 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.5] - 2026-09-15
+
+### Fixed
+
+- Sync toast no longer clips long multi-line messages (e.g. cloud schema newer
+  than this app); duration scales with message length.
+- Pull-to-refresh and Sync now show a scrollable dialog for the newer-schema
+  gate, consistent with Backup & sync / Integrations.
+
 ## [1.1.4] - 2026-09-15
 
 ### Added

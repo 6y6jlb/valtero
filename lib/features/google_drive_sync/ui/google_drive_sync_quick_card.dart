@@ -4,6 +4,7 @@ import 'package:valtero/entities/integrations/google_drive_sync/model/google_dri
 import 'package:valtero/entities/integrations/model/integration_registry.dart';
 import 'package:valtero/features/google_drive_sync/model/google_drive_sync_engine.dart';
 import 'package:valtero/features/google_drive_sync/model/google_drive_sync_messages.dart';
+import 'package:valtero/features/google_drive_sync/ui/google_drive_remote_newer_schema_dialog.dart';
 import 'package:valtero/features/integrations/model/integration_ui_meta.dart';
 import 'package:valtero/features/integrations/ui/integration_config_modal.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
@@ -11,7 +12,6 @@ import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/widgets/action_success_status_icon.dart';
 import 'package:valtero/widgets/app_button.dart';
 import 'package:valtero/widgets/app_close_icon_button.dart';
-import 'package:valtero/widgets/app_ok_button.dart';
 import 'package:valtero/widgets/app_toast.dart';
 
 /// Google Drive sync status + Sync now / setup actions (Backup & sync card).
@@ -82,14 +82,7 @@ class _GoogleDriveSyncQuickCardState
     }
     final message = googleDriveSyncResultMessage(l10n, result);
     if (result.messageKey == 'remote_newer_schema') {
-      await showDialog<void>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text(l10n.googleDriveRemoteNewerSchemaTitle),
-          content: Text(message),
-          actions: [const AppOkButton()],
-        ),
-      );
+      await showGoogleDriveRemoteNewerSchemaDialog(context, message: message);
       return;
     }
     if (needsGoogleReauth(result.messageKey)) {

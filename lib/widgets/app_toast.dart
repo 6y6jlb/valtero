@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 
 OverlayEntry? _activeToast;
 
-/// Top pill toast that auto-dismisses after 2s and can be closed manually.
+/// Top toast that auto-dismisses and can be closed manually.
+///
+/// Duration scales with message length so long sync/error copy stays readable.
+/// Uses a fixed corner radius (not a stadium) so multi-line text does not clip.
 void showAppToast(BuildContext context, String message) {
   final overlay = Overlay.maybeOf(context);
   if (overlay == null) return;
@@ -25,6 +28,10 @@ void showAppToastOn({
   _activeToast = null;
 
   final scheme = theme.colorScheme;
+  // Short labels ~2s; long schema/sync errors need more reading time.
+  final dismissAfter = Duration(
+    milliseconds: (2000 + message.length * 35).clamp(2000, 8000),
+  );
   late OverlayEntry entry;
   entry = OverlayEntry(
     builder: (context) {
@@ -42,22 +49,35 @@ void showAppToastOn({
               child: Material(
                 elevation: 3,
                 color: scheme.surfaceContainerHighest,
-                shape: const StadiumBorder(),
+                // Fixed radius (not StadiumBorder): multi-line text must not
+                // clip into a height-dependent capsule curve.
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                clipBehavior: Clip.antiAlias,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 6, 4, 6),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 4, 12),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Text(
-                          message,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: scheme.onSurface,
-                            fontWeight: FontWeight.w500,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 8, right: 4),
+                          child: Text(
+                            message,
+                            softWrap: true,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: scheme.onSurface,
+                              fontWeight: FontWeight.w500,
+                              height: 1.35,
+                            ),
                           ),
                         ),
                       ),
                       IconButton(
-                        tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                        tooltip: MaterialLocalizations.of(
+                          context,
+                        ).closeButtonTooltip,
                         visualDensity: VisualDensity.compact,
                         onPressed: () => _dismissToast(entry),
                         icon: Icon(
@@ -79,7 +99,7 @@ void showAppToastOn({
   _activeToast = entry;
   overlay.insert(entry);
   unawaited(
-    Future<void>.delayed(const Duration(seconds: 2), () {
+    Future<void>.delayed(dismissAfter, () {
       _dismissToast(entry);
     }),
   );
