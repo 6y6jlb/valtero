@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:valtero/entities/payment_method/model/payment_methods_provider.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
 import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
 import 'package:valtero/features/expenses_list/model/duplicate_expenses_provider.dart';
 import 'package:valtero/features/expenses_list/ui/expense_delete_flow.dart';
 import 'package:valtero/features/expenses_list/ui/expense_detail_sheet.dart';
+import 'package:valtero/features/expenses_list/ui/operation_leading_icon.dart';
 import 'package:valtero/features/expenses_list/ui/recent_expense_tile.dart';
 import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/database/app_database.dart';
@@ -40,6 +42,12 @@ class RecentOperationsList extends ConsumerWidget {
     final dupState = ref.watch(duplicateExpensesProvider);
     final tags = ref.watch(tagsStreamProvider).value ?? const [];
     final tagParentIds = {for (final t in tags) t.id: t.parentTagId};
+    final tagIconKeys = {for (final t in tags) t.id: t.iconKey};
+    final payments =
+        ref.watch(paymentMethodsStreamProvider).value ?? const [];
+    final paymentStableKeys = {
+      for (final p in payments) p.id: p.stableKey,
+    };
 
     final children = <Widget>[];
     String? lastDayKey;
@@ -89,12 +97,23 @@ class RecentOperationsList extends ConsumerWidget {
         tagLabels,
         tagParentIds: tagParentIds,
       );
+      final tagIds = expenseTags[expense.id] ?? const <int>[];
+      final tagIconKey = resolveOperationTagIconKey(
+        tagIds: tagIds,
+        iconKeyByTagId: tagIconKeys,
+        parentIdByTagId: tagParentIds,
+      );
+      final paymentStableKey = expense.paymentMethodId == null
+          ? null
+          : paymentStableKeys[expense.paymentMethodId!];
       children.add(
         RecentExpenseTile(
           expense: expense,
           paymentLabel: paymentLabel,
           countryLabel: countryLabel,
           tagsLabel: tagsLabel,
+          tagIconKey: tagIconKey,
+          paymentStableKey: paymentStableKey,
           showPossibleDuplicate: dupState.isFlagged(expense.id),
           onTap: () => openExpenseDetail(
             context,

@@ -62,6 +62,14 @@ class FlagIcon extends StatelessWidget {
   }
 }
 
+/// Whether [FlagIcon.currency] would show a real flag (not the unknown
+/// placeholder). Used by dashboard leading-icon fallbacks.
+bool hasCurrencyFlag(String? currencyCode) {
+  final currency = currencyCode?.trim();
+  if (currency == null || currency.isEmpty) return false;
+  return FlagCode.fromCurrencyCode(currency) != null;
+}
+
 class _UnknownFlagIcon extends StatelessWidget {
   final String code;
   final double size;

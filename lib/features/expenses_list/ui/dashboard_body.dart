@@ -187,6 +187,8 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
             incomes: widget.recentIncomes,
           ).take(visibleCount).toList(),
           paymentLabels: widget.paymentLabels,
+          expenseTags: widget.expenseTags,
+          incomeTags: widget.incomeTags,
         ),
     };
   }

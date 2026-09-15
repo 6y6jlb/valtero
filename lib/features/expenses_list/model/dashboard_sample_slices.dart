@@ -3,6 +3,7 @@ import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/shared/consts/palette.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/shared/utils/currency_symbol.dart';
 
 /// Demo donut slices shown on an empty dashboard (no real expenses yet).
 List<DonutChartSlice> dashboardSampleSlices(
@@ -176,19 +177,19 @@ List<DonutChartSlice> dashboardSampleSlices(
       return [
         DonutChartSlice(
           key: 'RUB',
-          label: 'RUB',
+          label: currencySymbolFor('RUB'),
           amountMinor: 520000,
           color: chartColorAt(0),
         ),
         DonutChartSlice(
           key: 'USD',
-          label: 'USD',
+          label: currencySymbolFor('USD'),
           amountMinor: 210000,
           color: chartColorAt(1),
         ),
         DonutChartSlice(
           key: 'EUR',
-          label: 'EUR',
+          label: currencySymbolFor('EUR'),
           amountMinor: 150000,
           color: chartColorAt(2),
         ),

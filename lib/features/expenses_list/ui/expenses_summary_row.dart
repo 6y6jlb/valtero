@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/features/expenses_list/model/expense_summary_aggregator.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/shared/utils/currency_symbol.dart';
 import 'package:valtero/widgets/feature_help_sheet.dart';
+import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/money_text.dart';
 
 class ExpensesSummaryRow extends StatelessWidget {
@@ -164,8 +166,10 @@ class _CurrencyLine extends StatelessWidget {
     final theme = Theme.of(context);
     return Row(
       children: [
+        FlagIcon.currency(summary.currency, size: 18),
+        const SizedBox(width: 6),
         Text(
-          summary.currency,
+          currencySymbolFor(summary.currency),
           style: theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w600,
           ),

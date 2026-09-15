@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:valtero/shared/utils/currency_symbol.dart';
 import 'package:valtero/shared/utils/money.dart';
 
 /// How amounts are shown in the UI (storage stays integer minor units).
@@ -6,16 +7,16 @@ enum MoneyDisplayFormat {
   /// Locale-aware with currency symbol when known (`$1,234.56`, `1 234,56 ₽`).
   localeSymbol,
 
-  /// Locale-aware decimals + ISO code (`1,234.56 USD`).
+  /// Locale-aware decimals + currency glyph or ISO (`1,234.56 $`, `1 234,56 ₽`).
   localeCode,
 
-  /// ISO code before amount (`USD 1,234.56`).
+  /// Glyph/ISO before amount (`$ 1,234.56`, `₽ 1 234,56`).
   isoBefore,
 
   /// Fixed machine-like decimals + ISO code (`1234.56 USD`).
   plain,
 
-  /// Compact currency (`$1.2K`).
+  /// Compact currency (`$1.2K`, `₽1.2K`).
   compactSymbol,
 }
 
@@ -45,6 +46,7 @@ String formatMoneyDisplay({
   final code = currencyCode.toUpperCase();
   final major = amountMinor / Money.pow10(fractionDigits);
   final displayDigits = hideFraction ? 0 : fractionDigits;
+  final glyph = currencySymbolFor(code);
 
   switch (format) {
     case MoneyDisplayFormat.localeSymbol:
@@ -52,6 +54,7 @@ String formatMoneyDisplay({
         return NumberFormat.currency(
           locale: localeName,
           name: code,
+          symbol: glyph,
           decimalDigits: displayDigits,
         ).format(major);
       } catch (_) {
@@ -69,13 +72,13 @@ String formatMoneyDisplay({
         locale: localeName,
         decimalDigits: displayDigits,
       ).format(major);
-      return '$number $code';
+      return '$number $glyph';
     case MoneyDisplayFormat.isoBefore:
       final number = NumberFormat.decimalPatternDigits(
         locale: localeName,
         decimalDigits: displayDigits,
       ).format(major);
-      return '$code $number';
+      return '$glyph $number';
     case MoneyDisplayFormat.plain:
       if (hideFraction) {
         return '${major.round()} $code';
@@ -86,6 +89,7 @@ String formatMoneyDisplay({
         return NumberFormat.compactCurrency(
           locale: localeName,
           name: code,
+          symbol: glyph,
           decimalDigits: hideFraction ? 0 : 1,
         ).format(major);
       } catch (_) {

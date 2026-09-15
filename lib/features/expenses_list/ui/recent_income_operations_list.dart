@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:valtero/entities/payment_method/model/payment_methods_provider.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
 import 'package:valtero/features/add_income/ui/add_income_sheet.dart';
 import 'package:valtero/features/add_income/ui/income_delete_flow.dart';
 import 'package:valtero/features/expenses_list/model/duplicate_income_provider.dart';
+import 'package:valtero/features/expenses_list/ui/operation_leading_icon.dart';
 import 'package:valtero/features/expenses_list/ui/recent_income_tile.dart';
 import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/database/app_database.dart';
@@ -40,6 +42,12 @@ class RecentIncomeOperationsList extends ConsumerWidget {
     final dupState = ref.watch(duplicateIncomeProvider);
     final tags = ref.watch(tagsStreamProvider).value ?? const [];
     final tagParentIds = {for (final t in tags) t.id: t.parentTagId};
+    final tagIconKeys = {for (final t in tags) t.id: t.iconKey};
+    final payments =
+        ref.watch(paymentMethodsStreamProvider).value ?? const [];
+    final paymentStableKeys = {
+      for (final p in payments) p.id: p.stableKey,
+    };
 
     final children = <Widget>[];
     String? lastDayKey;
@@ -86,12 +94,23 @@ class RecentIncomeOperationsList extends ConsumerWidget {
         tagLabels,
         tagParentIds: tagParentIds,
       );
+      final tagIds = incomeTags[income.id] ?? const <int>[];
+      final tagIconKey = resolveOperationTagIconKey(
+        tagIds: tagIds,
+        iconKeyByTagId: tagIconKeys,
+        parentIdByTagId: tagParentIds,
+      );
+      final paymentStableKey = income.paymentMethodId == null
+          ? null
+          : paymentStableKeys[income.paymentMethodId!];
       children.add(
         RecentIncomeTile(
           income: income,
           paymentLabel: paymentLabel,
           countryLabel: countryLabel,
           tagsLabel: tagsLabel,
+          tagIconKey: tagIconKey,
+          paymentStableKey: paymentStableKey,
           showPossibleDuplicate: dupState.isFlagged(income.id),
           onTap: () => showAddIncomeSheet(context, income: income),
           onEdit: () => showAddIncomeSheet(context, income: income),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/shared/consts/tag_icons.dart';
 import 'package:valtero/shared/database/app_database.dart';
+import 'package:valtero/shared/utils/payment_method_icon.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
 
 class TagChip extends StatelessWidget {
@@ -22,14 +23,7 @@ class TagChip extends StatelessWidget {
     if (fromIconKey != null) {
       return Icon(fromIconKey, size: 18);
     }
-    final resourceIcon = switch (tag.stableKey) {
-      'cash' => Icons.payments_outlined,
-      'card' => Icons.credit_card,
-      'crypto' => Icons.currency_bitcoin,
-      'transfer' => Icons.account_balance_outlined,
-      'ewallet' => Icons.account_balance_wallet_outlined,
-      _ => null,
-    };
+    final resourceIcon = iconDataForPaymentStableKey(tag.stableKey);
     if (resourceIcon != null) {
       return Icon(resourceIcon, size: 18);
     }

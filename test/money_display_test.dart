@@ -7,25 +7,26 @@ void main() {
     const code = 'USD';
     const locale = 'en_US';
 
-    test('localeCode appends ISO code with grouping', () {
+    test('localeCode appends currency glyph with grouping', () {
       final s = formatMoneyDisplay(
         amountMinor: minor,
         currencyCode: code,
         localeName: locale,
         format: MoneyDisplayFormat.localeCode,
       );
-      expect(s, contains('USD'));
+      expect(s, contains(r'$'));
+      expect(s, isNot(contains('USD')));
       expect(s, contains('1,234.56'));
     });
 
-    test('isoBefore puts code first', () {
+    test('isoBefore puts glyph first', () {
       final s = formatMoneyDisplay(
         amountMinor: minor,
         currencyCode: code,
         localeName: locale,
         format: MoneyDisplayFormat.isoBefore,
       );
-      expect(s.startsWith('USD '), isTrue);
+      expect(s.startsWith(r'$ '), isTrue);
       expect(s, contains('1,234.56'));
     });
 
@@ -73,6 +74,33 @@ void main() {
         moneyDisplayFormatFromName('isoBefore'),
         MoneyDisplayFormat.isoBefore,
       );
+    });
+
+    test('RUB uses ₽ glyph in en_US and ru for localeCode and localeSymbol', () {
+      for (final localeName in ['en_US', 'ru']) {
+        for (final format in [
+          MoneyDisplayFormat.localeCode,
+          MoneyDisplayFormat.localeSymbol,
+          MoneyDisplayFormat.isoBefore,
+        ]) {
+          final s = formatMoneyDisplay(
+            amountMinor: minor,
+            currencyCode: 'RUB',
+            localeName: localeName,
+            format: format,
+          );
+          expect(s, contains('₽'), reason: '$format @ $localeName');
+          expect(s, isNot(contains('RUB')), reason: '$format @ $localeName');
+        }
+        final plain = formatMoneyDisplay(
+          amountMinor: minor,
+          currencyCode: 'RUB',
+          localeName: localeName,
+          format: MoneyDisplayFormat.plain,
+        );
+        expect(plain, contains('RUB'), reason: 'plain @ $localeName');
+        expect(plain, isNot(contains('₽')), reason: 'plain @ $localeName');
+      }
     });
   });
 

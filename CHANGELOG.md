@@ -8,6 +8,19 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.6] - 2026-09-15
+
+### Changed
+
+- Money amounts show currency glyphs (`₽`, `$`, `€`, …) instead of bare ISO
+  codes in `localeCode` / `localeSymbol` / `isoBefore` / `compactSymbol`
+  (and in per-currency summary headers / currency chart labels). `plain`
+  still uses ISO for machine-stable export.
+- Dashboard recent rows lead with tag icon → currency flag → payment icon
+  (country stays in the subtitle).
+- Encrypted backup / Drive sync expenseTag and incomeTag links include
+  optional parent fields so subcategories round-trip unambiguously.
+
 ## [1.1.5] - 2026-09-15
 
 ### Fixed

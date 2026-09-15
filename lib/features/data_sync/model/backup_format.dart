@@ -313,12 +313,18 @@ class BackupExpenseTagData {
   final String? tagStableKey;
   final String? tagName;
   final String? tagKind;
+  final String? parentStableKey;
+  final String? parentName;
+  final String? parentKind;
 
   const BackupExpenseTagData({
     required this.expenseClientId,
     required this.tagStableKey,
     required this.tagName,
     required this.tagKind,
+    this.parentStableKey,
+    this.parentName,
+    this.parentKind,
   });
 
   Map<String, dynamic> toJson() => {
@@ -326,6 +332,9 @@ class BackupExpenseTagData {
         'tagStableKey': tagStableKey,
         'tagName': tagName,
         'tagKind': tagKind,
+        'parentStableKey': parentStableKey,
+        'parentName': parentName,
+        'parentKind': parentKind,
       };
 
   factory BackupExpenseTagData.fromJson(Map<String, dynamic> json) {
@@ -334,6 +343,9 @@ class BackupExpenseTagData {
       tagStableKey: json['tagStableKey'] as String?,
       tagName: json['tagName'] as String?,
       tagKind: json['tagKind'] as String?,
+      parentStableKey: json['parentStableKey'] as String?,
+      parentName: json['parentName'] as String?,
+      parentKind: json['parentKind'] as String?,
     );
   }
 }
@@ -421,12 +433,18 @@ class BackupIncomeTagData {
   final String? tagStableKey;
   final String? tagName;
   final String? tagKind;
+  final String? parentStableKey;
+  final String? parentName;
+  final String? parentKind;
 
   const BackupIncomeTagData({
     required this.incomeClientId,
     required this.tagStableKey,
     required this.tagName,
     required this.tagKind,
+    this.parentStableKey,
+    this.parentName,
+    this.parentKind,
   });
 
   Map<String, dynamic> toJson() => {
@@ -434,6 +452,9 @@ class BackupIncomeTagData {
         'tagStableKey': tagStableKey,
         'tagName': tagName,
         'tagKind': tagKind,
+        'parentStableKey': parentStableKey,
+        'parentName': parentName,
+        'parentKind': parentKind,
       };
 
   factory BackupIncomeTagData.fromJson(Map<String, dynamic> json) {
@@ -442,6 +463,9 @@ class BackupIncomeTagData {
       tagStableKey: json['tagStableKey'] as String?,
       tagName: json['tagName'] as String?,
       tagKind: json['tagKind'] as String?,
+      parentStableKey: json['parentStableKey'] as String?,
+      parentName: json['parentName'] as String?,
+      parentKind: json['parentKind'] as String?,
     );
   }
 }

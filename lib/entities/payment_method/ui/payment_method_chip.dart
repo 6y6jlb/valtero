@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/shared/database/app_database.dart';
+import 'package:valtero/shared/utils/payment_method_icon.dart';
 import 'package:valtero/shared/utils/payment_method_label.dart';
 
 class PaymentMethodChip extends StatelessWidget {
@@ -14,21 +15,12 @@ class PaymentMethodChip extends StatelessWidget {
     this.onTap,
   });
 
-  IconData? get _icon => switch (method.stableKey) {
-        'cash' => Icons.payments_outlined,
-        'card' => Icons.credit_card,
-        'crypto' => Icons.currency_bitcoin,
-        'transfer' => Icons.account_balance_outlined,
-        'ewallet' => Icons.account_balance_wallet_outlined,
-        _ => null,
-      };
-
   @override
   Widget build(BuildContext context) {
     final color =
         method.colorValue != null ? Color(method.colorValue!) : null;
     final label = localizedPaymentMethodLabel(context, method);
-    final icon = _icon;
+    final icon = iconDataForPaymentStableKey(method.stableKey);
     return FilterChip(
       label: Text(label),
       selected: selected,

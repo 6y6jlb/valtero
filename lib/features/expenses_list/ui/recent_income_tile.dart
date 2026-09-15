@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:valtero/features/expenses_list/ui/operation_leading_icon.dart';
 import 'package:valtero/features/expenses_list/ui/possible_duplicate_badge.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
-import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/money_text.dart';
 
 /// Compact recent-operation row for income (mirrors [RecentExpenseTile]
-/// with a `+` prefix / tinted amount to distinguish it from expenses).
+/// with a tinted amount to distinguish it from expenses).
 class RecentIncomeTile extends ConsumerWidget {
   final Income income;
   final String? paymentLabel;
   final String? countryLabel;
   final String? tagsLabel;
+  final String? tagIconKey;
+  final String? paymentStableKey;
   final bool showPossibleDuplicate;
   final VoidCallback onTap;
   final VoidCallback onEdit;
@@ -25,6 +27,8 @@ class RecentIncomeTile extends ConsumerWidget {
     required this.paymentLabel,
     required this.countryLabel,
     required this.tagsLabel,
+    this.tagIconKey,
+    this.paymentStableKey,
     this.showPossibleDuplicate = false,
     required this.onTap,
     required this.onEdit,
@@ -46,9 +50,11 @@ class RecentIncomeTile extends ConsumerWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       onTap: onTap,
-      leading: income.countryCode == null || income.countryCode!.isEmpty
-          ? null
-          : FlagIcon.country(income.countryCode, size: 28),
+      leading: OperationLeadingIcon.maybe(
+        tagIconKey: tagIconKey,
+        currencyCode: income.storedCurrencyCode,
+        paymentStableKey: paymentStableKey,
+      ),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

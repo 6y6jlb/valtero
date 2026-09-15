@@ -112,6 +112,25 @@ class BackupImporter {
       );
     }
 
+    // Refresh maps after parent wiring so link lookup can disambiguate
+    // same-name children under different parents.
+    final tagsAfterParents = await db.watchTagsList();
+    final tagParentById = <int, int?>{
+      for (final t in tagsAfterParents) t.id: t.parentTagId,
+    };
+    final tagIdByNameKindParent = <String, int>{};
+    for (final t in tagsAfterParents) {
+      final key = t.stableKey;
+      if (key != null && key.isNotEmpty) {
+        tagIdByStableKey[key] = t.id;
+      }
+      tagIdByNameKind[_nameKindKey(t.name, t.kind)] = t.id;
+      if (t.parentTagId != null) {
+        tagIdByNameKindParent[
+            '${_nameKindKey(t.name, t.kind)}|${t.parentTagId}'] = t.id;
+      }
+    }
+
     for (final method in data.paymentMethods) {
       final resolved = await _resolveOrCreatePayment(
         db: db,
@@ -169,8 +188,13 @@ class BackupImporter {
         stableKey: link.tagStableKey,
         name: link.tagName,
         kind: link.tagKind ?? 'normal',
+        parentStableKey: link.parentStableKey,
+        parentName: link.parentName,
+        parentKind: link.parentKind,
         tagIdByStableKey: tagIdByStableKey,
         tagIdByNameKind: tagIdByNameKind,
+        tagIdByNameKindParent: tagIdByNameKindParent,
+        tagParentById: tagParentById,
       );
       if (tagId == null) continue;
       tagsByNewExpense.putIfAbsent(expenseId, () => []).add(tagId);
@@ -226,8 +250,13 @@ class BackupImporter {
         stableKey: link.tagStableKey,
         name: link.tagName,
         kind: link.tagKind ?? 'normal',
+        parentStableKey: link.parentStableKey,
+        parentName: link.parentName,
+        parentKind: link.parentKind,
         tagIdByStableKey: tagIdByStableKey,
         tagIdByNameKind: tagIdByNameKind,
+        tagIdByNameKindParent: tagIdByNameKindParent,
+        tagParentById: tagParentById,
       );
       if (tagId == null) continue;
       tagsByNewIncome.putIfAbsent(incomeId, () => []).add(tagId);
@@ -401,16 +430,49 @@ class BackupImporter {
     required String? stableKey,
     required String? name,
     required String kind,
+    String? parentStableKey,
+    String? parentName,
+    String? parentKind,
     required Map<String, int> tagIdByStableKey,
     required Map<String, int> tagIdByNameKind,
+    required Map<String, int> tagIdByNameKindParent,
+    required Map<int, int?> tagParentById,
   }) {
     final stable = stableKey?.trim();
     if (stable != null && stable.isNotEmpty) {
       final id = tagIdByStableKey[stable];
       if (id != null) return id;
     }
+
+    int? parentId;
+    final parentKey = parentStableKey?.trim();
+    if (parentKey != null && parentKey.isNotEmpty) {
+      parentId = tagIdByStableKey[parentKey];
+    }
+    if (parentId == null &&
+        parentName != null &&
+        parentName.trim().isNotEmpty) {
+      parentId = tagIdByNameKind[_nameKindKey(
+        parentName,
+        parentKind ?? kind,
+      )];
+    }
+
     if (name == null || name.isEmpty) return null;
-    return tagIdByNameKind[_nameKindKey(name, kind)];
+    final nameKind = _nameKindKey(name, kind);
+    if (parentId != null) {
+      final underParent = tagIdByNameKindParent['$nameKind|$parentId'];
+      if (underParent != null) return underParent;
+    }
+
+    final byName = tagIdByNameKind[nameKind];
+    if (byName == null) return null;
+    // If a parent was requested but the name|kind hit is a different
+    // hierarchy, prefer rejecting the mismatch over linking the wrong tag.
+    if (parentId != null && tagParentById[byName] != parentId) {
+      return null;
+    }
+    return byName;
   }
 
   int? _lookupPaymentId({

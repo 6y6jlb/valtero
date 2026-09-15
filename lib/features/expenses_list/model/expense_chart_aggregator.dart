@@ -5,6 +5,7 @@ import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/shared/consts/palette.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/utils/app_timezone.dart';
+import 'package:valtero/shared/utils/currency_symbol.dart';
 import 'package:valtero/shared/utils/money.dart';
 
 Future<({int totalMinor, int convertibleCount})> sumExpensesInCurrency({
@@ -219,7 +220,7 @@ Future<ExpenseChartAggregation> aggregateExpensesForChart({
       case ExpenseChartBreakdown.currency:
         final key = from;
         amounts[key] = (amounts[key] ?? 0) + expense.storedAmountMinor;
-        labels[key] = key;
+        labels[key] = currencySymbolFor(key);
         colors[key] ??= chartColorAt(key.hashCode);
         sliceCurrencies[key] = key;
       case ExpenseChartBreakdown.day:

@@ -7,7 +7,10 @@
 - **UI display** goes through [formatMoneyDisplay] / [MoneyText] (`intl` + user
   setting `moneyDisplayFormat`: `localeSymbol` | `localeCode` | `isoBefore` |
   `plain` | `compactSymbol`). Appearance dropdown shows **live examples** of each
-  format (not long labels).
+  format (not long labels). UI formats prefer a stable glyph via
+  [currencySymbolFor] (`₽` / `$` / `€`, …) so RUB does not fall back to the
+  three-letter ISO code under non-Russian locales; `plain` keeps ISO for
+  export-stable interchange.
 - **Export / interchange** keeps [Money.formatMinor] (dot decimals, no grouping)
   so files stay locale-stable.
 

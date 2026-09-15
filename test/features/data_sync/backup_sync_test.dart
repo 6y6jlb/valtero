@@ -769,6 +769,111 @@ void main() {
           envelope.data.tags.firstWhere((t) => t.stableKey == 'salary');
       expect(salaryTag.iconKey, 'salary');
     });
+
+    test('round-trips subcategory hierarchy on tags and expenseTag links',
+        () async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+
+      final healthId = await db.ensureTagByStableKey(
+        stableKey: 'health',
+        fallbackName: 'Health',
+        kind: 'normal',
+      );
+      final doctorId = await db.ensureTagByStableKey(
+        stableKey: 'doctor',
+        fallbackName: 'Doctor',
+        kind: 'normal',
+        parentTagId: healthId,
+      );
+      final customParentId = await db.insertTag(
+        TagsCompanion.insert(
+          name: 'Projects',
+          kind: const Value('normal'),
+        ),
+      );
+      final customChildId = await db.insertTag(
+        TagsCompanion.insert(
+          name: 'Alpha',
+          kind: const Value('normal'),
+          parentTagId: Value(customParentId),
+        ),
+      );
+
+      final expenseId = await db.insertExpense(
+        OperationsCompanion.insert(
+          kind: 'expense',
+          occurredAt: DateTime.utc(2026, 6, 1),
+          originalAmountMinor: 2500,
+          originalCurrencyCode: 'RUB',
+          storedAmountMinor: 2500,
+          storedCurrencyCode: 'RUB',
+          createdAt: DateTime.utc(2026, 6, 1),
+        ),
+      );
+      await db.setExpenseTags(
+        expenseId,
+        [healthId, doctorId, customParentId, customChildId],
+      );
+
+      final envelope = await BackupSnapshotBuilder().build(
+        db: db,
+        settings: AppSettings.initial(),
+      );
+
+      final doctorTag =
+          envelope.data.tags.firstWhere((t) => t.stableKey == 'doctor');
+      expect(doctorTag.parentStableKey, 'health');
+      final alphaTag =
+          envelope.data.tags.firstWhere((t) => t.name == 'Alpha');
+      expect(alphaTag.parentName, 'Projects');
+      expect(alphaTag.parentKind, 'normal');
+      expect(alphaTag.parentStableKey, equals(null));
+
+      final doctorLink = envelope.data.expenseTags
+          .firstWhere((l) => l.tagStableKey == 'doctor');
+      expect(doctorLink.parentStableKey, 'health');
+      final alphaLink =
+          envelope.data.expenseTags.firstWhere((l) => l.tagName == 'Alpha');
+      expect(alphaLink.parentName, 'Projects');
+      expect(alphaLink.parentKind, 'normal');
+
+      final importDb = AppDatabase(NativeDatabase.memory());
+      addTearDown(importDb.close);
+      final report = await BackupImporter().importEnvelope(
+        db: importDb,
+        envelope: envelope,
+        currentSettings: AppSettings.initial(),
+        saveSettings: (_) async {},
+      );
+      expect(report.expensesAdded, 1);
+
+      final importedTags = await importDb.watchTagsList();
+      final importedHealth =
+          importedTags.firstWhere((t) => t.stableKey == 'health');
+      final importedDoctor =
+          importedTags.firstWhere((t) => t.stableKey == 'doctor');
+      expect(importedDoctor.parentTagId, importedHealth.id);
+      final importedProjects =
+          importedTags.firstWhere((t) => t.name == 'Projects');
+      final importedAlpha =
+          importedTags.firstWhere((t) => t.name == 'Alpha');
+      expect(importedAlpha.parentTagId, importedProjects.id);
+
+      final importedExpenses = await importDb.getAllExpenses();
+      expect(importedExpenses, hasLength(1));
+      final linked =
+          await importDb.getTagIdsForExpense(importedExpenses.first.id);
+      expect(
+        linked.toSet(),
+        {
+          importedHealth.id,
+          importedDoctor.id,
+          importedProjects.id,
+          importedAlpha.id,
+        },
+      );
+    });
   });
 
   group('BackupPayloadData backward compatibility', () {

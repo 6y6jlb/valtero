@@ -87,12 +87,17 @@ class BackupSnapshotBuilder {
       for (final tagId in tagIdsByExpense[expense.id] ?? const <int>[]) {
         final tag = tagById[tagId];
         if (tag == null) continue;
+        final parent =
+            tag.parentTagId == null ? null : tagById[tag.parentTagId!];
         backupExpenseTags.add(
           BackupExpenseTagData(
             expenseClientId: clientId,
             tagStableKey: tag.stableKey,
             tagName: tag.name,
             tagKind: tag.kind,
+            parentStableKey: parent?.stableKey,
+            parentName: parent?.stableKey == null ? parent?.name : null,
+            parentKind: parent?.stableKey == null ? parent?.kind : null,
           ),
         );
       }
@@ -128,12 +133,17 @@ class BackupSnapshotBuilder {
       for (final tagId in tagIdsByIncome[income.id] ?? const <int>[]) {
         final tag = tagById[tagId];
         if (tag == null) continue;
+        final parent =
+            tag.parentTagId == null ? null : tagById[tag.parentTagId!];
         backupIncomeTags.add(
           BackupIncomeTagData(
             incomeClientId: clientId,
             tagStableKey: tag.stableKey,
             tagName: tag.name,
             tagKind: tag.kind,
+            parentStableKey: parent?.stableKey,
+            parentName: parent?.stableKey == null ? parent?.name : null,
+            parentKind: parent?.stableKey == null ? parent?.kind : null,
           ),
         );
       }
