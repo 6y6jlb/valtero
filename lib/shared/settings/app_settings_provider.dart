@@ -258,6 +258,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     String? view,
     String? group,
     String? chartDatePeriod,
+    String? chartType,
   }) async {
     final current = state.value;
     if (current == null) return;
@@ -265,6 +266,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
       cashFlowListView: view,
       cashFlowListGroup: group,
       cashFlowChartDatePeriod: chartDatePeriod,
+      cashFlowChartType: chartType,
     ));
   }
 

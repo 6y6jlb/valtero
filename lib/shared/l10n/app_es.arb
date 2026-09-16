@@ -26,7 +26,11 @@
   "contactDeveloperDescription": "Preguntas, ideas o errores — escribe al correo de abajo. También puedes enviar los registros desde Ajustes → Depuración y registros.",
   "contactDeveloperEmailLabel": "Correo",
   "contactDeveloperCopyEmail": "Copiar correo",
-  "debugLogsSendHint": "Para enviar los registros al desarrollador, compártelos o cópialos y envíalos a {email}.",
+  "contactDeveloperSendEmail": "Enviar correo",
+  "contactDeveloperSendFailed": "No se pudo abrir el correo. Copia la dirección en su lugar.",
+  "integrationsSuggest": "Sugerir una integración",
+  "integrationsSuggestHint": "¿Falta un servicio? Escríbele al desarrollador.",
+  "debugLogsSendHint": "«Enviar» abre el correo con el registro adjunto (o el menú de compartir). Copiar correo / registros está abajo. Dirección: {email}.",
   "@debugLogsSendHint": {
     "placeholders": {
       "email": {
@@ -220,8 +224,11 @@
   "debugShareLogs": "Compartir con el desarrollador",
   "debugCopyLogs": "Copiar registros",
   "debugClearLogs": "Borrar registros",
+  "debugRefreshLogs": "Actualizar registro",
   "debugLogsEmpty": "Aún no hay entradas en el registro.",
   "debugLogsShared": "Archivo de registro listo para compartir",
+  "debugLogsEmailed": "Cliente de correo abierto con el registro adjunto",
+  "debugLogsEmailFallback": "No se pudo adjuntar el archivo. Ruta copiada: pégala o adjúntala en el correo.",
   "debugLogsCopied": "Registros copiados al portapapeles",
   "debugLogsCleared": "Registros borrados",
   "settingsDataSync": "Copia de seguridad y sincronización",
@@ -623,6 +630,8 @@
   "chartHelpBody": "El gráfico incluye gastos en todas las monedas. Si falta un tipo de cambio, los importes se muestran en su moneda original. Los totales pueden mezclar monedas hasta que se definan los tipos de cambio.",
   "expensesSummaryHelpTitle": "Acerca del resumen de gastos",
   "expensesSummaryHelpBody": "Los totales se agrupan por moneda almacenada. Usa el botón de conversión para mostrar los importes de la lista en una moneda; el total convertido indica cuántos gastos se pudieron convertir.",
+  "incomeSummaryHelpTitle": "Acerca del resumen de ingresos",
+  "incomeSummaryHelpBody": "Los totales se agrupan por moneda almacenada. Usa el botón de conversión para mostrar los importes de la lista en una moneda; el total convertido indica cuántos ingresos se pudieron convertir.",
   "displayCurrencyHelpBody": "Elige una moneda para convertir los importes de la lista. Los importes originales siempre se conservan. Los tipos de cambio faltantes se pueden definir manualmente antes de convertir.",
   "chartPaymentHint": "Cada gasto tiene como máximo un método de pago; si falta, aparece como no definido",
   "tagKindSectionCountry": "País",
@@ -680,12 +689,12 @@
   "guideSectionIncomeTitle": "Ingresos",
   "guideSectionIncomeBody": "Toca + y elige Añadir ingreso (o abre la pestaña Ingresos). Los cobros usan los mismos campos de importe, moneda, pago, país y fecha que los gastos, con sus propias categorías (salario, venta, regalo, etc.). La detección de posibles duplicados funciona igual.",
   "guideSectionCashFlowTitle": "Flujo de caja",
-  "guideSectionCashFlowBody": "La pestaña Flujo de caja compara ingresos y gastos por día, semana, mes o año. Los filtros de fecha y moneda aplican; categoría y pago quedan en las pestañas Gastos o Ingresos.",
+  "guideSectionCashFlowBody": "La pestaña Flujo de caja compara ingresos y gastos. El gráfico predeterminado es un donut de ingresos vs gastos totales; puedes cambiar a barras por día, semana, mes o año. Los filtros de fecha y moneda aplican; categoría y pago quedan en las pestañas Gastos o Ingresos.",
   "paymentMethod": "Pago",
   "paymentMethodNone": "No definido",
   "paymentMethodUnspecified": "Pago no definido",
   "paymentMethodsTitle": "Métodos de pago",
-  "paymentMethodsHint": "Elige uno predeterminado para nuevos gastos. Los métodos integrados no se pueden eliminar.",
+  "paymentMethodsHint": "Elige el método de pago predeterminado para nuevos gastos e ingresos. No vincula un pago a la app: solo es un valor al crear operaciones. Los métodos integrados no se pueden eliminar.",
   "paymentMethodNew": "Nuevo método de pago",
   "paymentMethodAdd": "Añadir método de pago",
   "paymentMethodEdit": "Editar método de pago",
@@ -786,6 +795,14 @@
   "summaryCurrencies": "Monedas",
   "summaryPerCurrencyCount": "{count, plural, one{1 gasto} other{{count} gastos}}",
   "@summaryPerCurrencyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryPerCurrencyIncomeCount": "{count, plural, one{1 ingreso} other{{count} ingresos}}",
+  "@summaryPerCurrencyIncomeCount": {
     "placeholders": {
       "count": {
         "type": "int"

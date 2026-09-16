@@ -142,16 +142,21 @@ ExpenseChartBreakdown cashFlowChartDatePeriodFromSettings(
   return expenseChartDatePeriodFromName(settings.cashFlowChartDatePeriod);
 }
 
-/// Values to persist for the cash-flow list (no chart shape / breakdown: the
-/// cash-flow chart is always temporal grouped bars).
+ExpenseChartType cashFlowChartTypeFromSettings(AppSettings settings) {
+  return expenseChartTypeFromName(settings.cashFlowChartType);
+}
+
+/// Values to persist for the cash-flow list (temporal period + chart shape).
 ({
   String view,
   String group,
   String chartDatePeriod,
+  String chartType,
 }) cashFlowListDisplayPersistValues({
   required ExpenseListViewMode view,
   required ExpenseListGroup appliedGroup,
   required ExpenseChartBreakdown chartDatePeriod,
+  required ExpenseChartType chartType,
 }) {
   final nextGroup = cashFlowGroupOptions.contains(appliedGroup)
       ? appliedGroup
@@ -162,5 +167,6 @@ ExpenseChartBreakdown cashFlowChartDatePeriodFromSettings(
     chartDatePeriod: isDateChartBreakdown(chartDatePeriod)
         ? chartDatePeriod.name
         : ExpenseChartBreakdown.month.name,
+    chartType: chartType.name,
   );
 }

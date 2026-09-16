@@ -3,7 +3,7 @@ import 'package:valtero/shared/consts/tag_icons.dart';
 import 'package:valtero/shared/utils/payment_method_icon.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 
-/// Leading icon for dashboard recent rows: tag → currency flag → payment.
+/// Leading icon for dashboard recent rows: subcategory/tag → currency flag → payment.
 ///
 /// Country stays in the subtitle; it is intentionally not used here.
 /// Returns `null` when none of the three sources resolve (no empty gap).

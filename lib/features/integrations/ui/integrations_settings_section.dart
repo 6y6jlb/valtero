@@ -5,17 +5,31 @@ import 'package:valtero/features/integrations/model/integration_ui_meta.dart';
 import 'package:valtero/features/integrations/ui/integration_config_modal.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
+import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 
-Future<void> showIntegrationsSheet(BuildContext context) {
+Future<void> showIntegrationsSheet(
+  BuildContext context, {
+  VoidCallback? onSuggestIntegration,
+}) {
   return showAppModalSheet(
     context: context,
-    child: const IntegrationsSettingsSection(),
+    child: IntegrationsSettingsSection(
+      onSuggestIntegration: onSuggestIntegration,
+    ),
   );
 }
 
 class IntegrationsSettingsSection extends ConsumerWidget {
-  const IntegrationsSettingsSection({super.key});
+  final VoidCallback? onSuggestIntegration;
+
+  const IntegrationsSettingsSection({
+    super.key,
+    this.onSuggestIntegration,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -23,14 +37,11 @@ class IntegrationsSettingsSection extends ConsumerWidget {
     final theme = Theme.of(context);
     final integrations = ref.watch(integrationsProvider);
     final settings = ref.watch(appSettingsProvider).value;
-    final scrollController = PrimaryScrollController.maybeOf(context);
 
-    return ListView(
-      controller: scrollController,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+    return AppSheetScaffold(
+      header: AppSheetHeader(title: l10n.settingsIntegrations),
+      actions: const AppSheetActionsBar(children: [AppCloseIconButton()]),
       children: [
-        Text(l10n.settingsIntegrations, style: theme.textTheme.titleLarge),
-        const SizedBox(height: 8),
         for (final integration in integrations) ...[
           Builder(
             builder: (context) {
@@ -68,6 +79,20 @@ class IntegrationsSettingsSection extends ConsumerWidget {
             },
           ),
           const Divider(height: 1),
+        ],
+        if (onSuggestIntegration != null) ...[
+          const SizedBox(height: 8),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(
+              Icons.lightbulb_outline,
+              color: theme.colorScheme.primary,
+            ),
+            title: Text(l10n.integrationsSuggest),
+            subtitle: Text(l10n.integrationsSuggestHint),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: onSuggestIntegration,
+          ),
         ],
       ],
     );

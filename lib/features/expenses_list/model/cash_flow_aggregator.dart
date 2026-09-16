@@ -1,4 +1,7 @@
+import 'dart:ui' show Color;
+
 import 'package:valtero/entities/exchange_rate/model/rate_resolver.dart';
+import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/utils/app_timezone.dart';
@@ -18,6 +21,34 @@ class CashFlowBucket {
   });
 
   int get netMinor => incomeTotalMinor - expenseTotalMinor;
+}
+
+/// Totals income vs expense across [buckets] as two donut slices.
+List<DonutChartSlice> cashFlowDirectionSlices({
+  required List<CashFlowBucket> buckets,
+  required String incomeLabel,
+  required String expenseLabel,
+  required Color incomeColor,
+  required Color expenseColor,
+}) {
+  final income = buckets.fold<int>(0, (sum, b) => sum + b.incomeTotalMinor);
+  final expense = buckets.fold<int>(0, (sum, b) => sum + b.expenseTotalMinor);
+  return [
+    if (income > 0)
+      DonutChartSlice(
+        key: 'income',
+        label: incomeLabel,
+        amountMinor: income,
+        color: incomeColor,
+      ),
+    if (expense > 0)
+      DonutChartSlice(
+        key: 'expense',
+        label: expenseLabel,
+        amountMinor: expense,
+        color: expenseColor,
+      ),
+  ];
 }
 
 typedef CashFlowAggregation = ({

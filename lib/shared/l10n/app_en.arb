@@ -26,7 +26,11 @@
   "contactDeveloperDescription": "Questions, ideas, or bug reports — write to the email below. You can also share app logs from Settings → Debug & logs.",
   "contactDeveloperEmailLabel": "Email",
   "contactDeveloperCopyEmail": "Copy email",
-  "debugLogsSendHint": "To send logs to the developer, share or copy them and email to {email}.",
+  "contactDeveloperSendEmail": "Send email",
+  "contactDeveloperSendFailed": "Could not open the mail app. Copy the address instead.",
+  "integrationsSuggest": "Suggest an integration",
+  "integrationsSuggestHint": "Missing a service you need? Tell the developer.",
+  "debugLogsSendHint": "Use Send to open email with the log attached (or the system share sheet). Copy email / Copy logs are also in the actions below.",
   "@debugLogsSendHint": {
     "placeholders": {
       "email": {
@@ -220,8 +224,11 @@
   "debugShareLogs": "Share with developer",
   "debugCopyLogs": "Copy logs",
   "debugClearLogs": "Clear logs",
+  "debugRefreshLogs": "Refresh log",
   "debugLogsEmpty": "No log entries yet.",
   "debugLogsShared": "Log file ready to share",
+  "debugLogsEmailed": "Mail client opened with the log attached",
+  "debugLogsEmailFallback": "Could not attach the file. Log path copied — paste or attach it in the email.",
   "debugLogsCopied": "Logs copied to clipboard",
   "debugLogsCleared": "Logs cleared",
   "settingsDataSync": "Backup & sync",
@@ -623,6 +630,8 @@
   "chartHelpBody": "The chart includes expenses in all currencies. When an exchange rate is missing, amounts are shown in their original currency. Totals may mix currencies until rates are set.",
   "expensesSummaryHelpTitle": "About expenses summary",
   "expensesSummaryHelpBody": "Totals are grouped by stored currency. Use the convert button to display list amounts in one currency; the converted total shows how many expenses could be converted.",
+  "incomeSummaryHelpTitle": "About income summary",
+  "incomeSummaryHelpBody": "Totals are grouped by stored currency. Use the convert button to display list amounts in one currency; the converted total shows how many income entries could be converted.",
   "displayCurrencyHelpBody": "Pick a currency to convert list amounts. Original stored amounts are always kept. Missing rates can be set manually before conversion.",
   "chartPaymentHint": "Each expense has at most one payment method; unset appears as not set",
   "tagKindSectionCountry": "Country",
@@ -680,12 +689,12 @@
   "guideSectionIncomeTitle": "Income",
   "guideSectionIncomeBody": "Tap + and choose Add income (or switch the Dashboard tab to Income). Receipts use the same amount, currency, payment, country, and date fields as expenses, with their own category tags (salary, sale, gift, and more). Soft-duplicate checks work the same way.",
   "guideSectionCashFlowTitle": "Cash flow",
-  "guideSectionCashFlowBody": "The Cash flow tab compares income and expenses over day, week, month, or year. Filters apply by date and currency; category and payment filters stay on the Expenses or Income tabs.",
+  "guideSectionCashFlowBody": "The Cash flow tab compares income and expenses. The default chart is a donut of total income vs expenses; switch to grouped bars for day, week, month, or year. Filters apply by date and currency; category and payment filters stay on the Expenses or Income tabs.",
   "paymentMethod": "Payment",
   "paymentMethodNone": "Not set",
   "paymentMethodUnspecified": "Payment not set",
   "paymentMethodsTitle": "Payment methods",
-  "paymentMethodsHint": "Choose a default for new expenses. Built-in methods cannot be deleted.",
+  "paymentMethodsHint": "Pick the default payment method for new expenses and income. This is not a payment link to the app — only a preset when creating operations. Built-in methods cannot be deleted.",
   "paymentMethodNew": "New payment method",
   "paymentMethodAdd": "Add payment method",
   "paymentMethodEdit": "Edit payment method",
@@ -786,6 +795,14 @@
   "summaryCurrencies": "Currencies",
   "summaryPerCurrencyCount": "{count, plural, one{1 expense} other{{count} expenses}}",
   "@summaryPerCurrencyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryPerCurrencyIncomeCount": "{count, plural, one{1 income} other{{count} income}}",
+  "@summaryPerCurrencyIncomeCount": {
     "placeholders": {
       "count": {
         "type": "int"

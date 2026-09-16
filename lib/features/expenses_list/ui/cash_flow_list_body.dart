@@ -66,6 +66,7 @@ class _CashFlowListBodyState extends ConsumerState<CashFlowListBody> {
   late ExpenseListQuery _applied;
   ExpenseListViewMode _view = ExpenseListViewMode.list;
   ExpenseChartBreakdown _chartDatePeriod = ExpenseChartBreakdown.month;
+  ExpenseChartType _chartType = ExpenseChartType.donut;
   int _visibleCount = _kCashFlowListInitial;
   bool _loadMoreScheduled = false;
   bool _displayPrefsLoaded = false;
@@ -99,6 +100,7 @@ class _CashFlowListBodyState extends ConsumerState<CashFlowListBody> {
       setState(() {
         _view = view;
         _chartDatePeriod = cashFlowChartDatePeriodFromSettings(settings);
+        _chartType = cashFlowChartTypeFromSettings(settings);
         _applied = _applied.copyWith(
           group: view == ExpenseListViewMode.list
               ? ExpenseListGroup.none
@@ -112,16 +114,19 @@ class _CashFlowListBodyState extends ConsumerState<CashFlowListBody> {
     ExpenseListViewMode? view,
     ExpenseListGroup? group,
     ExpenseChartBreakdown? chartDatePeriod,
+    ExpenseChartType? chartType,
   }) {
     final values = cashFlowListDisplayPersistValues(
       view: view ?? _view,
       appliedGroup: group ?? _applied.group,
       chartDatePeriod: chartDatePeriod ?? _chartDatePeriod,
+      chartType: chartType ?? _chartType,
     );
     ref.read(appSettingsProvider.notifier).setCashFlowListDisplay(
           view: values.view,
           group: values.group,
           chartDatePeriod: values.chartDatePeriod,
+          chartType: values.chartType,
         );
   }
 
@@ -490,12 +495,17 @@ class _CashFlowListBodyState extends ConsumerState<CashFlowListBody> {
                                 snapshotKey: snapshotKey,
                                 resolver: resolver,
                                 chartDatePeriod: _chartDatePeriod,
+                                chartType: _chartType,
                                 timeZoneId: timeZoneId,
                                 onChartDatePeriodChanged: (period) {
                                   setState(() => _chartDatePeriod = period);
                                   _persistDisplayPrefs(
                                     chartDatePeriod: period,
                                   );
+                                },
+                                onChartTypeChanged: (type) {
+                                  setState(() => _chartType = type);
+                                  _persistDisplayPrefs(chartType: type);
                                 },
                                 emptyMessage: l10n.noMatchingOperations,
                               ),

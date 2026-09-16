@@ -258,10 +258,34 @@ abstract class AppLocalizations {
   /// **'Copy email'**
   String get contactDeveloperCopyEmail;
 
+  /// No description provided for @contactDeveloperSendEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Send email'**
+  String get contactDeveloperSendEmail;
+
+  /// No description provided for @contactDeveloperSendFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the mail app. Copy the address instead.'**
+  String get contactDeveloperSendFailed;
+
+  /// No description provided for @integrationsSuggest.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggest an integration'**
+  String get integrationsSuggest;
+
+  /// No description provided for @integrationsSuggestHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing a service you need? Tell the developer.'**
+  String get integrationsSuggestHint;
+
   /// No description provided for @debugLogsSendHint.
   ///
   /// In en, this message translates to:
-  /// **'To send logs to the developer, share or copy them and email to {email}.'**
+  /// **'Use Send to open email with the log attached (or the system share sheet). Copy email / Copy logs are also in the actions below.'**
   String debugLogsSendHint(String email);
 
   /// No description provided for @integrationConnected.
@@ -826,6 +850,12 @@ abstract class AppLocalizations {
   /// **'Clear logs'**
   String get debugClearLogs;
 
+  /// No description provided for @debugRefreshLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh log'**
+  String get debugRefreshLogs;
+
   /// No description provided for @debugLogsEmpty.
   ///
   /// In en, this message translates to:
@@ -837,6 +867,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Log file ready to share'**
   String get debugLogsShared;
+
+  /// No description provided for @debugLogsEmailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Mail client opened with the log attached'**
+  String get debugLogsEmailed;
+
+  /// No description provided for @debugLogsEmailFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not attach the file. Log path copied — paste or attach it in the email.'**
+  String get debugLogsEmailFallback;
 
   /// No description provided for @debugLogsCopied.
   ///
@@ -2164,6 +2206,18 @@ abstract class AppLocalizations {
   /// **'Totals are grouped by stored currency. Use the convert button to display list amounts in one currency; the converted total shows how many expenses could be converted.'**
   String get expensesSummaryHelpBody;
 
+  /// No description provided for @incomeSummaryHelpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About income summary'**
+  String get incomeSummaryHelpTitle;
+
+  /// No description provided for @incomeSummaryHelpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Totals are grouped by stored currency. Use the convert button to display list amounts in one currency; the converted total shows how many income entries could be converted.'**
+  String get incomeSummaryHelpBody;
+
   /// No description provided for @displayCurrencyHelpBody.
   ///
   /// In en, this message translates to:
@@ -2425,7 +2479,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionCashFlowBody.
   ///
   /// In en, this message translates to:
-  /// **'The Cash flow tab compares income and expenses over day, week, month, or year. Filters apply by date and currency; category and payment filters stay on the Expenses or Income tabs.'**
+  /// **'The Cash flow tab compares income and expenses. The default chart is a donut of total income vs expenses; switch to grouped bars for day, week, month, or year. Filters apply by date and currency; category and payment filters stay on the Expenses or Income tabs.'**
   String get guideSectionCashFlowBody;
 
   /// No description provided for @paymentMethod.
@@ -2455,7 +2509,7 @@ abstract class AppLocalizations {
   /// No description provided for @paymentMethodsHint.
   ///
   /// In en, this message translates to:
-  /// **'Choose a default for new expenses. Built-in methods cannot be deleted.'**
+  /// **'Pick the default payment method for new expenses and income. This is not a payment link to the app — only a preset when creating operations. Built-in methods cannot be deleted.'**
   String get paymentMethodsHint;
 
   /// No description provided for @paymentMethodNew.
@@ -2907,6 +2961,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, one{1 expense} other{{count} expenses}}'**
   String summaryPerCurrencyCount(int count);
+
+  /// No description provided for @summaryPerCurrencyIncomeCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 income} other{{count} income}}'**
+  String summaryPerCurrencyIncomeCount(int count);
 
   /// No description provided for @summaryConvertedTotal.
   ///

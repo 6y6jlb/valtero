@@ -54,7 +54,8 @@ void main() {
     expect(find.text('Add income').hitTestable(), findsOneWidget);
   });
 
-  testWidgets('trigger close icon animates instead of jumping', (tester) async {
+  testWidgets('plus trigger rotates open without swapping to close icon',
+      (tester) async {
     final controller = ExpandFabController();
     addTearDown(controller.dispose);
 
@@ -73,15 +74,15 @@ void main() {
     );
 
     await tester.tap(find.byIcon(Icons.add));
-    // Mid-animation — × present while add icon still cross-fading.
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(controller.hasOpen, isTrue);
-    expect(find.byIcon(Icons.close), findsOneWidget);
+    expect(find.byIcon(Icons.close), findsNothing);
     expect(find.byIcon(Icons.add), findsOneWidget);
 
     await tester.pumpAndSettle();
-    expect(find.byIcon(Icons.close), findsOneWidget);
+    expect(find.byIcon(Icons.close), findsNothing);
+    expect(find.byIcon(Icons.add), findsOneWidget);
   });
 
   testWidgets('first tap on sub-action runs callback and closes', (tester) async {
@@ -122,7 +123,7 @@ void main() {
     expect(find.text('Add expense').hitTestable(), findsNothing);
   });
 
-  testWidgets('first tap on close dismisses menu', (tester) async {
+  testWidgets('second tap on rotated plus dismisses menu', (tester) async {
     final controller = ExpandFabController();
     addTearDown(controller.dispose);
 
@@ -144,7 +145,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(controller.hasOpen, isTrue);
 
-    await tester.tap(find.byIcon(Icons.close));
+    await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
 
     expect(controller.hasOpen, isFalse);
@@ -153,7 +154,8 @@ void main() {
     expect(find.byIcon(Icons.add), findsOneWidget);
   });
 
-  testWidgets('extended closed Show keeps label until opened', (tester) async {
+  testWidgets('extended Show collapses label then morphs to rotated plus',
+      (tester) async {
     final controller = ExpandFabController();
     addTearDown(controller.dispose);
 
@@ -174,11 +176,19 @@ void main() {
     );
 
     expect(find.text('Show'), findsOneWidget);
+    expect(find.byIcon(Icons.list_alt), findsOneWidget);
 
     await tester.tap(find.text('Show'));
+    // Early: label still collapsing, list icon still visible.
+    await tester.pump(const Duration(milliseconds: 80));
+    expect(controller.hasOpen, isTrue);
+    expect(find.byIcon(Icons.list_alt), findsOneWidget);
+
     await tester.pumpAndSettle();
 
     expect(find.text('Show expenses').hitTestable(), findsOneWidget);
-    expect(find.byIcon(Icons.close), findsOneWidget);
+    expect(find.byIcon(Icons.close), findsNothing);
+    expect(find.byIcon(Icons.add), findsOneWidget);
+    expect(find.byIcon(Icons.list_alt), findsNothing);
   });
 }

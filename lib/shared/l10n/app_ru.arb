@@ -2,7 +2,7 @@
   "@@locale": "ru",
   "appTitle": "Valtero",
   "navDashboard": "Главная",
-  "navExpenses": "Траты",
+  "navExpenses": "Расходы",
   "recentOperations": "Последние операции",
   "navAdd": "Добавить",
   "navTags": "Теги",
@@ -26,7 +26,11 @@
   "contactDeveloperDescription": "Вопросы, идеи или баги — на почту ниже. Логи приложения можно отправить из Настройки → Отладка и логи.",
   "contactDeveloperEmailLabel": "Email",
   "contactDeveloperCopyEmail": "Скопировать email",
-  "debugLogsSendHint": "Чтобы отправить логи разработчику, поделитесь или скопируйте их и пришлите на {email}.",
+  "contactDeveloperSendEmail": "Отправить письмо",
+  "contactDeveloperSendFailed": "Не удалось открыть почтовый клиент. Скопируйте адрес вручную.",
+  "integrationsSuggest": "Предложить интеграцию",
+  "integrationsSuggestHint": "Нужен другой сервис? Напишите разработчику.",
+  "debugLogsSendHint": "«Отправить» откроет почту с вложением лога (или системный share). Скопировать email / логи — в кнопках внизу. Адрес: {email}.",
   "@debugLogsSendHint": {
     "placeholders": {
       "email": {
@@ -220,8 +224,11 @@
   "debugShareLogs": "Отправить разработчику",
   "debugCopyLogs": "Скопировать логи",
   "debugClearLogs": "Очистить логи",
+  "debugRefreshLogs": "Обновить лог",
   "debugLogsEmpty": "Записей в логе пока нет.",
   "debugLogsShared": "Файл лога готов к отправке",
+  "debugLogsEmailed": "Открыт почтовый клиент с вложением лога",
+  "debugLogsEmailFallback": "Не удалось приложить файл. Путь к логу скопирован — вставьте или приложите его в письме.",
   "debugLogsCopied": "Логи скопированы в буфер",
   "debugLogsCleared": "Логи очищены",
   "settingsDataSync": "Резервная копия и синхронизация",
@@ -621,8 +628,10 @@
   "chartTypeDonut": "Круговая диаграмма",
   "chartTypeColumn": "Столбчатая диаграмма",
   "chartHelpBody": "На графике учитываются траты во всех валютах. Если курс не указан, суммы показываются в исходной валюте. Итоги могут смешивать валюты, пока курсы не заданы.",
-  "expensesSummaryHelpTitle": "О сводке трат",
-  "expensesSummaryHelpBody": "Итоги сгруппированы по сохранённой валюте. Кнопка конвертации переводит суммы в списке в одну валюту; итог конвертации показывает, сколько трат удалось пересчитать.",
+  "expensesSummaryHelpTitle": "О сводке расходов",
+  "expensesSummaryHelpBody": "Итоги сгруппированы по сохранённой валюте. Кнопка конвертации переводит суммы в списке в одну валюту; итог конвертации показывает, сколько расходов удалось пересчитать.",
+  "incomeSummaryHelpTitle": "О сводке доходов",
+  "incomeSummaryHelpBody": "Итоги сгруппированы по сохранённой валюте. Кнопка конвертации переводит суммы в списке в одну валюту; итог конвертации показывает, сколько доходов удалось пересчитать.",
   "displayCurrencyHelpBody": "Выберите валюту для отображения сумм в списке. Исходные суммы всегда сохраняются. Отсутствующие курсы можно задать вручную перед конвертацией.",
   "chartPaymentHint": "У траты не больше одного способа оплаты; без выбора — «не указано»",
   "tagKindSectionCountry": "Страна",
@@ -680,12 +689,12 @@
   "guideSectionIncomeTitle": "Доходы",
   "guideSectionIncomeBody": "Нажмите + и выберите «Добавить доход» (или откройте вкладку «Доходы»). Поступление с теми же полями суммы, валюты, оплаты, страны и даты, что и у трат; для доходов — свои категории (зарплата, продажа, подарок и др.). Проверка возможных дублей работает так же.",
   "guideSectionCashFlowTitle": "Баланс",
-  "guideSectionCashFlowBody": "Вкладка «Баланс» сравнивает доходы и расходы по дням, неделям, месяцам или годам. Фильтры по дате и валюте общие; категории и оплата остаются на вкладках «Расходы» и «Доходы».",
+  "guideSectionCashFlowBody": "Вкладка «Баланс» сравнивает доходы и расходы. По умолчанию — кольцевая диаграмма (сумма доходов против суммы расходов); можно переключить на столбцы по дням, неделям, месяцам или годам. Фильтры по дате и валюте общие; категории и оплата остаются на вкладках «Расходы» и «Доходы».",
   "paymentMethod": "Оплата",
   "paymentMethodNone": "Не указано",
   "paymentMethodUnspecified": "Оплата не указана",
   "paymentMethodsTitle": "Способы оплаты",
-  "paymentMethodsHint": "Выберите значение по умолчанию для новых трат. Встроенные способы нельзя удалить.",
+  "paymentMethodsHint": "Выберите способ оплаты по умолчанию для новых трат и доходов. Это не привязка оплаты к приложению — только пресет при создании операций. Встроенные способы нельзя удалить.",
   "paymentMethodNew": "Новый способ оплаты",
   "paymentMethodAdd": "Добавить способ оплаты",
   "paymentMethodEdit": "Изменить способ оплаты",
@@ -781,11 +790,19 @@
       }
     }
   },
-  "summaryCount": "Трат",
-  "summaryExpenses": "Траты",
+  "summaryCount": "Расходов",
+  "summaryExpenses": "Расходы",
   "summaryCurrencies": "Валют",
-  "summaryPerCurrencyCount": "{count, plural, one{1 трата} few{{count} траты} many{{count} трат} other{{count} траты}}",
+  "summaryPerCurrencyCount": "{count, plural, one{1 расход} few{{count} расхода} many{{count} расходов} other{{count} расхода}}",
   "@summaryPerCurrencyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryPerCurrencyIncomeCount": "{count, plural, one{1 доход} few{{count} дохода} many{{count} доходов} other{{count} дохода}}",
+  "@summaryPerCurrencyIncomeCount": {
     "placeholders": {
       "count": {
         "type": "int"

@@ -209,14 +209,17 @@ class _RatesSheetBodyState extends ConsumerState<RatesSheetBody> {
                       children: [
                         FlagIcon.currency(rate.baseCurrencyCode, size: 20),
                         const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            '1 ${rate.baseCurrencyCode} = '
-                            '${rate.rate.toStringAsFixed(6)} ${rate.targetCurrencyCode}',
-                          ),
-                        ),
+                        Text('1 ${rate.baseCurrencyCode} ='),
                         const SizedBox(width: 6),
                         FlagIcon.currency(rate.targetCurrencyCode, size: 20),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            '${rate.rate.toStringAsFixed(6)} '
+                            '${rate.targetCurrencyCode}',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     ),
                     subtitle: Text(

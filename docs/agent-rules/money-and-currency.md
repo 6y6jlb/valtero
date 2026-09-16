@@ -7,7 +7,9 @@
 - **UI display** goes through [formatMoneyDisplay] / [MoneyText] (`intl` + user
   setting `moneyDisplayFormat`: `localeSymbol` | `localeCode` | `isoBefore` |
   `plain` | `compactSymbol`). Appearance dropdown shows **live examples** of each
-  format (not long labels). UI formats prefer a stable glyph via
+  format (not long labels), filtered to **visually unique** previews for the
+  current locale + primary currency (NBSP-normalized; prefer earlier enum order
+  when two formats collide). UI formats prefer a stable glyph via
   [currencySymbolFor] (`₽` / `$` / `€`, …) so RUB does not fall back to the
   three-letter ISO code under non-Russian locales; `plain` keeps ISO for
   export-stable interchange.

@@ -89,8 +89,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactDeveloperCopyEmail => 'Copy email';
 
   @override
+  String get contactDeveloperSendEmail => 'Send email';
+
+  @override
+  String get contactDeveloperSendFailed =>
+      'Could not open the mail app. Copy the address instead.';
+
+  @override
+  String get integrationsSuggest => 'Suggest an integration';
+
+  @override
+  String get integrationsSuggestHint =>
+      'Missing a service you need? Tell the developer.';
+
+  @override
   String debugLogsSendHint(String email) {
-    return 'To send logs to the developer, share or copy them and email to $email.';
+    return 'Use Send to open email with the log attached (or the system share sheet). Copy email / Copy logs are also in the actions below.';
   }
 
   @override
@@ -427,10 +441,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get debugClearLogs => 'Clear logs';
 
   @override
+  String get debugRefreshLogs => 'Refresh log';
+
+  @override
   String get debugLogsEmpty => 'No log entries yet.';
 
   @override
   String get debugLogsShared => 'Log file ready to share';
+
+  @override
+  String get debugLogsEmailed => 'Mail client opened with the log attached';
+
+  @override
+  String get debugLogsEmailFallback =>
+      'Could not attach the file. Log path copied — paste or attach it in the email.';
 
   @override
   String get debugLogsCopied => 'Logs copied to clipboard';
@@ -1168,6 +1192,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Totals are grouped by stored currency. Use the convert button to display list amounts in one currency; the converted total shows how many expenses could be converted.';
 
   @override
+  String get incomeSummaryHelpTitle => 'About income summary';
+
+  @override
+  String get incomeSummaryHelpBody =>
+      'Totals are grouped by stored currency. Use the convert button to display list amounts in one currency; the converted total shows how many income entries could be converted.';
+
+  @override
   String get displayCurrencyHelpBody =>
       'Pick a currency to convert list amounts. Original stored amounts are always kept. Missing rates can be set manually before conversion.';
 
@@ -1319,7 +1350,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideSectionCashFlowBody =>
-      'The Cash flow tab compares income and expenses over day, week, month, or year. Filters apply by date and currency; category and payment filters stay on the Expenses or Income tabs.';
+      'The Cash flow tab compares income and expenses. The default chart is a donut of total income vs expenses; switch to grouped bars for day, week, month, or year. Filters apply by date and currency; category and payment filters stay on the Expenses or Income tabs.';
 
   @override
   String get paymentMethod => 'Payment';
@@ -1335,7 +1366,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paymentMethodsHint =>
-      'Choose a default for new expenses. Built-in methods cannot be deleted.';
+      'Pick the default payment method for new expenses and income. This is not a payment link to the app — only a preset when creating operations. Built-in methods cannot be deleted.';
 
   @override
   String get paymentMethodNew => 'New payment method';
@@ -1572,6 +1603,17 @@ class AppLocalizationsEn extends AppLocalizations {
       locale: localeName,
       other: '$count expenses',
       one: '1 expense',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String summaryPerCurrencyIncomeCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count income',
+      one: '1 income',
     );
     return '$_temp0';
   }

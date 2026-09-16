@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/features/expenses_list/model/expense_summary_aggregator.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
-import 'package:valtero/shared/utils/currency_symbol.dart';
 import 'package:valtero/widgets/feature_help_sheet.dart';
-import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/money_text.dart';
 
 class ExpensesSummaryRow extends StatelessWidget {
@@ -14,6 +12,12 @@ class ExpensesSummaryRow extends StatelessWidget {
   final VoidCallback onConvert;
   /// Overrides the "Expenses" title label (e.g. for the income direction).
   final String? titleLabel;
+  /// Per-currency count label; defaults to expense wording.
+  final String Function(int count)? perCurrencyCountLabel;
+  /// Info-sheet title; defaults to expenses summary help.
+  final String? helpTitle;
+  /// Info-sheet body; defaults to expenses summary help.
+  final String? helpBody;
 
   const ExpensesSummaryRow({
     super.key,
@@ -23,12 +27,16 @@ class ExpensesSummaryRow extends StatelessWidget {
     required this.convertedTotalFuture,
     required this.onConvert,
     this.titleLabel,
+    this.perCurrencyCountLabel,
+    this.helpTitle,
+    this.helpBody,
   });
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final countLabel = perCurrencyCountLabel ?? l10n.summaryPerCurrencyCount;
 
     return Card(
       margin: EdgeInsets.zero,
@@ -55,7 +63,10 @@ class ExpensesSummaryRow extends StatelessWidget {
             else
               for (var i = 0; i < byCurrency.length; i++) ...[
                 if (i > 0) const SizedBox(height: 6),
-                _CurrencyLine(summary: byCurrency[i]),
+                _CurrencyLine(
+                  summary: byCurrency[i],
+                  countLabel: countLabel(byCurrency[i].count),
+                ),
               ],
             if (displayCurrency != null && convertedTotalFuture != null) ...[
               const SizedBox(height: 10),
@@ -138,11 +149,11 @@ class ExpensesSummaryRow extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  tooltip: l10n.expensesSummaryHelpTitle,
+                  tooltip: helpTitle ?? l10n.expensesSummaryHelpTitle,
                   onPressed: () => showFeatureHelpSheet(
                     context,
-                    title: l10n.expensesSummaryHelpTitle,
-                    body: l10n.expensesSummaryHelpBody,
+                    title: helpTitle ?? l10n.expensesSummaryHelpTitle,
+                    body: helpBody ?? l10n.expensesSummaryHelpBody,
                   ),
                   icon: const Icon(Icons.info_outline),
                 ),
@@ -157,30 +168,37 @@ class ExpensesSummaryRow extends StatelessWidget {
 
 class _CurrencyLine extends StatelessWidget {
   final CurrencyExpenseSummary summary;
+  final String countLabel;
 
-  const _CurrencyLine({required this.summary});
+  const _CurrencyLine({
+    required this.summary,
+    required this.countLabel,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     return Row(
       children: [
-        FlagIcon.currency(summary.currency, size: 18),
-        const SizedBox(width: 6),
-        Text(
-          currencySymbolFor(summary.currency),
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(width: 8),
         Expanded(
-          child: Text(
-            l10n.summaryPerCurrencyCount(summary.count),
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+          child: Text.rich(
+            TextSpan(
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+              children: [
+                TextSpan(text: summary.currency.toUpperCase()),
+                TextSpan(
+                  text: ' · $countLabel',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         MoneyText(

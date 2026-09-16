@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:valtero/features/expenses_list/model/cash_flow_summary_aggregator.dart';
 import 'package:valtero/features/expenses_list/ui/signed_money_text.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
-import 'package:valtero/shared/utils/currency_symbol.dart';
 import 'package:valtero/widgets/feature_help_sheet.dart';
-import 'package:valtero/widgets/flag_icon.dart';
 
 /// Cash-flow summary card: income / expenses / net per stored currency plus an
 /// optional converted total in the display currency. Mirrors
@@ -121,21 +119,26 @@ class _CurrencyBlock extends StatelessWidget {
       children: [
         Row(
           children: [
-            FlagIcon.currency(summary.currency, size: 18),
-            const SizedBox(width: 6),
-            Text(
-              currencySymbolFor(summary.currency),
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(width: 8),
             Expanded(
-              child: Text(
-                l10n.summaryPerCurrencyOperationCount(summary.count),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+              child: Text.rich(
+                TextSpan(
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                  children: [
+                    TextSpan(text: summary.currency.toUpperCase()),
+                    TextSpan(
+                      text:
+                          ' · ${l10n.summaryPerCurrencyOperationCount(summary.count)}',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],

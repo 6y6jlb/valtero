@@ -70,7 +70,7 @@ IconData? iconDataForTagKey(String? iconKey) {
     'gift' => Icons.card_giftcard_outlined,
     'refund' => Icons.undo_outlined,
     'investment' => Icons.trending_up_outlined,
-    'other' => Icons.more_horiz,
+    'other' => Icons.category_outlined,
     'work' => Icons.work_outline,
     'education' => Icons.school_outlined,
     'pets' => Icons.pets_outlined,

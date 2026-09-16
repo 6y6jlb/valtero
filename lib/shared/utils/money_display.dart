@@ -27,6 +27,74 @@ MoneyDisplayFormat moneyDisplayFormatFromName(String? name) {
   );
 }
 
+/// Collapses NBSP / thin spaces so visually identical previews compare equal.
+String normalizeMoneyPreview(String preview) {
+  return preview
+      .replaceAll('\u00A0', ' ')
+      .replaceAll('\u202F', ' ')
+      .replaceAll(RegExp(r' +'), ' ')
+      .trim();
+}
+
+/// Formats that produce visually distinct previews for [localeName] + currency.
+///
+/// Prefer earlier enum order when two formats collide (e.g. `localeSymbol`
+/// over `localeCode` when they only differ by NBSP).
+List<MoneyDisplayFormat> uniqueMoneyDisplayFormats({
+  required String localeName,
+  required String currencyCode,
+  int amountMinor = 123456,
+}) {
+  final seen = <String>{};
+  final unique = <MoneyDisplayFormat>[];
+  for (final format in MoneyDisplayFormat.values) {
+    final preview = normalizeMoneyPreview(
+      formatMoneyDisplay(
+        amountMinor: amountMinor,
+        currencyCode: currencyCode,
+        localeName: localeName,
+        format: format,
+      ),
+    );
+    if (seen.add(preview)) {
+      unique.add(format);
+    }
+  }
+  return unique;
+}
+
+/// Maps a stored format onto one that appears in [uniqueFormats], preferring
+/// an earlier twin when the stored value was collapsed as a duplicate.
+MoneyDisplayFormat resolveUniqueMoneyDisplayFormat({
+  required MoneyDisplayFormat selected,
+  required List<MoneyDisplayFormat> uniqueFormats,
+  required String localeName,
+  required String currencyCode,
+  int amountMinor = 123456,
+}) {
+  if (uniqueFormats.contains(selected)) return selected;
+  final selectedPreview = normalizeMoneyPreview(
+    formatMoneyDisplay(
+      amountMinor: amountMinor,
+      currencyCode: currencyCode,
+      localeName: localeName,
+      format: selected,
+    ),
+  );
+  for (final format in uniqueFormats) {
+    final preview = normalizeMoneyPreview(
+      formatMoneyDisplay(
+        amountMinor: amountMinor,
+        currencyCode: currencyCode,
+        localeName: localeName,
+        format: format,
+      ),
+    );
+    if (preview == selectedPreview) return format;
+  }
+  return uniqueFormats.isNotEmpty ? uniqueFormats.first : selected;
+}
+
 /// Formats [amountMinor] for on-screen display via `intl` (or plain).
 ///
 /// Export / interchange should keep using [Money.formatMinor] (dot decimals,

@@ -15,7 +15,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get navDashboard => 'Главная';
 
   @override
-  String get navExpenses => 'Траты';
+  String get navExpenses => 'Расходы';
 
   @override
   String get recentOperations => 'Последние операции';
@@ -89,8 +89,22 @@ class AppLocalizationsRu extends AppLocalizations {
   String get contactDeveloperCopyEmail => 'Скопировать email';
 
   @override
+  String get contactDeveloperSendEmail => 'Отправить письмо';
+
+  @override
+  String get contactDeveloperSendFailed =>
+      'Не удалось открыть почтовый клиент. Скопируйте адрес вручную.';
+
+  @override
+  String get integrationsSuggest => 'Предложить интеграцию';
+
+  @override
+  String get integrationsSuggestHint =>
+      'Нужен другой сервис? Напишите разработчику.';
+
+  @override
   String debugLogsSendHint(String email) {
-    return 'Чтобы отправить логи разработчику, поделитесь или скопируйте их и пришлите на $email.';
+    return '«Отправить» откроет почту с вложением лога (или системный share). Скопировать email / логи — в кнопках внизу. Адрес: $email.';
   }
 
   @override
@@ -432,10 +446,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String get debugClearLogs => 'Очистить логи';
 
   @override
+  String get debugRefreshLogs => 'Обновить лог';
+
+  @override
   String get debugLogsEmpty => 'Записей в логе пока нет.';
 
   @override
   String get debugLogsShared => 'Файл лога готов к отправке';
+
+  @override
+  String get debugLogsEmailed => 'Открыт почтовый клиент с вложением лога';
+
+  @override
+  String get debugLogsEmailFallback =>
+      'Не удалось приложить файл. Путь к логу скопирован — вставьте или приложите его в письме.';
 
   @override
   String get debugLogsCopied => 'Логи скопированы в буфер';
@@ -1169,11 +1193,18 @@ class AppLocalizationsRu extends AppLocalizations {
       'На графике учитываются траты во всех валютах. Если курс не указан, суммы показываются в исходной валюте. Итоги могут смешивать валюты, пока курсы не заданы.';
 
   @override
-  String get expensesSummaryHelpTitle => 'О сводке трат';
+  String get expensesSummaryHelpTitle => 'О сводке расходов';
 
   @override
   String get expensesSummaryHelpBody =>
-      'Итоги сгруппированы по сохранённой валюте. Кнопка конвертации переводит суммы в списке в одну валюту; итог конвертации показывает, сколько трат удалось пересчитать.';
+      'Итоги сгруппированы по сохранённой валюте. Кнопка конвертации переводит суммы в списке в одну валюту; итог конвертации показывает, сколько расходов удалось пересчитать.';
+
+  @override
+  String get incomeSummaryHelpTitle => 'О сводке доходов';
+
+  @override
+  String get incomeSummaryHelpBody =>
+      'Итоги сгруппированы по сохранённой валюте. Кнопка конвертации переводит суммы в списке в одну валюту; итог конвертации показывает, сколько доходов удалось пересчитать.';
 
   @override
   String get displayCurrencyHelpBody =>
@@ -1331,7 +1362,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get guideSectionCashFlowBody =>
-      'Вкладка «Баланс» сравнивает доходы и расходы по дням, неделям, месяцам или годам. Фильтры по дате и валюте общие; категории и оплата остаются на вкладках «Расходы» и «Доходы».';
+      'Вкладка «Баланс» сравнивает доходы и расходы. По умолчанию — кольцевая диаграмма (сумма доходов против суммы расходов); можно переключить на столбцы по дням, неделям, месяцам или годам. Фильтры по дате и валюте общие; категории и оплата остаются на вкладках «Расходы» и «Доходы».';
 
   @override
   String get paymentMethod => 'Оплата';
@@ -1347,7 +1378,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get paymentMethodsHint =>
-      'Выберите значение по умолчанию для новых трат. Встроенные способы нельзя удалить.';
+      'Выберите способ оплаты по умолчанию для новых трат и доходов. Это не привязка оплаты к приложению — только пресет при создании операций. Встроенные способы нельзя удалить.';
 
   @override
   String get paymentMethodNew => 'Новый способ оплаты';
@@ -1569,10 +1600,10 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get summaryCount => 'Трат';
+  String get summaryCount => 'Расходов';
 
   @override
-  String get summaryExpenses => 'Траты';
+  String get summaryExpenses => 'Расходы';
 
   @override
   String get summaryCurrencies => 'Валют';
@@ -1582,10 +1613,23 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count траты',
-      many: '$count трат',
-      few: '$count траты',
-      one: '1 трата',
+      other: '$count расхода',
+      many: '$count расходов',
+      few: '$count расхода',
+      one: '1 расход',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String summaryPerCurrencyIncomeCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count дохода',
+      many: '$count доходов',
+      few: '$count дохода',
+      one: '1 доход',
     );
     return '$_temp0';
   }

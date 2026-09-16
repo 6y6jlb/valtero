@@ -89,8 +89,22 @@ class AppLocalizationsEs extends AppLocalizations {
   String get contactDeveloperCopyEmail => 'Copiar correo';
 
   @override
+  String get contactDeveloperSendEmail => 'Enviar correo';
+
+  @override
+  String get contactDeveloperSendFailed =>
+      'No se pudo abrir el correo. Copia la dirección en su lugar.';
+
+  @override
+  String get integrationsSuggest => 'Sugerir una integración';
+
+  @override
+  String get integrationsSuggestHint =>
+      '¿Falta un servicio? Escríbele al desarrollador.';
+
+  @override
   String debugLogsSendHint(String email) {
-    return 'Para enviar los registros al desarrollador, compártelos o cópialos y envíalos a $email.';
+    return '«Enviar» abre el correo con el registro adjunto (o el menú de compartir). Copiar correo / registros está abajo. Dirección: $email.';
   }
 
   @override
@@ -436,10 +450,21 @@ class AppLocalizationsEs extends AppLocalizations {
   String get debugClearLogs => 'Borrar registros';
 
   @override
+  String get debugRefreshLogs => 'Actualizar registro';
+
+  @override
   String get debugLogsEmpty => 'Aún no hay entradas en el registro.';
 
   @override
   String get debugLogsShared => 'Archivo de registro listo para compartir';
+
+  @override
+  String get debugLogsEmailed =>
+      'Cliente de correo abierto con el registro adjunto';
+
+  @override
+  String get debugLogsEmailFallback =>
+      'No se pudo adjuntar el archivo. Ruta copiada: pégala o adjúntala en el correo.';
 
   @override
   String get debugLogsCopied => 'Registros copiados al portapapeles';
@@ -1179,6 +1204,13 @@ class AppLocalizationsEs extends AppLocalizations {
       'Los totales se agrupan por moneda almacenada. Usa el botón de conversión para mostrar los importes de la lista en una moneda; el total convertido indica cuántos gastos se pudieron convertir.';
 
   @override
+  String get incomeSummaryHelpTitle => 'Acerca del resumen de ingresos';
+
+  @override
+  String get incomeSummaryHelpBody =>
+      'Los totales se agrupan por moneda almacenada. Usa el botón de conversión para mostrar los importes de la lista en una moneda; el total convertido indica cuántos ingresos se pudieron convertir.';
+
+  @override
   String get displayCurrencyHelpBody =>
       'Elige una moneda para convertir los importes de la lista. Los importes originales siempre se conservan. Los tipos de cambio faltantes se pueden definir manualmente antes de convertir.';
 
@@ -1331,7 +1363,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guideSectionCashFlowBody =>
-      'La pestaña Flujo de caja compara ingresos y gastos por día, semana, mes o año. Los filtros de fecha y moneda aplican; categoría y pago quedan en las pestañas Gastos o Ingresos.';
+      'La pestaña Flujo de caja compara ingresos y gastos. El gráfico predeterminado es un donut de ingresos vs gastos totales; puedes cambiar a barras por día, semana, mes o año. Los filtros de fecha y moneda aplican; categoría y pago quedan en las pestañas Gastos o Ingresos.';
 
   @override
   String get paymentMethod => 'Pago';
@@ -1347,7 +1379,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get paymentMethodsHint =>
-      'Elige uno predeterminado para nuevos gastos. Los métodos integrados no se pueden eliminar.';
+      'Elige el método de pago predeterminado para nuevos gastos e ingresos. No vincula un pago a la app: solo es un valor al crear operaciones. Los métodos integrados no se pueden eliminar.';
 
   @override
   String get paymentMethodNew => 'Nuevo método de pago';
@@ -1585,6 +1617,17 @@ class AppLocalizationsEs extends AppLocalizations {
       locale: localeName,
       other: '$count gastos',
       one: '1 gasto',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String summaryPerCurrencyIncomeCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ingresos',
+      one: '1 ingreso',
     );
     return '$_temp0';
   }

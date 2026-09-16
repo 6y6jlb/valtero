@@ -31,7 +31,7 @@ import 'package:valtero/features/expenses_list/ui/expenses_filter_sheet.dart';
 import 'package:valtero/features/google_drive_sync/ui/google_drive_sync_app_bar_button.dart';
 import 'package:valtero/pages/expenses/expenses_page.dart';
 import 'package:valtero/pages/platform_guide/platform_guide_page.dart';
-import 'package:valtero/pages/settings/settings_page.dart';
+import 'package:valtero/pages/settings/settings_app_bar_button.dart';
 import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
@@ -71,6 +71,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   }
 
   void _changeBreakdown(ExpenseChartBreakdown next) {
+    if (_direction == TransactionDirection.cashFlow) {
+      ref.read(appSettingsProvider.notifier).setCashFlowListDisplay(
+            chartDatePeriod: isDateChartBreakdown(next)
+                ? next.name
+                : ExpenseChartBreakdown.month.name,
+          );
+      return;
+    }
     ref.read(appSettingsProvider.notifier).setExpensesListDisplay(
           chartBreakdown: next.name,
           chartDatePeriod: isDateChartBreakdown(next) ? next.name : null,
@@ -78,6 +86,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   }
 
   void _changeChartType(ExpenseChartType next) {
+    if (_direction == TransactionDirection.cashFlow) {
+      ref.read(appSettingsProvider.notifier).setCashFlowListDisplay(
+            chartType: next.name,
+          );
+      return;
+    }
     ref.read(appSettingsProvider.notifier).setExpensesListDisplay(
           chartType: next.name,
         );
@@ -94,19 +108,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         .setDashboardDirection(next.settingsValue);
     if (next == TransactionDirection.cashFlow) {
       final settings = ref.read(appSettingsProvider).value;
-      final breakdown = settings != null
-          ? expensesChartBreakdownFromSettings(settings)
-          : ExpenseChartBreakdown.currency;
-      if (!isDateChartBreakdown(breakdown)) {
+      final period = settings != null
+          ? cashFlowChartDatePeriodFromSettings(settings)
+          : ExpenseChartBreakdown.month;
+      if (!isDateChartBreakdown(period)) {
         _changeBreakdown(ExpenseChartBreakdown.month);
       }
     }
-  }
-
-  void _openSettings(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const SettingsPage()),
-    );
   }
 
   Future<void> _openFilters({
@@ -256,16 +264,20 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         ref.watch(paymentMethodsStreamProvider).value ?? const [];
     final expenseTags = ref.watch(expenseTagIdsProvider).value ?? const {};
     final incomeTags = ref.watch(incomeTagIdsProvider).value ?? const {};
-    final rawBreakdown = settings != null
-        ? expensesChartBreakdownFromSettings(settings)
-        : ExpenseChartBreakdown.currency;
+    final rawBreakdown = settings == null
+        ? ExpenseChartBreakdown.currency
+        : (_direction == TransactionDirection.cashFlow
+            ? cashFlowChartDatePeriodFromSettings(settings)
+            : expensesChartBreakdownFromSettings(settings));
     final breakdown =
         _direction == TransactionDirection.cashFlow &&
                 !isDateChartBreakdown(rawBreakdown)
             ? ExpenseChartBreakdown.month
             : rawBreakdown;
     final chartType = settings != null
-        ? expensesChartTypeFromSettings(settings)
+        ? (_direction == TransactionDirection.cashFlow
+            ? cashFlowChartTypeFromSettings(settings)
+            : expensesChartTypeFromSettings(settings))
         : ExpenseChartType.donut;
     final displayCurrency = settings?.primaryCurrency ?? 'RUB';
     final tagById = {for (final t in tags) t.id: t};
@@ -492,11 +504,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             onPressed: () => showRatesSheet(context),
             icon: const Icon(Icons.currency_exchange),
           ),
-          IconButton(
-            tooltip: l10n.settings,
-            onPressed: () => _openSettings(context),
-            icon: const Icon(Icons.settings_outlined),
-          ),
+          const SettingsAppBarButton(),
         ],
       ),
       addOperationHeroTag: 'dashboard_add_operation',

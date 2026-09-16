@@ -356,6 +356,10 @@ class _IncomeListBodyState extends ConsumerState<IncomeListBody> {
                               '${_displayRates.displayRatesSourcesKey}',
                             ),
                             titleLabel: l10n.cashFlowIncome,
+                            perCurrencyCountLabel:
+                                l10n.summaryPerCurrencyIncomeCount,
+                            helpTitle: l10n.incomeSummaryHelpTitle,
+                            helpBody: l10n.incomeSummaryHelpBody,
                             byCurrency: [
                               for (final s in byCurrency)
                                 (

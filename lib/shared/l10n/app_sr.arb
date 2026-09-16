@@ -26,7 +26,11 @@
   "contactDeveloperDescription": "Pitanja, ideje ili greške — na email ispod. Logove aplikacije možeš poslati iz Podešavanja → Otklanjanje grešaka i logovi.",
   "contactDeveloperEmailLabel": "Email",
   "contactDeveloperCopyEmail": "Kopiraj email",
-  "debugLogsSendHint": "Da pošalješ logove razvojnom timu, podeli ili kopiraj ih i pošalji na {email}.",
+  "contactDeveloperSendEmail": "Pošalji email",
+  "contactDeveloperSendFailed": "Nije moguće otvoriti email aplikaciju. Kopiraj adresu umesto toga.",
+  "integrationsSuggest": "Predloži integraciju",
+  "integrationsSuggestHint": "Nedostaje usluga? Piši razvojnom timu.",
+  "debugLogsSendHint": "«Pošalji» otvara email sa priloženim logom (ili sistemski share). Kopiraj email / logove — u dugmadima ispod. Adresa: {email}.",
   "@debugLogsSendHint": {
     "placeholders": {
       "email": {
@@ -220,8 +224,11 @@
   "debugShareLogs": "Pošalji programeru",
   "debugCopyLogs": "Kopiraj logove",
   "debugClearLogs": "Obriši logove",
+  "debugRefreshLogs": "Osveži log",
   "debugLogsEmpty": "Još nema unosa u logu.",
   "debugLogsShared": "Log fajl spreman za deljenje",
+  "debugLogsEmailed": "Otvoren je email klijent sa priloženim logom",
+  "debugLogsEmailFallback": "Nije moguće priložiti fajl. Putanja je kopirana — nalepi je ili priloži u emailu.",
   "debugLogsCopied": "Logovi kopirani u clipboard",
   "debugLogsCleared": "Logovi obrisani",
   "settingsDataSync": "Rezervna kopija i sinhronizacija",
@@ -623,6 +630,8 @@
   "chartHelpBody": "Grafikon uključuje troškove u svim valutama. Kada kurs nedostaje, iznosi se prikazuju u originalnoj valuti. Ukupni iznosi mogu mešati valute dok kursevi nisu postavljeni.",
   "expensesSummaryHelpTitle": "O rezimeu troškova",
   "expensesSummaryHelpBody": "Ukupni iznosi su grupisani po sačuvanoj valuti. Dugme za konverziju prikazuje iznose u listi u jednoj valuti; konvertovani ukupni iznos pokazuje koliko troškova je bilo moguće preračunati.",
+  "incomeSummaryHelpTitle": "O rezimeu prihoda",
+  "incomeSummaryHelpBody": "Ukupni iznosi su grupisani po sačuvanoj valuti. Dugme za konverziju prikazuje iznose u listi u jednoj valuti; konvertovani ukupni iznos pokazuje koliko prihoda je bilo moguće preračunati.",
   "displayCurrencyHelpBody": "Izaberite valutu za prikaz iznosa u listi. Originalni iznosi se uvek čuvaju. Nedostajuće kurseve možete ručno postaviti pre konverzije.",
   "chartPaymentHint": "Svaki trošak ima najviše jedan način plaćanja; ako nije izabran, prikazuje se kao nije postavljeno",
   "tagKindSectionCountry": "Zemlja",
@@ -680,12 +689,12 @@
   "guideSectionIncomeTitle": "Prihodi",
   "guideSectionIncomeBody": "Dodirnite + i izaberite Dodaj prihod (ili otvorite karticu Prihodi). Uplate imaju ista polja iznosa, valute, plaćanja, zemlje i datuma kao troškovi, sa sopstvenim kategorijama (plata, prodaja, poklon…). Provera mogućih duplikata radi isto.",
   "guideSectionCashFlowTitle": "Tok novca",
-  "guideSectionCashFlowBody": "Kartica Tok novca poredi prihode i troškove po danu, nedelji, mesecu ili godini. Filteri datuma i valute važe; kategorija i plaćanje ostaju na karticama Troškovi ili Prihodi.",
+  "guideSectionCashFlowBody": "Kartica Tok novca poredi prihode i troškove. Podrazumevani grafik je krofna (ukupni prihod vs trošak); možeš prebaciti na stubove po danu, nedelji, mesecu ili godini. Filteri datuma i valute važe; kategorija i plaćanje ostaju na karticama Troškovi ili Prihodi.",
   "paymentMethod": "Plaćanje",
   "paymentMethodNone": "Nije postavljeno",
   "paymentMethodUnspecified": "Plaćanje nije postavljeno",
   "paymentMethodsTitle": "Načini plaćanja",
-  "paymentMethodsHint": "Izaberi podrazumevani za nove troškove. Ugrađene metode se ne mogu obrisati.",
+  "paymentMethodsHint": "Izaberi podrazumevani način plaćanja za nove troškove i prihode. Ovo nije povezivanje plaćanja sa aplikacijom — samo podrazumevana vrednost pri kreiranju. Ugrađene metode se ne mogu obrisati.",
   "paymentMethodNew": "Novi način plaćanja",
   "paymentMethodAdd": "Dodaj način plaćanja",
   "paymentMethodEdit": "Izmeni način plaćanja",
@@ -786,6 +795,14 @@
   "summaryCurrencies": "Valute",
   "summaryPerCurrencyCount": "{count, plural, one{1 trošak} few{{count} troška} other{{count} troškova}}",
   "@summaryPerCurrencyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "summaryPerCurrencyIncomeCount": "{count, plural, one{1 prihod} few{{count} prihoda} other{{count} prihoda}}",
+  "@summaryPerCurrencyIncomeCount": {
     "placeholders": {
       "count": {
         "type": "int"

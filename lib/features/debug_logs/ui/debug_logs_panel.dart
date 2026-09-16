@@ -6,7 +6,9 @@ import 'package:valtero/shared/consts/developer_contact.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/widgets/app_button.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
 import 'package:valtero/widgets/app_sheet_header.dart';
 import 'package:valtero/widgets/app_sheet_scaffold.dart';
 import 'package:valtero/widgets/app_toast.dart';
@@ -51,12 +53,17 @@ class _DebugLogsPanelState extends ConsumerState<DebugLogsPanel> {
     final result =
         await ref.read(debugLogsControllerProvider).shareOrCopyLogs();
     if (!mounted) return;
-    if (result == null) {
-      showAppToast(context, l10n.debugLogsEmpty);
-    } else if (result == 'shared') {
-      showAppToast(context, l10n.debugLogsShared);
-    } else {
-      showAppToast(context, l10n.debugLogsCopied);
+    switch (result) {
+      case null:
+        showAppToast(context, l10n.debugLogsEmpty);
+      case DebugLogsShareResult.shared:
+        showAppToast(context, l10n.debugLogsShared);
+      case DebugLogsShareResult.emailed:
+        showAppToast(context, l10n.debugLogsEmailed);
+      case DebugLogsShareResult.emailFallback:
+        showAppToast(context, l10n.debugLogsEmailFallback);
+      case DebugLogsShareResult.copied:
+        showAppToast(context, l10n.debugLogsCopied);
     }
   }
 
@@ -104,6 +111,32 @@ class _DebugLogsPanelState extends ConsumerState<DebugLogsPanel> {
         title: l10n.settingsDebug,
         description: l10n.debugLoggingDescription,
       ),
+      actions: AppSheetActionsBar(
+        children: [
+          const AppCloseIconButton(),
+          AppOutlinedButton(
+            label: l10n.contactDeveloperCopyEmail,
+            icon: Icons.copy_outlined,
+            onPressed: _copyDeveloperEmail,
+          ),
+          AppOutlinedButton(
+            label: l10n.debugCopyLogs,
+            icon: Icons.content_copy_outlined,
+            onPressed: _copy,
+          ),
+          AppOutlinedButton(
+            label: l10n.debugClearLogs,
+            icon: Icons.delete_outline,
+            onPressed: _clear,
+            destructive: true,
+          ),
+          AppFilledButton(
+            label: l10n.debugShareLogs,
+            icon: Icons.send_outlined,
+            onPressed: _share,
+          ),
+        ],
+      ),
       children: [
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
@@ -120,62 +153,47 @@ class _DebugLogsPanelState extends ConsumerState<DebugLogsPanel> {
             color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
-        const SizedBox(height: 8),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: AppOutlinedButton(
-            label: l10n.contactDeveloperCopyEmail,
-            icon: Icons.copy_outlined,
-            onPressed: _copyDeveloperEmail,
-          ),
-        ),
         const SizedBox(height: 16),
         Text(l10n.debugViewLogs, style: theme.textTheme.titleMedium),
         const SizedBox(height: 8),
         Container(
           constraints: const BoxConstraints(minHeight: 180, maxHeight: 320),
-          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: theme.colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: _loading
-              ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
-                  child: SelectableText(
-                    display,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontFamily: 'monospace',
-                    ),
+          clipBehavior: Clip.antiAlias,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: _loading
+                    ? const Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(12, 12, 48, 12),
+                        child: SelectableText(
+                          display,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ),
+              ),
+              Positioned(
+                top: 4,
+                right: 4,
+                child: Material(
+                  color: theme.colorScheme.surface.withValues(alpha: 0.92),
+                  shape: const CircleBorder(),
+                  child: IconButton(
+                    tooltip: l10n.debugRefreshLogs,
+                    visualDensity: VisualDensity.compact,
+                    onPressed: _loading ? null : _reload,
+                    icon: const Icon(Icons.refresh, size: 20),
                   ),
                 ),
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            IconButton.filledTonal(
-              onPressed: _reload,
-              icon: const Icon(Icons.refresh),
-            ),
-            AppFilledButton(
-              onPressed: _share,
-              label: l10n.debugShareLogs,
-              icon: Icons.share_outlined,
-            ),
-            AppOutlinedButton(
-              onPressed: _copy,
-              label: l10n.debugCopyLogs,
-              icon: Icons.copy_outlined,
-            ),
-            AppOutlinedButton(
-              onPressed: _clear,
-              label: l10n.debugClearLogs,
-              icon: Icons.delete_outline,
-              destructive: true,
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ],
     );

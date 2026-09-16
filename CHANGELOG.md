@@ -8,6 +8,34 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.7] - 2026-09-16
+
+### Added
+
+- Cash-flow **donut** chart (income vs expense totals) as the default shape, with
+  toggle to temporal grouped bars; choice persisted as `cashFlowChartType`.
+- Contact developer: **Send** opens mailto; Copy stays in the sheet actions.
+- Integrations sheet: **Suggest an integration** opens Contact developer; Close
+  footer on integration config sheets.
+- Settings gear on Dashboard, Expenses/Income list, and Platform guide (not on
+  Settings itself).
+- Debug & logs sticky actions (copy email / copy logs / clear / send); Linux
+  send uses `xdg-email --attach` with path+mailto fallback; refresh overlay on
+  the log viewer.
+
+### Changed
+
+- Expandable FAB open state uses a rotating `+` (45°) instead of swapping to ×;
+  Show FAB collapses the label, then morphs the list icon into the rotated +.
+- Appearance money-format dropdown shows only visually unique previews (NBSP /
+  twin formats collapsed).
+- Per-currency summary headers use `ISO · count` (no flag/symbol); income has
+  its own help copy; Russian expense wording clarified.
+- Rates list places the target currency flag before the amount (same pattern as
+  the base flag).
+- Tag icon key `other` uses a full outlined category icon instead of `more_horiz`.
+- Direct `url_launcher` dependency for mailto / Linux email fallback.
+
 ## [1.1.6] - 2026-09-15
 
 ### Changed

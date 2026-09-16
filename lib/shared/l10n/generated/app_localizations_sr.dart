@@ -89,8 +89,22 @@ class AppLocalizationsSr extends AppLocalizations {
   String get contactDeveloperCopyEmail => 'Kopiraj email';
 
   @override
+  String get contactDeveloperSendEmail => 'Pošalji email';
+
+  @override
+  String get contactDeveloperSendFailed =>
+      'Nije moguće otvoriti email aplikaciju. Kopiraj adresu umesto toga.';
+
+  @override
+  String get integrationsSuggest => 'Predloži integraciju';
+
+  @override
+  String get integrationsSuggestHint =>
+      'Nedostaje usluga? Piši razvojnom timu.';
+
+  @override
   String debugLogsSendHint(String email) {
-    return 'Da pošalješ logove razvojnom timu, podeli ili kopiraj ih i pošalji na $email.';
+    return '«Pošalji» otvara email sa priloženim logom (ili sistemski share). Kopiraj email / logove — u dugmadima ispod. Adresa: $email.';
   }
 
   @override
@@ -431,10 +445,20 @@ class AppLocalizationsSr extends AppLocalizations {
   String get debugClearLogs => 'Obriši logove';
 
   @override
+  String get debugRefreshLogs => 'Osveži log';
+
+  @override
   String get debugLogsEmpty => 'Još nema unosa u logu.';
 
   @override
   String get debugLogsShared => 'Log fajl spreman za deljenje';
+
+  @override
+  String get debugLogsEmailed => 'Otvoren je email klijent sa priloženim logom';
+
+  @override
+  String get debugLogsEmailFallback =>
+      'Nije moguće priložiti fajl. Putanja je kopirana — nalepi je ili priloži u emailu.';
 
   @override
   String get debugLogsCopied => 'Logovi kopirani u clipboard';
@@ -1176,6 +1200,13 @@ class AppLocalizationsSr extends AppLocalizations {
       'Ukupni iznosi su grupisani po sačuvanoj valuti. Dugme za konverziju prikazuje iznose u listi u jednoj valuti; konvertovani ukupni iznos pokazuje koliko troškova je bilo moguće preračunati.';
 
   @override
+  String get incomeSummaryHelpTitle => 'O rezimeu prihoda';
+
+  @override
+  String get incomeSummaryHelpBody =>
+      'Ukupni iznosi su grupisani po sačuvanoj valuti. Dugme za konverziju prikazuje iznose u listi u jednoj valuti; konvertovani ukupni iznos pokazuje koliko prihoda je bilo moguće preračunati.';
+
+  @override
   String get displayCurrencyHelpBody =>
       'Izaberite valutu za prikaz iznosa u listi. Originalni iznosi se uvek čuvaju. Nedostajuće kurseve možete ručno postaviti pre konverzije.';
 
@@ -1329,7 +1360,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get guideSectionCashFlowBody =>
-      'Kartica Tok novca poredi prihode i troškove po danu, nedelji, mesecu ili godini. Filteri datuma i valute važe; kategorija i plaćanje ostaju na karticama Troškovi ili Prihodi.';
+      'Kartica Tok novca poredi prihode i troškove. Podrazumevani grafik je krofna (ukupni prihod vs trošak); možeš prebaciti na stubove po danu, nedelji, mesecu ili godini. Filteri datuma i valute važe; kategorija i plaćanje ostaju na karticama Troškovi ili Prihodi.';
 
   @override
   String get paymentMethod => 'Plaćanje';
@@ -1345,7 +1376,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get paymentMethodsHint =>
-      'Izaberi podrazumevani za nove troškove. Ugrađene metode se ne mogu obrisati.';
+      'Izaberi podrazumevani način plaćanja za nove troškove i prihode. Ovo nije povezivanje plaćanja sa aplikacijom — samo podrazumevana vrednost pri kreiranju. Ugrađene metode se ne mogu obrisati.';
 
   @override
   String get paymentMethodNew => 'Novi način plaćanja';
@@ -1584,6 +1615,18 @@ class AppLocalizationsSr extends AppLocalizations {
       other: '$count troškova',
       few: '$count troška',
       one: '1 trošak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String summaryPerCurrencyIncomeCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count prihoda',
+      few: '$count prihoda',
+      one: '1 prihod',
     );
     return '$_temp0';
   }

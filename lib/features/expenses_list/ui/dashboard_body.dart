@@ -9,7 +9,7 @@ import 'package:valtero/features/expenses_list/model/recent_operation.dart';
 import 'package:valtero/features/expenses_list/model/transaction_direction.dart';
 import 'package:valtero/features/expenses_list/ui/breakdown_chart_view.dart';
 import 'package:valtero/features/expenses_list/ui/cash_flow_breakdown_icons.dart';
-import 'package:valtero/features/expenses_list/ui/cash_flow_chart.dart';
+import 'package:valtero/features/expenses_list/ui/cash_flow_chart_view.dart';
 import 'package:valtero/features/expenses_list/ui/chart_breakdown_icons.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_filter_summary_bar.dart';
 import 'package:valtero/features/expenses_list/ui/operation_direction_tabs.dart';
@@ -119,13 +119,15 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
     final emptyIcon = switch (widget.direction) {
       TransactionDirection.income => Icons.south_west_outlined,
       TransactionDirection.expenses => Icons.north_east_outlined,
-      TransactionDirection.cashFlow => Icons.stacked_bar_chart_outlined,
+      TransactionDirection.cashFlow => Icons.pie_chart_outline,
     };
     if (widget.direction == TransactionDirection.cashFlow) {
-      return CashFlowChart(
+      return CashFlowChartView(
         buckets: widget.cashFlowBuckets,
         displayCurrency: widget.displayCurrency,
-        hideBarAmounts: widget.missingRateCount > 0,
+        chartType: widget.chartType,
+        onChartTypeChanged: widget.onChartTypeChanged,
+        hideAmounts: widget.missingRateCount > 0,
         emptyMessage: emptyMessage,
         emptyIcon: emptyIcon,
       );

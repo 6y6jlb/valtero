@@ -15,6 +15,7 @@ import 'package:valtero/features/expenses_list/ui/expenses_sheet.dart';
 import 'package:valtero/features/expenses_list/ui/income_list_body.dart';
 import 'package:valtero/features/expenses_list/ui/operation_direction_tabs.dart';
 import 'package:valtero/features/google_drive_sync/ui/google_drive_sync_app_bar_button.dart';
+import 'package:valtero/pages/settings/settings_app_bar_button.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/app_timezone.dart';
@@ -95,6 +96,7 @@ class _ExpensesPageState extends ConsumerState<ExpensesPage> {
         title: Text(title),
         actions: const [
           GoogleDriveSyncAppBarButton(),
+          SettingsAppBarButton(),
         ],
       ),
       addOperationHeroTag: 'expenses_add_operation',

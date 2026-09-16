@@ -161,36 +161,59 @@ class SettingsPage extends ConsumerWidget {
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                // ignore: deprecated_member_use
-                value: moneyDisplayFormatFromName(
-                  settings?.moneyDisplayFormat,
-                ).name,
-                decoration: InputDecoration(labelText: l10n.moneyFormat),
-                isExpanded: true,
-                items: [
-                  for (final format in MoneyDisplayFormat.values)
-                    DropdownMenuItem(
-                      value: format.name,
-                      child: Text(
-                        formatMoneyDisplay(
-                          amountMinor: 123456,
-                          currencyCode: settings?.primaryCurrency ?? 'USD',
-                          localeName: Localizations.localeOf(
-                            context,
-                          ).toString(),
-                          format: format,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
+              Builder(
+                builder: (context) {
+                  final localeName =
+                      Localizations.localeOf(context).toString();
+                  final currencyCode = settings?.primaryCurrency ?? 'USD';
+                  final uniqueFormats = uniqueMoneyDisplayFormats(
+                    localeName: localeName,
+                    currencyCode: currencyCode,
+                  );
+                  final selected = resolveUniqueMoneyDisplayFormat(
+                    selected: moneyDisplayFormatFromName(
+                      settings?.moneyDisplayFormat,
                     ),
-                ],
-                onChanged: (v) {
-                  if (v != null) {
-                    ref
-                        .read(appSettingsProvider.notifier)
-                        .setMoneyDisplayFormat(v);
+                    uniqueFormats: uniqueFormats,
+                    localeName: localeName,
+                    currencyCode: currencyCode,
+                  );
+                  if (settings != null &&
+                      settings.moneyDisplayFormat != selected.name) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      ref
+                          .read(appSettingsProvider.notifier)
+                          .setMoneyDisplayFormat(selected.name);
+                    });
                   }
+                  return DropdownButtonFormField<String>(
+                    // ignore: deprecated_member_use
+                    value: selected.name,
+                    decoration: InputDecoration(labelText: l10n.moneyFormat),
+                    isExpanded: true,
+                    items: [
+                      for (final format in uniqueFormats)
+                        DropdownMenuItem(
+                          value: format.name,
+                          child: Text(
+                            formatMoneyDisplay(
+                              amountMinor: 123456,
+                              currencyCode: currencyCode,
+                              localeName: localeName,
+                              format: format,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                    ],
+                    onChanged: (v) {
+                      if (v != null) {
+                        ref
+                            .read(appSettingsProvider.notifier)
+                            .setMoneyDisplayFormat(v);
+                      }
+                    },
+                  );
                 },
               ),
               const SizedBox(height: 16),
@@ -312,7 +335,11 @@ class SettingsPage extends ConsumerWidget {
                   leading: const Icon(Icons.extension_outlined),
                   title: Text(l10n.settingsIntegrations),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => showIntegrationsSheet(context),
+                  onTap: () => showIntegrationsSheet(
+                    context,
+                    onSuggestIntegration: () =>
+                        showContactDeveloperSheet(context),
+                  ),
                 ),
                 ListTile(
                   leading: const Icon(Icons.ios_share),

@@ -12,8 +12,11 @@ import 'package:valtero/features/integrations/ui/forms/exchange_rate_api_config_
 import 'package:valtero/features/integrations/ui/forms/frankfurter_config_form.dart';
 import 'package:valtero/features/integrations/ui/forms/telegram_config_form.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/widgets/app_close_icon_button.dart';
 import 'package:valtero/widgets/app_modal_sheet.dart';
+import 'package:valtero/widgets/app_sheet_actions_bar.dart';
 import 'package:valtero/widgets/app_sheet_header.dart';
+import 'package:valtero/widgets/app_sheet_scaffold.dart';
 
 Future<void> showIntegrationConfigSheet(
   BuildContext context, {
@@ -34,19 +37,19 @@ class IntegrationConfigModal extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final meta = integrationUiMeta(integration.id);
-    final scrollController = PrimaryScrollController.maybeOf(context);
     final theme = Theme.of(context);
     final descriptionStyle = theme.textTheme.bodyMedium?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
     final showDriveHelp = integration.id == kGoogleDriveSyncIntegrationId;
 
-    return ListView(
-      controller: scrollController,
-      padding: appModalScrollPadding(context),
+    return AppSheetScaffold(
+      header: AppSheetHeader(
+        title: meta.title(l10n),
+        trailing: Icon(meta.icon),
+      ),
+      actions: const AppSheetActionsBar(children: [AppCloseIconButton()]),
       children: [
-        AppSheetHeader(title: meta.title(l10n), trailing: Icon(meta.icon)),
-        const SizedBox(height: 8),
         if (showDriveHelp)
           Text.rich(
             TextSpan(

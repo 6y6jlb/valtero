@@ -56,9 +56,11 @@ class AppSettings {
   /// Persisted cash-flow group-by: `currency` | `date` | `country` | `payment`
   /// (no category — expense and income tags are separate kinds).
   final String cashFlowListGroup;
-  /// Cash-flow chart period: `day` | `week` | `month` | `year` (the cash-flow
-  /// chart is temporal only, so there is no breakdown/shape to persist).
+  /// Cash-flow chart period: `day` | `week` | `month` | `year` (temporal only).
   final String cashFlowChartDatePeriod;
+  /// Cash-flow chart shape: `donut` | `column` (donut = income vs expense;
+  /// column = temporal grouped bars).
+  final String cashFlowChartType;
   /// Last dashboard / list direction tab: `cashFlow` | `expenses` | `income`.
   /// Defaults to cash flow on first launch.
   final String dashboardDirection;
@@ -119,6 +121,7 @@ class AppSettings {
     this.cashFlowListView = 'list',
     this.cashFlowListGroup = 'currency',
     this.cashFlowChartDatePeriod = 'month',
+    this.cashFlowChartType = 'donut',
     this.dashboardDirection = 'cashFlow',
     this.debugLoggingEnabled = false,
     this.googleDriveSyncEnabled = false,
@@ -184,6 +187,7 @@ class AppSettings {
     String? cashFlowListView,
     String? cashFlowListGroup,
     String? cashFlowChartDatePeriod,
+    String? cashFlowChartType,
     String? dashboardDirection,
     bool? debugLoggingEnabled,
     bool? googleDriveSyncEnabled,
@@ -252,6 +256,7 @@ class AppSettings {
       cashFlowListGroup: cashFlowListGroup ?? this.cashFlowListGroup,
       cashFlowChartDatePeriod:
           cashFlowChartDatePeriod ?? this.cashFlowChartDatePeriod,
+      cashFlowChartType: cashFlowChartType ?? this.cashFlowChartType,
       dashboardDirection: dashboardDirection ?? this.dashboardDirection,
       debugLoggingEnabled: debugLoggingEnabled ?? this.debugLoggingEnabled,
       googleDriveSyncEnabled:
@@ -316,6 +321,7 @@ class AppSettings {
         'cashFlowListView': cashFlowListView,
         'cashFlowListGroup': cashFlowListGroup,
         'cashFlowChartDatePeriod': cashFlowChartDatePeriod,
+        'cashFlowChartType': cashFlowChartType,
         'dashboardDirection': dashboardDirection,
         'debugLoggingEnabled': debugLoggingEnabled,
         'googleDriveSyncEnabled': googleDriveSyncEnabled,
@@ -407,6 +413,7 @@ class AppSettings {
       cashFlowListGroup: json['cashFlowListGroup'] as String? ?? 'currency',
       cashFlowChartDatePeriod:
           json['cashFlowChartDatePeriod'] as String? ?? 'month',
+      cashFlowChartType: json['cashFlowChartType'] as String? ?? 'donut',
       dashboardDirection: () {
         final raw = json['dashboardDirection'] as String? ?? 'cashFlow';
         if (raw == 'expenses' || raw == 'income' || raw == 'cashFlow') {

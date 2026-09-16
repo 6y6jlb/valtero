@@ -11,16 +11,15 @@ import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/expenses_list/model/recent_operation.dart';
 import 'package:valtero/features/expenses_list/ui/expense_delete_flow.dart';
 import 'package:valtero/features/expenses_list/ui/cash_flow_breakdown_icons.dart';
-import 'package:valtero/features/expenses_list/ui/cash_flow_chart.dart';
+import 'package:valtero/features/expenses_list/ui/cash_flow_chart_view.dart';
 import 'package:valtero/features/expenses_list/ui/cash_flow_table.dart';
 import 'package:valtero/features/expenses_list/ui/grouped_cash_flow_table.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/infinite_scroll_ellipsis.dart';
 
-/// List / grouping / chart body inside the cash-flow listing card. The chart
-/// stays the temporal income-vs-expense bar chart — cash flow has no
-/// category/donut breakdown.
+/// List / grouping / chart body inside the cash-flow listing card.
+/// Chart shape: donut (income vs expense) or temporal grouped bars.
 class CashFlowSheetListingViews extends ConsumerWidget {
   final ExpenseListViewMode view;
   final List<Expense> filteredExpenses;
@@ -40,8 +39,10 @@ class CashFlowSheetListingViews extends ConsumerWidget {
   final String snapshotKey;
   final RateResolver resolver;
   final ExpenseChartBreakdown chartDatePeriod;
+  final ExpenseChartType chartType;
   final String timeZoneId;
   final ValueChanged<ExpenseChartBreakdown> onChartDatePeriodChanged;
+  final ValueChanged<ExpenseChartType> onChartTypeChanged;
   final String emptyMessage;
 
   const CashFlowSheetListingViews({
@@ -64,8 +65,10 @@ class CashFlowSheetListingViews extends ConsumerWidget {
     required this.snapshotKey,
     required this.resolver,
     required this.chartDatePeriod,
+    required this.chartType,
     required this.timeZoneId,
     required this.onChartDatePeriodChanged,
+    required this.onChartTypeChanged,
     required this.emptyMessage,
   });
 
@@ -128,7 +131,7 @@ class CashFlowSheetListingViews extends ConsumerWidget {
       ExpenseListViewMode.chart => _CashFlowChartView(
           key: ValueKey(
             'cash-flow-chart-$snapshotKey-'
-            '${chartDatePeriod.name}-$summaryCurrency',
+            '${chartDatePeriod.name}-${chartType.name}-$summaryCurrency',
           ),
           future: aggregateCashFlow(
             expenses: filteredExpenses,
@@ -140,7 +143,9 @@ class CashFlowSheetListingViews extends ConsumerWidget {
           ),
           displayCurrency: summaryCurrency,
           chartDatePeriod: chartDatePeriod,
+          chartType: chartType,
           onChartDatePeriodChanged: onChartDatePeriodChanged,
+          onChartTypeChanged: onChartTypeChanged,
           emptyMessage: emptyMessage,
         ),
     };
@@ -151,7 +156,9 @@ class _CashFlowChartView extends StatelessWidget {
   final Future<CashFlowAggregation> future;
   final String displayCurrency;
   final ExpenseChartBreakdown chartDatePeriod;
+  final ExpenseChartType chartType;
   final ValueChanged<ExpenseChartBreakdown> onChartDatePeriodChanged;
+  final ValueChanged<ExpenseChartType> onChartTypeChanged;
   final String emptyMessage;
 
   const _CashFlowChartView({
@@ -159,7 +166,9 @@ class _CashFlowChartView extends StatelessWidget {
     required this.future,
     required this.displayCurrency,
     required this.chartDatePeriod,
+    required this.chartType,
     required this.onChartDatePeriodChanged,
+    required this.onChartTypeChanged,
     required this.emptyMessage,
   });
 
@@ -189,10 +198,12 @@ class _CashFlowChartView extends StatelessWidget {
                     ),
                   ),
                 ),
-              CashFlowChart(
+              CashFlowChartView(
                 buckets: aggregation.buckets,
                 displayCurrency: displayCurrency,
-                hideBarAmounts: aggregation.missingRateCount > 0,
+                chartType: chartType,
+                onChartTypeChanged: onChartTypeChanged,
+                hideAmounts: aggregation.missingRateCount > 0,
                 emptyMessage: emptyMessage,
               ),
               const SizedBox(height: 8),

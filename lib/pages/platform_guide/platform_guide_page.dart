@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
 import 'package:valtero/features/add_income/ui/add_income_sheet.dart';
 import 'package:valtero/features/platform_guide/ui/platform_guide_body.dart';
+import 'package:valtero/pages/settings/settings_app_bar_button.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/app_page_scaffold.dart';
 
@@ -26,6 +27,7 @@ class PlatformGuidePage extends StatelessWidget {
           onPressed: () => Navigator.of(context).maybePop(),
         ),
         title: Text(l10n.guideTitle),
+        actions: const [SettingsAppBarButton()],
       ),
       addOperationHeroTag: 'guide_add_operation',
       onAddExpense: () => showAddExpenseSheet(context),

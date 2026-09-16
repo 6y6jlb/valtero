@@ -192,24 +192,28 @@ class _TriggerFab extends StatefulWidget {
 class _TriggerFabState extends State<_TriggerFab>
     with SingleTickerProviderStateMixin {
   static const _circle = CircleBorder();
-  static const _animDuration = Duration(milliseconds: 420);
+  static const _plusAnimDuration = Duration(milliseconds: 320);
+  static const _extendedAnimDuration = Duration(milliseconds: 560);
+
+  /// Closed `+` → open looks like × via a quarter-turn (same glyph, no swap).
+  static const _openRotation = math.pi / 4;
+
+  /// Show FAB: label out → list icon spin/morph → + twists to ×.
+  static const _labelInterval = Interval(0.0, 0.34, curve: Curves.easeInOutCubic);
+  static const _iconMorphInterval =
+      Interval(0.30, 0.74, curve: Curves.easeInOutCubic);
+  static const _plusTwistInterval =
+      Interval(0.70, 1.0, curve: Curves.easeInOutCubic);
 
   late final AnimationController _ctrl;
-  late final Animation<double> _appear;
-  late final Animation<double> _spin;
+
+  Duration get _animDuration =>
+      widget.closedExtended ? _extendedAnimDuration : _plusAnimDuration;
 
   @override
   void initState() {
     super.initState();
     _ctrl = AnimationController(vsync: this, duration: _animDuration);
-    _appear = CurvedAnimation(
-      parent: _ctrl,
-      curve: const Interval(0.0, 0.5, curve: Curves.easeOutCubic),
-    );
-    _spin = CurvedAnimation(
-      parent: _ctrl,
-      curve: const Interval(0.5, 1.0, curve: Curves.easeInOutCubic),
-    );
     _ctrl.addStatusListener((status) {
       if (status == AnimationStatus.dismissed && mounted) {
         setState(() {});
@@ -223,6 +227,9 @@ class _TriggerFabState extends State<_TriggerFab>
   @override
   void didUpdateWidget(covariant _TriggerFab oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (_ctrl.duration != _animDuration) {
+      _ctrl.duration = _animDuration;
+    }
     if (widget.open == oldWidget.open) return;
     if (widget.open) {
       _ctrl.forward(from: _ctrl.value);
@@ -237,11 +244,11 @@ class _TriggerFabState extends State<_TriggerFab>
     super.dispose();
   }
 
-  bool get _showExtendedClosed =>
-      widget.closedExtended &&
-      !widget.open &&
-      _ctrl.value == 0 &&
-      !_ctrl.isAnimating;
+  /// When the closed glyph is already `+`, open/close is only rotation + color.
+  bool get _closedIsPlus {
+    final child = widget.closedChild;
+    return child is Icon && child.icon == Icons.add;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -251,19 +258,19 @@ class _TriggerFabState extends State<_TriggerFab>
         scheme.primaryContainer;
     final closedFg = theme.floatingActionButtonTheme.foregroundColor ??
         scheme.onPrimaryContainer;
+    final elevation = theme.floatingActionButtonTheme.elevation ?? 6;
 
-    if (_showExtendedClosed) {
-      return FloatingActionButton.extended(
-        heroTag: widget.heroTag,
-        tooltip: widget.closedTooltip,
-        onPressed: widget.onPressed,
-        icon: widget.closedChild,
-        label: Text(widget.closedLabel ?? ''),
+    if (widget.closedExtended) {
+      return _buildExtendedTrigger(
+        theme: theme,
+        closedBg: closedBg,
+        closedFg: closedFg,
+        elevation: elevation,
       );
     }
 
     return Material(
-      elevation: theme.floatingActionButtonTheme.elevation ?? 6,
+      elevation: elevation,
       shadowColor: theme.shadowColor,
       color: Colors.transparent,
       shape: _circle,
@@ -276,41 +283,156 @@ class _TriggerFabState extends State<_TriggerFab>
           child: AnimatedBuilder(
             animation: _ctrl,
             builder: (context, _) {
-              final t = _appear.value;
+              final t = Curves.easeInOutCubic.transform(_ctrl.value);
+              final bg = Color.lerp(closedBg, widget.actionBg, t)!;
+              final plusColor = Color.lerp(closedFg, widget.actionFg, t)!;
               return Container(
                 width: 56,
                 height: 56,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: Color.lerp(closedBg, widget.actionBg, t),
+                  color: bg,
                   shape: BoxShape.circle,
                 ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    IgnorePointer(
-                      // Invisible × must not steal taps while closed.
-                      ignoring: t > 0.01,
-                      child: Opacity(
-                        opacity: (1 - t).clamp(0.0, 1.0),
-                        child: IconTheme.merge(
-                          data: IconThemeData(color: closedFg, size: 28),
-                          child: widget.closedChild,
+                child: _closedIsPlus
+                    ? Transform.rotate(
+                        angle: t * _openRotation,
+                        child: Icon(
+                          Icons.add,
+                          size: 28,
+                          color: plusColor,
                         ),
+                      )
+                    : Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Opacity(
+                            opacity: (1 - t).clamp(0.0, 1.0),
+                            child: IconTheme.merge(
+                              data: IconThemeData(color: closedFg, size: 28),
+                              child: widget.closedChild,
+                            ),
+                          ),
+                          Opacity(
+                            opacity: t.clamp(0.0, 1.0),
+                            child: Transform.rotate(
+                              angle: t * _openRotation,
+                              child: Icon(
+                                Icons.add,
+                                size: 28,
+                                color: plusColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExtendedTrigger({
+    required ThemeData theme,
+    required Color closedBg,
+    required Color closedFg,
+    required double elevation,
+  }) {
+    final labelStyle = theme.textTheme.labelLarge?.copyWith(
+      color: closedFg,
+      fontWeight: FontWeight.w500,
+    );
+
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (context, _) {
+        final v = _ctrl.value;
+        final labelT = _labelInterval.transform(v);
+        final morphT = _iconMorphInterval.transform(v);
+        final twistT = _plusTwistInterval.transform(v);
+
+        // Color shifts with icon morph so the pill stays “primary” while text
+        // collapses, then matches action tint as + appears.
+        final bg = Color.lerp(closedBg, widget.actionBg, morphT)!;
+        final plusColor = Color.lerp(closedFg, widget.actionFg, morphT)!;
+
+        // List icon spins ~half turn, then yields to + near the end.
+        final listOpacity =
+            (1 - const Interval(0.55, 1.0).transform(morphT)).clamp(0.0, 1.0);
+        final plusOpacity =
+            const Interval(0.55, 1.0).transform(morphT).clamp(0.0, 1.0);
+        final listAngle = morphT * math.pi;
+        final plusAngle = twistT * _openRotation;
+
+        final labelFactor = (1 - labelT).clamp(0.0, 1.0);
+        final shape = RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(28),
+        );
+
+        return Material(
+          elevation: elevation,
+          shadowColor: theme.shadowColor,
+          color: bg,
+          shape: shape,
+          clipBehavior: Clip.antiAlias,
+          child: Tooltip(
+            message: widget.open ? widget.cancelTooltip : widget.closedTooltip,
+            child: InkWell(
+              customBorder: shape,
+              onTap: widget.onPressed,
+              child: SizedBox(
+                height: 56,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 56,
+                      height: 56,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          if (listOpacity > 0.01)
+                            Opacity(
+                              opacity: listOpacity,
+                              child: Transform.rotate(
+                                angle: listAngle,
+                                child: IconTheme.merge(
+                                  data:
+                                      IconThemeData(color: closedFg, size: 28),
+                                  child: widget.closedChild,
+                                ),
+                              ),
+                            ),
+                          if (plusOpacity > 0.01)
+                            Opacity(
+                              opacity: plusOpacity,
+                              child: Transform.rotate(
+                                angle: plusAngle,
+                                child: Icon(
+                                  Icons.add,
+                                  size: 28,
+                                  color: plusColor,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
-                    IgnorePointer(
-                      ignoring: t < 0.01,
-                      child: Opacity(
-                        opacity: t.clamp(0.0, 1.0),
-                        child: Transform.scale(
-                          scale: 0.7 + 0.3 * t,
-                          child: Transform.rotate(
-                            angle: _spin.value * math.pi,
-                            child: Icon(
-                              Icons.close,
-                              size: 28,
-                              color: widget.actionFg,
+                    ClipRect(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        widthFactor: labelFactor,
+                        child: Opacity(
+                          opacity: labelFactor,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 20),
+                            child: Text(
+                              widget.closedLabel ?? '',
+                              maxLines: 1,
+                              softWrap: false,
+                              style: labelStyle,
                             ),
                           ),
                         ),
@@ -318,11 +440,11 @@ class _TriggerFabState extends State<_TriggerFab>
                     ),
                   ],
                 ),
-              );
-            },
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
