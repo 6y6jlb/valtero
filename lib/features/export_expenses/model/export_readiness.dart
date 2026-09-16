@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/export_expenses/data/expense_exporter.dart';
@@ -7,14 +5,11 @@ import 'package:valtero/features/export_expenses/model/export_controller.dart';
 import 'package:valtero/features/export_expenses/model/export_data_type.dart';
 import 'package:valtero/features/export_expenses/model/export_destination.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/shared/utils/share_platform.dart';
 import 'package:valtero/widgets/app_ok_button.dart';
 
-/// share_plus has no usable file-share UI on Linux.
-bool get isExportShareSupported =>
-    Platform.isAndroid ||
-    Platform.isIOS ||
-    Platform.isWindows ||
-    Platform.isMacOS;
+/// Alias kept for export UI call sites.
+bool get isExportShareSupported => isFileShareSupported;
 
 Future<void> showExportUnsupportedDialog(BuildContext context, String message) {
   final l10n = AppLocalizations.of(context)!;

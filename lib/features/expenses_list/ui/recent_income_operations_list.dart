@@ -48,6 +48,9 @@ class RecentIncomeOperationsList extends ConsumerWidget {
     final paymentStableKeys = {
       for (final p in payments) p.id: p.stableKey,
     };
+    final paymentIconKeys = {
+      for (final p in payments) p.id: p.iconKey,
+    };
 
     final children = <Widget>[];
     String? lastDayKey;
@@ -103,6 +106,9 @@ class RecentIncomeOperationsList extends ConsumerWidget {
       final paymentStableKey = income.paymentMethodId == null
           ? null
           : paymentStableKeys[income.paymentMethodId!];
+      final paymentIconKey = income.paymentMethodId == null
+          ? null
+          : paymentIconKeys[income.paymentMethodId!];
       children.add(
         RecentIncomeTile(
           income: income,
@@ -110,6 +116,7 @@ class RecentIncomeOperationsList extends ConsumerWidget {
           countryLabel: countryLabel,
           tagsLabel: tagsLabel,
           tagIconKey: tagIconKey,
+          paymentIconKey: paymentIconKey,
           paymentStableKey: paymentStableKey,
           showPossibleDuplicate: dupState.isFlagged(income.id),
           onTap: () => showAddIncomeSheet(context, income: income),

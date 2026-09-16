@@ -104,7 +104,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String debugLogsSendHint(String email) {
-    return '«Enviar» abre el correo con el registro adjunto (o el menú de compartir). Copiar correo / registros está abajo. Dirección: $email.';
+    return 'Compartir envía el registro a quien elijas. Enviar al desarrollador abre el correo a $email con el archivo adjunto. Copiar correo / registros está abajo.';
   }
 
   @override
@@ -441,7 +441,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get debugViewLogs => 'Contenido del registro';
 
   @override
-  String get debugShareLogs => 'Compartir con el desarrollador';
+  String get debugShareLogs => 'Compartir';
+
+  @override
+  String get debugSendToDeveloper => 'Enviar al desarrollador';
 
   @override
   String get debugCopyLogs => 'Copiar registros';
@@ -459,8 +462,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get debugLogsShared => 'Archivo de registro listo para compartir';
 
   @override
-  String get debugLogsEmailed =>
-      'Cliente de correo abierto con el registro adjunto';
+  String get debugLogsEmailed => 'Se abrió el selector de correo';
 
   @override
   String get debugLogsEmailFallback =>
@@ -1848,7 +1850,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guideSectionDebugBody =>
-      'En Ajustes → Depuración y registros puedes activar el registro detallado. Los errores siempre se guardan. Puedes ver, copiar o compartir el archivo con un desarrollador; los secretos se ocultan.';
+      'En Ajustes → Depuración y registros puedes activar el registro detallado. Los errores siempre se guardan. Puedes ver, copiar, compartir el archivo con quien quieras o enviarlo al desarrollador por correo con el adjunto; los secretos se ocultan.';
 
   @override
   String get guideSectionFiltersTitle => 'Filtros';

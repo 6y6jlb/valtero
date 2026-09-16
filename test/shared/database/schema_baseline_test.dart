@@ -1,14 +1,21 @@
 import 'dart:io';
 
-import 'package:drift/drift.dart' show OpeningDetails, QueryExecutor, QueryExecutorUser;
+import 'package:drift/drift.dart'
+    show
+        Migrator,
+        OpeningDetails,
+        QueryExecutor,
+        QueryExecutorUser,
+        Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:valtero/shared/database/app_database.dart';
+import 'package:valtero/shared/database/migrations/migrate_to_v10.dart';
 import 'package:valtero/shared/database/schema_version.dart';
 
 void main() {
   test('fresh DB opens at baseline schema v8 with operations tables', () async {
-    expect(kAppSchemaVersion, 9);
+    expect(kAppSchemaVersion, 10);
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
@@ -42,6 +49,44 @@ void main() {
     expect(expense!.kind, 'expense');
     expect(income!.kind, 'income');
     expect(expense.duplicateDismissed, isFalse);
+  });
+
+  test('migrateToV10 adds payment_methods.icon_key', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    // Simulate a pre-v10 table (no icon_key), then run the stepwise migrator.
+    await db.customStatement('DROP TABLE IF EXISTS payment_methods');
+    await db.customStatement('''
+CREATE TABLE payment_methods (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  color_value INTEGER NULL,
+  is_default INTEGER NOT NULL DEFAULT 0 CHECK (is_default IN (0, 1)),
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  stable_key TEXT NULL
+)
+''');
+
+    await migrateToV10(Migrator(db), db);
+
+    final cols =
+        await db.customSelect('PRAGMA table_info(payment_methods)').get();
+    expect(
+      cols.any((row) => row.read<String>('name') == 'icon_key'),
+      isTrue,
+    );
+
+    final id = await db.insertPaymentMethod(
+      PaymentMethodsCompanion.insert(
+        name: 'Card',
+        stableKey: const Value('card'),
+        iconKey: const Value('card'),
+      ),
+    );
+    final row = await db.findPaymentMethodByStableKey('card');
+    expect(row?.id, id);
+    expect(row?.iconKey, 'card');
   });
 
   test('opening DB older than baseline refuses without wipe', () async {

@@ -8,6 +8,29 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.8] - 2026-09-16
+
+### Added
+
+- Much larger curated icon catalog for tags, subcategories, and payment methods
+  (~90 icons); seeded subtags get default icons.
+- Payment methods store an optional `iconKey` (schema **v10**); picker enabled in
+  Settings → Payment methods; icons round-trip in encrypted backup/sync.
+- Debug & logs: separate **Share** (system share sheet) and **Send to developer**
+  (email with `.log` attached — Android Intent + FileProvider, Linux `xdg-email`,
+  macOS Mail when possible).
+
+### Changed
+
+- Soft toast after Send to developer: mail chooser opened (not “sent”).
+- `cash` vs `salary` icons no longer share the same glyph.
+
+### Fixed
+
+- Android email attach grants URI read permission to chooser targets so the log
+  file opens in mail apps.
+- Import backfills payment `iconKey` only when the local row has none.
+
 ## [1.1.7] - 2026-09-16
 
 ### Added

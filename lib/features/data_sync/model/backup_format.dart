@@ -202,6 +202,7 @@ class BackupPaymentMethodData {
   final int? colorValue;
   final bool isDefault;
   final int sortOrder;
+  final String? iconKey;
 
   const BackupPaymentMethodData({
     required this.stableKey,
@@ -209,6 +210,7 @@ class BackupPaymentMethodData {
     required this.colorValue,
     required this.isDefault,
     required this.sortOrder,
+    this.iconKey,
   });
 
   Map<String, dynamic> toJson() => {
@@ -217,6 +219,7 @@ class BackupPaymentMethodData {
         'colorValue': colorValue,
         'isDefault': isDefault,
         'sortOrder': sortOrder,
+        'iconKey': iconKey,
       };
 
   factory BackupPaymentMethodData.fromJson(Map<String, dynamic> json) {
@@ -226,6 +229,7 @@ class BackupPaymentMethodData {
       colorValue: (json['colorValue'] as num?)?.toInt(),
       isDefault: json['isDefault'] as bool? ?? false,
       sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 0,
+      iconKey: json['iconKey'] as String?,
     );
   }
 }

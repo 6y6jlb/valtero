@@ -20,7 +20,10 @@ class PaymentMethodChip extends StatelessWidget {
     final color =
         method.colorValue != null ? Color(method.colorValue!) : null;
     final label = localizedPaymentMethodLabel(context, method);
-    final icon = iconDataForPaymentStableKey(method.stableKey);
+    final icon = iconDataForPaymentMethod(
+      iconKey: method.iconKey,
+      stableKey: method.stableKey,
+    );
     return FilterChip(
       label: Text(label),
       selected: selected,

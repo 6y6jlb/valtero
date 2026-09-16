@@ -49,6 +49,16 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Debug & logs: email Intent with FileProvider URI for the .log attach. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
@@ -63,6 +73,15 @@
         <!-- Package visibility for on-device / system speech recognition (API 30+). -->
         <intent>
             <action android:name="android.speech.RecognitionService" />
+        </intent>
+        <!-- Email apps for debug-log "Send to developer". -->
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="mailto" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="message/rfc822" />
         </intent>
     </queries>
 </manifest>

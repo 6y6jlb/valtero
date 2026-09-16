@@ -390,6 +390,7 @@ class BackupImporter {
     if (stable != null && stable.isNotEmpty) {
       final existing = paymentIdByStableKey[stable];
       if (existing != null) {
+        await _maybeBackfillPaymentIcon(db, existing, method.iconKey);
         return _ResolvedId(existing, created: false);
       }
     }
@@ -399,6 +400,7 @@ class BackupImporter {
       if (stable != null && stable.isNotEmpty) {
         paymentIdByStableKey[stable] = byName;
       }
+      await _maybeBackfillPaymentIcon(db, byName, method.iconKey);
       return _ResolvedId(byName, created: false);
     }
 
@@ -408,6 +410,7 @@ class BackupImporter {
         fallbackName: method.name,
         isDefault: method.isDefault,
         colorValue: method.colorValue,
+        iconKey: method.iconKey,
       );
       paymentIdByStableKey[stable] = id;
       paymentIdByName[method.name] = id;
@@ -418,12 +421,30 @@ class BackupImporter {
       PaymentMethodsCompanion.insert(
         name: method.name,
         colorValue: Value(method.colorValue),
+        iconKey: Value(method.iconKey),
         isDefault: Value(method.isDefault),
         sortOrder: Value(method.sortOrder),
       ),
     );
     paymentIdByName[method.name] = id;
     return _ResolvedId(id, created: true);
+  }
+
+  /// Fills [iconKey] only when the local row has none (never overwrites).
+  Future<void> _maybeBackfillPaymentIcon(
+    AppDatabase db,
+    int paymentId,
+    String? iconKey,
+  ) async {
+    if (iconKey == null || iconKey.isEmpty) return;
+    final existing = await (db.select(db.paymentMethods)
+          ..where((p) => p.id.equals(paymentId)))
+        .getSingleOrNull();
+    if (existing == null || existing.iconKey != null) return;
+    await (db.update(db.paymentMethods)..where((p) => p.id.equals(paymentId)))
+        .write(
+      PaymentMethodsCompanion(iconKey: Value(iconKey)),
+    );
   }
 
   int? _lookupTagId({

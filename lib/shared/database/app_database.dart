@@ -10,6 +10,7 @@ import 'package:valtero/entities/operation/data/operations_table.dart';
 import 'package:valtero/entities/operation/model/operation_kind.dart';
 import 'package:valtero/entities/payment_method/data/payment_methods_table.dart';
 import 'package:valtero/entities/tag/data/tags_table.dart';
+import 'package:valtero/shared/database/migrations/migrate_to_v10.dart';
 import 'package:valtero/shared/database/migrations/migrate_to_v9.dart';
 import 'package:valtero/shared/database/schema_version.dart';
 
@@ -52,6 +53,9 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 9) {
             await migrateToV9(m, this);
+          }
+          if (from < 10) {
+            await migrateToV10(m, this);
           }
         },
       );
@@ -395,12 +399,16 @@ class AppDatabase extends _$AppDatabase {
     required String fallbackName,
     bool isDefault = false,
     int? colorValue,
+    String? iconKey,
   }) async {
     final existing = await findPaymentMethodByStableKey(stableKey);
     if (existing != null) {
       var updated = existing;
       if (existing.colorValue == null && colorValue != null) {
         updated = updated.copyWith(colorValue: Value(colorValue));
+      }
+      if (existing.iconKey == null && iconKey != null) {
+        updated = updated.copyWith(iconKey: Value(iconKey));
       }
       if (updated != existing) {
         await updatePaymentMethodRow(updated);
@@ -417,6 +425,7 @@ class AppDatabase extends _$AppDatabase {
         stableKey: Value(stableKey),
         isDefault: Value(isDefault),
         sortOrder: Value(nextOrder),
+        iconKey: Value(iconKey),
       ),
     );
   }

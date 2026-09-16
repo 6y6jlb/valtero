@@ -10,6 +10,7 @@ import 'package:valtero/widgets/flag_icon.dart';
 class OperationLeadingIcon extends StatelessWidget {
   final String? tagIconKey;
   final String? currencyCode;
+  final String? paymentIconKey;
   final String? paymentStableKey;
   final double size;
 
@@ -17,6 +18,7 @@ class OperationLeadingIcon extends StatelessWidget {
     super.key,
     this.tagIconKey,
     this.currencyCode,
+    this.paymentIconKey,
     this.paymentStableKey,
     this.size = 28,
   });
@@ -25,17 +27,23 @@ class OperationLeadingIcon extends StatelessWidget {
   static Widget? maybe({
     String? tagIconKey,
     String? currencyCode,
+    String? paymentIconKey,
     String? paymentStableKey,
     double size = 28,
   }) {
     if (iconDataForTagKey(tagIconKey) == null &&
         !hasCurrencyFlag(currencyCode) &&
-        iconDataForPaymentStableKey(paymentStableKey) == null) {
+        iconDataForPaymentMethod(
+              iconKey: paymentIconKey,
+              stableKey: paymentStableKey,
+            ) ==
+            null) {
       return null;
     }
     return OperationLeadingIcon(
       tagIconKey: tagIconKey,
       currencyCode: currencyCode,
+      paymentIconKey: paymentIconKey,
       paymentStableKey: paymentStableKey,
       size: size,
     );
@@ -61,7 +69,10 @@ class OperationLeadingIcon extends StatelessWidget {
       return FlagIcon.currency(currencyCode, size: size);
     }
 
-    final paymentIcon = iconDataForPaymentStableKey(paymentStableKey);
+    final paymentIcon = iconDataForPaymentMethod(
+      iconKey: paymentIconKey,
+      stableKey: paymentStableKey,
+    );
     if (paymentIcon != null) {
       return SizedBox(
         width: size,

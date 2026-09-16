@@ -99,6 +99,7 @@ class ManageTagsController {
             isDefault: true,
             kind: kind,
             colorValue: parent.colorValue ?? defaultTagColorValues[entry.key],
+            iconKey: defaultIconKeyForStableKey(childKey),
             parentTagId: parent.id,
           );
           // Refresh local cache for subsequent lookups in this pass.

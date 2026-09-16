@@ -53,6 +53,7 @@ class BackupSnapshotBuilder {
             colorValue: m.colorValue,
             isDefault: m.isDefault,
             sortOrder: m.sortOrder,
+            iconKey: m.iconKey,
           ),
         )
         .toList();

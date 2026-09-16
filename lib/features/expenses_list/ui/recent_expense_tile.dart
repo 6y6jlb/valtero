@@ -14,6 +14,7 @@ class RecentExpenseTile extends ConsumerWidget {
   final String? countryLabel;
   final String? tagsLabel;
   final String? tagIconKey;
+  final String? paymentIconKey;
   final String? paymentStableKey;
   final bool showPossibleDuplicate;
   final VoidCallback onTap;
@@ -27,6 +28,7 @@ class RecentExpenseTile extends ConsumerWidget {
     required this.countryLabel,
     required this.tagsLabel,
     this.tagIconKey,
+    this.paymentIconKey,
     this.paymentStableKey,
     this.showPossibleDuplicate = false,
     required this.onTap,
@@ -51,6 +53,7 @@ class RecentExpenseTile extends ConsumerWidget {
       leading: OperationLeadingIcon.maybe(
         tagIconKey: tagIconKey,
         currencyCode: expense.storedCurrencyCode,
+        paymentIconKey: paymentIconKey,
         paymentStableKey: paymentStableKey,
       ),
       title: Column(

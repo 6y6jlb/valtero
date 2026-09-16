@@ -10,4 +10,7 @@ class PaymentMethods extends Table {
 
   /// Stable id for seeded methods, e.g. `cash`, `card`, `crypto`.
   TextColumn get stableKey => text().nullable()();
+
+  /// Optional curated icon key (same catalog as tags).
+  TextColumn get iconKey => text().nullable()();
 }

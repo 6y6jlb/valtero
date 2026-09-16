@@ -1017,4 +1017,132 @@ void main() {
       expect(incomeConflict.existingIncomeMatches, hasLength(1));
     });
   });
+
+  group('payment method iconKey', () {
+    test('BackupPaymentMethodData JSON round-trips iconKey', () {
+      const method = BackupPaymentMethodData(
+        stableKey: 'card',
+        name: 'Card',
+        colorValue: null,
+        isDefault: true,
+        sortOrder: 0,
+        iconKey: 'nfc',
+      );
+      final again = BackupPaymentMethodData.fromJson(method.toJson());
+      expect(again.iconKey, 'nfc');
+      expect(again.stableKey, 'card');
+    });
+
+    test('import backfills iconKey when local is null', () async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+
+      await db.insertPaymentMethod(
+        PaymentMethodsCompanion.insert(
+          name: 'Cash',
+          stableKey: const Value('cash'),
+          isDefault: const Value(true),
+        ),
+      );
+      expect((await db.findPaymentMethodByStableKey('cash'))!.iconKey, equals(null));
+
+      final envelope = BackupEnvelope(
+        formatVersion: kBackupFormatVersion,
+        schemaVersion: kAppSchemaVersion,
+        exportedAt: DateTime.utc(2026, 1, 1),
+        appVersion: '1.1.7',
+        data: BackupPayloadData(
+          tags: const [],
+          paymentMethods: const [
+            BackupPaymentMethodData(
+              stableKey: 'cash',
+              name: 'Cash',
+              colorValue: null,
+              isDefault: true,
+              sortOrder: 0,
+              iconKey: 'cash',
+            ),
+          ],
+          expenses: const [],
+          expenseTags: const [],
+          exchangeRateOverrides: const [],
+          settings: BackupSettingsData(
+            reportingCurrencies: const ['USD'],
+            primaryCurrency: 'USD',
+            customCurrencyCodes: const [],
+            themeMode: 'system',
+            locale: 'system',
+            moneyDisplayFormat: 'localeCode',
+            dateDisplayFormat: 'isoYmd',
+            timeZoneId: 'system',
+            dismissedTagSuggestions: const [],
+          ),
+        ),
+      );
+
+      await BackupImporter().importEnvelope(
+        db: db,
+        envelope: envelope,
+        currentSettings: AppSettings.initial(),
+        saveSettings: (_) async {},
+      );
+      expect((await db.findPaymentMethodByStableKey('cash'))!.iconKey, 'cash');
+    });
+
+    test('import does not overwrite existing payment iconKey', () async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+
+      await db.insertPaymentMethod(
+        PaymentMethodsCompanion.insert(
+          name: 'Cash',
+          stableKey: const Value('cash'),
+          isDefault: const Value(true),
+          iconKey: const Value('money'),
+        ),
+      );
+
+      final envelope = BackupEnvelope(
+        formatVersion: kBackupFormatVersion,
+        schemaVersion: kAppSchemaVersion,
+        exportedAt: DateTime.utc(2026, 1, 1),
+        appVersion: '1.1.7',
+        data: BackupPayloadData(
+          tags: const [],
+          paymentMethods: const [
+            BackupPaymentMethodData(
+              stableKey: 'cash',
+              name: 'Cash',
+              colorValue: null,
+              isDefault: true,
+              sortOrder: 0,
+              iconKey: 'cash',
+            ),
+          ],
+          expenses: const [],
+          expenseTags: const [],
+          exchangeRateOverrides: const [],
+          settings: BackupSettingsData(
+            reportingCurrencies: const ['USD'],
+            primaryCurrency: 'USD',
+            customCurrencyCodes: const [],
+            themeMode: 'system',
+            locale: 'system',
+            moneyDisplayFormat: 'localeCode',
+            dateDisplayFormat: 'isoYmd',
+            timeZoneId: 'system',
+            dismissedTagSuggestions: const [],
+          ),
+        ),
+      );
+
+      await BackupImporter().importEnvelope(
+        db: db,
+        envelope: envelope,
+        currentSettings: AppSettings.initial(),
+        saveSettings: (_) async {},
+      );
+      expect((await db.findPaymentMethodByStableKey('cash'))!.iconKey, 'money');
+    });
+  });
 }

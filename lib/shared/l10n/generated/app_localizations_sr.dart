@@ -104,7 +104,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String debugLogsSendHint(String email) {
-    return '«Pošalji» otvara email sa priloženim logom (ili sistemski share). Kopiraj email / logove — u dugmadima ispod. Adresa: $email.';
+    return 'Podeli šalje log kome god želiš. Pošalji programeru otvara email na $email sa prilogom. Kopiraj email / logove — u dugmadima ispod.';
   }
 
   @override
@@ -436,7 +436,10 @@ class AppLocalizationsSr extends AppLocalizations {
   String get debugViewLogs => 'Sadržaj loga';
 
   @override
-  String get debugShareLogs => 'Pošalji programeru';
+  String get debugShareLogs => 'Podeli';
+
+  @override
+  String get debugSendToDeveloper => 'Pošalji programeru';
 
   @override
   String get debugCopyLogs => 'Kopiraj logove';
@@ -454,7 +457,7 @@ class AppLocalizationsSr extends AppLocalizations {
   String get debugLogsShared => 'Log fajl spreman za deljenje';
 
   @override
-  String get debugLogsEmailed => 'Otvoren je email klijent sa priloženim logom';
+  String get debugLogsEmailed => 'Otvoren je izbor email aplikacije';
 
   @override
   String get debugLogsEmailFallback =>
@@ -1847,7 +1850,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get guideSectionDebugBody =>
-      'U Podešavanja → Otklanjanje grešaka i logovi možeš uključiti detaljno logovanje. Greške se uvek beleže. Log možeš pregledati, kopirati ili poslati programeru; tajne se maskiraju.';
+      'U Podešavanja → Otklanjanje grešaka i logovi možeš uključiti detaljno logovanje. Greške se uvek beleže. Log možeš pregledati, kopirati, podeliti sa bilo kim ili poslati programeru emailom sa prilogom; tajne se maskiraju.';
 
   @override
   String get guideSectionFiltersTitle => 'Filteri';

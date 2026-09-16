@@ -54,6 +54,9 @@ class RecentCashFlowOperationsList extends ConsumerWidget {
     final paymentStableKeys = {
       for (final p in payments) p.id: p.stableKey,
     };
+    final paymentIconKeys = {
+      for (final p in payments) p.id: p.iconKey,
+    };
 
     final children = <Widget>[];
     String? lastDayKey;
@@ -113,6 +116,8 @@ class RecentCashFlowOperationsList extends ConsumerWidget {
       );
       final paymentStableKey =
           paymentMethodId == null ? null : paymentStableKeys[paymentMethodId];
+      final paymentIconKey =
+          paymentMethodId == null ? null : paymentIconKeys[paymentMethodId];
 
       void openEdit() => isIncome
           ? showAddIncomeSheet(context, income: op.income)
@@ -125,6 +130,7 @@ class RecentCashFlowOperationsList extends ConsumerWidget {
           leading: OperationLeadingIcon.maybe(
             tagIconKey: tagIconKey,
             currencyCode: op.currencyCode,
+            paymentIconKey: paymentIconKey,
             paymentStableKey: paymentStableKey,
           ),
           title: Row(

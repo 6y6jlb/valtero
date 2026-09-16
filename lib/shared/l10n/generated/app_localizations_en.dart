@@ -104,7 +104,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String debugLogsSendHint(String email) {
-    return 'Use Send to open email with the log attached (or the system share sheet). Copy email / Copy logs are also in the actions below.';
+    return 'Share sends the log file anywhere you choose. Send to developer opens email to $email with the log attached. Copy email / Copy logs are also below.';
   }
 
   @override
@@ -432,7 +432,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get debugViewLogs => 'Log contents';
 
   @override
-  String get debugShareLogs => 'Share with developer';
+  String get debugShareLogs => 'Share';
+
+  @override
+  String get debugSendToDeveloper => 'Send to developer';
 
   @override
   String get debugCopyLogs => 'Copy logs';
@@ -450,7 +453,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get debugLogsShared => 'Log file ready to share';
 
   @override
-  String get debugLogsEmailed => 'Mail client opened with the log attached';
+  String get debugLogsEmailed => 'Mail app chooser opened';
 
   @override
   String get debugLogsEmailFallback =>
@@ -1834,7 +1837,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideSectionDebugBody =>
-      'Settings → Debug & logs can turn on verbose logging. Errors are always recorded. You can view, copy, or share the log file with a developer; secrets are redacted.';
+      'Settings → Debug & logs can turn on verbose logging. Errors are always recorded. You can view, copy, share the log file with anyone, or email it to the developer with the file attached; secrets are redacted.';
 
   @override
   String get guideSectionFiltersTitle => 'Filters';

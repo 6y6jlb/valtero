@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/shared/consts/palette.dart';
 import 'package:valtero/shared/consts/payment_methods.dart';
+import 'package:valtero/shared/consts/tag_icons.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/database/database_provider.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
@@ -20,6 +21,7 @@ class ManagePaymentMethodsController {
         fallbackName: key,
         isDefault: true,
         colorValue: defaultTagColorValues[key],
+        iconKey: defaultIconKeyForPaymentStableKey(key),
       );
     }
     await _ensureDefaultPaymentMethod();
@@ -41,6 +43,7 @@ class ManagePaymentMethodsController {
   Future<int> addCustom({
     required String name,
     int? colorValue,
+    String? iconKey,
   }) async {
     final trimmed = name.trim();
     if (trimmed.isEmpty) return -1;
@@ -52,6 +55,7 @@ class ManagePaymentMethodsController {
       PaymentMethodsCompanion.insert(
         name: trimmed,
         colorValue: Value(colorValue),
+        iconKey: Value(iconKey),
         isDefault: const Value(false),
         sortOrder: Value(nextOrder),
       ),
@@ -76,6 +80,14 @@ class ManagePaymentMethodsController {
           ..where((p) => p.id.equals(method.id)))
         .write(
       PaymentMethodsCompanion(colorValue: Value(colorValue)),
+    );
+  }
+
+  Future<void> setIcon(PaymentMethod method, String? iconKey) async {
+    await (_db.update(_db.paymentMethods)
+          ..where((p) => p.id.equals(method.id)))
+        .write(
+      PaymentMethodsCompanion(iconKey: Value(iconKey)),
     );
   }
 

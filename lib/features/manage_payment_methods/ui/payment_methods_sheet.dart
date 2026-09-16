@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/payment_method/model/payment_methods_provider.dart';
 import 'package:valtero/features/manage_payment_methods/model/manage_payment_methods_controller.dart';
+import 'package:valtero/shared/consts/tag_icons.dart';
+import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
+import 'package:valtero/shared/utils/payment_method_icon.dart';
 import 'package:valtero/shared/utils/payment_method_label.dart';
 import 'package:valtero/widgets/app_button.dart';
 import 'package:valtero/widgets/app_close_icon_button.dart';
@@ -44,12 +47,13 @@ class PaymentMethodsSheetBody extends ConsumerWidget {
                 context,
                 title: l10n.paymentMethodNew,
                 confirmLabel: l10n.add,
-                showIconPicker: false,
               );
               if (result == null) return;
-              await ref
-                  .read(managePaymentMethodsControllerProvider)
-                  .addCustom(name: result.name, colorValue: result.colorValue);
+              await ref.read(managePaymentMethodsControllerProvider).addCustom(
+                    name: result.name,
+                    colorValue: result.colorValue,
+                    iconKey: result.iconKey,
+                  );
             },
             icon: Icons.add,
             label: l10n.paymentMethodAdd,
@@ -60,12 +64,7 @@ class PaymentMethodsSheetBody extends ConsumerWidget {
         const SizedBox(height: 4),
         for (final method in methods)
           ListTile(
-            leading: CircleAvatar(
-              backgroundColor: method.colorValue != null
-                  ? Color(method.colorValue!)
-                  : Theme.of(context).colorScheme.surfaceContainerHighest,
-              radius: 12,
-            ),
+            leading: _PaymentMethodLeading(method: method),
             title: Text(localizedPaymentMethodLabel(context, method)),
             subtitle: method.isDefault ? Text(l10n.paymentMethodBuiltIn) : null,
             trailing: Row(
@@ -100,14 +99,18 @@ class PaymentMethodsSheetBody extends ConsumerWidget {
                 title: l10n.paymentMethodEdit,
                 initialName: currentLabel,
                 initialColor: method.colorValue,
+                initialIconKey: method.iconKey ??
+                    (method.stableKey == null
+                        ? null
+                        : defaultIconKeyForPaymentStableKey(method.stableKey!)),
                 confirmLabel: l10n.save,
-                showIconPicker: false,
               );
               if (result == null) return;
               final controller = ref.read(
                 managePaymentMethodsControllerProvider,
               );
               await controller.setColor(method, result.colorValue);
+              await controller.setIcon(method, result.iconKey);
               if (result.name != currentLabel) {
                 await controller.rename(method, result.name);
               }
@@ -124,5 +127,30 @@ class PaymentMethodsSheetBody extends ConsumerWidget {
           ),
       ],
     );
+  }
+}
+
+class _PaymentMethodLeading extends StatelessWidget {
+  final PaymentMethod method;
+
+  const _PaymentMethodLeading({required this.method});
+
+  @override
+  Widget build(BuildContext context) {
+    final icon = iconDataForPaymentMethod(
+      iconKey: method.iconKey,
+      stableKey: method.stableKey,
+    );
+    final bg = method.colorValue != null
+        ? Color(method.colorValue!)
+        : Theme.of(context).colorScheme.surfaceContainerHighest;
+    if (icon != null) {
+      return CircleAvatar(
+        backgroundColor: bg,
+        radius: 16,
+        child: Icon(icon, size: 18),
+      );
+    }
+    return CircleAvatar(backgroundColor: bg, radius: 12);
   }
 }

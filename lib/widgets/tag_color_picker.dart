@@ -137,7 +137,7 @@ Future<TagEditResult?> showTagEditSheet(
 }) {
   return showAppModalSheet<TagEditResult>(
     context: context,
-    initialChildSize: 0.72,
+    initialChildSize: 0.82,
     minChildSize: 0.4,
     maxChildSize: 0.95,
     child: _TagEditSheetBody(

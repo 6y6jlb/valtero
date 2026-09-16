@@ -48,6 +48,9 @@ class RecentOperationsList extends ConsumerWidget {
     final paymentStableKeys = {
       for (final p in payments) p.id: p.stableKey,
     };
+    final paymentIconKeys = {
+      for (final p in payments) p.id: p.iconKey,
+    };
 
     final children = <Widget>[];
     String? lastDayKey;
@@ -106,6 +109,9 @@ class RecentOperationsList extends ConsumerWidget {
       final paymentStableKey = expense.paymentMethodId == null
           ? null
           : paymentStableKeys[expense.paymentMethodId!];
+      final paymentIconKey = expense.paymentMethodId == null
+          ? null
+          : paymentIconKeys[expense.paymentMethodId!];
       children.add(
         RecentExpenseTile(
           expense: expense,
@@ -113,6 +119,7 @@ class RecentOperationsList extends ConsumerWidget {
           countryLabel: countryLabel,
           tagsLabel: tagsLabel,
           tagIconKey: tagIconKey,
+          paymentIconKey: paymentIconKey,
           paymentStableKey: paymentStableKey,
           showPossibleDuplicate: dupState.isFlagged(expense.id),
           onTap: () => openExpenseDetail(

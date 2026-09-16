@@ -104,7 +104,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String debugLogsSendHint(String email) {
-    return '«Отправить» откроет почту с вложением лога (или системный share). Скопировать email / логи — в кнопках внизу. Адрес: $email.';
+    return '«Поделиться» — отправить файл лога кому угодно. «Отправить разработчику» откроет почту на $email с вложением. Скопировать email / логи — в кнопках внизу.';
   }
 
   @override
@@ -437,7 +437,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get debugViewLogs => 'Содержимое лога';
 
   @override
-  String get debugShareLogs => 'Отправить разработчику';
+  String get debugShareLogs => 'Поделиться';
+
+  @override
+  String get debugSendToDeveloper => 'Отправить разработчику';
 
   @override
   String get debugCopyLogs => 'Скопировать логи';
@@ -455,7 +458,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get debugLogsShared => 'Файл лога готов к отправке';
 
   @override
-  String get debugLogsEmailed => 'Открыт почтовый клиент с вложением лога';
+  String get debugLogsEmailed => 'Открыт выбор почтового приложения';
 
   @override
   String get debugLogsEmailFallback =>
@@ -1851,7 +1854,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get guideSectionDebugBody =>
-      'В Настройки → Отладка и логи можно включить подробные логи. Ошибки пишутся всегда. Лог можно просмотреть, скопировать или отправить разработчику; секреты маскируются.';
+      'В Настройки → Отладка и логи можно включить подробные логи. Ошибки пишутся всегда. Лог можно просмотреть, скопировать, поделиться с кем угодно или отправить разработчику письмом с вложением; секреты маскируются.';
 
   @override
   String get guideSectionFiltersTitle => 'Фильтры';

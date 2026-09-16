@@ -50,20 +50,37 @@ class _DebugLogsPanelState extends ConsumerState<DebugLogsPanel> {
 
   Future<void> _share() async {
     final l10n = AppLocalizations.of(context)!;
-    final result =
-        await ref.read(debugLogsControllerProvider).shareOrCopyLogs();
+    final result = await ref.read(debugLogsControllerProvider).shareLogs();
     if (!mounted) return;
     switch (result) {
       case null:
         showAppToast(context, l10n.debugLogsEmpty);
       case DebugLogsShareResult.shared:
         showAppToast(context, l10n.debugLogsShared);
+      case DebugLogsShareResult.copied:
+        showAppToast(context, l10n.debugLogsCopied);
+      case DebugLogsShareResult.emailed:
+      case DebugLogsShareResult.emailFallback:
+        // Share path never returns these; keep exhaustive.
+        break;
+    }
+  }
+
+  Future<void> _emailDeveloper() async {
+    final l10n = AppLocalizations.of(context)!;
+    final result =
+        await ref.read(debugLogsControllerProvider).emailLogsToDeveloper();
+    if (!mounted) return;
+    switch (result) {
+      case null:
+        showAppToast(context, l10n.debugLogsEmpty);
       case DebugLogsShareResult.emailed:
         showAppToast(context, l10n.debugLogsEmailed);
       case DebugLogsShareResult.emailFallback:
         showAppToast(context, l10n.debugLogsEmailFallback);
+      case DebugLogsShareResult.shared:
       case DebugLogsShareResult.copied:
-        showAppToast(context, l10n.debugLogsCopied);
+        break;
     }
   }
 
@@ -130,10 +147,15 @@ class _DebugLogsPanelState extends ConsumerState<DebugLogsPanel> {
             onPressed: _clear,
             destructive: true,
           ),
-          AppFilledButton(
+          AppOutlinedButton(
             label: l10n.debugShareLogs,
-            icon: Icons.send_outlined,
+            icon: Icons.ios_share_outlined,
             onPressed: _share,
+          ),
+          AppFilledButton(
+            label: l10n.debugSendToDeveloper,
+            icon: Icons.send_outlined,
+            onPressed: _emailDeveloper,
           ),
         ],
       ),

@@ -285,7 +285,7 @@ abstract class AppLocalizations {
   /// No description provided for @debugLogsSendHint.
   ///
   /// In en, this message translates to:
-  /// **'Use Send to open email with the log attached (or the system share sheet). Copy email / Copy logs are also in the actions below.'**
+  /// **'Share sends the log file anywhere you choose. Send to developer opens email to {email} with the log attached. Copy email / Copy logs are also below.'**
   String debugLogsSendHint(String email);
 
   /// No description provided for @integrationConnected.
@@ -835,8 +835,14 @@ abstract class AppLocalizations {
   /// No description provided for @debugShareLogs.
   ///
   /// In en, this message translates to:
-  /// **'Share with developer'**
+  /// **'Share'**
   String get debugShareLogs;
+
+  /// No description provided for @debugSendToDeveloper.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to developer'**
+  String get debugSendToDeveloper;
 
   /// No description provided for @debugCopyLogs.
   ///
@@ -871,7 +877,7 @@ abstract class AppLocalizations {
   /// No description provided for @debugLogsEmailed.
   ///
   /// In en, this message translates to:
-  /// **'Mail client opened with the log attached'**
+  /// **'Mail app chooser opened'**
   String get debugLogsEmailed;
 
   /// No description provided for @debugLogsEmailFallback.
@@ -3343,7 +3349,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionDebugBody.
   ///
   /// In en, this message translates to:
-  /// **'Settings → Debug & logs can turn on verbose logging. Errors are always recorded. You can view, copy, or share the log file with a developer; secrets are redacted.'**
+  /// **'Settings → Debug & logs can turn on verbose logging. Errors are always recorded. You can view, copy, share the log file with anyone, or email it to the developer with the file attached; secrets are redacted.'**
   String get guideSectionDebugBody;
 
   /// No description provided for @guideSectionFiltersTitle.

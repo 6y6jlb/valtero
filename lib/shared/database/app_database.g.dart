@@ -700,6 +700,17 @@ class $PaymentMethodsTable extends PaymentMethods
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _iconKeyMeta = const VerificationMeta(
+    'iconKey',
+  );
+  @override
+  late final GeneratedColumn<String> iconKey = GeneratedColumn<String>(
+    'icon_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -708,6 +719,7 @@ class $PaymentMethodsTable extends PaymentMethods
     isDefault,
     sortOrder,
     stableKey,
+    iconKey,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -756,6 +768,12 @@ class $PaymentMethodsTable extends PaymentMethods
         stableKey.isAcceptableOrUnknown(data['stable_key']!, _stableKeyMeta),
       );
     }
+    if (data.containsKey('icon_key')) {
+      context.handle(
+        _iconKeyMeta,
+        iconKey.isAcceptableOrUnknown(data['icon_key']!, _iconKeyMeta),
+      );
+    }
     return context;
   }
 
@@ -789,6 +807,10 @@ class $PaymentMethodsTable extends PaymentMethods
         DriftSqlType.string,
         data['${effectivePrefix}stable_key'],
       ),
+      iconKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}icon_key'],
+      ),
     );
   }
 
@@ -807,6 +829,9 @@ class PaymentMethod extends DataClass implements Insertable<PaymentMethod> {
 
   /// Stable id for seeded methods, e.g. `cash`, `card`, `crypto`.
   final String? stableKey;
+
+  /// Optional curated icon key (same catalog as tags).
+  final String? iconKey;
   const PaymentMethod({
     required this.id,
     required this.name,
@@ -814,6 +839,7 @@ class PaymentMethod extends DataClass implements Insertable<PaymentMethod> {
     required this.isDefault,
     required this.sortOrder,
     this.stableKey,
+    this.iconKey,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -827,6 +853,9 @@ class PaymentMethod extends DataClass implements Insertable<PaymentMethod> {
     map['sort_order'] = Variable<int>(sortOrder);
     if (!nullToAbsent || stableKey != null) {
       map['stable_key'] = Variable<String>(stableKey);
+    }
+    if (!nullToAbsent || iconKey != null) {
+      map['icon_key'] = Variable<String>(iconKey);
     }
     return map;
   }
@@ -843,6 +872,9 @@ class PaymentMethod extends DataClass implements Insertable<PaymentMethod> {
       stableKey: stableKey == null && nullToAbsent
           ? const Value.absent()
           : Value(stableKey),
+      iconKey: iconKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(iconKey),
     );
   }
 
@@ -858,6 +890,7 @@ class PaymentMethod extends DataClass implements Insertable<PaymentMethod> {
       isDefault: serializer.fromJson<bool>(json['isDefault']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       stableKey: serializer.fromJson<String?>(json['stableKey']),
+      iconKey: serializer.fromJson<String?>(json['iconKey']),
     );
   }
   @override
@@ -870,6 +903,7 @@ class PaymentMethod extends DataClass implements Insertable<PaymentMethod> {
       'isDefault': serializer.toJson<bool>(isDefault),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'stableKey': serializer.toJson<String?>(stableKey),
+      'iconKey': serializer.toJson<String?>(iconKey),
     };
   }
 
@@ -880,6 +914,7 @@ class PaymentMethod extends DataClass implements Insertable<PaymentMethod> {
     bool? isDefault,
     int? sortOrder,
     Value<String?> stableKey = const Value.absent(),
+    Value<String?> iconKey = const Value.absent(),
   }) => PaymentMethod(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -887,6 +922,7 @@ class PaymentMethod extends DataClass implements Insertable<PaymentMethod> {
     isDefault: isDefault ?? this.isDefault,
     sortOrder: sortOrder ?? this.sortOrder,
     stableKey: stableKey.present ? stableKey.value : this.stableKey,
+    iconKey: iconKey.present ? iconKey.value : this.iconKey,
   );
   PaymentMethod copyWithCompanion(PaymentMethodsCompanion data) {
     return PaymentMethod(
@@ -898,6 +934,7 @@ class PaymentMethod extends DataClass implements Insertable<PaymentMethod> {
       isDefault: data.isDefault.present ? data.isDefault.value : this.isDefault,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
       stableKey: data.stableKey.present ? data.stableKey.value : this.stableKey,
+      iconKey: data.iconKey.present ? data.iconKey.value : this.iconKey,
     );
   }
 
@@ -909,14 +946,22 @@ class PaymentMethod extends DataClass implements Insertable<PaymentMethod> {
           ..write('colorValue: $colorValue, ')
           ..write('isDefault: $isDefault, ')
           ..write('sortOrder: $sortOrder, ')
-          ..write('stableKey: $stableKey')
+          ..write('stableKey: $stableKey, ')
+          ..write('iconKey: $iconKey')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, name, colorValue, isDefault, sortOrder, stableKey);
+  int get hashCode => Object.hash(
+    id,
+    name,
+    colorValue,
+    isDefault,
+    sortOrder,
+    stableKey,
+    iconKey,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -926,7 +971,8 @@ class PaymentMethod extends DataClass implements Insertable<PaymentMethod> {
           other.colorValue == this.colorValue &&
           other.isDefault == this.isDefault &&
           other.sortOrder == this.sortOrder &&
-          other.stableKey == this.stableKey);
+          other.stableKey == this.stableKey &&
+          other.iconKey == this.iconKey);
 }
 
 class PaymentMethodsCompanion extends UpdateCompanion<PaymentMethod> {
@@ -936,6 +982,7 @@ class PaymentMethodsCompanion extends UpdateCompanion<PaymentMethod> {
   final Value<bool> isDefault;
   final Value<int> sortOrder;
   final Value<String?> stableKey;
+  final Value<String?> iconKey;
   const PaymentMethodsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -943,6 +990,7 @@ class PaymentMethodsCompanion extends UpdateCompanion<PaymentMethod> {
     this.isDefault = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.stableKey = const Value.absent(),
+    this.iconKey = const Value.absent(),
   });
   PaymentMethodsCompanion.insert({
     this.id = const Value.absent(),
@@ -951,6 +999,7 @@ class PaymentMethodsCompanion extends UpdateCompanion<PaymentMethod> {
     this.isDefault = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.stableKey = const Value.absent(),
+    this.iconKey = const Value.absent(),
   }) : name = Value(name);
   static Insertable<PaymentMethod> custom({
     Expression<int>? id,
@@ -959,6 +1008,7 @@ class PaymentMethodsCompanion extends UpdateCompanion<PaymentMethod> {
     Expression<bool>? isDefault,
     Expression<int>? sortOrder,
     Expression<String>? stableKey,
+    Expression<String>? iconKey,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -967,6 +1017,7 @@ class PaymentMethodsCompanion extends UpdateCompanion<PaymentMethod> {
       if (isDefault != null) 'is_default': isDefault,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (stableKey != null) 'stable_key': stableKey,
+      if (iconKey != null) 'icon_key': iconKey,
     });
   }
 
@@ -977,6 +1028,7 @@ class PaymentMethodsCompanion extends UpdateCompanion<PaymentMethod> {
     Value<bool>? isDefault,
     Value<int>? sortOrder,
     Value<String?>? stableKey,
+    Value<String?>? iconKey,
   }) {
     return PaymentMethodsCompanion(
       id: id ?? this.id,
@@ -985,6 +1037,7 @@ class PaymentMethodsCompanion extends UpdateCompanion<PaymentMethod> {
       isDefault: isDefault ?? this.isDefault,
       sortOrder: sortOrder ?? this.sortOrder,
       stableKey: stableKey ?? this.stableKey,
+      iconKey: iconKey ?? this.iconKey,
     );
   }
 
@@ -1009,6 +1062,9 @@ class PaymentMethodsCompanion extends UpdateCompanion<PaymentMethod> {
     if (stableKey.present) {
       map['stable_key'] = Variable<String>(stableKey.value);
     }
+    if (iconKey.present) {
+      map['icon_key'] = Variable<String>(iconKey.value);
+    }
     return map;
   }
 
@@ -1020,7 +1076,8 @@ class PaymentMethodsCompanion extends UpdateCompanion<PaymentMethod> {
           ..write('colorValue: $colorValue, ')
           ..write('isDefault: $isDefault, ')
           ..write('sortOrder: $sortOrder, ')
-          ..write('stableKey: $stableKey')
+          ..write('stableKey: $stableKey, ')
+          ..write('iconKey: $iconKey')
           ..write(')'))
         .toString();
   }
@@ -3099,6 +3156,7 @@ typedef $$PaymentMethodsTableCreateCompanionBuilder =
       Value<bool> isDefault,
       Value<int> sortOrder,
       Value<String?> stableKey,
+      Value<String?> iconKey,
     });
 typedef $$PaymentMethodsTableUpdateCompanionBuilder =
     PaymentMethodsCompanion Function({
@@ -3108,6 +3166,7 @@ typedef $$PaymentMethodsTableUpdateCompanionBuilder =
       Value<bool> isDefault,
       Value<int> sortOrder,
       Value<String?> stableKey,
+      Value<String?> iconKey,
     });
 
 final class $$PaymentMethodsTableReferences
@@ -3176,6 +3235,11 @@ class $$PaymentMethodsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get iconKey => $composableBuilder(
+    column: $table.iconKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> operationsRefs(
     Expression<bool> Function($$OperationsTableFilterComposer f) f,
   ) {
@@ -3240,6 +3304,11 @@ class $$PaymentMethodsTableOrderingComposer
     column: $table.stableKey,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get iconKey => $composableBuilder(
+    column: $table.iconKey,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$PaymentMethodsTableAnnotationComposer
@@ -3270,6 +3339,9 @@ class $$PaymentMethodsTableAnnotationComposer
 
   GeneratedColumn<String> get stableKey =>
       $composableBuilder(column: $table.stableKey, builder: (column) => column);
+
+  GeneratedColumn<String> get iconKey =>
+      $composableBuilder(column: $table.iconKey, builder: (column) => column);
 
   Expression<T> operationsRefs<T extends Object>(
     Expression<T> Function($$OperationsTableAnnotationComposer a) f,
@@ -3333,6 +3405,7 @@ class $$PaymentMethodsTableTableManager
                 Value<bool> isDefault = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<String?> stableKey = const Value.absent(),
+                Value<String?> iconKey = const Value.absent(),
               }) => PaymentMethodsCompanion(
                 id: id,
                 name: name,
@@ -3340,6 +3413,7 @@ class $$PaymentMethodsTableTableManager
                 isDefault: isDefault,
                 sortOrder: sortOrder,
                 stableKey: stableKey,
+                iconKey: iconKey,
               ),
           createCompanionCallback:
               ({
@@ -3349,6 +3423,7 @@ class $$PaymentMethodsTableTableManager
                 Value<bool> isDefault = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<String?> stableKey = const Value.absent(),
+                Value<String?> iconKey = const Value.absent(),
               }) => PaymentMethodsCompanion.insert(
                 id: id,
                 name: name,
@@ -3356,6 +3431,7 @@ class $$PaymentMethodsTableTableManager
                 isDefault: isDefault,
                 sortOrder: sortOrder,
                 stableKey: stableKey,
+                iconKey: iconKey,
               ),
           withReferenceMapper: (p0) => p0
               .map(
