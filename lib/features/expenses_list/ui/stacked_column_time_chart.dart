@@ -16,7 +16,7 @@ import 'package:valtero/widgets/money_text.dart';
 /// animate to zero height so the bar eases instead of jumping.
 ///
 /// Hover / touch details are reported via [onSelectionChanged] so the parent
-/// can render them under the plot (avoids covering overlay actions).
+/// can render them in the chrome row above the plot.
 class StackedColumnTimeChart extends ConsumerWidget {
   final List<ChartSeriesDef> series;
   final List<ChartTimeSeriesPoint> points;
@@ -117,7 +117,7 @@ class StackedColumnTimeChart extends ConsumerWidget {
     return SizedBox(
       height: chartHeight,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(4, kChartOverlayTopInset, 12, 4),
+        padding: kChartPlotPadding,
         child: BarChart(
           BarChartData(
             alignment: BarChartAlignment.spaceAround,

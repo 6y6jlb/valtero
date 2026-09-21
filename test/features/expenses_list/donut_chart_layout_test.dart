@@ -2,6 +2,60 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_layout.dart';
 
 void main() {
+  group('fitDonutChartRadii', () {
+    test('keeps preferred radii when the plot is large enough', () {
+      final radii = fitDonutChartRadii(width: 400, height: 400);
+      expect(radii.centerSpaceRadius, kDonutCenterSpaceRadius);
+      expect(radii.sectionRadius, kDonutSectionRadius);
+    });
+
+    test('does not scale up when the plot is larger than preferred', () {
+      final radii = fitDonutChartRadii(width: 800, height: 800);
+      expect(radii.outerRadius, kDonutCenterSpaceRadius + kDonutSectionRadius);
+    });
+
+    test('keeps preferred radii in the dashboard plot (chrome is outside)', () {
+      final radii = fitDonutChartRadii(width: 328, height: 296);
+      expect(radii.centerSpaceRadius, kDonutCenterSpaceRadius);
+      expect(radii.sectionRadius, kDonutSectionRadius);
+    });
+
+    test('scales down so the ring stays inside the shorter side', () {
+      final radii = fitDonutChartRadii(width: 328, height: 180);
+      expect(
+        radii.outerRadius,
+        lessThanOrEqualTo(180 / 2 - kDonutFitEdgeInset),
+      );
+      expect(
+        radii.centerSpaceRadius / radii.sectionRadius,
+        closeTo(kDonutCenterSpaceRadius / kDonutSectionRadius, 1e-9),
+      );
+    });
+
+    test('uses the shorter side when width is tighter than height', () {
+      final radii = fitDonutChartRadii(width: 160, height: 400);
+      expect(
+        radii.outerRadius,
+        closeTo(160 / 2 - kDonutFitEdgeInset, 1e-9),
+      );
+    });
+
+    test('keeps preferred radii when size is unbounded', () {
+      final radii = fitDonutChartRadii(
+        width: double.infinity,
+        height: double.infinity,
+      );
+      expect(radii.centerSpaceRadius, kDonutCenterSpaceRadius);
+      expect(radii.sectionRadius, kDonutSectionRadius);
+    });
+
+    test('returns zeros when available space is empty', () {
+      final radii = fitDonutChartRadii(width: 0, height: 0);
+      expect(radii.centerSpaceRadius, 0);
+      expect(radii.sectionRadius, 0);
+    });
+  });
+
   group('computeDonutSectionValues', () {
     test('returns empty list unchanged', () {
       expect(computeDonutSectionValues(const []), isEmpty);

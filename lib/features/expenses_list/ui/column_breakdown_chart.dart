@@ -11,7 +11,7 @@ import 'package:valtero/widgets/money_text.dart';
 /// Vertical column chart for the same [DonutChartSlice] breakdown data.
 ///
 /// Pass every slice plus [hiddenKeys]. Hidden bars animate to zero height.
-/// Hover details go to [onSelectionChanged] (rendered under the plot).
+/// Hover details go to [onSelectionChanged] (rendered in the chrome row).
 class ColumnBreakdownChart extends ConsumerWidget {
   final List<DonutChartSlice> slices;
   final Set<String> hiddenKeys;
@@ -55,7 +55,7 @@ class ColumnBreakdownChart extends ConsumerWidget {
     return SizedBox(
       height: chartHeight,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(4, kChartOverlayTopInset, 12, 4),
+        padding: kChartPlotPadding,
         child: BarChart(
           BarChartData(
             alignment: BarChartAlignment.spaceAround,

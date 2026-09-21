@@ -1888,7 +1888,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guideSectionChartsBody =>
-      'El gráfico de dona del panel desglosa el gasto por país, método de pago, categoría, meses o moneda. Cambia el desglose con los iconos bajo el gráfico. País, pago o categoría ausentes aparecen como no definidos. Toca un segmento para abrir gastos coincidentes. Toca un chip de la leyenda para mostrar u ocultar esa porción. Bajo el gráfico, los últimos 10 gastos y un enlace a la lista completa. «Ver gastos» ofrece lista, agrupación y gráfico con orden y paginación.';
+      'El gráfico de dona del panel desglosa el gasto por país, método de pago, categoría, meses o moneda. Cambia el desglose con los iconos sobre el gráfico. País, pago o categoría ausentes aparecen como no definidos. Toca un segmento para abrir gastos coincidentes. Toca un chip de la leyenda para mostrar u ocultar esa porción. Bajo el gráfico, los últimos 10 gastos y un enlace a la lista completa. «Ver gastos» ofrece lista, agrupación y gráfico con orden y paginación.';
 
   @override
   String get guideSectionExchangeRatesTitle => 'Tipos de cambio';

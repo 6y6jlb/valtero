@@ -84,19 +84,19 @@ class CashFlowChartView extends ConsumerWidget {
     }
 
     if (chartType == ExpenseChartType.line) {
-      return Stack(
-        clipBehavior: Clip.none,
+      return Column(
         children: [
+          Align(
+            alignment: Alignment.centerRight,
+            child: _overlayControls(),
+          ),
+          const SizedBox(height: 4),
           CashFlowLineChart(
             buckets: buckets,
             displayCurrency: displayCurrency,
             hideAmounts: hideAmounts,
             emptyMessage: emptyMessage,
             chartHeight: chartHeight,
-          ),
-          Align(
-            alignment: Alignment.topRight,
-            child: _overlayControls(),
           ),
         ],
       );
@@ -105,9 +105,13 @@ class CashFlowChartView extends ConsumerWidget {
     // Grouped bars by period (day/week/month/year) — cash-flow's "by date"
     // chart. No separate columnByDate type: that icon is for category stacks
     // on expenses/income, which do not apply to income-vs-expense buckets.
-    return Stack(
-      clipBehavior: Clip.none,
+    return Column(
       children: [
+        Align(
+          alignment: Alignment.centerRight,
+          child: _overlayControls(),
+        ),
+        const SizedBox(height: 4),
         CashFlowChart(
           buckets: buckets,
           displayCurrency: displayCurrency,
@@ -115,10 +119,6 @@ class CashFlowChartView extends ConsumerWidget {
           emptyMessage: emptyMessage,
           emptyIcon: emptyIcon,
           chartHeight: chartHeight,
-        ),
-        Align(
-          alignment: Alignment.topRight,
-          child: _overlayControls(),
         ),
       ],
     );

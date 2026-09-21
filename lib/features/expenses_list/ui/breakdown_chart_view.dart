@@ -25,8 +25,8 @@ bool _isTimeSeriesChartType(ExpenseChartType type) {
   return type == ExpenseChartType.columnByDate || type == ExpenseChartType.line;
 }
 
-/// Donut / column / time-series chart with overlay type + breakdown controls
-/// and an overlay total for slice charts only.
+/// Donut / column / time-series chart with type + breakdown chrome above
+/// the plot and a centered total in the donut hole.
 class BreakdownChartView extends ConsumerStatefulWidget {
   final List<DonutChartSlice> slices;
   final ChartTimeSeriesAggregation? timeSeries;
@@ -142,6 +142,7 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
     required List<DonutChartSlice> allSlices,
     required List<ChartSeriesDef> allSeries,
     required Set<String> hiddenKeys,
+    Widget? donutCenterOverlay,
   }) {
     switch (widget.chartType) {
       case ExpenseChartType.donut:
@@ -156,6 +157,7 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
           chartHeight: widget.chartHeight,
           showLegend: false,
           emptyMessage: widget.emptyMessage,
+          centerOverlay: donutCenterOverlay,
         );
       case ExpenseChartType.column:
         return ColumnBreakdownChart(
@@ -254,13 +256,16 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
       compact: true,
     );
 
-    final showFloatingTotal =
+    final showColumnTotal =
         widget.showTotal &&
         !widget.hideCenterTotal &&
-        !isTimeSeries &&
-        visible.isNotEmpty &&
-        (widget.chartType == ExpenseChartType.donut ||
-            widget.chartType == ExpenseChartType.column);
+        widget.chartType == ExpenseChartType.column &&
+        visible.isNotEmpty;
+    final showDonutCenterTotal =
+        widget.showTotal &&
+        !widget.hideCenterTotal &&
+        widget.chartType == ExpenseChartType.donut &&
+        visible.isNotEmpty;
 
     final showSubToggle =
         widget.breakdown == ExpenseChartBreakdown.tagCustom &&
@@ -268,95 +273,79 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
 
     return Column(
       children: [
-        SizedBox(
-          height: widget.chartHeight,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              // Chart first so overlay actions paint and receive hits on top —
-              // tooltips must not block the type / breakdown controls.
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 280),
-                switchInCurve: Curves.easeOutCubic,
-                switchOutCurve: Curves.easeInCubic,
-                transitionBuilder: (child, animation) {
-                  final fade = CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.easeOut,
-                  );
-                  final slide = Tween<Offset>(
-                    begin: const Offset(0.04, 0),
-                    end: Offset.zero,
-                  ).animate(fade);
-                  return FadeTransition(
-                    opacity: fade,
-                    child: SlideTransition(position: slide, child: child),
-                  );
-                },
-                child: KeyedSubtree(
-                  key: ValueKey(widget.chartType),
-                  child: _buildChartChild(
-                    l10n: l10n,
-                    allSlices: all,
-                    allSeries: allSeries,
-                    hiddenKeys: _hiddenKeys,
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: ChartOverlayControls(
+                chartType: widget.chartType,
+                onChartTypeChanged: widget.onChartTypeChanged,
+                availableChartTypes: widget.availableChartTypes,
+                breakdown: widget.breakdown,
+                onBreakdownChanged: widget.onBreakdownChanged,
+                cashFlowPeriodOnly: widget.cashFlowPeriodOnly,
+              ),
+            ),
+            if (showColumnTotal && _selection == null)
+              Positioned(
+                top: 0,
+                left: 0,
+                child: IgnorePointer(
+                  child: _ChartTotalBadge(
+                    label: l10n.summaryTotal,
+                    primaryText: totalPrimaryText,
+                    compactText: totalCompactText,
                   ),
                 ),
               ),
-              if (showFloatingTotal &&
-                  widget.chartType == ExpenseChartType.column &&
-                  _selection == null)
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  child: IgnorePointer(
-                    child: _ChartTotalBadge(
-                      label: l10n.summaryTotal,
-                      primaryText: totalPrimaryText,
-                      compactText: totalCompactText,
-                    ),
-                  ),
-                ),
-              if (showFloatingTotal &&
-                  widget.chartType == ExpenseChartType.donut)
-                Positioned.fill(
-                  child: IgnorePointer(
-                    child: Padding(
-                      // Match DonutBreakdownChart top inset so the total
-                      // stays centered in the ring under the overlay.
-                      padding: const EdgeInsets.only(
-                        top: kChartOverlayTopInset,
-                      ),
-                      child: Center(
-                        child: _ChartCenterTotal(
+            if (widget.chartType != ExpenseChartType.donut)
+              Positioned(
+                top: 0,
+                left: 0,
+                child: ChartSelectionPanel(detail: _selection),
+              ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        SizedBox(
+          height: widget.chartHeight,
+          child: ClipRect(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 280),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              transitionBuilder: (child, animation) {
+                final fade = CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOut,
+                );
+                final slide = Tween<Offset>(
+                  begin: const Offset(0.04, 0),
+                  end: Offset.zero,
+                ).animate(fade);
+                return FadeTransition(
+                  opacity: fade,
+                  child: SlideTransition(position: slide, child: child),
+                );
+              },
+              child: KeyedSubtree(
+                key: ValueKey(widget.chartType),
+                child: _buildChartChild(
+                  l10n: l10n,
+                  allSlices: all,
+                  allSeries: allSeries,
+                  hiddenKeys: _hiddenKeys,
+                  donutCenterOverlay: showDonutCenterTotal
+                      ? _ChartCenterTotal(
                           label: l10n.summaryTotal,
                           primaryText: totalPrimaryText,
                           compactText: totalCompactText,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              // Selection badge: same corner as the column sum badge; absolute
-              // so it never resizes the column / legend below.
-              if (widget.chartType != ExpenseChartType.donut)
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  child: ChartSelectionPanel(detail: _selection),
-                ),
-              Align(
-                alignment: Alignment.topRight,
-                child: ChartOverlayControls(
-                  chartType: widget.chartType,
-                  onChartTypeChanged: widget.onChartTypeChanged,
-                  availableChartTypes: widget.availableChartTypes,
-                  breakdown: widget.breakdown,
-                  onBreakdownChanged: widget.onBreakdownChanged,
-                  cashFlowPeriodOnly: widget.cashFlowPeriodOnly,
+                        )
+                      : null,
                 ),
               ),
-            ],
+            ),
           ),
         ),
         const SizedBox(height: 8),
@@ -428,8 +417,6 @@ class _ChartCenterTotal extends StatelessWidget {
   final String primaryText;
   final String compactText;
 
-  static const _maxWidth = kDonutCenterSpaceRadius * 2 * 0.82;
-
   const _ChartCenterTotal({
     required this.label,
     required this.primaryText,
@@ -442,26 +429,28 @@ class _ChartCenterTotal extends StatelessWidget {
     final amountStyle = theme.textTheme.titleMedium?.copyWith(
       fontWeight: FontWeight.w700,
     );
-    final amountText = _textFitsWidth(primaryText, amountStyle, _maxWidth)
-        ? primaryText
-        : compactText;
-    return SizedBox(
-      width: _maxWidth,
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxWidth = constraints.maxWidth;
+        final amountText = _textFitsWidth(primaryText, amountStyle, maxWidth)
+            ? primaryText
+            : compactText;
+        return FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
-            ),
-            Text(amountText, maxLines: 1, style: amountStyle),
-          ],
-        ),
-      ),
+              Text(amountText, maxLines: 1, style: amountStyle),
+            ],
+          ),
+        );
+      },
     );
   }
 }

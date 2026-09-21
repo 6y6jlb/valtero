@@ -5,13 +5,16 @@ import 'package:valtero/features/expenses_list/ui/chart_breakdown_icons.dart';
 import 'package:valtero/features/expenses_list/ui/chart_toggle_icon.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 
-/// Top padding for plot widgets under [ChartOverlayControls] so series /
-/// bars stay below the type + breakdown icon rows instead of drawing under them.
-const kChartOverlayTopInset =
-    ChartToggleIcon.extent * 2 + 4 + 8; // two rows + gap + breathing room
+/// Tight padding for bar/line plots that sit **below** [ChartOverlayControls]
+/// instead of under them.
+const kChartPlotPadding = EdgeInsets.fromLTRB(4, 8, 12, 4);
 
-/// Top-right overlay chrome: chart-type icons and optional breakdown/period
-/// icons under them. Sizes to its children (does not fill the plot).
+/// Padding around the donut ring. Overlay actions and the legend live outside
+/// the plot, so this is only a little air around the pie (not a chrome inset).
+const kDonutPlotPadding = EdgeInsets.all(8);
+
+/// Chart-type icons and optional breakdown/period icons, laid out above
+/// the plot (top-right). Sizes to its children.
 class ChartOverlayControls extends StatelessWidget {
   final ExpenseChartType chartType;
   final ValueChanged<ExpenseChartType> onChartTypeChanged;

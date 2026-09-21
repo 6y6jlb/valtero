@@ -8,6 +8,14 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.11] - 2026-09-21
+
+### Fixed
+
+- Dashboard / list donut chart: type and breakdown icons sit **above** the plot
+  and the legend stays **below** it, so neither overlaps the ring. The donut
+  keeps its previous size.
+
 ## [1.1.10] - 2026-09-21
 
 ### Added

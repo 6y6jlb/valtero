@@ -961,7 +961,7 @@
   "guideSectionTagsTitle": "Tags",
   "guideSectionTagsBody": "Category tags label what you spent on (groceries, transport, …). Country is a separate field on the expense, not a tag. Payment is also separate (cash, card, crypto, or your own). Manage tags and payment methods in Settings.",
   "guideSectionChartsTitle": "Spending charts",
-  "guideSectionChartsBody": "The dashboard donut chart breaks down spending by country, payment method, category, months, or currency. Switch the breakdown with the icons under the chart. Missing country, payment, or category appear as not set. Tap a segment to open matching expenses. Tap a legend chip to show or hide that slice. Below the chart, the last 10 expenses are listed with a link to the full list. Open Show expenses for list, grouping, and chart views with sort and pagination.",
+  "guideSectionChartsBody": "The dashboard donut chart breaks down spending by country, payment method, category, months, or currency. Switch the breakdown with the icons above the chart. Missing country, payment, or category appear as not set. Tap a segment to open matching expenses. Tap a legend chip to show or hide that slice. Below the chart, the last 10 expenses are listed with a link to the full list. Open Show expenses for list, grouping, and chart views with sort and pagination.",
   "guideSectionExchangeRatesTitle": "Exchange rates",
   "guideSectionExchangeRatesBody": "Rates refresh in the background when stale (about every 24 hours). Connect ExchangeRate-API in Settings → Integrations, refresh manually, set overrides, and browse all rates in Settings → Currency & rates. Without a key, Frankfurter (ECB) is used.",
   "guideSectionExportTitle": "Export",

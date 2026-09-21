@@ -961,7 +961,7 @@
   "guideSectionTagsTitle": "Etiquetas",
   "guideSectionTagsBody": "Las categorías indican en qué gastaste (comida, transporte…). El país es un campo aparte del gasto, no una etiqueta. El pago también es aparte (efectivo, tarjeta, cripto o el tuyo). Gestiona etiquetas y métodos de pago en Ajustes.",
   "guideSectionChartsTitle": "Gráficos de gasto",
-  "guideSectionChartsBody": "El gráfico de dona del panel desglosa el gasto por país, método de pago, categoría, meses o moneda. Cambia el desglose con los iconos bajo el gráfico. País, pago o categoría ausentes aparecen como no definidos. Toca un segmento para abrir gastos coincidentes. Toca un chip de la leyenda para mostrar u ocultar esa porción. Bajo el gráfico, los últimos 10 gastos y un enlace a la lista completa. «Ver gastos» ofrece lista, agrupación y gráfico con orden y paginación.",
+  "guideSectionChartsBody": "El gráfico de dona del panel desglosa el gasto por país, método de pago, categoría, meses o moneda. Cambia el desglose con los iconos sobre el gráfico. País, pago o categoría ausentes aparecen como no definidos. Toca un segmento para abrir gastos coincidentes. Toca un chip de la leyenda para mostrar u ocultar esa porción. Bajo el gráfico, los últimos 10 gastos y un enlace a la lista completa. «Ver gastos» ofrece lista, agrupación y gráfico con orden y paginación.",
   "guideSectionExchangeRatesTitle": "Tipos de cambio",
   "guideSectionExchangeRatesBody": "Los tipos se actualizan en segundo plano cuando están desactualizados (unas cada 24 horas). Conecta ExchangeRate-API en Ajustes → Integraciones, actualiza manualmente, define anulaciones y consulta todos los tipos en Ajustes → Moneda y tipos de cambio. Sin clave se usa Frankfurter (BCE).",
   "guideSectionExportTitle": "Exportar",

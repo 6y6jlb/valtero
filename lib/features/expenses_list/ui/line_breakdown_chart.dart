@@ -17,7 +17,7 @@ import 'package:valtero/widgets/money_text.dart';
 /// The total line is the sum of non-hidden series at each point.
 ///
 /// Hover / touch details are reported via [onSelectionChanged] so the parent
-/// can render them under the plot (avoids covering overlay actions).
+/// can render them in the chrome row above the plot.
 class LineBreakdownChart extends ConsumerWidget {
   final List<ChartSeriesDef> series;
   final List<ChartTimeSeriesPoint> points;
@@ -176,7 +176,7 @@ class LineBreakdownChart extends ConsumerWidget {
     return SizedBox(
       height: chartHeight,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(4, kChartOverlayTopInset, 12, 4),
+        padding: kChartPlotPadding,
         child: LineChart(
           LineChartData(
             minX: 0,

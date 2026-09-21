@@ -1887,7 +1887,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get guideSectionChartsBody =>
-      'Krofna na kontrolnoj tabli razlaže potrošnju po zemlji, načinu plaćanja, kategoriji, mesecima ili valuti. Ikone ispod grafikona menjaju razlaganje. Nedostajuća zemlja, plaćanje ili kategorija prikazuju se kao nije navedeno. Dodirnite segment da otvorite odgovarajuće troškove. Čip legende prikazuje ili skriva isečak. Ispod grafikona su poslednjih 10 troškova i link na punu listu. „Prikaži troškove“ nudi listu, grupisanje i grafikon sa sortiranjem i paginacijom.';
+      'Krofna na kontrolnoj tabli razlaže potrošnju po zemlji, načinu plaćanja, kategoriji, mesecima ili valuti. Ikone iznad grafikona menjaju razlaganje. Nedostajuća zemlja, plaćanje ili kategorija prikazuju se kao nije navedeno. Dodirnite segment da otvorite odgovarajuće troškove. Čip legende prikazuje ili skriva isečak. Ispod grafikona su poslednjih 10 troškova i link na punu listu. „Prikaži troškove“ nudi listu, grupisanje i grafikon sa sortiranjem i paginacijom.';
 
   @override
   String get guideSectionExchangeRatesTitle => 'Kursevi';

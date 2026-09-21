@@ -108,7 +108,7 @@ class _CashFlowLineChartState extends ConsumerState<CashFlowLineChart> {
             clipBehavior: Clip.none,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(4, kChartOverlayTopInset, 12, 4),
+                padding: kChartPlotPadding,
                 child: LineChart(
                   LineChartData(
                     minX: 0,

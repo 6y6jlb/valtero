@@ -1874,7 +1874,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guideSectionChartsBody =>
-      'The dashboard donut chart breaks down spending by country, payment method, category, months, or currency. Switch the breakdown with the icons under the chart. Missing country, payment, or category appear as not set. Tap a segment to open matching expenses. Tap a legend chip to show or hide that slice. Below the chart, the last 10 expenses are listed with a link to the full list. Open Show expenses for list, grouping, and chart views with sort and pagination.';
+      'The dashboard donut chart breaks down spending by country, payment method, category, months, or currency. Switch the breakdown with the icons above the chart. Missing country, payment, or category appear as not set. Tap a segment to open matching expenses. Tap a legend chip to show or hide that slice. Below the chart, the last 10 expenses are listed with a link to the full list. Open Show expenses for list, grouping, and chart views with sort and pagination.';
 
   @override
   String get guideSectionExchangeRatesTitle => 'Exchange rates';

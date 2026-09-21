@@ -8,17 +8,16 @@ import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/money_text.dart';
 
-/// Radius of the empty hole in the donut's center (shared with
-/// [BreakdownChartView] so its centered total overlay knows how much room
-/// it has to work with).
-const kDonutCenterSpaceRadius = 58.0;
-
 /// Shared donut: amounts on segments, legend chips toggle visibility,
 /// optional tap on a visible segment.
 ///
 /// When [hiddenKeys] is provided (parent-owned legend), those keys drive
 /// visibility. Otherwise the widget keeps its own set when [showLegend] is on.
 /// Hidden slices keep a near-zero value so the pie can tween instead of jump.
+///
+/// Ring radii stay at the preferred size when the plot is large enough;
+/// they only shrink if the *plot* is narrower than the ring (chrome lives
+/// outside this widget).
 class DonutBreakdownChart extends ConsumerStatefulWidget {
   final List<DonutChartSlice> slices;
   final Set<String>? hiddenKeys;
@@ -31,6 +30,7 @@ class DonutBreakdownChart extends ConsumerStatefulWidget {
   final double chartHeight;
   final double sectionRadius;
   final String? emptyMessage;
+  final Widget? centerOverlay;
 
   const DonutBreakdownChart({
     super.key,
@@ -43,8 +43,9 @@ class DonutBreakdownChart extends ConsumerStatefulWidget {
     this.hideSegmentAmounts = false,
     this.showLegend = true,
     this.chartHeight = 312,
-    this.sectionRadius = 86,
+    this.sectionRadius = kDonutSectionRadius,
     this.emptyMessage,
+    this.centerOverlay,
   });
 
   @override
@@ -123,69 +124,83 @@ class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
           child: visible.isEmpty
               ? Center(child: Text(l10n.noMatchingExpenses))
               : Padding(
-                  // Keep the ring below ChartOverlayControls (top-right).
-                  padding: const EdgeInsets.only(top: kChartOverlayTopInset),
-                  child: PieChart(
-                    PieChartData(
-                      sectionsSpace: 2,
-                      centerSpaceRadius: kDonutCenterSpaceRadius,
-                      pieTouchData: PieTouchData(
-                        touchCallback: (event, response) {
-                          if (widget.onSegmentTap == null) return;
-                          if (event is! FlTapUpEvent) return;
-                          final index =
-                              response?.touchedSection?.touchedSectionIndex;
-                          if (index == null ||
-                              index < 0 ||
-                              index >= all.length) {
-                            return;
-                          }
-                          if (hidden.contains(all[index].key)) return;
-                          widget.onSegmentTap!(all[index]);
-                        },
-                        mouseCursorResolver: (event, response) {
-                          if (widget.onSegmentTap == null) {
-                            return SystemMouseCursors.basic;
-                          }
-                          final index =
-                              response?.touchedSection?.touchedSectionIndex;
-                          if (index != null &&
-                              index >= 0 &&
-                              index < all.length &&
-                              !hidden.contains(all[index].key)) {
-                            return SystemMouseCursors.click;
-                          }
-                          return SystemMouseCursors.basic;
-                        },
-                      ),
-                      sections: [
-                        for (var i = 0; i < all.length; i++)
-                          () {
-                            final slice = all[i];
-                            final isHidden = hidden.contains(slice.key);
-                            return PieChartSectionData(
-                              value: sectionValues[i],
-                              title: isHidden
-                                  ? ''
-                                  : (widget.hideSegmentAmounts
-                                        ? slice.label
-                                        : '${slice.label}\n${formatMoneyOf(context, ref, amountMinor: slice.amountMinor, currencyCode: slice.currencyCode ?? widget.displayCurrency)}'),
-                              color: isHidden
-                                  ? slice.color.withValues(alpha: 0)
-                                  : slice.color,
-                              radius: isHidden ? 0 : widget.sectionRadius,
-                              titleStyle: const TextStyle(
-                                fontSize: 9,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                height: 1.15,
+                  padding: kDonutPlotPadding,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final radii = fitDonutChartRadii(
+                        width: constraints.maxWidth,
+                        height: constraints.maxHeight,
+                        preferredSection: widget.sectionRadius,
+                      );
+                      final overlay = widget.centerOverlay;
+                      return ClipRect(
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            PieChart(
+                              PieChartData(
+                                sectionsSpace: 2,
+                                centerSpaceRadius: radii.centerSpaceRadius,
+                                pieTouchData: PieTouchData(
+                                  touchCallback: (event, response) {
+                                    if (widget.onSegmentTap == null) return;
+                                    if (event is! FlTapUpEvent) return;
+                                    final index = response
+                                        ?.touchedSection
+                                        ?.touchedSectionIndex;
+                                    if (index == null ||
+                                        index < 0 ||
+                                        index >= all.length) {
+                                      return;
+                                    }
+                                    if (hidden.contains(all[index].key)) {
+                                      return;
+                                    }
+                                    widget.onSegmentTap!(all[index]);
+                                  },
+                                  mouseCursorResolver: (event, response) {
+                                    if (widget.onSegmentTap == null) {
+                                      return SystemMouseCursors.basic;
+                                    }
+                                    final index = response
+                                        ?.touchedSection
+                                        ?.touchedSectionIndex;
+                                    if (index != null &&
+                                        index >= 0 &&
+                                        index < all.length &&
+                                        !hidden.contains(all[index].key)) {
+                                      return SystemMouseCursors.click;
+                                    }
+                                    return SystemMouseCursors.basic;
+                                  },
+                                ),
+                                sections: [
+                                  for (var i = 0; i < all.length; i++)
+                                    _sectionData(
+                                      slice: all[i],
+                                      value: sectionValues[i],
+                                      isHidden: hidden.contains(all[i].key),
+                                      radius: radii.sectionRadius,
+                                    ),
+                                ],
                               ),
-                            );
-                          }(),
-                      ],
-                    ),
-                    duration: kChartAnimDuration,
-                    curve: kChartAnimCurve,
+                              duration: kChartAnimDuration,
+                              curve: kChartAnimCurve,
+                            ),
+                            if (overlay != null)
+                              IgnorePointer(
+                                child: SizedBox(
+                                  width:
+                                      radii.centerSpaceRadius *
+                                      2 *
+                                      kDonutCenterTotalWidthFactor,
+                                  child: overlay,
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ),
         ),
@@ -217,6 +232,30 @@ class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
           ),
         ],
       ],
+    );
+  }
+
+  PieChartSectionData _sectionData({
+    required DonutChartSlice slice,
+    required double value,
+    required bool isHidden,
+    required double radius,
+  }) {
+    return PieChartSectionData(
+      value: value,
+      title: isHidden
+          ? ''
+          : (widget.hideSegmentAmounts
+                ? slice.label
+                : '${slice.label}\n${formatMoneyOf(context, ref, amountMinor: slice.amountMinor, currencyCode: slice.currencyCode ?? widget.displayCurrency)}'),
+      color: isHidden ? slice.color.withValues(alpha: 0) : slice.color,
+      radius: isHidden ? 0 : radius,
+      titleStyle: const TextStyle(
+        fontSize: 9,
+        color: Colors.white,
+        fontWeight: FontWeight.w600,
+        height: 1.15,
+      ),
     );
   }
 }
