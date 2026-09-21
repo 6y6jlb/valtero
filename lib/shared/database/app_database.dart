@@ -11,8 +11,10 @@ import 'package:valtero/entities/operation/model/operation_kind.dart';
 import 'package:valtero/entities/payment_method/data/payment_methods_table.dart';
 import 'package:valtero/entities/tag/data/tags_table.dart';
 import 'package:valtero/shared/database/migrations/migrate_to_v10.dart';
+import 'package:valtero/shared/database/migrations/migrate_to_v11.dart';
 import 'package:valtero/shared/database/migrations/migrate_to_v9.dart';
 import 'package:valtero/shared/database/schema_version.dart';
+import 'package:valtero/shared/utils/sync_id.dart';
 
 part 'app_database.g.dart';
 
@@ -56,6 +58,9 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 10) {
             await migrateToV10(m, this);
+          }
+          if (from < 11) {
+            await migrateToV11(m, this);
           }
         },
       );
@@ -128,6 +133,7 @@ class AppDatabase extends _$AppDatabase {
     String? currencyCode,
     DateTime? from,
     DateTime? to,
+    bool includeDeleted = false,
   }) {
     final kindDb = kind == null ? null : operationKindDbValue(kind);
     if (tagId != null) {
@@ -139,6 +145,9 @@ class AppDatabase extends _$AppDatabase {
       ])
         ..where(operationTags.tagId.equals(tagId))
         ..orderBy([OrderingTerm.desc(operations.occurredAt)]);
+      if (!includeDeleted) {
+        query.where(operations.deletedAt.isNull());
+      }
       if (kindDb != null) {
         query.where(operations.kind.equals(kindDb));
       }
@@ -158,6 +167,9 @@ class AppDatabase extends _$AppDatabase {
 
     final query =
         select(operations)..orderBy([(e) => OrderingTerm.desc(e.occurredAt)]);
+    if (!includeDeleted) {
+      query.where((e) => e.deletedAt.isNull());
+    }
     if (kindDb != null) {
       query.where((e) => e.kind.equals(kindDb));
     }
@@ -173,33 +185,76 @@ class AppDatabase extends _$AppDatabase {
     return query.watch();
   }
 
-  Future<List<Operation>> getAllOperations({OperationKind? kind}) {
+  Future<List<Operation>> getAllOperations({
+    OperationKind? kind,
+    bool includeDeleted = false,
+  }) {
     final query =
         select(operations)..orderBy([(e) => OrderingTerm.desc(e.occurredAt)]);
+    if (!includeDeleted) {
+      query.where((e) => e.deletedAt.isNull());
+    }
     if (kind != null) {
       query.where((e) => e.kind.equals(operationKindDbValue(kind)));
     }
     return query.get();
   }
 
-  Future<int> insertOperation(OperationsCompanion entry) =>
-      into(operations).insert(entry);
+  Future<int> insertOperation(OperationsCompanion entry) {
+    final now = DateTime.now();
+    return into(operations).insert(
+      entry.copyWith(
+        syncId: entry.syncId.present ? entry.syncId : Value(newSyncId()),
+        updatedAt:
+            entry.updatedAt.present ? entry.updatedAt : Value(now),
+      ),
+    );
+  }
 
   Future<bool> updateOperationRow(Operation row) =>
       update(operations).replace(row);
 
+  /// Soft-delete: sets [Operation.deletedAt] / [Operation.updatedAt], keeps tags.
   Future<int> deleteOperationById(int id) async {
-    await (delete(operationTags)..where((ot) => ot.operationId.equals(id))).go();
-    return (delete(operations)..where((e) => e.id.equals(id))).go();
+    final existing = await getOperationById(id, includeDeleted: true);
+    if (existing == null) return 0;
+    if (existing.deletedAt != null) return 0;
+    final now = DateTime.now();
+    await (update(operations)..where((e) => e.id.equals(id))).write(
+      OperationsCompanion(
+        deletedAt: Value(now),
+        updatedAt: Value(now),
+      ),
+    );
+    return 1;
   }
 
-  Future<Operation?> getOperationById(int id) {
-    return (select(operations)..where((e) => e.id.equals(id))).getSingleOrNull();
+  Future<Operation?> getOperationById(
+    int id, {
+    bool includeDeleted = false,
+  }) {
+    final query = select(operations)..where((e) => e.id.equals(id));
+    if (!includeDeleted) {
+      query.where((e) => e.deletedAt.isNull());
+    }
+    return query.getSingleOrNull();
+  }
+
+  Future<Operation?> getOperationBySyncId(
+    String syncId, {
+    bool includeDeleted = true,
+  }) {
+    final query = select(operations)..where((e) => e.syncId.equals(syncId));
+    if (!includeDeleted) {
+      query.where((e) => e.deletedAt.isNull());
+    }
+    return query.getSingleOrNull();
   }
 
   Future<void> setOperationTags(int operationId, List<int> tagIds) async {
     var ids = tagIds.toSet().toList();
-    final op = await getOperationById(operationId);
+    // Include tombstones so tag kind filtering still applies on soft-deleted ops.
+    final op = await getOperationById(operationId, includeDeleted: true);
     if (op != null && ids.isNotEmpty) {
       final expectedKind =
           tagKindDbValueForOperation(operationKindOf(op.kind));
@@ -274,6 +329,7 @@ class AppDatabase extends _$AppDatabase {
     String? currencyCode,
     DateTime? from,
     DateTime? to,
+    bool includeDeleted = false,
   }) =>
       watchOperations(
         kind: OperationKind.expense,
@@ -281,10 +337,14 @@ class AppDatabase extends _$AppDatabase {
         currencyCode: currencyCode,
         from: from,
         to: to,
+        includeDeleted: includeDeleted,
       );
 
-  Future<List<Operation>> getAllExpenses() =>
-      getAllOperations(kind: OperationKind.expense);
+  Future<List<Operation>> getAllExpenses({bool includeDeleted = false}) =>
+      getAllOperations(
+        kind: OperationKind.expense,
+        includeDeleted: includeDeleted,
+      );
 
   Future<int> insertExpense(OperationsCompanion entry) {
     return insertOperation(
@@ -298,8 +358,11 @@ class AppDatabase extends _$AppDatabase {
 
   Future<int> deleteExpenseById(int id) => deleteOperationById(id);
 
-  Future<Operation?> getExpenseById(int id) async {
-    final row = await getOperationById(id);
+  Future<Operation?> getExpenseById(
+    int id, {
+    bool includeDeleted = false,
+  }) async {
+    final row = await getOperationById(id, includeDeleted: includeDeleted);
     if (row == null || row.kind != 'expense') return null;
     return row;
   }
@@ -321,6 +384,7 @@ class AppDatabase extends _$AppDatabase {
     String? currencyCode,
     DateTime? from,
     DateTime? to,
+    bool includeDeleted = false,
   }) =>
       watchOperations(
         kind: OperationKind.income,
@@ -328,10 +392,14 @@ class AppDatabase extends _$AppDatabase {
         currencyCode: currencyCode,
         from: from,
         to: to,
+        includeDeleted: includeDeleted,
       );
 
-  Future<List<Operation>> getAllIncome() =>
-      getAllOperations(kind: OperationKind.income);
+  Future<List<Operation>> getAllIncome({bool includeDeleted = false}) =>
+      getAllOperations(
+        kind: OperationKind.income,
+        includeDeleted: includeDeleted,
+      );
 
   Future<int> insertIncome(OperationsCompanion entry) {
     return insertOperation(
@@ -345,8 +413,11 @@ class AppDatabase extends _$AppDatabase {
 
   Future<int> deleteIncomeById(int id) => deleteOperationById(id);
 
-  Future<Operation?> getIncomeById(int id) async {
-    final row = await getOperationById(id);
+  Future<Operation?> getIncomeById(
+    int id, {
+    bool includeDeleted = false,
+  }) async {
+    final row = await getOperationById(id, includeDeleted: includeDeleted);
     if (row == null || row.kind != 'income') return null;
     return row;
   }

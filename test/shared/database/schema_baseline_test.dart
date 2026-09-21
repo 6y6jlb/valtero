@@ -11,11 +11,12 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/database/migrations/migrate_to_v10.dart';
+import 'package:valtero/shared/database/migrations/migrate_to_v11.dart';
 import 'package:valtero/shared/database/schema_version.dart';
 
 void main() {
   test('fresh DB opens at baseline schema v8 with operations tables', () async {
-    expect(kAppSchemaVersion, 10);
+    expect(kAppSchemaVersion, 11);
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
@@ -49,6 +50,58 @@ void main() {
     expect(expense!.kind, 'expense');
     expect(income!.kind, 'income');
     expect(expense.duplicateDismissed, isFalse);
+    expect(expense.syncId, isNotEmpty);
+    expect(expense.updatedAt, isNotNull);
+    expect(expense.deletedAt, isNull);
+  });
+
+  test('migrateToV11 adds sync_id updated_at deleted_at and backfills', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    // Simulate pre-v11 operations table (no sync columns).
+    await db.customStatement('DROP TABLE IF EXISTS operation_tags');
+    await db.customStatement('DROP TABLE IF EXISTS operations');
+    await db.customStatement('''
+CREATE TABLE operations (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  kind TEXT NOT NULL,
+  occurred_at INTEGER NOT NULL,
+  original_amount_minor INTEGER NOT NULL,
+  original_currency_code TEXT NOT NULL,
+  stored_amount_minor INTEGER NOT NULL,
+  stored_currency_code TEXT NOT NULL,
+  rate_used REAL NULL,
+  rate_timestamp INTEGER NULL,
+  payment_method_id INTEGER NULL,
+  country_code TEXT NULL,
+  note TEXT NULL,
+  created_at INTEGER NOT NULL,
+  duplicate_dismissed INTEGER NOT NULL DEFAULT 0 CHECK (duplicate_dismissed IN (0, 1))
+)
+''');
+    final created = DateTime.utc(2026, 1, 1).microsecondsSinceEpoch;
+    await db.customStatement(
+      'INSERT INTO operations (kind, occurred_at, original_amount_minor, '
+      'original_currency_code, stored_amount_minor, stored_currency_code, '
+      'created_at, duplicate_dismissed) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      ['expense', created, 100, 'USD', 100, 'USD', created, 0],
+    );
+
+    await migrateToV11(Migrator(db), db);
+
+    final cols = await db.customSelect('PRAGMA table_info(operations)').get();
+    final names = cols.map((r) => r.read<String>('name')).toSet();
+    expect(names.contains('sync_id'), isTrue);
+    expect(names.contains('updated_at'), isTrue);
+    expect(names.contains('deleted_at'), isTrue);
+
+    final row = await db.customSelect(
+      'SELECT sync_id, updated_at, deleted_at FROM operations WHERE id = 1',
+    ).getSingle();
+    expect(row.read<String>('sync_id'), isNotEmpty);
+    expect(row.read<int>('updated_at'), created);
+    expect(row.data['deleted_at'], isNull);
   });
 
   test('migrateToV10 adds payment_methods.icon_key', () async {

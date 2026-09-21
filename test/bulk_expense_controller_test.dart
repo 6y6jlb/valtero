@@ -104,7 +104,7 @@ void main() {
     expect(await db.getTagIdsForExpense(id), [tagB]);
   });
 
-  test('deleteMany removes expenses and their tags', () async {
+  test('deleteMany soft-deletes expenses and keeps tags', () async {
     final tagId = await db.insertTag(TagsCompanion.insert(name: 'x'));
     final id = await container.read(addExpenseControllerProvider).save(
           AddExpenseInput(
@@ -118,7 +118,10 @@ void main() {
 
     await container.read(bulkExpenseControllerProvider).deleteMany([id]);
     expect(await db.getExpenseById(id), isNull);
-    expect(await db.getTagIdsForExpense(id), isEmpty);
+    final tombstone = await db.getExpenseById(id, includeDeleted: true);
+    expect(tombstone, isNotNull);
+    expect(tombstone!.deletedAt, isNotNull);
+    expect(await db.getTagIdsForExpense(id), [tagId]);
   });
 
   test('convertToCurrency updates stored amount from original', () async {

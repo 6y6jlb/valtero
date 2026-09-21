@@ -18,7 +18,9 @@
 
 Drift already stores an integer `user_version` in SQLite. On open it compares that to `AppDatabase.schemaVersion` (= `kAppSchemaVersion`) and runs `MigrationStrategy.onUpgrade`. **Do not invent a parallel hash-based migrator** — use the monotonic int.
 
-Production baseline is **v8**. Fresh installs use `onCreate` (`m.createAll()`). Databases with `user_version` **below** the baseline are **refused** with a clear error — **never wipe** user data. Pre-baseline stepwise migrations (v6–v8) were removed at the 1.0 public release.
+Production baseline is **v8**.
+
+Post-baseline: **v11** adds `Operations.syncId` (UUID), `updatedAt`, and nullable `deletedAt` (soft-delete tombstones) for last-write-wins backup/Drive merge. Backup JSON uses `clientId` = `syncId`; optional `updatedAt` / `deletedAt` (legacy envelopes default `updatedAt = createdAt`). Fresh installs use `onCreate` (`m.createAll()`). Databases with `user_version` **below** the baseline are **refused** with a clear error — **never wipe** user data. Pre-baseline stepwise migrations (v6–v8) were removed at the 1.0 public release.
 
 ### Checklist (same PR as the table change)
 

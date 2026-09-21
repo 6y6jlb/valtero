@@ -1102,6 +1102,16 @@ class $OperationsTable extends Operations
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
+  static const VerificationMeta _syncIdMeta = const VerificationMeta('syncId');
+  @override
+  late final GeneratedColumn<String> syncId = GeneratedColumn<String>(
+    'sync_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    clientDefault: newSyncId,
+  );
   static const VerificationMeta _kindMeta = const VerificationMeta('kind');
   @override
   late final GeneratedColumn<String> kind = GeneratedColumn<String>(
@@ -1241,6 +1251,29 @@ class $OperationsTable extends Operations
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    clientDefault: () => DateTime.now(),
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _duplicateDismissedMeta =
       const VerificationMeta('duplicateDismissed');
   @override
@@ -1258,6 +1291,7 @@ class $OperationsTable extends Operations
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    syncId,
     kind,
     occurredAt,
     originalAmountMinor,
@@ -1270,6 +1304,8 @@ class $OperationsTable extends Operations
     countryCode,
     note,
     createdAt,
+    updatedAt,
+    deletedAt,
     duplicateDismissed,
   ];
   @override
@@ -1286,6 +1322,12 @@ class $OperationsTable extends Operations
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('sync_id')) {
+      context.handle(
+        _syncIdMeta,
+        syncId.isAcceptableOrUnknown(data['sync_id']!, _syncIdMeta),
+      );
     }
     if (data.containsKey('kind')) {
       context.handle(
@@ -1394,6 +1436,18 @@ class $OperationsTable extends Operations
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
     if (data.containsKey('duplicate_dismissed')) {
       context.handle(
         _duplicateDismissedMeta,
@@ -1415,6 +1469,10 @@ class $OperationsTable extends Operations
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
+      )!,
+      syncId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_id'],
       )!,
       kind: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -1464,6 +1522,14 @@ class $OperationsTable extends Operations
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
       duplicateDismissed: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}duplicate_dismissed'],
@@ -1479,6 +1545,9 @@ class $OperationsTable extends Operations
 
 class Operation extends DataClass implements Insertable<Operation> {
   final int id;
+
+  /// Cross-device identity for sync / backup merge (UUID v4).
+  final String syncId;
 
   /// `'expense'` or `'income'`.
   final String kind;
@@ -1496,11 +1565,18 @@ class Operation extends DataClass implements Insertable<Operation> {
   final String? note;
   final DateTime createdAt;
 
+  /// Last local create/edit/delete clock — used for last-write-wins sync.
+  final DateTime updatedAt;
+
+  /// Soft-delete tombstone; live rows have `null`.
+  final DateTime? deletedAt;
+
   /// User confirmed this row is not a duplicate of others sharing
   /// the same day + original amount + currency fingerprint.
   final bool duplicateDismissed;
   const Operation({
     required this.id,
+    required this.syncId,
     required this.kind,
     required this.occurredAt,
     required this.originalAmountMinor,
@@ -1513,12 +1589,15 @@ class Operation extends DataClass implements Insertable<Operation> {
     this.countryCode,
     this.note,
     required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
     required this.duplicateDismissed,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    map['sync_id'] = Variable<String>(syncId);
     map['kind'] = Variable<String>(kind);
     map['occurred_at'] = Variable<DateTime>(occurredAt);
     map['original_amount_minor'] = Variable<int>(originalAmountMinor);
@@ -1541,6 +1620,10 @@ class Operation extends DataClass implements Insertable<Operation> {
       map['note'] = Variable<String>(note);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
     map['duplicate_dismissed'] = Variable<bool>(duplicateDismissed);
     return map;
   }
@@ -1548,6 +1631,7 @@ class Operation extends DataClass implements Insertable<Operation> {
   OperationsCompanion toCompanion(bool nullToAbsent) {
     return OperationsCompanion(
       id: Value(id),
+      syncId: Value(syncId),
       kind: Value(kind),
       occurredAt: Value(occurredAt),
       originalAmountMinor: Value(originalAmountMinor),
@@ -1568,6 +1652,10 @@ class Operation extends DataClass implements Insertable<Operation> {
           : Value(countryCode),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
       createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
       duplicateDismissed: Value(duplicateDismissed),
     );
   }
@@ -1579,6 +1667,7 @@ class Operation extends DataClass implements Insertable<Operation> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Operation(
       id: serializer.fromJson<int>(json['id']),
+      syncId: serializer.fromJson<String>(json['syncId']),
       kind: serializer.fromJson<String>(json['kind']),
       occurredAt: serializer.fromJson<DateTime>(json['occurredAt']),
       originalAmountMinor: serializer.fromJson<int>(
@@ -1597,6 +1686,8 @@ class Operation extends DataClass implements Insertable<Operation> {
       countryCode: serializer.fromJson<String?>(json['countryCode']),
       note: serializer.fromJson<String?>(json['note']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
       duplicateDismissed: serializer.fromJson<bool>(json['duplicateDismissed']),
     );
   }
@@ -1605,6 +1696,7 @@ class Operation extends DataClass implements Insertable<Operation> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'syncId': serializer.toJson<String>(syncId),
       'kind': serializer.toJson<String>(kind),
       'occurredAt': serializer.toJson<DateTime>(occurredAt),
       'originalAmountMinor': serializer.toJson<int>(originalAmountMinor),
@@ -1617,12 +1709,15 @@ class Operation extends DataClass implements Insertable<Operation> {
       'countryCode': serializer.toJson<String?>(countryCode),
       'note': serializer.toJson<String?>(note),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
       'duplicateDismissed': serializer.toJson<bool>(duplicateDismissed),
     };
   }
 
   Operation copyWith({
     int? id,
+    String? syncId,
     String? kind,
     DateTime? occurredAt,
     int? originalAmountMinor,
@@ -1635,9 +1730,12 @@ class Operation extends DataClass implements Insertable<Operation> {
     Value<String?> countryCode = const Value.absent(),
     Value<String?> note = const Value.absent(),
     DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
     bool? duplicateDismissed,
   }) => Operation(
     id: id ?? this.id,
+    syncId: syncId ?? this.syncId,
     kind: kind ?? this.kind,
     occurredAt: occurredAt ?? this.occurredAt,
     originalAmountMinor: originalAmountMinor ?? this.originalAmountMinor,
@@ -1654,11 +1752,14 @@ class Operation extends DataClass implements Insertable<Operation> {
     countryCode: countryCode.present ? countryCode.value : this.countryCode,
     note: note.present ? note.value : this.note,
     createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
     duplicateDismissed: duplicateDismissed ?? this.duplicateDismissed,
   );
   Operation copyWithCompanion(OperationsCompanion data) {
     return Operation(
       id: data.id.present ? data.id.value : this.id,
+      syncId: data.syncId.present ? data.syncId.value : this.syncId,
       kind: data.kind.present ? data.kind.value : this.kind,
       occurredAt: data.occurredAt.present
           ? data.occurredAt.value
@@ -1687,6 +1788,8 @@ class Operation extends DataClass implements Insertable<Operation> {
           : this.countryCode,
       note: data.note.present ? data.note.value : this.note,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
       duplicateDismissed: data.duplicateDismissed.present
           ? data.duplicateDismissed.value
           : this.duplicateDismissed,
@@ -1697,6 +1800,7 @@ class Operation extends DataClass implements Insertable<Operation> {
   String toString() {
     return (StringBuffer('Operation(')
           ..write('id: $id, ')
+          ..write('syncId: $syncId, ')
           ..write('kind: $kind, ')
           ..write('occurredAt: $occurredAt, ')
           ..write('originalAmountMinor: $originalAmountMinor, ')
@@ -1709,6 +1813,8 @@ class Operation extends DataClass implements Insertable<Operation> {
           ..write('countryCode: $countryCode, ')
           ..write('note: $note, ')
           ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('duplicateDismissed: $duplicateDismissed')
           ..write(')'))
         .toString();
@@ -1717,6 +1823,7 @@ class Operation extends DataClass implements Insertable<Operation> {
   @override
   int get hashCode => Object.hash(
     id,
+    syncId,
     kind,
     occurredAt,
     originalAmountMinor,
@@ -1729,6 +1836,8 @@ class Operation extends DataClass implements Insertable<Operation> {
     countryCode,
     note,
     createdAt,
+    updatedAt,
+    deletedAt,
     duplicateDismissed,
   );
   @override
@@ -1736,6 +1845,7 @@ class Operation extends DataClass implements Insertable<Operation> {
       identical(this, other) ||
       (other is Operation &&
           other.id == this.id &&
+          other.syncId == this.syncId &&
           other.kind == this.kind &&
           other.occurredAt == this.occurredAt &&
           other.originalAmountMinor == this.originalAmountMinor &&
@@ -1748,11 +1858,14 @@ class Operation extends DataClass implements Insertable<Operation> {
           other.countryCode == this.countryCode &&
           other.note == this.note &&
           other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
           other.duplicateDismissed == this.duplicateDismissed);
 }
 
 class OperationsCompanion extends UpdateCompanion<Operation> {
   final Value<int> id;
+  final Value<String> syncId;
   final Value<String> kind;
   final Value<DateTime> occurredAt;
   final Value<int> originalAmountMinor;
@@ -1765,9 +1878,12 @@ class OperationsCompanion extends UpdateCompanion<Operation> {
   final Value<String?> countryCode;
   final Value<String?> note;
   final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
   final Value<bool> duplicateDismissed;
   const OperationsCompanion({
     this.id = const Value.absent(),
+    this.syncId = const Value.absent(),
     this.kind = const Value.absent(),
     this.occurredAt = const Value.absent(),
     this.originalAmountMinor = const Value.absent(),
@@ -1780,10 +1896,13 @@ class OperationsCompanion extends UpdateCompanion<Operation> {
     this.countryCode = const Value.absent(),
     this.note = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.duplicateDismissed = const Value.absent(),
   });
   OperationsCompanion.insert({
     this.id = const Value.absent(),
+    this.syncId = const Value.absent(),
     required String kind,
     required DateTime occurredAt,
     required int originalAmountMinor,
@@ -1796,6 +1915,8 @@ class OperationsCompanion extends UpdateCompanion<Operation> {
     this.countryCode = const Value.absent(),
     this.note = const Value.absent(),
     required DateTime createdAt,
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.duplicateDismissed = const Value.absent(),
   }) : kind = Value(kind),
        occurredAt = Value(occurredAt),
@@ -1806,6 +1927,7 @@ class OperationsCompanion extends UpdateCompanion<Operation> {
        createdAt = Value(createdAt);
   static Insertable<Operation> custom({
     Expression<int>? id,
+    Expression<String>? syncId,
     Expression<String>? kind,
     Expression<DateTime>? occurredAt,
     Expression<int>? originalAmountMinor,
@@ -1818,10 +1940,13 @@ class OperationsCompanion extends UpdateCompanion<Operation> {
     Expression<String>? countryCode,
     Expression<String>? note,
     Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
     Expression<bool>? duplicateDismissed,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (syncId != null) 'sync_id': syncId,
       if (kind != null) 'kind': kind,
       if (occurredAt != null) 'occurred_at': occurredAt,
       if (originalAmountMinor != null)
@@ -1837,12 +1962,15 @@ class OperationsCompanion extends UpdateCompanion<Operation> {
       if (countryCode != null) 'country_code': countryCode,
       if (note != null) 'note': note,
       if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
       if (duplicateDismissed != null) 'duplicate_dismissed': duplicateDismissed,
     });
   }
 
   OperationsCompanion copyWith({
     Value<int>? id,
+    Value<String>? syncId,
     Value<String>? kind,
     Value<DateTime>? occurredAt,
     Value<int>? originalAmountMinor,
@@ -1855,10 +1983,13 @@ class OperationsCompanion extends UpdateCompanion<Operation> {
     Value<String?>? countryCode,
     Value<String?>? note,
     Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
     Value<bool>? duplicateDismissed,
   }) {
     return OperationsCompanion(
       id: id ?? this.id,
+      syncId: syncId ?? this.syncId,
       kind: kind ?? this.kind,
       occurredAt: occurredAt ?? this.occurredAt,
       originalAmountMinor: originalAmountMinor ?? this.originalAmountMinor,
@@ -1871,6 +2002,8 @@ class OperationsCompanion extends UpdateCompanion<Operation> {
       countryCode: countryCode ?? this.countryCode,
       note: note ?? this.note,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
       duplicateDismissed: duplicateDismissed ?? this.duplicateDismissed,
     );
   }
@@ -1880,6 +2013,9 @@ class OperationsCompanion extends UpdateCompanion<Operation> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (syncId.present) {
+      map['sync_id'] = Variable<String>(syncId.value);
     }
     if (kind.present) {
       map['kind'] = Variable<String>(kind.value);
@@ -1919,6 +2055,12 @@ class OperationsCompanion extends UpdateCompanion<Operation> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
     if (duplicateDismissed.present) {
       map['duplicate_dismissed'] = Variable<bool>(duplicateDismissed.value);
     }
@@ -1929,6 +2071,7 @@ class OperationsCompanion extends UpdateCompanion<Operation> {
   String toString() {
     return (StringBuffer('OperationsCompanion(')
           ..write('id: $id, ')
+          ..write('syncId: $syncId, ')
           ..write('kind: $kind, ')
           ..write('occurredAt: $occurredAt, ')
           ..write('originalAmountMinor: $originalAmountMinor, ')
@@ -1941,6 +2084,8 @@ class OperationsCompanion extends UpdateCompanion<Operation> {
           ..write('countryCode: $countryCode, ')
           ..write('note: $note, ')
           ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('duplicateDismissed: $duplicateDismissed')
           ..write(')'))
         .toString();
@@ -2612,6 +2757,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'operations_kind_occurred_at',
     'CREATE INDEX operations_kind_occurred_at ON operations (kind, occurred_at)',
   );
+  late final Index operationsSyncId = Index(
+    'operations_sync_id',
+    'CREATE UNIQUE INDEX operations_sync_id ON operations (sync_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2623,6 +2772,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     operationTags,
     exchangeRates,
     operationsKindOccurredAt,
+    operationsSyncId,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -3494,6 +3644,7 @@ typedef $$PaymentMethodsTableProcessedTableManager =
 typedef $$OperationsTableCreateCompanionBuilder =
     OperationsCompanion Function({
       Value<int> id,
+      Value<String> syncId,
       required String kind,
       required DateTime occurredAt,
       required int originalAmountMinor,
@@ -3506,11 +3657,14 @@ typedef $$OperationsTableCreateCompanionBuilder =
       Value<String?> countryCode,
       Value<String?> note,
       required DateTime createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
       Value<bool> duplicateDismissed,
     });
 typedef $$OperationsTableUpdateCompanionBuilder =
     OperationsCompanion Function({
       Value<int> id,
+      Value<String> syncId,
       Value<String> kind,
       Value<DateTime> occurredAt,
       Value<int> originalAmountMinor,
@@ -3523,6 +3677,8 @@ typedef $$OperationsTableUpdateCompanionBuilder =
       Value<String?> countryCode,
       Value<String?> note,
       Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
       Value<bool> duplicateDismissed,
     });
 
@@ -3581,6 +3737,11 @@ class $$OperationsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get syncId => $composableBuilder(
+    column: $table.syncId,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get kind => $composableBuilder(
     column: $table.kind,
     builder: (column) => ColumnFilters(column),
@@ -3633,6 +3794,16 @@ class $$OperationsTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3704,6 +3875,11 @@ class $$OperationsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get syncId => $composableBuilder(
+    column: $table.syncId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get kind => $composableBuilder(
     column: $table.kind,
     builder: (column) => ColumnOrderings(column),
@@ -3759,6 +3935,16 @@ class $$OperationsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get duplicateDismissed => $composableBuilder(
     column: $table.duplicateDismissed,
     builder: (column) => ColumnOrderings(column),
@@ -3799,6 +3985,9 @@ class $$OperationsTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get syncId =>
+      $composableBuilder(column: $table.syncId, builder: (column) => column);
 
   GeneratedColumn<String> get kind =>
       $composableBuilder(column: $table.kind, builder: (column) => column);
@@ -3846,6 +4035,12 @@ class $$OperationsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 
   GeneratedColumn<bool> get duplicateDismissed => $composableBuilder(
     column: $table.duplicateDismissed,
@@ -3930,6 +4125,7 @@ class $$OperationsTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String> syncId = const Value.absent(),
                 Value<String> kind = const Value.absent(),
                 Value<DateTime> occurredAt = const Value.absent(),
                 Value<int> originalAmountMinor = const Value.absent(),
@@ -3942,9 +4138,12 @@ class $$OperationsTableTableManager
                 Value<String?> countryCode = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
                 Value<bool> duplicateDismissed = const Value.absent(),
               }) => OperationsCompanion(
                 id: id,
+                syncId: syncId,
                 kind: kind,
                 occurredAt: occurredAt,
                 originalAmountMinor: originalAmountMinor,
@@ -3957,11 +4156,14 @@ class $$OperationsTableTableManager
                 countryCode: countryCode,
                 note: note,
                 createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
                 duplicateDismissed: duplicateDismissed,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String> syncId = const Value.absent(),
                 required String kind,
                 required DateTime occurredAt,
                 required int originalAmountMinor,
@@ -3974,9 +4176,12 @@ class $$OperationsTableTableManager
                 Value<String?> countryCode = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 required DateTime createdAt,
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
                 Value<bool> duplicateDismissed = const Value.absent(),
               }) => OperationsCompanion.insert(
                 id: id,
+                syncId: syncId,
                 kind: kind,
                 occurredAt: occurredAt,
                 originalAmountMinor: originalAmountMinor,
@@ -3989,6 +4194,8 @@ class $$OperationsTableTableManager
                 countryCode: countryCode,
                 note: note,
                 createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
                 duplicateDismissed: duplicateDismissed,
               ),
           withReferenceMapper: (p0) => p0

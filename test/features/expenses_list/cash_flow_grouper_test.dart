@@ -20,6 +20,7 @@ Expense _expense({
   return Expense(
     kind: 'expense',
     id: id,
+    syncId: 'sync-$id',
     occurredAt: at,
     originalAmountMinor: amountMinor,
     originalCurrencyCode: currency,
@@ -28,6 +29,7 @@ Expense _expense({
     paymentMethodId: paymentMethodId,
     countryCode: countryCode,
     createdAt: at,
+    updatedAt: at,
     duplicateDismissed: false,
   );
 }
@@ -44,6 +46,7 @@ Income _income({
   return Income(
     kind: 'income',
     id: id,
+    syncId: 'sync-$id',
     occurredAt: at,
     originalAmountMinor: amountMinor,
     originalCurrencyCode: currency,
@@ -52,6 +55,7 @@ Income _income({
     paymentMethodId: paymentMethodId,
     countryCode: countryCode,
     createdAt: at,
+    updatedAt: at,
     duplicateDismissed: false,
   );
 }

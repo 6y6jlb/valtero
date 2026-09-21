@@ -38,12 +38,14 @@ Expense _expense(int id, DateTime at, int amount, String currency) {
   return Expense(
     kind: 'expense',
     id: id,
+    syncId: 'sync-$id',
     occurredAt: at,
     originalAmountMinor: amount,
     originalCurrencyCode: currency,
     storedAmountMinor: amount,
     storedCurrencyCode: currency,
     createdAt: at,
+    updatedAt: at,
     duplicateDismissed: false,
   );
 }
@@ -52,12 +54,14 @@ Income _income(int id, DateTime at, int amount, String currency) {
   return Income(
     kind: 'income',
     id: id,
+    syncId: 'sync-$id',
     occurredAt: at,
     originalAmountMinor: amount,
     originalCurrencyCode: currency,
     storedAmountMinor: amount,
     storedCurrencyCode: currency,
     createdAt: at,
+    updatedAt: at,
     duplicateDismissed: false,
   );
 }

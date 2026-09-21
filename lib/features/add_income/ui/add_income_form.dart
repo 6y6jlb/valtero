@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/payment_method/model/payment_methods_provider.dart';
 import 'package:valtero/entities/tag/model/tags_provider.dart';
@@ -20,6 +19,7 @@ import 'package:valtero/shared/utils/app_timezone.dart';
 import 'package:valtero/shared/utils/money.dart';
 import 'package:valtero/shared/utils/payment_method_label.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
+import 'package:valtero/widgets/amount_text_field.dart';
 import 'package:valtero/widgets/app_button.dart';
 import 'package:valtero/widgets/app_sheet_header.dart';
 import 'package:valtero/widgets/app_sheet_scaffold.dart';
@@ -412,15 +412,16 @@ class _AddIncomeFormState extends ConsumerState<AddIncomeForm> {
         canSave: _canSave,
       ),
       children: [
-              TextField(
+              AmountTextField(
                 controller: _amountController,
                 autofocus: true,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-                ],
-                decoration: InputDecoration(labelText: l10n.amount),
+                showCalculator: _isEdit,
+                currencyCode: _currency,
+                onCalculated: (minor) {
+                  setState(() {
+                    _amountController.text = Money.formatMinor(minor);
+                  });
+                },
               ),
               const SizedBox(height: 12),
               ListTile(

@@ -200,10 +200,18 @@ class DataSyncController {
   Future<List<ImportConflict>> findExpenseDuplicateConflicts(
     BackupEnvelope envelope,
   ) async {
-    final local = await ref.read(appDatabaseProvider).getAllExpenses();
-    final indexed = indexByFingerprint(local);
+    final db = ref.read(appDatabaseProvider);
+    final local = await db.getAllExpenses(includeDeleted: true);
+    final bySyncId = {for (final e in local) e.syncId: e};
+    final live = local.where((e) => e.deletedAt == null).toList();
+    final indexed = indexByFingerprint(live);
     final conflicts = <ImportConflict>[];
     for (final expense in envelope.data.expenses) {
+      // Already identity-matched — LWW will handle; not a user conflict.
+      if (expense.clientId.isNotEmpty &&
+          bySyncId.containsKey(expense.clientId)) {
+        continue;
+      }
       final key = fingerprintOf(
         occurredAt: expense.occurredAt,
         originalAmountMinor: expense.originalAmountMinor,
@@ -211,6 +219,8 @@ class DataSyncController {
       );
       final matches = indexed[key];
       if (matches == null || matches.isEmpty) continue;
+      // Unique fingerprint → auto LWW converge, not a conflict dialog.
+      if (matches.length == 1) continue;
       conflicts.add(
         ImportConflict.expense(incoming: expense, existingMatches: matches),
       );
@@ -221,10 +231,16 @@ class DataSyncController {
   Future<List<ImportConflict>> findIncomeDuplicateConflicts(
     BackupEnvelope envelope,
   ) async {
-    final local = await ref.read(appDatabaseProvider).getAllIncome();
-    final indexed = indexIncomeByFingerprint(local);
+    final db = ref.read(appDatabaseProvider);
+    final local = await db.getAllIncome(includeDeleted: true);
+    final bySyncId = {for (final e in local) e.syncId: e};
+    final live = local.where((e) => e.deletedAt == null).toList();
+    final indexed = indexIncomeByFingerprint(live);
     final conflicts = <ImportConflict>[];
     for (final income in envelope.data.incomes) {
+      if (income.clientId.isNotEmpty && bySyncId.containsKey(income.clientId)) {
+        continue;
+      }
       final key = fingerprintOf(
         occurredAt: income.occurredAt,
         originalAmountMinor: income.originalAmountMinor,
@@ -232,6 +248,7 @@ class DataSyncController {
       );
       final matches = indexed[key];
       if (matches == null || matches.isEmpty) continue;
+      if (matches.length == 1) continue;
       conflicts.add(
         ImportConflict.income(incoming: income, existingMatches: matches),
       );

@@ -686,6 +686,49 @@ class AppLocalizationsSr extends AppLocalizations {
   String get amountRequired => 'Unesite ispravan iznos';
 
   @override
+  String get amountCalculatorTooltip => 'Kalkulator iznosa';
+
+  @override
+  String get amountCalculatorTitle => 'Kalkulator iznosa';
+
+  @override
+  String get amountCalculatorOriginal => 'Stari iznos';
+
+  @override
+  String get amountCalculatorResult => 'Rezultat';
+
+  @override
+  String get amountCalculatorOperand => 'Vrednost';
+
+  @override
+  String get amountCalculatorApply => 'Primeni';
+
+  @override
+  String get amountCalculatorOpAdd => 'Dodaj na';
+
+  @override
+  String get amountCalculatorOpSubtract => 'Oduzmi od';
+
+  @override
+  String get amountCalculatorOpMultiply => 'Pomnoži sa';
+
+  @override
+  String get amountCalculatorOpDivide => 'Podeli sa';
+
+  @override
+  String get amountCalculatorOpPercentOf => 'Procenat od';
+
+  @override
+  String get amountCalculatorErrorEmpty => 'Unesite vrednost';
+
+  @override
+  String get amountCalculatorErrorDivideByZero => 'Ne može se deliti nulom';
+
+  @override
+  String get amountCalculatorErrorNonPositive =>
+      'Rezultat mora biti veći od nule';
+
+  @override
   String get currency => 'Valuta';
 
   @override
@@ -1823,14 +1866,14 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get guideSectionGettingStartedBody =>
-      'Dodirnite + na dnu ekrana, zatim izaberite Dodaj trošak ili Dodaj prihod. Unesite iznos i valutu, po želji konvertujte u izveštajnu valutu, izaberite zemlju i kategorije, pa sačuvajte. Ako već postoji trošak sa istim danom, iznosom i valutom, možete sačuvati kao jedinstven, obrisati podudaranje ili otkazati. Dodirnite postojeći trošak da ga izmenite u istom formularu. Do tada kontrolna tabla pokazuje primer grafikona sa linkom na ovaj vodič.';
+      'Dodirnite + na dnu ekrana, zatim izaberite Dodaj trošak ili Dodaj prihod. Unesite iznos i valutu, po želji konvertujte u izveštajnu valutu, izaberite zemlju i kategorije, pa sačuvajte. Ako već postoji trošak sa istim danom, iznosom i valutom, možete sačuvati kao jedinstven, obrisati podudaranje ili otkazati. Dodirnite postojeći trošak da ga izmenite u istom formularu — polje iznosa ima ikonu kalkulatora za preračun. Do tada kontrolna tabla pokazuje primer grafikona sa linkom na ovaj vodič.';
 
   @override
   String get guideSectionExpenseTrackingTitle => 'Praćenje troškova';
 
   @override
   String get guideSectionExpenseTrackingBody =>
-      'Svaki trošak čuva iznos, valutu, datum, opcionu zemlju (ISO), način plaćanja, kategorije i belešku. Originalni iznos i valuta se uvek čuvaju, čak i ako konvertujete u izveštajnu valutu. Na listi troškova možete izabrati više redova da ih obrišete ili odjednom promenite oznake, zemlju ili valutu. Mogući duplikati (isti dan, originalni iznos i valuta) prikazuju upozorenje; otvorite baner da obrišete red ili označite da nije duplikat.';
+      'Svaki trošak čuva iznos, valutu, datum, opcionu zemlju (ISO), način plaćanja, kategorije i belešku. Originalni iznos i valuta se uvek čuvaju, čak i ako konvertujete u izveštajnu valutu. Pri izmeni dodirnite ikonu kalkulatora na polju iznosa da dodate, oduzmete, pomnožite, podelite ili uzmete procenat od trenutnog zbira. Na listi troškova možete izabrati više redova da ih obrišete ili odjednom promenite oznake, zemlju ili valutu. Mogući duplikati (isti dan, originalni iznos i valuta) prikazuju upozorenje; otvorite baner da obrišete red ili označite da nije duplikat.';
 
   @override
   String get guideSectionTagsTitle => 'Oznake';
@@ -1865,7 +1908,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get guideSectionDataSyncBody =>
-      'Napravite šifrovanu rezervnu kopiju troškova, oznaka, načina plaćanja, ručnih kurseva i podešavanja prikaza. Zaštitite je sopstvenom frazom ili generisanom. Sačuvajte fajl (na Android/iOS preko deljenja možete sačuvati u Fajlove / Preuzimanja), zatim ga pošaljite (email, Telegram kao dokument, cloud, USB). Uvoz spaja podatke: postojeći troškovi ostaju, dodaju se novi. Ako dolazni troškovi liče na one koje već imate (isti dan, iznos i valuta), birate šta da preskočite kao duplikat, a šta da uvezete kao jedinstveno. Vratite iz Podešavanja → Rezervna kopija i sinhronizacija, ili sa prazne kontrolne table. API ključevi i Telegram nikad nisu uključeni.';
+      'Napravite šifrovanu rezervnu kopiju troškova, oznaka, načina plaćanja, ručnih kurseva i podešavanja prikaza. Zaštitite je sopstvenom frazom ili generisanom. Sačuvajte fajl (na Android/iOS preko deljenja možete sačuvati u Fajlove / Preuzimanja), zatim ga pošaljite (email, Telegram kao dokument, cloud, USB). Uvoz i Google Drive Sync spajaju operacije po pravilu „pobeđuje poslednja izmena“ (uključujući brisanja). Poklapanje je po stabilnom sync id-u ili po istom danu, iznosu i valuti ako je jednoznačno. Samo neodređeni duplikati i dalje pitaju: preskoči ili uvezi kao jedinstven. Vratite iz Podešavanja → Rezervna kopija i sinhronizacija, ili sa prazne kontrolne table. API ključevi i Telegram nikad nisu uključeni.';
 
   @override
   String get guideSectionTelegramTitle => 'Deljenje preko Telegrama';

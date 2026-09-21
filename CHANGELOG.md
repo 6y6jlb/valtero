@@ -8,6 +8,24 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.10] - 2026-09-21
+
+### Added
+
+- Amount calculator when editing an expense or income (add / subtract / multiply /
+  divide / percent of); Apply writes the result into the amount field before Save.
+- Operation sync identity and soft-delete (schema **v11**): stable `syncId`,
+  `updatedAt`, and `deletedAt` tombstones so edits and deletes propagate across
+  devices.
+
+### Changed
+
+- Encrypted backup and Google Drive Sync merge expenses/income with
+  **last-write-wins** on `updatedAt` (match by `syncId`, else a unique
+  day+amount+currency fingerprint). Deletes travel as tombstones in the sync
+  snapshot; lists, charts, and CSV/JSON export stay live-only. Ambiguous
+  soft-duplicates (2+ local live matches) still use skip / import-as-unique.
+
 ## [1.1.9] - 2026-09-21
 
 ### Added

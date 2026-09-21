@@ -166,6 +166,7 @@ class AddIncomeController {
           input.note?.trim().isEmpty == true ? null : input.note?.trim(),
         ),
         duplicateDismissed: dismissed,
+        updatedAt: DateTime.now(),
       ),
     );
     await db.setIncomeTags(id, input.tagIds);
@@ -195,7 +196,10 @@ class AddIncomeController {
         if (existing == null) continue;
         if (existing.duplicateDismissed) continue;
         await db.updateIncomeRow(
-          existing.copyWith(duplicateDismissed: true),
+          existing.copyWith(
+            duplicateDismissed: true,
+            updatedAt: DateTime.now(),
+          ),
         );
       }
     });

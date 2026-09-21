@@ -21,13 +21,17 @@ class BulkIncomeController {
 
   Future<void> markNotDuplicate(List<int> ids) async {
     if (ids.isEmpty) return;
+    final now = DateTime.now();
     await _db.transaction(() async {
       for (final id in ids) {
         final existing = await _db.getIncomeById(id);
         if (existing == null) continue;
         if (existing.duplicateDismissed) continue;
         await _db.updateIncomeRow(
-          existing.copyWith(duplicateDismissed: true),
+          existing.copyWith(
+            duplicateDismissed: true,
+            updatedAt: now,
+          ),
         );
       }
     });
@@ -44,9 +48,13 @@ class BulkIncomeController {
 
   Future<void> setTags(List<int> ids, List<int> tagIds) async {
     if (ids.isEmpty) return;
+    final now = DateTime.now();
     await _db.transaction(() async {
       for (final id in ids) {
+        final existing = await _db.getIncomeById(id);
+        if (existing == null) continue;
         await _db.setIncomeTags(id, tagIds);
+        await _db.updateIncomeRow(existing.copyWith(updatedAt: now));
       }
     });
   }
@@ -54,12 +62,16 @@ class BulkIncomeController {
   Future<void> setCountry(List<int> ids, String? countryCode) async {
     if (ids.isEmpty) return;
     final normalized = _normalizedCountry(countryCode);
+    final now = DateTime.now();
     await _db.transaction(() async {
       for (final id in ids) {
         final existing = await _db.getIncomeById(id);
         if (existing == null) continue;
         await _db.updateIncomeRow(
-          existing.copyWith(countryCode: Value(normalized)),
+          existing.copyWith(
+            countryCode: Value(normalized),
+            updatedAt: now,
+          ),
         );
       }
     });
@@ -103,6 +115,7 @@ class BulkIncomeController {
               storedCurrencyCode: target,
               rateUsed: const Value(null),
               rateTimestamp: const Value(null),
+              updatedAt: now,
             ),
           );
           continue;
@@ -118,6 +131,7 @@ class BulkIncomeController {
             storedCurrencyCode: target,
             rateUsed: Value(rate),
             rateTimestamp: Value(now),
+            updatedAt: now,
           ),
         );
       }

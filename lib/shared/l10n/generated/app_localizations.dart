@@ -1288,6 +1288,90 @@ abstract class AppLocalizations {
   /// **'Enter a valid amount'**
   String get amountRequired;
 
+  /// No description provided for @amountCalculatorTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount calculator'**
+  String get amountCalculatorTooltip;
+
+  /// No description provided for @amountCalculatorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount calculator'**
+  String get amountCalculatorTitle;
+
+  /// No description provided for @amountCalculatorOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Original amount'**
+  String get amountCalculatorOriginal;
+
+  /// No description provided for @amountCalculatorResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Result'**
+  String get amountCalculatorResult;
+
+  /// No description provided for @amountCalculatorOperand.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get amountCalculatorOperand;
+
+  /// No description provided for @amountCalculatorApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get amountCalculatorApply;
+
+  /// No description provided for @amountCalculatorOpAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to'**
+  String get amountCalculatorOpAdd;
+
+  /// No description provided for @amountCalculatorOpSubtract.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtract from'**
+  String get amountCalculatorOpSubtract;
+
+  /// No description provided for @amountCalculatorOpMultiply.
+  ///
+  /// In en, this message translates to:
+  /// **'Multiply by'**
+  String get amountCalculatorOpMultiply;
+
+  /// No description provided for @amountCalculatorOpDivide.
+  ///
+  /// In en, this message translates to:
+  /// **'Divide by'**
+  String get amountCalculatorOpDivide;
+
+  /// No description provided for @amountCalculatorOpPercentOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Percent of'**
+  String get amountCalculatorOpPercentOf;
+
+  /// No description provided for @amountCalculatorErrorEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a value'**
+  String get amountCalculatorErrorEmpty;
+
+  /// No description provided for @amountCalculatorErrorDivideByZero.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot divide by zero'**
+  String get amountCalculatorErrorDivideByZero;
+
+  /// No description provided for @amountCalculatorErrorNonPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Result must be greater than zero'**
+  String get amountCalculatorErrorNonPositive;
+
   /// No description provided for @currency.
   ///
   /// In en, this message translates to:
@@ -3299,7 +3383,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionGettingStartedBody.
   ///
   /// In en, this message translates to:
-  /// **'Tap the + button at the bottom of the screen, then choose Add expense or Add income. Enter an amount and currency, optionally convert into a reporting currency, pick a country and category tags, and save. If another expense already has the same day, amount, and currency, you can mark yours as unique, delete the match, or cancel. Tap an existing expense to edit it in the same form. Until then, the dashboard shows a sample chart with a link to this guide.'**
+  /// **'Tap the + button at the bottom of the screen, then choose Add expense or Add income. Enter an amount and currency, optionally convert into a reporting currency, pick a country and category tags, and save. If another expense already has the same day, amount, and currency, you can mark yours as unique, delete the match, or cancel. Tap an existing expense to edit it in the same form — the amount field has a calculator icon to adjust the sum. Until then, the dashboard shows a sample chart with a link to this guide.'**
   String get guideSectionGettingStartedBody;
 
   /// No description provided for @guideSectionExpenseTrackingTitle.
@@ -3311,7 +3395,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionExpenseTrackingBody.
   ///
   /// In en, this message translates to:
-  /// **'Each expense stores amount, currency, date, optional country (ISO), payment method, category tags, and note. The original amount and currency are always kept, even if you convert into a reporting currency for storage. On the expenses list, select several rows to delete them or change tags, country, or currency in bulk. Possible duplicates (same day, original amount, and currency) show an alert badge; open the banner to delete a row or mark it as not a duplicate.'**
+  /// **'Each expense stores amount, currency, date, optional country (ISO), payment method, category tags, and note. The original amount and currency are always kept, even if you convert into a reporting currency for storage. When editing, tap the calculator icon on the amount field to add, subtract, multiply, divide, or take a percent of the current sum. On the expenses list, select several rows to delete them or change tags, country, or currency in bulk. Possible duplicates (same day, original amount, and currency) show an alert badge; open the banner to delete a row or mark it as not a duplicate.'**
   String get guideSectionExpenseTrackingBody;
 
   /// No description provided for @guideSectionTagsTitle.
@@ -3371,7 +3455,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionDataSyncBody.
   ///
   /// In en, this message translates to:
-  /// **'Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file (on Android/iOS the share sheet lets you Save to Files / Downloads), then send it (email, Telegram as a document, cloud, USB). Import merges: existing expenses are kept and new data is added. If incoming expenses look like ones you already have (same day, amount, and currency), you choose which to skip as duplicates and which to import as unique. Restore from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included. For automatic multi-device sync, connect Google Drive Sync under Settings → Integrations (same encryption; Google only stores ciphertext).'**
+  /// **'Create an encrypted backup of expenses, tags, payment methods, manual rates, and display settings. Protect it with your own passphrase or a generated phrase. Save the file (on Android/iOS the share sheet lets you Save to Files / Downloads), then send it (email, Telegram as a document, cloud, USB). Import and Google Drive Sync merge operations by last edit wins (including deletes). Matching uses a stable sync id, or the same day, amount, and currency when that match is unique. Only ambiguous duplicates still ask you to skip or import as unique. Restore from Settings → Backup & sync, or from the empty dashboard. API keys and Telegram credentials are never included. For automatic multi-device sync, connect Google Drive Sync under Settings → Integrations (same encryption; Google only stores ciphertext).'**
   String get guideSectionDataSyncBody;
 
   /// No description provided for @guideSectionTelegramTitle.

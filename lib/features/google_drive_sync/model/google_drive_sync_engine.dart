@@ -95,6 +95,10 @@ ImportReport _mergeImportReports(ImportReport a, ImportReport b) {
     incomesAdded: a.incomesAdded + b.incomesAdded,
     incomesSkippedDuplicate:
         a.incomesSkippedDuplicate + b.incomesSkippedDuplicate,
+    expensesUpdated: a.expensesUpdated + b.expensesUpdated,
+    incomesUpdated: a.incomesUpdated + b.incomesUpdated,
+    expensesTombstoned: a.expensesTombstoned + b.expensesTombstoned,
+    incomesTombstoned: a.incomesTombstoned + b.incomesTombstoned,
     settingsApplied: a.settingsApplied || b.settingsApplied,
   );
 }
@@ -428,12 +432,15 @@ class GoogleDriveSyncEngine {
 
     final freshSettings = ref.read(appSettingsProvider).value ?? settings;
     final db = ref.read(appDatabaseProvider);
-    final localExpenses = await db.getAllExpenses();
-    final localIncomes = await db.getAllIncome();
+    final localExpenses = await db.getAllExpenses(includeDeleted: true);
+    final localIncomes = await db.getAllIncome(includeDeleted: true);
+    final liveExpenses =
+        localExpenses.where((e) => e.deletedAt == null).length;
+    final liveIncomes = localIncomes.where((e) => e.deletedAt == null).length;
     _logDebug(
       'GDrive push start target=$target fileId=$resolvedId '
-      'localExpenses=${localExpenses.length} '
-      'localIncomes=${localIncomes.length}',
+      'localExpenses=$liveExpenses (+${localExpenses.length - liveExpenses} tombstones) '
+      'localIncomes=$liveIncomes (+${localIncomes.length - liveIncomes} tombstones)',
     );
     final content =
         await _buildEncryptedSnapshot(freshSettings, passphrase);

@@ -109,7 +109,7 @@ void main() {
     expect(await db.getTagIdsForIncome(id), [tagB]);
   });
 
-  test('deleteMany removes incomes and their tags', () async {
+  test('deleteMany soft-deletes incomes and keeps tags', () async {
     final tagId = await db.insertTag(
       TagsCompanion.insert(name: 'x', kind: const Value('income')),
     );
@@ -125,7 +125,10 @@ void main() {
 
     await container.read(bulkIncomeControllerProvider).deleteMany([id]);
     expect(await db.getIncomeById(id), isNull);
-    expect(await db.getTagIdsForIncome(id), isEmpty);
+    final tombstone = await db.getIncomeById(id, includeDeleted: true);
+    expect(tombstone, isNotNull);
+    expect(tombstone!.deletedAt, isNotNull);
+    expect(await db.getTagIdsForIncome(id), [tagId]);
   });
 
   test('convertToCurrency updates stored amount from original', () async {

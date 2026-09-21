@@ -1,7 +1,9 @@
 import 'package:drift/drift.dart';
 import 'package:valtero/features/data_sync/model/backup_format.dart';
 import 'package:valtero/shared/database/app_database.dart';
+import 'package:valtero/shared/finance/operation_fingerprint.dart';
 import 'package:valtero/shared/settings/app_settings.dart';
+import 'package:valtero/shared/utils/sync_id.dart';
 
 class ImportReport {
   final int expensesAdded;
@@ -10,6 +12,10 @@ class ImportReport {
   final int expensesSkippedDuplicate;
   final int incomesAdded;
   final int incomesSkippedDuplicate;
+  final int expensesUpdated;
+  final int incomesUpdated;
+  final int expensesTombstoned;
+  final int incomesTombstoned;
   final bool settingsApplied;
 
   const ImportReport({
@@ -19,7 +25,27 @@ class ImportReport {
     this.expensesSkippedDuplicate = 0,
     this.incomesAdded = 0,
     this.incomesSkippedDuplicate = 0,
+    this.expensesUpdated = 0,
+    this.incomesUpdated = 0,
+    this.expensesTombstoned = 0,
+    this.incomesTombstoned = 0,
     this.settingsApplied = false,
+  });
+}
+
+enum _MergeAction { added, updated, keptLocal }
+
+class _MergeResult {
+  final int localId;
+  final _MergeAction action;
+  final bool becameTombstone;
+  final bool applyRemoteTags;
+
+  const _MergeResult({
+    required this.localId,
+    required this.action,
+    this.becameTombstone = false,
+    required this.applyRemoteTags,
   });
 }
 
@@ -43,6 +69,10 @@ class BackupImporter {
     var expensesSkippedDuplicate = 0;
     var incomesAdded = 0;
     var incomesSkippedDuplicate = 0;
+    var expensesUpdated = 0;
+    var incomesUpdated = 0;
+    var expensesTombstoned = 0;
+    var incomesTombstoned = 0;
 
     final existingTags = await db.watchTagsList();
     final existingMethods = await db.getAllPaymentMethods();
@@ -142,6 +172,20 @@ class BackupImporter {
     }
 
     final localExpenseIdByClientId = <String, int>{};
+    final expenseAcceptRemoteTags = <int>{};
+    final localExpenses = await db.getAllExpenses(includeDeleted: true);
+    final expenseBySyncId = <String, Operation>{
+      for (final e in localExpenses) e.syncId: e,
+    };
+    final expensesByFingerprint = <OperationFingerprint, List<Operation>>{};
+    for (final e in localExpenses) {
+      final key = fingerprintOf(
+        occurredAt: e.occurredAt,
+        originalAmountMinor: e.originalAmountMinor,
+        originalCurrencyCode: e.originalCurrencyCode,
+      );
+      expensesByFingerprint.putIfAbsent(key, () => []).add(e);
+    }
 
     for (final expense in data.expenses) {
       if (skipClientIds.contains(expense.clientId)) {
@@ -157,33 +201,49 @@ class BackupImporter {
       );
 
       final markUnique = forceUniqueClientIds.contains(expense.clientId);
-      final newId = await db.insertExpense(
-        OperationsCompanion.insert(
-          kind: 'expense',
-          occurredAt: expense.occurredAt,
-          originalAmountMinor: expense.originalAmountMinor,
-          originalCurrencyCode: expense.originalCurrencyCode,
-          storedAmountMinor: expense.storedAmountMinor,
-          storedCurrencyCode: expense.storedCurrencyCode,
-          rateUsed: Value(expense.rateUsed),
-          rateTimestamp: Value(expense.rateTimestamp),
-          paymentMethodId: Value(paymentId),
-          countryCode: Value(expense.countryCode),
-          note: Value(expense.note),
-          createdAt: expense.createdAt,
-          duplicateDismissed: Value(
-            markUnique || expense.duplicateDismissed,
-          ),
-        ),
+      final result = await _mergeIncomingOperation(
+        db: db,
+        kind: 'expense',
+        clientId: expense.clientId,
+        occurredAt: expense.occurredAt,
+        originalAmountMinor: expense.originalAmountMinor,
+        originalCurrencyCode: expense.originalCurrencyCode,
+        storedAmountMinor: expense.storedAmountMinor,
+        storedCurrencyCode: expense.storedCurrencyCode,
+        rateUsed: expense.rateUsed,
+        rateTimestamp: expense.rateTimestamp,
+        paymentId: paymentId,
+        countryCode: expense.countryCode,
+        note: expense.note,
+        createdAt: expense.createdAt,
+        updatedAt: expense.updatedAt,
+        deletedAt: expense.deletedAt,
+        duplicateDismissed: markUnique || expense.duplicateDismissed,
+        bySyncId: expenseBySyncId,
+        byFingerprint: expensesByFingerprint,
+        forceInsert: markUnique,
       );
-      localExpenseIdByClientId[expense.clientId] = newId;
-      expensesAdded++;
+      localExpenseIdByClientId[expense.clientId] = result.localId;
+      if (result.applyRemoteTags) {
+        expenseAcceptRemoteTags.add(result.localId);
+      }
+      switch (result.action) {
+        case _MergeAction.added:
+          expensesAdded++;
+        case _MergeAction.updated:
+          expensesUpdated++;
+          if (result.becameTombstone) expensesTombstoned++;
+        case _MergeAction.keptLocal:
+          break;
+      }
     }
 
-    final tagsByNewExpense = <int, List<int>>{};
+    final tagsByExpense = <int, List<int>>{};
     for (final link in data.expenseTags) {
       final expenseId = localExpenseIdByClientId[link.expenseClientId];
-      if (expenseId == null) continue;
+      if (expenseId == null || !expenseAcceptRemoteTags.contains(expenseId)) {
+        continue;
+      }
       final tagId = _lookupTagId(
         stableKey: link.tagStableKey,
         name: link.tagName,
@@ -197,13 +257,27 @@ class BackupImporter {
         tagParentById: tagParentById,
       );
       if (tagId == null) continue;
-      tagsByNewExpense.putIfAbsent(expenseId, () => []).add(tagId);
+      tagsByExpense.putIfAbsent(expenseId, () => []).add(tagId);
     }
-    for (final entry in tagsByNewExpense.entries) {
+    for (final entry in tagsByExpense.entries) {
       await db.setExpenseTags(entry.key, entry.value);
     }
 
     final localIncomeIdByClientId = <String, int>{};
+    final incomeAcceptRemoteTags = <int>{};
+    final localIncomes = await db.getAllIncome(includeDeleted: true);
+    final incomeBySyncId = <String, Operation>{
+      for (final e in localIncomes) e.syncId: e,
+    };
+    final incomesByFingerprint = <OperationFingerprint, List<Operation>>{};
+    for (final e in localIncomes) {
+      final key = fingerprintOf(
+        occurredAt: e.occurredAt,
+        originalAmountMinor: e.originalAmountMinor,
+        originalCurrencyCode: e.originalCurrencyCode,
+      );
+      incomesByFingerprint.putIfAbsent(key, () => []).add(e);
+    }
 
     for (final income in data.incomes) {
       if (skipClientIds.contains(income.clientId)) {
@@ -219,33 +293,49 @@ class BackupImporter {
       );
 
       final markUnique = forceUniqueClientIds.contains(income.clientId);
-      final newId = await db.insertIncome(
-        OperationsCompanion.insert(
-          kind: 'income',
-          occurredAt: income.occurredAt,
-          originalAmountMinor: income.originalAmountMinor,
-          originalCurrencyCode: income.originalCurrencyCode,
-          storedAmountMinor: income.storedAmountMinor,
-          storedCurrencyCode: income.storedCurrencyCode,
-          rateUsed: Value(income.rateUsed),
-          rateTimestamp: Value(income.rateTimestamp),
-          paymentMethodId: Value(paymentId),
-          countryCode: Value(income.countryCode),
-          note: Value(income.note),
-          createdAt: income.createdAt,
-          duplicateDismissed: Value(
-            markUnique || income.duplicateDismissed,
-          ),
-        ),
+      final result = await _mergeIncomingOperation(
+        db: db,
+        kind: 'income',
+        clientId: income.clientId,
+        occurredAt: income.occurredAt,
+        originalAmountMinor: income.originalAmountMinor,
+        originalCurrencyCode: income.originalCurrencyCode,
+        storedAmountMinor: income.storedAmountMinor,
+        storedCurrencyCode: income.storedCurrencyCode,
+        rateUsed: income.rateUsed,
+        rateTimestamp: income.rateTimestamp,
+        paymentId: paymentId,
+        countryCode: income.countryCode,
+        note: income.note,
+        createdAt: income.createdAt,
+        updatedAt: income.updatedAt,
+        deletedAt: income.deletedAt,
+        duplicateDismissed: markUnique || income.duplicateDismissed,
+        bySyncId: incomeBySyncId,
+        byFingerprint: incomesByFingerprint,
+        forceInsert: markUnique,
       );
-      localIncomeIdByClientId[income.clientId] = newId;
-      incomesAdded++;
+      localIncomeIdByClientId[income.clientId] = result.localId;
+      if (result.applyRemoteTags) {
+        incomeAcceptRemoteTags.add(result.localId);
+      }
+      switch (result.action) {
+        case _MergeAction.added:
+          incomesAdded++;
+        case _MergeAction.updated:
+          incomesUpdated++;
+          if (result.becameTombstone) incomesTombstoned++;
+        case _MergeAction.keptLocal:
+          break;
+      }
     }
 
-    final tagsByNewIncome = <int, List<int>>{};
+    final tagsByIncome = <int, List<int>>{};
     for (final link in data.incomeTags) {
       final incomeId = localIncomeIdByClientId[link.incomeClientId];
-      if (incomeId == null) continue;
+      if (incomeId == null || !incomeAcceptRemoteTags.contains(incomeId)) {
+        continue;
+      }
       final tagId = _lookupTagId(
         stableKey: link.tagStableKey,
         name: link.tagName,
@@ -259,9 +349,9 @@ class BackupImporter {
         tagParentById: tagParentById,
       );
       if (tagId == null) continue;
-      tagsByNewIncome.putIfAbsent(incomeId, () => []).add(tagId);
+      tagsByIncome.putIfAbsent(incomeId, () => []).add(tagId);
     }
-    for (final entry in tagsByNewIncome.entries) {
+    for (final entry in tagsByIncome.entries) {
       await db.setIncomeTags(entry.key, entry.value);
     }
 
@@ -318,8 +408,193 @@ class BackupImporter {
       expensesSkippedDuplicate: expensesSkippedDuplicate,
       incomesAdded: incomesAdded,
       incomesSkippedDuplicate: incomesSkippedDuplicate,
+      expensesUpdated: expensesUpdated,
+      incomesUpdated: incomesUpdated,
+      expensesTombstoned: expensesTombstoned,
+      incomesTombstoned: incomesTombstoned,
       settingsApplied: settingsApplied,
     );
+  }
+
+  /// Last-write-wins merge for one incoming expense or income row.
+  Future<_MergeResult> _mergeIncomingOperation({
+    required AppDatabase db,
+    required String kind,
+    required String clientId,
+    required DateTime occurredAt,
+    required int originalAmountMinor,
+    required String originalCurrencyCode,
+    required int storedAmountMinor,
+    required String storedCurrencyCode,
+    required double? rateUsed,
+    required DateTime? rateTimestamp,
+    required int? paymentId,
+    required String? countryCode,
+    required String? note,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    required DateTime? deletedAt,
+    required bool duplicateDismissed,
+    required Map<String, Operation> bySyncId,
+    required Map<OperationFingerprint, List<Operation>> byFingerprint,
+    required bool forceInsert,
+  }) async {
+    Operation? match;
+    if (!forceInsert && clientId.isNotEmpty) {
+      match = bySyncId[clientId];
+    }
+    final fp = fingerprintOf(
+      occurredAt: occurredAt,
+      originalAmountMinor: originalAmountMinor,
+      originalCurrencyCode: originalCurrencyCode,
+    );
+    if (match == null && !forceInsert) {
+      final candidates = byFingerprint[fp] ?? const <Operation>[];
+      if (candidates.length == 1) {
+        match = candidates.first;
+      } else if (candidates.length > 1) {
+        // Align with conflict UI (live-only): a single live row among
+        // tombstones is still a unique LWW converge, not an insert.
+        final live = [
+          for (final o in candidates)
+            if (o.deletedAt == null) o,
+        ];
+        if (live.length == 1) {
+          match = live.first;
+        }
+      }
+    }
+
+    if (match != null) {
+      // Remote wins only when strictly newer.
+      if (!updatedAt.isAfter(match.updatedAt)) {
+        return _MergeResult(
+          localId: match.id,
+          action: _MergeAction.keptLocal,
+          applyRemoteTags: false,
+        );
+      }
+
+      final winningSyncId =
+          _isUuidLike(clientId) ? clientId : match.syncId;
+      final wasLive = match.deletedAt == null;
+      final nowTombstone = deletedAt != null;
+
+      await db.updateOperationRow(
+        match.copyWith(
+          syncId: winningSyncId,
+          kind: kind,
+          occurredAt: occurredAt,
+          originalAmountMinor: originalAmountMinor,
+          originalCurrencyCode: originalCurrencyCode,
+          storedAmountMinor: storedAmountMinor,
+          storedCurrencyCode: storedCurrencyCode,
+          rateUsed: Value(rateUsed),
+          rateTimestamp: Value(rateTimestamp),
+          paymentMethodId: Value(paymentId),
+          countryCode: Value(countryCode),
+          note: Value(note),
+          createdAt: createdAt,
+          updatedAt: updatedAt,
+          deletedAt: Value(deletedAt),
+          duplicateDismissed: duplicateDismissed,
+        ),
+      );
+
+      // Refresh indexes for subsequent rows in this import.
+      bySyncId.remove(match.syncId);
+      final refreshed = match.copyWith(
+        syncId: winningSyncId,
+        kind: kind,
+        occurredAt: occurredAt,
+        originalAmountMinor: originalAmountMinor,
+        originalCurrencyCode: originalCurrencyCode,
+        storedAmountMinor: storedAmountMinor,
+        storedCurrencyCode: storedCurrencyCode,
+        rateUsed: Value(rateUsed),
+        rateTimestamp: Value(rateTimestamp),
+        paymentMethodId: Value(paymentId),
+        countryCode: Value(countryCode),
+        note: Value(note),
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+        deletedAt: Value(deletedAt),
+        duplicateDismissed: duplicateDismissed,
+      );
+      bySyncId[winningSyncId] = refreshed;
+      final oldFp = fingerprintOf(
+        occurredAt: match.occurredAt,
+        originalAmountMinor: match.originalAmountMinor,
+        originalCurrencyCode: match.originalCurrencyCode,
+      );
+      byFingerprint[oldFp]?.removeWhere((o) => o.id == match!.id);
+      byFingerprint.putIfAbsent(fp, () => []).removeWhere((o) => o.id == match!.id);
+      byFingerprint.putIfAbsent(fp, () => []).add(refreshed);
+
+      return _MergeResult(
+        localId: match.id,
+        action: _MergeAction.updated,
+        becameTombstone: wasLive && nowTombstone,
+        applyRemoteTags: true,
+      );
+    }
+
+    final syncId = _isUuidLike(clientId) ? clientId : newSyncId();
+    final companion = OperationsCompanion.insert(
+      syncId: Value(syncId),
+      kind: kind,
+      occurredAt: occurredAt,
+      originalAmountMinor: originalAmountMinor,
+      originalCurrencyCode: originalCurrencyCode,
+      storedAmountMinor: storedAmountMinor,
+      storedCurrencyCode: storedCurrencyCode,
+      rateUsed: Value(rateUsed),
+      rateTimestamp: Value(rateTimestamp),
+      paymentMethodId: Value(paymentId),
+      countryCode: Value(countryCode),
+      note: Value(note),
+      createdAt: createdAt,
+      updatedAt: Value(updatedAt),
+      deletedAt: Value(deletedAt),
+      duplicateDismissed: Value(duplicateDismissed),
+    );
+    final newId = kind == 'income'
+        ? await db.insertIncome(companion)
+        : await db.insertExpense(companion);
+
+    final inserted = Operation(
+      id: newId,
+      syncId: syncId,
+      kind: kind,
+      occurredAt: occurredAt,
+      originalAmountMinor: originalAmountMinor,
+      originalCurrencyCode: originalCurrencyCode,
+      storedAmountMinor: storedAmountMinor,
+      storedCurrencyCode: storedCurrencyCode,
+      rateUsed: rateUsed,
+      rateTimestamp: rateTimestamp,
+      paymentMethodId: paymentId,
+      countryCode: countryCode,
+      note: note,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      deletedAt: deletedAt,
+      duplicateDismissed: duplicateDismissed,
+    );
+    bySyncId[syncId] = inserted;
+    byFingerprint.putIfAbsent(fp, () => []).add(inserted);
+
+    return _MergeResult(
+      localId: newId,
+      action: _MergeAction.added,
+      applyRemoteTags: true,
+    );
+  }
+
+  static bool _isUuidLike(String value) {
+    return RegExp(
+      r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+    ).hasMatch(value);
   }
 
   static DateTime? _laterDateTime(DateTime? a, DateTime? b) {
@@ -488,8 +763,6 @@ class BackupImporter {
 
     final byName = tagIdByNameKind[nameKind];
     if (byName == null) return null;
-    // If a parent was requested but the name|kind hit is a different
-    // hierarchy, prefer rejecting the mismatch over linking the wrong tag.
     if (parentId != null && tagParentById[byName] != parentId) {
       return null;
     }

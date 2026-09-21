@@ -46,12 +46,14 @@ Expense _expense({
   return Expense(
     kind: 'expense',
     id: id,
+    syncId: 'sync-$id',
     occurredAt: at,
     originalAmountMinor: amountMinor,
     originalCurrencyCode: currency,
     storedAmountMinor: amountMinor,
     storedCurrencyCode: currency,
     createdAt: at,
+    updatedAt: at,
     duplicateDismissed: false,
   );
 }
@@ -141,12 +143,14 @@ void main() {
     final expense = Expense(
       kind: 'expense',
       id: 10,
+      syncId: 'sync-10',
       occurredAt: at,
       originalAmountMinor: 500,
       originalCurrencyCode: 'USD',
       storedAmountMinor: 500,
       storedCurrencyCode: 'USD',
       createdAt: at,
+      updatedAt: at,
       duplicateDismissed: false,
     );
     final result = await aggregateExpensesForChart(

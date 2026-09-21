@@ -235,7 +235,7 @@ class BackupPaymentMethodData {
 }
 
 class BackupExpenseData {
-  /// Export-local id referenced by [BackupExpenseTagData.expenseClientId].
+  /// Cross-device identity ([Operation.syncId]); also links tag rows.
   final String clientId;
   final DateTime occurredAt;
   final int originalAmountMinor;
@@ -249,6 +249,8 @@ class BackupExpenseData {
   final String? countryCode;
   final String? note;
   final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
   final bool duplicateDismissed;
 
   const BackupExpenseData({
@@ -265,6 +267,8 @@ class BackupExpenseData {
     required this.countryCode,
     required this.note,
     required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
     this.duplicateDismissed = false,
   });
 
@@ -282,6 +286,8 @@ class BackupExpenseData {
         'countryCode': countryCode,
         'note': note,
         'createdAt': createdAt.toIso8601String(),
+        'updatedAt': updatedAt.toIso8601String(),
+        if (deletedAt != null) 'deletedAt': deletedAt!.toIso8601String(),
         'duplicateDismissed': duplicateDismissed,
       };
 
@@ -291,6 +297,9 @@ class BackupExpenseData {
     if (occurredAt == null || createdAt == null) {
       throw const BackupUnsupportedFormatException();
     }
+    final updatedAt = DateTime.tryParse(json['updatedAt'] as String? ?? '') ??
+        createdAt;
+    final deletedRaw = json['deletedAt'] as String?;
     return BackupExpenseData(
       clientId: json['clientId'] as String? ?? '',
       occurredAt: occurredAt,
@@ -307,6 +316,8 @@ class BackupExpenseData {
       countryCode: json['countryCode'] as String?,
       note: json['note'] as String?,
       createdAt: createdAt,
+      updatedAt: updatedAt,
+      deletedAt: deletedRaw == null ? null : DateTime.tryParse(deletedRaw),
       duplicateDismissed: json['duplicateDismissed'] as bool? ?? false,
     );
   }
@@ -355,7 +366,7 @@ class BackupExpenseTagData {
 }
 
 class BackupIncomeData {
-  /// Export-local id referenced by [BackupIncomeTagData.incomeClientId].
+  /// Cross-device identity ([Operation.syncId]); also links tag rows.
   final String clientId;
   final DateTime occurredAt;
   final int originalAmountMinor;
@@ -369,6 +380,8 @@ class BackupIncomeData {
   final String? countryCode;
   final String? note;
   final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
   final bool duplicateDismissed;
 
   const BackupIncomeData({
@@ -385,6 +398,8 @@ class BackupIncomeData {
     required this.countryCode,
     required this.note,
     required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
     this.duplicateDismissed = false,
   });
 
@@ -402,6 +417,8 @@ class BackupIncomeData {
         'countryCode': countryCode,
         'note': note,
         'createdAt': createdAt.toIso8601String(),
+        'updatedAt': updatedAt.toIso8601String(),
+        if (deletedAt != null) 'deletedAt': deletedAt!.toIso8601String(),
         'duplicateDismissed': duplicateDismissed,
       };
 
@@ -411,6 +428,9 @@ class BackupIncomeData {
     if (occurredAt == null || createdAt == null) {
       throw const BackupUnsupportedFormatException();
     }
+    final updatedAt = DateTime.tryParse(json['updatedAt'] as String? ?? '') ??
+        createdAt;
+    final deletedRaw = json['deletedAt'] as String?;
     return BackupIncomeData(
       clientId: json['clientId'] as String? ?? '',
       occurredAt: occurredAt,
@@ -427,6 +447,8 @@ class BackupIncomeData {
       countryCode: json['countryCode'] as String?,
       note: json['note'] as String?,
       createdAt: createdAt,
+      updatedAt: updatedAt,
+      deletedAt: deletedRaw == null ? null : DateTime.tryParse(deletedRaw),
       duplicateDismissed: json['duplicateDismissed'] as bool? ?? false,
     );
   }

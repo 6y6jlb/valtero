@@ -166,6 +166,7 @@ class AddExpenseController {
           input.note?.trim().isEmpty == true ? null : input.note?.trim(),
         ),
         duplicateDismissed: dismissed,
+        updatedAt: DateTime.now(),
       ),
     );
     await db.setExpenseTags(id, input.tagIds);

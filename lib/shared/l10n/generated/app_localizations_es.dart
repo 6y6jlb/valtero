@@ -690,6 +690,50 @@ class AppLocalizationsEs extends AppLocalizations {
   String get amountRequired => 'Introduce un importe válido';
 
   @override
+  String get amountCalculatorTooltip => 'Calculadora de importe';
+
+  @override
+  String get amountCalculatorTitle => 'Calculadora de importe';
+
+  @override
+  String get amountCalculatorOriginal => 'Importe original';
+
+  @override
+  String get amountCalculatorResult => 'Resultado';
+
+  @override
+  String get amountCalculatorOperand => 'Valor';
+
+  @override
+  String get amountCalculatorApply => 'Aplicar';
+
+  @override
+  String get amountCalculatorOpAdd => 'Sumar a';
+
+  @override
+  String get amountCalculatorOpSubtract => 'Restar de';
+
+  @override
+  String get amountCalculatorOpMultiply => 'Multiplicar por';
+
+  @override
+  String get amountCalculatorOpDivide => 'Dividir por';
+
+  @override
+  String get amountCalculatorOpPercentOf => 'Porcentaje de';
+
+  @override
+  String get amountCalculatorErrorEmpty => 'Introduce un valor';
+
+  @override
+  String get amountCalculatorErrorDivideByZero =>
+      'No se puede dividir por cero';
+
+  @override
+  String get amountCalculatorErrorNonPositive =>
+      'El resultado debe ser mayor que cero';
+
+  @override
   String get currency => 'Moneda';
 
   @override
@@ -1823,14 +1867,14 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guideSectionGettingStartedBody =>
-      'Toca el botón + en la parte inferior y elige Añadir gasto o Añadir ingreso. Introduce importe y moneda, opcionalmente convierte a una moneda de informe, elige país y categorías, y guarda. Si ya existe un gasto con el mismo día, importe y moneda, puedes guardarlo como único, eliminar la coincidencia o cancelar. Toca un gasto existente para editarlo en el mismo formulario. Hasta entonces, el panel muestra un gráfico de ejemplo con enlace a esta guía.';
+      'Toca el botón + en la parte inferior y elige Añadir gasto o Añadir ingreso. Introduce importe y moneda, opcionalmente convierte a una moneda de informe, elige país y categorías, y guarda. Si ya existe un gasto con el mismo día, importe y moneda, puedes guardarlo como único, eliminar la coincidencia o cancelar. Toca un gasto existente para editarlo en el mismo formulario — el campo de importe tiene un icono de calculadora para ajustar la suma. Hasta entonces, el panel muestra un gráfico de ejemplo con enlace a esta guía.';
 
   @override
   String get guideSectionExpenseTrackingTitle => 'Seguimiento de gastos';
 
   @override
   String get guideSectionExpenseTrackingBody =>
-      'Cada gasto guarda importe, moneda, fecha, país opcional (ISO), método de pago, etiquetas de categoría y nota. El importe y la moneda originales siempre se conservan, aunque conviertas a una moneda de informe. En la lista de gastos puedes seleccionar varias filas para eliminarlas o cambiar etiquetas, país o moneda a la vez. Los posibles duplicados (mismo día, importe original y moneda) muestran un aviso; abre el banner para eliminar una fila o marcarla como no duplicado.';
+      'Cada gasto guarda importe, moneda, fecha, país opcional (ISO), método de pago, etiquetas de categoría y nota. El importe y la moneda originales siempre se conservan, aunque conviertas a una moneda de informe. Al editar, toca el icono de calculadora en el importe para sumar, restar, multiplicar, dividir o tomar un porcentaje de la suma actual. En la lista de gastos puedes seleccionar varias filas para eliminarlas o cambiar etiquetas, país o moneda a la vez. Los posibles duplicados (mismo día, importe original y moneda) muestran un aviso; abre el banner para eliminar una fila o marcarla como no duplicado.';
 
   @override
   String get guideSectionTagsTitle => 'Etiquetas';
@@ -1865,7 +1909,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guideSectionDataSyncBody =>
-      'Crea una copia cifrada de gastos, etiquetas, métodos de pago, tipos manuales y ajustes de visualización. Protégela con tu frase o una generada. Guarda el archivo (en Android/iOS la hoja de compartir permite Guardar en Archivos / Descargas) y envíalo (correo, Telegram como documento, nube, USB). La importación fusiona: se conservan los gastos existentes y se añaden datos nuevos. Si los gastos entrantes se parecen a los que ya tienes (mismo día, importe y moneda), eliges cuáles omitir como duplicados y cuáles importar como únicos. Restaura desde Ajustes → Copia de seguridad y sincronización, o desde el panel vacío. Las claves API y Telegram nunca se incluyen.';
+      'Crea una copia cifrada de gastos, etiquetas, métodos de pago, tipos manuales y ajustes de visualización. Protégela con tu frase o una generada. Guarda el archivo (en Android/iOS la hoja de compartir permite Guardar en Archivos / Descargas) y envíalo (correo, Telegram como documento, nube, USB). La importación y Google Drive Sync fusionan operaciones por última edición (incluidas las eliminaciones). La coincidencia usa un id de sync estable, o el mismo día, importe y moneda si es única. Solo los duplicados ambiguos siguen pidiendo omitir o importar como únicos. Restaura desde Ajustes → Copia de seguridad y sincronización, o desde el panel vacío. Las claves API y Telegram nunca se incluyen.';
 
   @override
   String get guideSectionTelegramTitle => 'Compartir por Telegram';

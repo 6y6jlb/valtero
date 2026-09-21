@@ -95,7 +95,7 @@ void main() {
     );
   });
 
-  test('deleteMany removes both expenses and incomes', () async {
+  test('deleteMany soft-deletes both expenses and incomes', () async {
     final expenseId = await container.read(addExpenseControllerProvider).save(
           AddExpenseInput(
             originalAmountMinor: 100,
@@ -120,6 +120,14 @@ void main() {
 
     expect(await db.getExpenseById(expenseId), isNull);
     expect(await db.getIncomeById(incomeId), isNull);
+    expect(
+      (await db.getExpenseById(expenseId, includeDeleted: true))!.deletedAt,
+      isNotNull,
+    );
+    expect(
+      (await db.getIncomeById(incomeId, includeDeleted: true))!.deletedAt,
+      isNotNull,
+    );
   });
 
   test('setCountry updates both kinds', () async {

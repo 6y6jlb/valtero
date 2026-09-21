@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,6 +15,19 @@ import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/database/database_provider.dart';
 import 'package:valtero/shared/database/schema_version.dart';
 import 'package:valtero/shared/settings/app_settings.dart';
+
+
+BackupSettingsData _lwwSettings() => BackupSettingsData(
+      reportingCurrencies: const ['USD'],
+      primaryCurrency: 'USD',
+      customCurrencyCodes: const [],
+      themeMode: 'system',
+      locale: 'system',
+      moneyDisplayFormat: 'localeCode',
+      dateDisplayFormat: 'isoYmd',
+      timeZoneId: 'system',
+      dismissedTagSuggestions: const [],
+    );
 
 void main() {
   group('generatePassphrase', () {
@@ -234,6 +247,7 @@ void main() {
               countryCode: 'US',
               note: 'coffee',
               createdAt: DateTime.utc(2026, 1, 2),
+              updatedAt: DateTime.utc(2026, 1, 2),
             ),
           ],
           expenseTags: const [
@@ -317,6 +331,7 @@ void main() {
               countryCode: null,
               note: null,
               createdAt: occurred,
+              updatedAt: occurred,
             ),
             BackupExpenseData(
               clientId: 'unique-me',
@@ -332,6 +347,7 @@ void main() {
               countryCode: null,
               note: null,
               createdAt: occurred,
+              updatedAt: occurred,
             ),
             BackupExpenseData(
               clientId: 'normal-me',
@@ -347,6 +363,7 @@ void main() {
               countryCode: null,
               note: null,
               createdAt: occurred,
+              updatedAt: occurred,
             ),
           ],
           expenseTags: const [],
@@ -418,6 +435,7 @@ void main() {
               countryCode: 'US',
               note: 'paycheck',
               createdAt: DateTime.utc(2026, 4, 2),
+              updatedAt: DateTime.utc(2026, 4, 2),
             ),
           ],
           incomeTags: const [
@@ -487,6 +505,7 @@ void main() {
                 countryCode: null,
                 note: null,
                 createdAt: occurred,
+                updatedAt: occurred,
               ),
               BackupIncomeData(
                 clientId: 'i-unique',
@@ -502,6 +521,7 @@ void main() {
                 countryCode: null,
                 note: null,
                 createdAt: occurred,
+                updatedAt: occurred,
               ),
             ],
             incomeTags: const [],
@@ -700,7 +720,15 @@ void main() {
       expect(encoded.contains('gdrive-refresh'), isFalse);
       expect(encoded.contains('gdrive-pass'), isFalse);
       expect(envelope.data.expenses, hasLength(1));
-      expect(envelope.data.expenses.first.clientId, 'e1');
+      expect(
+        envelope.data.expenses.first.clientId,
+        matches(
+          RegExp(
+            r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+          ),
+        ),
+      );
+      expect(envelope.data.expenses.first.deletedAt, isNull);
     });
 
     test('includes Google Drive shared-sync metadata without secrets', () async {
@@ -729,7 +757,7 @@ void main() {
       expect(encoded.contains('gdrive-refresh'), isFalse);
     });
 
-    test('exports incomes with i-prefixed clientId, tags, and iconKey',
+    test('exports incomes with syncId clientId, tags, and iconKey',
         () async {
       final db = AppDatabase(NativeDatabase.memory());
       addTearDown(db.close);
@@ -744,7 +772,7 @@ void main() {
       );
       final incomeId = await db.insertIncome(
         OperationsCompanion.insert(
-        kind: 'income',
+          kind: 'income',
           occurredAt: DateTime.utc(2026, 5, 1),
           originalAmountMinor: 400000,
           originalCurrencyCode: 'USD',
@@ -754,6 +782,7 @@ void main() {
         ),
       );
       await db.setIncomeTags(incomeId, [tagId]);
+      final income = await db.getIncomeById(incomeId);
 
       final envelope = await BackupSnapshotBuilder().build(
         db: db,
@@ -761,9 +790,9 @@ void main() {
       );
 
       expect(envelope.data.incomes, hasLength(1));
-      expect(envelope.data.incomes.first.clientId, 'i$incomeId');
+      expect(envelope.data.incomes.first.clientId, income!.syncId);
       expect(envelope.data.incomeTags, hasLength(1));
-      expect(envelope.data.incomeTags.first.incomeClientId, 'i$incomeId');
+      expect(envelope.data.incomeTags.first.incomeClientId, income.syncId);
       expect(envelope.data.incomeTags.first.tagStableKey, 'salary');
       final salaryTag =
           envelope.data.tags.firstWhere((t) => t.stableKey == 'salary');
@@ -921,11 +950,23 @@ void main() {
       await db.close();
     });
 
-    test('finds both expense and income duplicates', () async {
+    test('finds ambiguous expense and income duplicates only', () async {
       final occurred = DateTime.utc(2026, 6, 1);
+      // Two locals with the same fingerprint → ambiguous conflict.
       await db.insertExpense(
         OperationsCompanion.insert(
-        kind: 'expense',
+          kind: 'expense',
+          occurredAt: occurred,
+          originalAmountMinor: 1000,
+          originalCurrencyCode: 'USD',
+          storedAmountMinor: 1000,
+          storedCurrencyCode: 'USD',
+          createdAt: occurred,
+        ),
+      );
+      await db.insertExpense(
+        OperationsCompanion.insert(
+          kind: 'expense',
           occurredAt: occurred,
           originalAmountMinor: 1000,
           originalCurrencyCode: 'USD',
@@ -936,7 +977,18 @@ void main() {
       );
       await db.insertIncome(
         OperationsCompanion.insert(
-        kind: 'income',
+          kind: 'income',
+          occurredAt: occurred,
+          originalAmountMinor: 5000,
+          originalCurrencyCode: 'USD',
+          storedAmountMinor: 5000,
+          storedCurrencyCode: 'USD',
+          createdAt: occurred,
+        ),
+      );
+      await db.insertIncome(
+        OperationsCompanion.insert(
+          kind: 'income',
           occurredAt: occurred,
           originalAmountMinor: 5000,
           originalCurrencyCode: 'USD',
@@ -969,6 +1021,7 @@ void main() {
               countryCode: null,
               note: null,
               createdAt: occurred,
+              updatedAt: occurred,
             ),
           ],
           expenseTags: const [],
@@ -987,6 +1040,7 @@ void main() {
               countryCode: null,
               note: null,
               createdAt: occurred,
+              updatedAt: occurred,
             ),
           ],
           incomeTags: const [],
@@ -1014,7 +1068,520 @@ void main() {
       final incomeConflict = conflicts.firstWhere((c) => c.isIncome);
       expect(expenseConflict.clientId, 'e1');
       expect(incomeConflict.clientId, 'i1');
-      expect(incomeConflict.existingIncomeMatches, hasLength(1));
+      expect(expenseConflict.existingExpenseMatches, hasLength(2));
+      expect(incomeConflict.existingIncomeMatches, hasLength(2));
+    });
+
+    test('skips unique fingerprint matches as auto-LWW', () async {
+      final occurred = DateTime.utc(2026, 6, 2);
+      await db.insertExpense(
+        OperationsCompanion.insert(
+          kind: 'expense',
+          occurredAt: occurred,
+          originalAmountMinor: 2000,
+          originalCurrencyCode: 'EUR',
+          storedAmountMinor: 2000,
+          storedCurrencyCode: 'EUR',
+          createdAt: occurred,
+        ),
+      );
+      final envelope = BackupEnvelope(
+        formatVersion: kBackupFormatVersion,
+        schemaVersion: kAppSchemaVersion,
+        exportedAt: occurred,
+        appVersion: '1.0.0',
+        data: BackupPayloadData(
+          tags: const [],
+          paymentMethods: const [],
+          expenses: [
+            BackupExpenseData(
+              clientId: 'legacy-e',
+              occurredAt: occurred,
+              originalAmountMinor: 2000,
+              originalCurrencyCode: 'EUR',
+              storedAmountMinor: 2000,
+              storedCurrencyCode: 'EUR',
+              rateUsed: null,
+              rateTimestamp: null,
+              paymentStableKey: null,
+              paymentName: null,
+              countryCode: null,
+              note: null,
+              createdAt: occurred,
+              updatedAt: occurred,
+            ),
+          ],
+          expenseTags: const [],
+          incomes: const [],
+          incomeTags: const [],
+          exchangeRateOverrides: const [],
+          settings: BackupSettingsData(
+            reportingCurrencies: const ['EUR'],
+            primaryCurrency: 'EUR',
+            customCurrencyCodes: const [],
+            themeMode: 'system',
+            locale: 'system',
+            moneyDisplayFormat: 'localeCode',
+            dateDisplayFormat: 'isoYmd',
+            timeZoneId: 'system',
+            dismissedTagSuggestions: const [],
+          ),
+        ),
+      );
+      final conflicts = await container
+          .read(dataSyncControllerProvider)
+          .findDuplicateConflicts(envelope);
+      expect(conflicts, isEmpty);
+    });
+  });
+
+  group('operation LWW merge', () {
+    late AppDatabase db;
+
+    setUp(() {
+      db = AppDatabase(NativeDatabase.memory());
+    });
+
+    tearDown(() async {
+      await db.close();
+    });
+
+
+    test('remote newer updates fields by syncId', () async {
+      final t0 = DateTime.utc(2026, 7, 1, 10);
+      final t1 = DateTime.now().toUtc().add(const Duration(hours: 1));
+      final id = await db.insertExpense(
+        OperationsCompanion.insert(
+          syncId: const Value('aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee'),
+          kind: 'expense',
+          occurredAt: t0,
+          originalAmountMinor: 1000,
+          originalCurrencyCode: 'USD',
+          storedAmountMinor: 1000,
+          storedCurrencyCode: 'USD',
+          createdAt: t0,
+          updatedAt: Value(t0),
+          note: const Value('old'),
+        ),
+      );
+      final envelope = BackupEnvelope(
+        formatVersion: kBackupFormatVersion,
+        schemaVersion: kAppSchemaVersion,
+        appVersion: 'test',
+        exportedAt: t1,
+        data: BackupPayloadData(
+          tags: const [],
+          paymentMethods: const [],
+          expenses: [
+            BackupExpenseData(
+              clientId: 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',
+              occurredAt: t0,
+              originalAmountMinor: 2500,
+              originalCurrencyCode: 'USD',
+              storedAmountMinor: 2500,
+              storedCurrencyCode: 'USD',
+              rateUsed: null,
+              rateTimestamp: null,
+              paymentStableKey: null,
+              paymentName: null,
+              countryCode: null,
+              note: 'new',
+              createdAt: t0,
+              updatedAt: t1,
+            ),
+          ],
+          expenseTags: const [],
+          incomes: const [],
+          incomeTags: const [],
+          exchangeRateOverrides: const [],
+          settings: _lwwSettings(),
+        ),
+      );
+      final report = await BackupImporter().importEnvelope(
+        db: db,
+        envelope: envelope,
+        currentSettings: AppSettings.initial(),
+        applySettings: false,
+        saveSettings: (_) async {},
+      );
+      expect(report.expensesUpdated, 1);
+      expect(report.expensesAdded, 0);
+      final row = await db.getExpenseById(id);
+      expect(row!.originalAmountMinor, 2500);
+      expect(row.note, 'new');
+      expect(row.updatedAt.isAfter(t0), isTrue);
+    });
+
+    test('local newer keeps fields', () async {
+      final t0 = DateTime.utc(2026, 7, 2, 10);
+      final t1 = DateTime.utc(2026, 7, 2, 12);
+      final id = await db.insertExpense(
+        OperationsCompanion.insert(
+          syncId: const Value('11111111-2222-4333-8444-555555555555'),
+          kind: 'expense',
+          occurredAt: t0,
+          originalAmountMinor: 1000,
+          originalCurrencyCode: 'USD',
+          storedAmountMinor: 1000,
+          storedCurrencyCode: 'USD',
+          createdAt: t0,
+          updatedAt: Value(t1),
+          note: const Value('local'),
+        ),
+      );
+      final envelope = BackupEnvelope(
+        formatVersion: kBackupFormatVersion,
+        schemaVersion: kAppSchemaVersion,
+        appVersion: 'test',
+        exportedAt: t0,
+        data: BackupPayloadData(
+          tags: const [],
+          paymentMethods: const [],
+          expenses: [
+            BackupExpenseData(
+              clientId: '11111111-2222-4333-8444-555555555555',
+              occurredAt: t0,
+              originalAmountMinor: 9999,
+              originalCurrencyCode: 'USD',
+              storedAmountMinor: 9999,
+              storedCurrencyCode: 'USD',
+              rateUsed: null,
+              rateTimestamp: null,
+              paymentStableKey: null,
+              paymentName: null,
+              countryCode: null,
+              note: 'remote',
+              createdAt: t0,
+              updatedAt: t0,
+            ),
+          ],
+          expenseTags: const [],
+          incomes: const [],
+          incomeTags: const [],
+          exchangeRateOverrides: const [],
+          settings: _lwwSettings(),
+        ),
+      );
+      final report = await BackupImporter().importEnvelope(
+        db: db,
+        envelope: envelope,
+        currentSettings: AppSettings.initial(),
+        applySettings: false,
+        saveSettings: (_) async {},
+      );
+      expect(report.expensesUpdated, 0);
+      expect(report.expensesAdded, 0);
+      final row = await db.getExpenseById(id);
+      expect(row!.originalAmountMinor, 1000);
+      expect(row.note, 'local');
+    });
+
+    test('remote tombstone newer hides local', () async {
+      final t0 = DateTime.utc(2026, 7, 3, 10);
+      final t1 = DateTime.now().toUtc().add(const Duration(hours: 1));
+      final id = await db.insertExpense(
+        OperationsCompanion.insert(
+          syncId: const Value('aaaaaaaa-bbbb-4ccc-8ddd-ffffffffffff'),
+          kind: 'expense',
+          occurredAt: t0,
+          originalAmountMinor: 1000,
+          originalCurrencyCode: 'USD',
+          storedAmountMinor: 1000,
+          storedCurrencyCode: 'USD',
+          createdAt: t0,
+          updatedAt: Value(t0),
+        ),
+      );
+      final envelope = BackupEnvelope(
+        formatVersion: kBackupFormatVersion,
+        schemaVersion: kAppSchemaVersion,
+        appVersion: 'test',
+        exportedAt: t1,
+        data: BackupPayloadData(
+          tags: const [],
+          paymentMethods: const [],
+          expenses: [
+            BackupExpenseData(
+              clientId: 'aaaaaaaa-bbbb-4ccc-8ddd-ffffffffffff',
+              occurredAt: t0,
+              originalAmountMinor: 1000,
+              originalCurrencyCode: 'USD',
+              storedAmountMinor: 1000,
+              storedCurrencyCode: 'USD',
+              rateUsed: null,
+              rateTimestamp: null,
+              paymentStableKey: null,
+              paymentName: null,
+              countryCode: null,
+              note: null,
+              createdAt: t0,
+              updatedAt: t1,
+              deletedAt: t1,
+            ),
+          ],
+          expenseTags: const [],
+          incomes: const [],
+          incomeTags: const [],
+          exchangeRateOverrides: const [],
+          settings: _lwwSettings(),
+        ),
+      );
+      final report = await BackupImporter().importEnvelope(
+        db: db,
+        envelope: envelope,
+        currentSettings: AppSettings.initial(),
+        applySettings: false,
+        saveSettings: (_) async {},
+      );
+      expect(report.expensesTombstoned, 1);
+      expect(await db.getExpenseById(id), isNull);
+      final hidden = await db.getExpenseById(id, includeDeleted: true);
+      expect(hidden!.deletedAt, isNotNull);
+      expect(hidden.deletedAt!.isAfter(t0), isTrue);
+      expect(await db.getAllExpenses(), isEmpty);
+      expect(await db.getAllExpenses(includeDeleted: true), hasLength(1));
+    });
+
+    test('local delete newer rejects remote live resurrection', () async {
+      final t0 = DateTime.utc(2026, 7, 4, 10);
+      final t1 = DateTime.now().toUtc().add(const Duration(hours: 1));
+      final id = await db.insertExpense(
+        OperationsCompanion.insert(
+          syncId: const Value('aaaaaaaa-bbbb-4ccc-8ddd-000000000001'),
+          kind: 'expense',
+          occurredAt: t0,
+          originalAmountMinor: 1000,
+          originalCurrencyCode: 'USD',
+          storedAmountMinor: 1000,
+          storedCurrencyCode: 'USD',
+          createdAt: t0,
+          updatedAt: Value(t0),
+        ),
+      );
+      await db.deleteExpenseById(id);
+      final deleted = await db.getExpenseById(id, includeDeleted: true);
+      expect(deleted!.deletedAt, isNotNull);
+      await db.updateExpenseRow(deleted.copyWith(updatedAt: t1));
+
+      final envelope = BackupEnvelope(
+        formatVersion: kBackupFormatVersion,
+        schemaVersion: kAppSchemaVersion,
+        appVersion: 'test',
+        exportedAt: t0,
+        data: BackupPayloadData(
+          tags: const [],
+          paymentMethods: const [],
+          expenses: [
+            BackupExpenseData(
+              clientId: 'aaaaaaaa-bbbb-4ccc-8ddd-000000000001',
+              occurredAt: t0,
+              originalAmountMinor: 1000,
+              originalCurrencyCode: 'USD',
+              storedAmountMinor: 1000,
+              storedCurrencyCode: 'USD',
+              rateUsed: null,
+              rateTimestamp: null,
+              paymentStableKey: null,
+              paymentName: null,
+              countryCode: null,
+              note: 'resurrect',
+              createdAt: t0,
+              updatedAt: t0,
+            ),
+          ],
+          expenseTags: const [],
+          incomes: const [],
+          incomeTags: const [],
+          exchangeRateOverrides: const [],
+          settings: _lwwSettings(),
+        ),
+      );
+      await BackupImporter().importEnvelope(
+        db: db,
+        envelope: envelope,
+        currentSettings: AppSettings.initial(),
+        applySettings: false,
+        saveSettings: (_) async {},
+      );
+      expect(await db.getExpenseById(id), isNull);
+      final still = await db.getExpenseById(id, includeDeleted: true);
+      expect(still!.deletedAt, isNotNull);
+      expect(still.note, isNot('resurrect'));
+    });
+
+    test('remote live newer restores local tombstone', () async {
+      final t0 = DateTime.utc(2026, 7, 5, 10);
+      final t1 = DateTime.now().toUtc().add(const Duration(hours: 1));
+      final id = await db.insertExpense(
+        OperationsCompanion.insert(
+          syncId: const Value('aaaaaaaa-bbbb-4ccc-8ddd-000000000002'),
+          kind: 'expense',
+          occurredAt: t0,
+          originalAmountMinor: 1000,
+          originalCurrencyCode: 'USD',
+          storedAmountMinor: 1000,
+          storedCurrencyCode: 'USD',
+          createdAt: t0,
+          updatedAt: Value(t0),
+        ),
+      );
+      await db.deleteExpenseById(id);
+      // Pin local tombstone clock older than remote restore.
+      final deleted = await db.getExpenseById(id, includeDeleted: true);
+      await db.updateExpenseRow(deleted!.copyWith(updatedAt: t0));
+
+      final envelope = BackupEnvelope(
+        formatVersion: kBackupFormatVersion,
+        schemaVersion: kAppSchemaVersion,
+        appVersion: 'test',
+        exportedAt: t1,
+        data: BackupPayloadData(
+          tags: const [],
+          paymentMethods: const [],
+          expenses: [
+            BackupExpenseData(
+              clientId: 'aaaaaaaa-bbbb-4ccc-8ddd-000000000002',
+              occurredAt: t0,
+              originalAmountMinor: 1500,
+              originalCurrencyCode: 'USD',
+              storedAmountMinor: 1500,
+              storedCurrencyCode: 'USD',
+              rateUsed: null,
+              rateTimestamp: null,
+              paymentStableKey: null,
+              paymentName: null,
+              countryCode: null,
+              note: 'restored',
+              createdAt: t0,
+              updatedAt: t1,
+            ),
+          ],
+          expenseTags: const [],
+          incomes: const [],
+          incomeTags: const [],
+          exchangeRateOverrides: const [],
+          settings: _lwwSettings(),
+        ),
+      );
+      await BackupImporter().importEnvelope(
+        db: db,
+        envelope: envelope,
+        currentSettings: AppSettings.initial(),
+        applySettings: false,
+        saveSettings: (_) async {},
+      );
+      final row = await db.getExpenseById(id);
+      expect(row, isNotNull);
+      expect(row!.deletedAt, isNull);
+      expect(row.originalAmountMinor, 1500);
+      expect(row.note, 'restored');
+    });
+
+    test('unique live among tombstones converges by fingerprint', () async {
+      final t0 = DateTime.utc(2026, 7, 5, 10);
+      final t1 = DateTime.utc(2026, 7, 5, 14);
+      // Soft-deleted twin with the same fingerprint.
+      final tombstoneId = await db.insertExpense(
+        OperationsCompanion.insert(
+          syncId: const Value('dead0000-0000-4000-8000-000000000001'),
+          kind: 'expense',
+          occurredAt: t0,
+          originalAmountMinor: 777,
+          originalCurrencyCode: 'USD',
+          storedAmountMinor: 777,
+          storedCurrencyCode: 'USD',
+          createdAt: t0,
+          updatedAt: Value(t0),
+        ),
+      );
+      await db.deleteExpenseById(tombstoneId);
+
+      final liveId = await db.insertExpense(
+        OperationsCompanion.insert(
+          syncId: const Value('live0000-0000-4000-8000-000000000002'),
+          kind: 'expense',
+          occurredAt: t0,
+          originalAmountMinor: 777,
+          originalCurrencyCode: 'USD',
+          storedAmountMinor: 777,
+          storedCurrencyCode: 'USD',
+          createdAt: t0,
+          updatedAt: Value(t0),
+          note: const Value('local'),
+        ),
+      );
+
+      // Legacy remote clientId (not UUID) — identity only via fingerprint.
+      final envelope = BackupEnvelope(
+        formatVersion: kBackupFormatVersion,
+        schemaVersion: kAppSchemaVersion,
+        appVersion: 'test',
+        exportedAt: t1,
+        data: BackupPayloadData(
+          tags: const [],
+          paymentMethods: const [],
+          expenses: [
+            BackupExpenseData(
+              clientId: 'e99',
+              occurredAt: t0,
+              originalAmountMinor: 777,
+              originalCurrencyCode: 'USD',
+              storedAmountMinor: 777,
+              storedCurrencyCode: 'USD',
+              rateUsed: null,
+              rateTimestamp: null,
+              paymentStableKey: null,
+              paymentName: null,
+              countryCode: null,
+              note: 'from-remote',
+              createdAt: t0,
+              updatedAt: t1,
+            ),
+          ],
+          expenseTags: const [],
+          incomes: const [],
+          incomeTags: const [],
+          exchangeRateOverrides: const [],
+          settings: _lwwSettings(),
+        ),
+      );
+      final report = await BackupImporter().importEnvelope(
+        db: db,
+        envelope: envelope,
+        currentSettings: AppSettings.initial(),
+        applySettings: false,
+        saveSettings: (_) async {},
+      );
+      expect(report.expensesAdded, 0);
+      expect(report.expensesUpdated, 1);
+      final live = await db.getExpenseById(liveId);
+      expect(live!.note, 'from-remote');
+      expect(await db.getAllExpenses(), hasLength(1));
+      expect(await db.getAllExpenses(includeDeleted: true), hasLength(2));
+    });
+
+    test('snapshot includes tombstones with syncId clientId', () async {
+      final t0 = DateTime.utc(2026, 7, 6);
+      final id = await db.insertExpense(
+        OperationsCompanion.insert(
+          kind: 'expense',
+          occurredAt: t0,
+          originalAmountMinor: 100,
+          originalCurrencyCode: 'USD',
+          storedAmountMinor: 100,
+          storedCurrencyCode: 'USD',
+          createdAt: t0,
+        ),
+      );
+      await db.deleteExpenseById(id);
+      final row = await db.getExpenseById(id, includeDeleted: true);
+      final envelope = await BackupSnapshotBuilder().build(
+        db: db,
+        settings: AppSettings.initial(),
+      );
+      expect(envelope.data.expenses, hasLength(1));
+      expect(envelope.data.expenses.first.clientId, row!.syncId);
+      expect(envelope.data.expenses.first.deletedAt, isNotNull);
     });
   });
 

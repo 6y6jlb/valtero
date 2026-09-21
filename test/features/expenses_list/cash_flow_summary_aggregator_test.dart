@@ -17,12 +17,14 @@ Expense _expense({
   return Expense(
     kind: 'expense',
     id: id,
+    syncId: 'sync-$id',
     occurredAt: at,
     originalAmountMinor: amountMinor,
     originalCurrencyCode: currency,
     storedAmountMinor: amountMinor,
     storedCurrencyCode: currency,
     createdAt: at,
+    updatedAt: at,
     duplicateDismissed: false,
   );
 }
@@ -37,12 +39,14 @@ Income _income({
   return Income(
     kind: 'income',
     id: id,
+    syncId: 'sync-$id',
     occurredAt: at,
     originalAmountMinor: amountMinor,
     originalCurrencyCode: currency,
     storedAmountMinor: amountMinor,
     storedCurrencyCode: currency,
     createdAt: at,
+    updatedAt: at,
     duplicateDismissed: false,
   );
 }

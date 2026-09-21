@@ -4,6 +4,8 @@ import 'package:valtero/shared/database/schema_version.dart';
 import 'package:valtero/shared/settings/app_settings.dart';
 
 /// Builds an inner [BackupEnvelope] from the live database + settings.
+///
+/// Includes soft-deleted operations (tombstones) so deletes propagate on sync.
 class BackupSnapshotBuilder {
   Future<BackupEnvelope> build({
     required AppDatabase db,
@@ -13,10 +15,10 @@ class BackupSnapshotBuilder {
   }) async {
     final tags = await db.watchTagsList();
     final methods = await db.getAllPaymentMethods();
-    final expenses = await db.getAllExpenses();
+    final expenses = await db.getAllExpenses(includeDeleted: true);
     final tagIdsByExpense =
         await db.getTagIdsByExpenseIds(expenses.map((e) => e.id).toList());
-    final incomes = await db.getAllIncome();
+    final incomes = await db.getAllIncome(includeDeleted: true);
     final tagIdsByIncome =
         await db.getTagIdsByIncomeIds(incomes.map((e) => e.id).toList());
     final allRates = await db.getAllExchangeRates();
@@ -62,7 +64,7 @@ class BackupSnapshotBuilder {
     final backupExpenseTags = <BackupExpenseTagData>[];
 
     for (final expense in expenses) {
-      final clientId = 'e${expense.id}';
+      final clientId = expense.syncId;
       final payment = expense.paymentMethodId == null
           ? null
           : methodById[expense.paymentMethodId!];
@@ -81,6 +83,8 @@ class BackupSnapshotBuilder {
           countryCode: expense.countryCode,
           note: expense.note,
           createdAt: expense.createdAt,
+          updatedAt: expense.updatedAt,
+          deletedAt: expense.deletedAt,
           duplicateDismissed: expense.duplicateDismissed,
         ),
       );
@@ -108,7 +112,7 @@ class BackupSnapshotBuilder {
     final backupIncomeTags = <BackupIncomeTagData>[];
 
     for (final income in incomes) {
-      final clientId = 'i${income.id}';
+      final clientId = income.syncId;
       final payment = income.paymentMethodId == null
           ? null
           : methodById[income.paymentMethodId!];
@@ -127,6 +131,8 @@ class BackupSnapshotBuilder {
           countryCode: income.countryCode,
           note: income.note,
           createdAt: income.createdAt,
+          updatedAt: income.updatedAt,
+          deletedAt: income.deletedAt,
           duplicateDismissed: income.duplicateDismissed,
         ),
       );

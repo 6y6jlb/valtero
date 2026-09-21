@@ -15,6 +15,7 @@ Expense _expense({
   return Expense(
     kind: 'expense',
     id: id,
+    syncId: 'sync-$id',
     occurredAt: at,
     originalAmountMinor: 1000,
     originalCurrencyCode: currency,
@@ -23,6 +24,7 @@ Expense _expense({
     paymentMethodId: paymentMethodId,
     countryCode: countryCode,
     createdAt: at,
+    updatedAt: at,
     duplicateDismissed: false,
   );
 }
