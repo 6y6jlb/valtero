@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/entities/exchange_rate/model/rate_providers.dart';
 import 'package:valtero/features/google_drive_sync/model/google_drive_sync_scheduler.dart';
+import 'package:valtero/features/google_drive_sync/ui/google_drive_sync_toast_listener.dart';
 import 'package:valtero/features/manage_tags/model/manage_tags_controller.dart';
 import 'package:valtero/features/manage_payment_methods/model/manage_payment_methods_controller.dart';
 import 'package:valtero/features/tag_suggestions/model/country_detection.dart';
@@ -64,6 +65,9 @@ class _AppState extends ConsumerState<App> {
     );
 
     return MaterialApp(
+      builder: (context, child) => GoogleDriveSyncToastListener(
+        child: child ?? const SizedBox.shrink(),
+      ),
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2F6F5E)),

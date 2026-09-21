@@ -13,6 +13,7 @@ class ExpenseGroupingContext {
   final String unspecifiedPaymentLabel;
   final bool ascending;
   final String timeZoneId;
+  final bool includeSubcategories;
 
   const ExpenseGroupingContext({
     required this.expenseTags,
@@ -24,6 +25,7 @@ class ExpenseGroupingContext {
     required this.unspecifiedPaymentLabel,
     this.ascending = false,
     this.timeZoneId = kSystemTimeZoneId,
+    this.includeSubcategories = false,
   });
 
   String unspecifiedLabelFor(TagKind kind) {

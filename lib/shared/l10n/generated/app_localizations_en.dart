@@ -1157,11 +1157,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chartByTagTrip => 'Trip tags';
 
   @override
-  String get chartByTagCustom => 'Custom tags';
+  String get chartByTagCustom => 'Category';
 
   @override
-  String get chartTagKindHint =>
-      'Each expense counts once within this tag kind; missing tags appear as not set';
+  String get chartTagKindHintCategories =>
+      'Each expense counts once within this tag kind; missing tags appear as not set. Showing parent categories only.';
+
+  @override
+  String get chartTagKindHintSubcategories =>
+      'Each expense counts once within this tag kind; missing tags appear as not set. Showing categories and subcategories.';
 
   @override
   String chartMissingRatesAlert(int count) {
@@ -1182,6 +1186,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chartTypeColumn => 'Column chart';
+
+  @override
+  String get chartTypeColumnByDate => 'Columns by date';
+
+  @override
+  String get chartTypeLine => 'Line chart';
+
+  @override
+  String get chartShowCategories => 'Categories';
+
+  @override
+  String get chartShowSubcategories => 'Subcategories';
+
+  @override
+  String get chartOtherSeries => 'Other';
+
+  @override
+  String get googleDriveSyncInProgress => 'Syncing…';
+
+  @override
+  String googleDriveSyncDoneWithCounts(int expensesAdded, int incomesAdded) {
+    return 'Sync completed: $expensesAdded expenses, $incomesAdded incomes added';
+  }
+
+  @override
+  String googleDriveSyncDoneWithDuplicates(
+    int expensesAdded,
+    int incomesAdded,
+    int skipped,
+  ) {
+    return 'Sync completed: $expensesAdded expenses, $incomesAdded incomes added, $skipped skipped as duplicates';
+  }
 
   @override
   String get chartHelpBody =>

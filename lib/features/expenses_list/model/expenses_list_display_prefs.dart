@@ -35,6 +35,8 @@ ExpenseChartBreakdown expensesChartDatePeriodFromSettings(AppSettings settings) 
   return expenseChartDatePeriodFromName(settings.expensesChartDatePeriod);
 }
 
+bool expensesShowSubcategoriesFromSettings(AppSettings settings) =>
+    settings.expensesShowSubcategories;
 
 /// Resolves the values to persist for expenses-list display settings.
 ({
@@ -93,6 +95,9 @@ ExpenseChartType incomeChartTypeFromSettings(AppSettings settings) {
 ExpenseChartBreakdown incomeChartDatePeriodFromSettings(AppSettings settings) {
   return expenseChartDatePeriodFromName(settings.incomeChartDatePeriod);
 }
+
+bool incomeShowSubcategoriesFromSettings(AppSettings settings) =>
+    settings.incomeShowSubcategories;
 
 /// Same shape as [expensesListDisplayPersistValues] for income prefs.
 ({

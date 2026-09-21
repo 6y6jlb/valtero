@@ -29,6 +29,28 @@ String googleDriveConnectionMessage(AppLocalizations l10n, String messageKey) {
   return connectionMessage(l10n, messageKey);
 }
 
+/// Success toast copy after sync when import counts are available.
+String googleDriveSyncSuccessMessage(
+  AppLocalizations l10n,
+  GoogleDriveSyncResult result,
+) {
+  final expensesAdded = result.expensesAdded;
+  final incomesAdded = result.incomesAdded;
+  final skipped =
+      result.expensesSkippedDuplicate + result.incomesSkippedDuplicate;
+  if (expensesAdded == 0 && incomesAdded == 0 && skipped == 0) {
+    return l10n.googleDriveSyncOk;
+  }
+  if (skipped > 0) {
+    return l10n.googleDriveSyncDoneWithDuplicates(
+      expensesAdded,
+      incomesAdded,
+      skipped,
+    );
+  }
+  return l10n.googleDriveSyncDoneWithCounts(expensesAdded, incomesAdded);
+}
+
 /// User-facing label for a [GoogleDriveSyncResult.messageKey].
 String googleDriveSyncResultMessage(
   AppLocalizations l10n,

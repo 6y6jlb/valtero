@@ -5,7 +5,7 @@ import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 enum ExpenseListViewMode { list, grouping, chart }
 
 /// Visual shape of the breakdown chart (donut vs columns).
-enum ExpenseChartType { donut, column }
+enum ExpenseChartType { donut, column, columnByDate, line }
 
 ExpenseChartType expenseChartTypeFromName(String? name) {
   return ExpenseChartType.values.firstWhere(

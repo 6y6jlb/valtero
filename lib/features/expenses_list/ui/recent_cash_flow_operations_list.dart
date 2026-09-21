@@ -16,6 +16,7 @@ import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/shared/utils/app_timezone.dart';
 import 'package:valtero/shared/utils/date_display.dart';
+import 'package:valtero/shared/utils/tag_label.dart';
 import 'package:valtero/widgets/money_text.dart';
 
 /// Recent operations list for the cash-flow direction: merges expenses and
@@ -26,6 +27,7 @@ class RecentCashFlowOperationsList extends ConsumerWidget {
   final Map<int, String> paymentLabels;
   final Map<int, List<int>> expenseTags;
   final Map<int, List<int>> incomeTags;
+  final Map<int, String> tagLabels;
 
   const RecentCashFlowOperationsList({
     super.key,
@@ -33,6 +35,7 @@ class RecentCashFlowOperationsList extends ConsumerWidget {
     required this.paymentLabels,
     this.expenseTags = const {},
     this.incomeTags = const {},
+    this.tagLabels = const {},
   });
 
   @override
@@ -102,13 +105,19 @@ class RecentCashFlowOperationsList extends ConsumerWidget {
           : expenseDup.isFlagged(op.id);
       final amountColor =
           isIncome ? theme.colorScheme.tertiary : theme.colorScheme.error;
-      final parts = <String>[
-        if (paymentLabel != null && paymentLabel.isNotEmpty) paymentLabel,
-        if (countryLabel != null && countryLabel.isNotEmpty) countryLabel,
-      ];
       final tagIds = isIncome
           ? (incomeTags[op.id] ?? const <int>[])
           : (expenseTags[op.id] ?? const <int>[]);
+      final tagsLabel = recentOperationTagsLabel(
+        tagIds: tagIds,
+        tagLabels: tagLabels,
+        tagParentIds: tagParentIds,
+      );
+      final parts = <String>[
+        if (paymentLabel != null && paymentLabel.isNotEmpty) paymentLabel,
+        if (countryLabel != null && countryLabel.isNotEmpty) countryLabel,
+        if (tagsLabel != null && tagsLabel.isNotEmpty) tagsLabel,
+      ];
       final tagIconKey = resolveOperationTagIconKey(
         tagIds: tagIds,
         iconKeyByTagId: tagIconKeys,

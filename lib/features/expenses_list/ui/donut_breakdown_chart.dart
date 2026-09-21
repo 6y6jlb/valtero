@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_layout.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
+import 'package:valtero/features/expenses_list/ui/chart_anim.dart';
+import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/money_text.dart';
 
@@ -13,8 +15,13 @@ const kDonutCenterSpaceRadius = 58.0;
 
 /// Shared donut: amounts on segments, legend chips toggle visibility,
 /// optional tap on a visible segment.
+///
+/// When [hiddenKeys] is provided (parent-owned legend), those keys drive
+/// visibility. Otherwise the widget keeps its own set when [showLegend] is on.
+/// Hidden slices keep a near-zero value so the pie can tween instead of jump.
 class DonutBreakdownChart extends ConsumerStatefulWidget {
   final List<DonutChartSlice> slices;
+  final Set<String>? hiddenKeys;
   final String displayCurrency;
   final ValueChanged<DonutChartSlice>? onSegmentTap;
   final bool showTotal;
@@ -28,6 +35,7 @@ class DonutBreakdownChart extends ConsumerStatefulWidget {
   const DonutBreakdownChart({
     super.key,
     required this.slices,
+    this.hiddenKeys,
     required this.displayCurrency,
     this.onSegmentTap,
     this.showTotal = true,
@@ -45,25 +53,28 @@ class DonutBreakdownChart extends ConsumerStatefulWidget {
 }
 
 class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
-  final Set<String> _hiddenKeys = {};
+  final Set<String> _localHiddenKeys = {};
+
+  Set<String> get _hiddenKeys => widget.hiddenKeys ?? _localHiddenKeys;
 
   @override
   void didUpdateWidget(covariant DonutBreakdownChart oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget.hiddenKeys != null) return;
     final nextKeys = {for (final s in widget.slices) s.key};
     final oldKeys = {for (final s in oldWidget.slices) s.key};
-    if (nextKeys.length != oldKeys.length ||
-        !nextKeys.containsAll(oldKeys)) {
-      _hiddenKeys.removeWhere((k) => !nextKeys.contains(k));
+    if (nextKeys.length != oldKeys.length || !nextKeys.containsAll(oldKeys)) {
+      _localHiddenKeys.removeWhere((k) => !nextKeys.contains(k));
     }
   }
 
   void _toggle(String key) {
+    if (widget.hiddenKeys != null) return;
     setState(() {
-      if (_hiddenKeys.contains(key)) {
-        _hiddenKeys.remove(key);
+      if (_localHiddenKeys.contains(key)) {
+        _localHiddenKeys.remove(key);
       } else {
-        _hiddenKeys.add(key);
+        _localHiddenKeys.add(key);
       }
     });
   }
@@ -82,16 +93,28 @@ class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
       );
     }
 
-    final visible =
-        all.where((s) => !_hiddenKeys.contains(s.key)).toList(growable: false);
+    final hidden = _hiddenKeys;
+    final visible = all
+        .where((s) => !hidden.contains(s.key))
+        .toList(growable: false);
     final total = visible.fold<int>(0, (sum, s) => sum + s.amountMinor);
+
+    // Stable section count matching [all] so hide/show can tween values.
+    // Hidden keep a near-zero raw value and are excluded from the min-sweep
+    // floor so they do not leave a blank arc in the ring.
+    final hiddenFlags = [for (final slice in all) hidden.contains(slice.key)];
     final rawValues = [
-      for (final slice in visible)
-        slice.amountMinor.toDouble().abs() == 0
-            ? 1.0
-            : slice.amountMinor.toDouble().abs(),
+      for (var i = 0; i < all.length; i++)
+        hiddenFlags[i]
+            ? 0.0001
+            : (all[i].amountMinor.toDouble().abs() == 0
+                  ? 1.0
+                  : all[i].amountMinor.toDouble().abs()),
     ];
-    final sectionValues = computeDonutSectionValues(rawValues);
+    final sectionValues = computeDonutSectionValues(
+      rawValues,
+      hidden: hiddenFlags,
+    );
 
     return Column(
       children: [
@@ -99,60 +122,70 @@ class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
           height: widget.chartHeight,
           child: visible.isEmpty
               ? Center(child: Text(l10n.noMatchingExpenses))
-              : PieChart(
-                  PieChartData(
-                    sectionsSpace: 2,
-                    centerSpaceRadius: kDonutCenterSpaceRadius,
-                    pieTouchData: PieTouchData(
-                      touchCallback: (event, response) {
-                        if (widget.onSegmentTap == null) return;
-                        if (event is! FlTapUpEvent) return;
-                        final index =
-                            response?.touchedSection?.touchedSectionIndex;
-                        if (index == null ||
-                            index < 0 ||
-                            index >= visible.length) {
-                          return;
-                        }
-                        widget.onSegmentTap!(visible[index]);
-                      },
-                      mouseCursorResolver: (event, response) {
-                        if (widget.onSegmentTap == null) {
+              : Padding(
+                  // Keep the ring below ChartOverlayControls (top-right).
+                  padding: const EdgeInsets.only(top: kChartOverlayTopInset),
+                  child: PieChart(
+                    PieChartData(
+                      sectionsSpace: 2,
+                      centerSpaceRadius: kDonutCenterSpaceRadius,
+                      pieTouchData: PieTouchData(
+                        touchCallback: (event, response) {
+                          if (widget.onSegmentTap == null) return;
+                          if (event is! FlTapUpEvent) return;
+                          final index =
+                              response?.touchedSection?.touchedSectionIndex;
+                          if (index == null ||
+                              index < 0 ||
+                              index >= all.length) {
+                            return;
+                          }
+                          if (hidden.contains(all[index].key)) return;
+                          widget.onSegmentTap!(all[index]);
+                        },
+                        mouseCursorResolver: (event, response) {
+                          if (widget.onSegmentTap == null) {
+                            return SystemMouseCursors.basic;
+                          }
+                          final index =
+                              response?.touchedSection?.touchedSectionIndex;
+                          if (index != null &&
+                              index >= 0 &&
+                              index < all.length &&
+                              !hidden.contains(all[index].key)) {
+                            return SystemMouseCursors.click;
+                          }
                           return SystemMouseCursors.basic;
-                        }
-                        final index =
-                            response?.touchedSection?.touchedSectionIndex;
-                        if (index != null &&
-                            index >= 0 &&
-                            index < visible.length) {
-                          return SystemMouseCursors.click;
-                        }
-                        return SystemMouseCursors.basic;
-                      },
+                        },
+                      ),
+                      sections: [
+                        for (var i = 0; i < all.length; i++)
+                          () {
+                            final slice = all[i];
+                            final isHidden = hidden.contains(slice.key);
+                            return PieChartSectionData(
+                              value: sectionValues[i],
+                              title: isHidden
+                                  ? ''
+                                  : (widget.hideSegmentAmounts
+                                        ? slice.label
+                                        : '${slice.label}\n${formatMoneyOf(context, ref, amountMinor: slice.amountMinor, currencyCode: slice.currencyCode ?? widget.displayCurrency)}'),
+                              color: isHidden
+                                  ? slice.color.withValues(alpha: 0)
+                                  : slice.color,
+                              radius: isHidden ? 0 : widget.sectionRadius,
+                              titleStyle: const TextStyle(
+                                fontSize: 9,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                height: 1.15,
+                              ),
+                            );
+                          }(),
+                      ],
                     ),
-                    sections: [
-                      for (var i = 0; i < visible.length; i++)
-                        PieChartSectionData(
-                          value: sectionValues[i],
-                          title: widget.hideSegmentAmounts
-                              ? visible[i].label
-                              : '${visible[i].label}\n${formatMoneyOf(
-                                  context,
-                                  ref,
-                                  amountMinor: visible[i].amountMinor,
-                                  currencyCode: visible[i].currencyCode ??
-                                      widget.displayCurrency,
-                                )}',
-                          color: visible[i].color,
-                          radius: widget.sectionRadius,
-                          titleStyle: const TextStyle(
-                            fontSize: 9,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            height: 1.15,
-                          ),
-                        ),
-                    ],
+                    duration: kChartAnimDuration,
+                    curve: kChartAnimCurve,
                   ),
                 ),
         ),
@@ -167,7 +200,7 @@ class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
                 _LegendChip(
                   label: slice.label,
                   color: slice.color,
-                  visible: !_hiddenKeys.contains(slice.key),
+                  visible: !hidden.contains(slice.key),
                   onTap: () => _toggle(slice.key),
                 ),
             ],

@@ -38,5 +38,29 @@ void main() {
       expect(values[0], 99);
       expect(values[1], closeTo(minValue, 1e-9));
     });
+
+    test('does not floor hidden near-zero slices (no blank arc)', () {
+      final values = computeDonutSectionValues(
+        const [96, 0.0001, 4],
+        minSweepDegrees: 14,
+        hidden: const [false, true, false],
+      );
+      expect(values[0], 96);
+      expect(values[1], 0.0001);
+      expect(values[2], 4);
+    });
+
+    test('min floor uses visible total only when some are hidden', () {
+      // Visible total 100; hidden 50 must not inflate the floor base.
+      final values = computeDonutSectionValues(
+        const [99, 50, 1],
+        minSweepDegrees: 14,
+        hidden: const [false, true, false],
+      );
+      final minValue = 100 * 14 / 360;
+      expect(values[0], 99);
+      expect(values[1], 50);
+      expect(values[2], closeTo(minValue, 1e-9));
+    });
   });
 }

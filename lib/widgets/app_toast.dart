@@ -3,18 +3,28 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 OverlayEntry? _activeToast;
+Timer? _activeToastTimer;
+
+enum AppToastVariant { plain, loading, success }
 
 /// Top toast that auto-dismisses and can be closed manually.
 ///
 /// Duration scales with message length so long sync/error copy stays readable.
 /// Uses a fixed corner radius (not a stadium) so multi-line text does not clip.
-void showAppToast(BuildContext context, String message) {
+void showAppToast(
+  BuildContext context,
+  String message, {
+  AppToastVariant variant = AppToastVariant.plain,
+  bool persistent = false,
+}) {
   final overlay = Overlay.maybeOf(context);
   if (overlay == null) return;
   showAppToastOn(
     overlay: overlay,
     theme: Theme.of(context),
     message: message,
+    variant: variant,
+    persistent: persistent,
   );
 }
 
@@ -23,15 +33,21 @@ void showAppToastOn({
   required OverlayState overlay,
   required ThemeData theme,
   required String message,
+  AppToastVariant variant = AppToastVariant.plain,
+  bool persistent = false,
 }) {
+  _activeToastTimer?.cancel();
+  _activeToastTimer = null;
   _activeToast?.remove();
   _activeToast = null;
 
   final scheme = theme.colorScheme;
   // Short labels ~2s; long schema/sync errors need more reading time.
-  final dismissAfter = Duration(
-    milliseconds: (2000 + message.length * 35).clamp(2000, 8000),
-  );
+  final dismissAfter = persistent
+      ? null
+      : Duration(
+          milliseconds: (2000 + message.length * 35).clamp(2000, 8000),
+        );
   late OverlayEntry entry;
   entry = OverlayEntry(
     builder: (context) {
@@ -60,6 +76,27 @@ void showAppToastOn({
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (variant == AppToastVariant.loading)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10, right: 10),
+                          child: SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: scheme.primary,
+                            ),
+                          ),
+                        )
+                      else if (variant == AppToastVariant.success)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8, right: 8),
+                          child: Icon(
+                            Icons.check_circle,
+                            size: 20,
+                            color: scheme.primary,
+                          ),
+                        ),
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.only(top: 8, right: 4),
@@ -98,15 +135,15 @@ void showAppToastOn({
 
   _activeToast = entry;
   overlay.insert(entry);
-  unawaited(
-    Future<void>.delayed(dismissAfter, () {
-      _dismissToast(entry);
-    }),
-  );
+  if (dismissAfter != null) {
+    _activeToastTimer = Timer(dismissAfter, () => _dismissToast(entry));
+  }
 }
 
 void _dismissToast(OverlayEntry entry) {
   if (_activeToast != entry) return;
+  _activeToastTimer?.cancel();
+  _activeToastTimer = null;
   entry.remove();
   _activeToast = null;
 }

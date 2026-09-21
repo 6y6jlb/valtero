@@ -615,8 +615,9 @@
   "chartByTagCountry": "Country tags",
   "chartByPayment": "Payment method",
   "chartByTagTrip": "Trip tags",
-  "chartByTagCustom": "Custom tags",
-  "chartTagKindHint": "Each expense counts once within this tag kind; missing tags appear as not set",
+  "chartByTagCustom": "Category",
+  "chartTagKindHintCategories": "Each expense counts once within this tag kind; missing tags appear as not set. Showing parent categories only.",
+  "chartTagKindHintSubcategories": "Each expense counts once within this tag kind; missing tags appear as not set. Showing categories and subcategories.",
   "chartMissingRatesAlert": "{count, plural, one{1 expense shown without a conversion rate} other{{count} expenses shown without conversion rates}}",
   "@chartMissingRatesAlert": {
     "placeholders": {
@@ -628,6 +629,27 @@
   "chartHelpTitle": "About the chart",
   "chartTypeDonut": "Donut chart",
   "chartTypeColumn": "Column chart",
+  "chartTypeColumnByDate": "Columns by date",
+  "chartTypeLine": "Line chart",
+  "chartShowCategories": "Categories",
+  "chartShowSubcategories": "Subcategories",
+  "chartOtherSeries": "Other",
+  "googleDriveSyncInProgress": "Syncing…",
+  "googleDriveSyncDoneWithCounts": "Sync completed: {expensesAdded} expenses, {incomesAdded} incomes added",
+  "@googleDriveSyncDoneWithCounts": {
+    "placeholders": {
+      "expensesAdded": { "type": "int" },
+      "incomesAdded": { "type": "int" }
+    }
+  },
+  "googleDriveSyncDoneWithDuplicates": "Sync completed: {expensesAdded} expenses, {incomesAdded} incomes added, {skipped} skipped as duplicates",
+  "@googleDriveSyncDoneWithDuplicates": {
+    "placeholders": {
+      "expensesAdded": { "type": "int" },
+      "incomesAdded": { "type": "int" },
+      "skipped": { "type": "int" }
+    }
+  },
   "chartHelpBody": "The chart includes expenses in all currencies. When an exchange rate is missing, amounts are shown in their original currency. Totals may mix currencies until rates are set.",
   "expensesSummaryHelpTitle": "About expenses summary",
   "expensesSummaryHelpBody": "Totals are grouped by stored currency. Use the convert button to display list amounts in one currency; the converted total shows how many expenses could be converted.",

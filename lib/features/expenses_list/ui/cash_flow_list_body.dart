@@ -484,6 +484,13 @@ class _CashFlowListBodyState extends ConsumerState<CashFlowListBody> {
                                       ),
                                     ),
                                 paymentLabels: paymentLabels,
+                                expenseTags: expenseTags,
+                                incomeTags: incomeTags,
+                                tagLabels: tagLabels,
+                                tagParentIds: {
+                                  for (final t in tags) t.id: t.parentTagId,
+                                },
+                                untaggedLabel: l10n.untagged,
                                 displayCurrency: displayCurrency,
                                 convertedMinor: (op) => cashFlowConvertedMinor(
                                   op,

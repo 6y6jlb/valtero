@@ -206,6 +206,17 @@ String formatTagLabelsCombined(
   return parts.join(', ');
 }
 
+/// Subtitle tag text for a recent expense/income/cash-flow row.
+String? recentOperationTagsLabel({
+  required List<int> tagIds,
+  required Map<int, String> tagLabels,
+  Map<int, int?> tagParentIds = const {},
+}) {
+  if (tagIds.isEmpty) return null;
+  final combined = formatTagLabelsCombined(tagIds, tagLabels, tagParentIds);
+  return combined.isEmpty ? null : combined;
+}
+
 /// Orders tag ids so each parent appears before its selected children.
 List<int> orderTagIdsParentFirst(
   List<int> tagIds,

@@ -1164,11 +1164,15 @@ class AppLocalizationsSr extends AppLocalizations {
   String get chartByTagTrip => 'Oznake putovanja';
 
   @override
-  String get chartByTagCustom => 'Prilagođene oznake';
+  String get chartByTagCustom => 'Kategorija';
 
   @override
-  String get chartTagKindHint =>
-      'Svaki trošak se računa jednom unutar ove vrste oznake; nedostajuće oznake se prikazuju kao nije postavljeno';
+  String get chartTagKindHintCategories =>
+      'Svaki trošak se računa jednom unutar ove vrste oznake; nedostajuće oznake se prikazuju kao nije postavljeno. Prikazuju se samo nadkategorije.';
+
+  @override
+  String get chartTagKindHintSubcategories =>
+      'Svaki trošak se računa jednom unutar ove vrste oznake; nedostajuće oznake se prikazuju kao nije postavljeno. Prikazuju se kategorije i potkategorije.';
 
   @override
   String chartMissingRatesAlert(int count) {
@@ -1190,6 +1194,38 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get chartTypeColumn => 'Stubičasti grafikon';
+
+  @override
+  String get chartTypeColumnByDate => 'Stubci po datumu';
+
+  @override
+  String get chartTypeLine => 'Linijski grafikon';
+
+  @override
+  String get chartShowCategories => 'Kategorije';
+
+  @override
+  String get chartShowSubcategories => 'Potkategorije';
+
+  @override
+  String get chartOtherSeries => 'Ostalo';
+
+  @override
+  String get googleDriveSyncInProgress => 'Sinhronizacija…';
+
+  @override
+  String googleDriveSyncDoneWithCounts(int expensesAdded, int incomesAdded) {
+    return 'Sinhronizacija završena: dodato $expensesAdded troškova, $incomesAdded prihoda';
+  }
+
+  @override
+  String googleDriveSyncDoneWithDuplicates(
+    int expensesAdded,
+    int incomesAdded,
+    int skipped,
+  ) {
+    return 'Sinhronizacija završena: dodato $expensesAdded troškova, $incomesAdded prihoda, $skipped preskočeno kao duplikati';
+  }
 
   @override
   String get chartHelpBody =>

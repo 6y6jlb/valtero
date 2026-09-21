@@ -2161,14 +2161,20 @@ abstract class AppLocalizations {
   /// No description provided for @chartByTagCustom.
   ///
   /// In en, this message translates to:
-  /// **'Custom tags'**
+  /// **'Category'**
   String get chartByTagCustom;
 
-  /// No description provided for @chartTagKindHint.
+  /// No description provided for @chartTagKindHintCategories.
   ///
   /// In en, this message translates to:
-  /// **'Each expense counts once within this tag kind; missing tags appear as not set'**
-  String get chartTagKindHint;
+  /// **'Each expense counts once within this tag kind; missing tags appear as not set. Showing parent categories only.'**
+  String get chartTagKindHintCategories;
+
+  /// No description provided for @chartTagKindHintSubcategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Each expense counts once within this tag kind; missing tags appear as not set. Showing categories and subcategories.'**
+  String get chartTagKindHintSubcategories;
 
   /// No description provided for @chartMissingRatesAlert.
   ///
@@ -2193,6 +2199,58 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Column chart'**
   String get chartTypeColumn;
+
+  /// No description provided for @chartTypeColumnByDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Columns by date'**
+  String get chartTypeColumnByDate;
+
+  /// No description provided for @chartTypeLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Line chart'**
+  String get chartTypeLine;
+
+  /// No description provided for @chartShowCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get chartShowCategories;
+
+  /// No description provided for @chartShowSubcategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Subcategories'**
+  String get chartShowSubcategories;
+
+  /// No description provided for @chartOtherSeries.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get chartOtherSeries;
+
+  /// No description provided for @googleDriveSyncInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing…'**
+  String get googleDriveSyncInProgress;
+
+  /// No description provided for @googleDriveSyncDoneWithCounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync completed: {expensesAdded} expenses, {incomesAdded} incomes added'**
+  String googleDriveSyncDoneWithCounts(int expensesAdded, int incomesAdded);
+
+  /// No description provided for @googleDriveSyncDoneWithDuplicates.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync completed: {expensesAdded} expenses, {incomesAdded} incomes added, {skipped} skipped as duplicates'**
+  String googleDriveSyncDoneWithDuplicates(
+    int expensesAdded,
+    int incomesAdded,
+    int skipped,
+  );
 
   /// No description provided for @chartHelpBody.
   ///

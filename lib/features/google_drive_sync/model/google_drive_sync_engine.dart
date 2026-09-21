@@ -10,6 +10,7 @@ import 'package:valtero/entities/integrations/google_drive_sync/model/google_oau
 import 'package:valtero/entities/integrations/model/integration_registry.dart';
 import 'package:valtero/features/data_sync/model/backup_crypto.dart';
 import 'package:valtero/features/data_sync/model/backup_format.dart';
+import 'package:valtero/features/data_sync/model/backup_importer.dart';
 import 'package:valtero/features/data_sync/model/data_sync_controller.dart';
 import 'package:valtero/shared/database/database_provider.dart';
 import 'package:valtero/shared/database/schema_version.dart';
@@ -36,6 +37,7 @@ class GoogleDriveSyncState {
   final int? remoteSchemaVersion;
   final String? remoteAppVersion;
   final int? localSchemaVersion;
+  final GoogleDriveSyncResult? lastResult;
 
   const GoogleDriveSyncState({
     this.status = GoogleDriveSyncStatus.idle,
@@ -44,6 +46,7 @@ class GoogleDriveSyncState {
     this.remoteSchemaVersion,
     this.remoteAppVersion,
     this.localSchemaVersion,
+    this.lastResult,
   });
 
   GoogleDriveSyncState copyWith({
@@ -55,6 +58,8 @@ class GoogleDriveSyncState {
     String? remoteAppVersion,
     int? localSchemaVersion,
     bool clearVersionInfo = false,
+    GoogleDriveSyncResult? lastResult,
+    bool clearLastResult = false,
   }) {
     return GoogleDriveSyncState(
       status: status ?? this.status,
@@ -69,8 +74,29 @@ class GoogleDriveSyncState {
       localSchemaVersion: clearVersionInfo
           ? null
           : (localSchemaVersion ?? this.localSchemaVersion),
+      lastResult: clearLastResult ? null : (lastResult ?? this.lastResult),
     );
   }
+}
+
+const _kEmptyImportReport = ImportReport(
+  expensesAdded: 0,
+  tagsAdded: 0,
+  paymentsAdded: 0,
+);
+
+ImportReport _mergeImportReports(ImportReport a, ImportReport b) {
+  return ImportReport(
+    expensesAdded: a.expensesAdded + b.expensesAdded,
+    tagsAdded: a.tagsAdded + b.tagsAdded,
+    paymentsAdded: a.paymentsAdded + b.paymentsAdded,
+    expensesSkippedDuplicate:
+        a.expensesSkippedDuplicate + b.expensesSkippedDuplicate,
+    incomesAdded: a.incomesAdded + b.incomesAdded,
+    incomesSkippedDuplicate:
+        a.incomesSkippedDuplicate + b.incomesSkippedDuplicate,
+    settingsApplied: a.settingsApplied || b.settingsApplied,
+  );
 }
 
 /// Pull-merge-push sync over Google Drive using the encrypted backup format.
@@ -101,6 +127,7 @@ class GoogleDriveSyncEngine {
       final passphrase = settings.googleDriveSyncPassphrase;
       final isJoined =
           settings.googleDriveSyncRole == kGoogleDriveSyncRoleJoined;
+      var importTotals = _kEmptyImportReport;
 
       _logDebug(
         'GDrive sync start role=${isJoined ? 'joined' : 'owner'} '
@@ -117,7 +144,7 @@ class GoogleDriveSyncEngine {
         if (sharedId.isEmpty) {
           return const GoogleDriveSyncResult.fail('not_configured');
         }
-        final now = await _syncAgainstFile(
+        final syncResult = await _syncAgainstFile(
           drive: drive,
           accessToken: accessToken,
           settings: settings,
@@ -127,7 +154,14 @@ class GoogleDriveSyncEngine {
           pushOnly: pushOnly,
           applySettings: applySettings,
         );
-        return GoogleDriveSyncResult.ok(syncedAt: now);
+        importTotals = _mergeImportReports(importTotals, syncResult.import);
+        return GoogleDriveSyncResult.ok(
+          syncedAt: syncResult.syncedAt,
+          expensesAdded: importTotals.expensesAdded,
+          incomesAdded: importTotals.incomesAdded,
+          expensesSkippedDuplicate: importTotals.expensesSkippedDuplicate,
+          incomesSkippedDuplicate: importTotals.incomesSkippedDuplicate,
+        );
       }
 
       // Owner: personal appDataFolder first.
@@ -139,7 +173,7 @@ class GoogleDriveSyncEngine {
               ? null
               : settings.googleDriveAppDataFileId.trim());
 
-      final now = await _syncAgainstFile(
+      final personalResult = await _syncAgainstFile(
         drive: drive,
         accessToken: accessToken,
         settings: settings,
@@ -151,6 +185,7 @@ class GoogleDriveSyncEngine {
         applySettings: applySettings,
         createInAppDataIfMissing: true,
       );
+      importTotals = _mergeImportReports(importTotals, personalResult.import);
 
       // Then pull-merge-push the shared file when configured (two-way).
       final sharedId = (ref.read(appSettingsProvider).value ?? settings)
@@ -167,7 +202,7 @@ class GoogleDriveSyncEngine {
             fileId: sharedId,
             allowInteractiveReauth: allowInteractiveReauth,
           );
-          await _syncAgainstFile(
+          final sharedResult = await _syncAgainstFile(
             drive: drive,
             accessToken: accessToken,
             settings: fresh,
@@ -178,6 +213,8 @@ class GoogleDriveSyncEngine {
             applySettings: false,
             createInAppDataIfMissing: false,
           );
+          importTotals =
+              _mergeImportReports(importTotals, sharedResult.import);
         } on GoogleDriveException catch (e, st) {
           _logError(
             'GDrive shared sync failed code=${e.code} fileId=$sharedId',
@@ -209,7 +246,13 @@ class GoogleDriveSyncEngine {
         }
       }
 
-      return GoogleDriveSyncResult.ok(syncedAt: now);
+      return GoogleDriveSyncResult.ok(
+        syncedAt: personalResult.syncedAt,
+        expensesAdded: importTotals.expensesAdded,
+        incomesAdded: importTotals.incomesAdded,
+        expensesSkippedDuplicate: importTotals.expensesSkippedDuplicate,
+        incomesSkippedDuplicate: importTotals.incomesSkippedDuplicate,
+      );
     } on BackupWrongPassphraseException {
       return const GoogleDriveSyncResult.fail('wrong_passphrase');
     } on BackupNewerSchemaException catch (e) {
@@ -242,7 +285,7 @@ class GoogleDriveSyncEngine {
   }
 
   /// Pull (when needed) → merge → push encrypted snapshot for one Drive file.
-  Future<DateTime> _syncAgainstFile({
+  Future<({DateTime syncedAt, ImportReport import})> _syncAgainstFile({
     required GoogleDriveRestClient drive,
     required String accessToken,
     required AppSettings settings,
@@ -260,6 +303,7 @@ class GoogleDriveSyncEngine {
     final lastSyncedAt = storeAsAppDataFileId
         ? settings.googleDriveLastSyncedAt
         : settings.googleDriveSharedLastSyncedAt;
+    var importDelta = _kEmptyImportReport;
 
     if (!pushOnly && resolvedId != null) {
       GoogleDriveFileMeta? meta = remoteMeta;
@@ -356,6 +400,7 @@ class GoogleDriveSyncEngine {
                     .read(appSettingsProvider.notifier)
                     .updateSettings(updated),
               );
+          importDelta = _mergeImportReports(importDelta, report);
           _logDebug(
             'GDrive import done target=$target '
             'expensesAdded=${report.expensesAdded} '
@@ -438,7 +483,7 @@ class GoogleDriveSyncEngine {
       'remoteModified=${uploaded.modifiedTime?.toUtc().toIso8601String()} '
       'size=${uploaded.size}',
     );
-    return now;
+    return (syncedAt: now, import: importDelta);
   }
 
   /// Signs in, stores refresh token + passphrase, optionally does first sync.
@@ -1022,6 +1067,10 @@ class GoogleDriveSyncResult {
   final int? remoteSchemaVersion;
   final String? remoteAppVersion;
   final int? localSchemaVersion;
+  final int expensesAdded;
+  final int incomesAdded;
+  final int expensesSkippedDuplicate;
+  final int incomesSkippedDuplicate;
 
   const GoogleDriveSyncResult({
     required this.success,
@@ -1030,10 +1079,20 @@ class GoogleDriveSyncResult {
     this.remoteSchemaVersion,
     this.remoteAppVersion,
     this.localSchemaVersion,
+    this.expensesAdded = 0,
+    this.incomesAdded = 0,
+    this.expensesSkippedDuplicate = 0,
+    this.incomesSkippedDuplicate = 0,
   });
 
-  const GoogleDriveSyncResult.ok({this.messageKey = 'syncOk', this.syncedAt})
-      : success = true,
+  const GoogleDriveSyncResult.ok({
+    this.messageKey = 'syncOk',
+    this.syncedAt,
+    this.expensesAdded = 0,
+    this.incomesAdded = 0,
+    this.expensesSkippedDuplicate = 0,
+    this.incomesSkippedDuplicate = 0,
+  })  : success = true,
         remoteSchemaVersion = null,
         remoteAppVersion = null,
         localSchemaVersion = null;
@@ -1044,7 +1103,11 @@ class GoogleDriveSyncResult {
     this.remoteAppVersion,
     this.localSchemaVersion,
   })  : success = false,
-        syncedAt = null;
+        syncedAt = null,
+        expensesAdded = 0,
+        incomesAdded = 0,
+        expensesSkippedDuplicate = 0,
+        incomesSkippedDuplicate = 0;
 }
 
 final googleDriveSyncEngineProvider = Provider<GoogleDriveSyncEngine>((ref) {
@@ -1070,15 +1133,70 @@ class GoogleDriveSyncController extends Notifier<GoogleDriveSyncState> {
     bool pushOnly = false,
     bool allowInteractiveReauth = true,
   }) async {
+    if (state.status == GoogleDriveSyncStatus.syncing) {
+      return state.lastResult ??
+          const GoogleDriveSyncResult.fail('sync_in_progress');
+    }
     state = state.copyWith(
       status: GoogleDriveSyncStatus.syncing,
       clearMessage: true,
       clearVersionInfo: true,
+      clearLastResult: true,
     );
     final result = await ref.read(googleDriveSyncEngineProvider).syncNow(
           pushOnly: pushOnly,
           allowInteractiveReauth: allowInteractiveReauth,
         );
+    _applyResult(result);
+    return result;
+  }
+
+  Future<GoogleDriveSyncResult> connectAndSync({
+    required String passphrase,
+    required bool includeFileScope,
+  }) async {
+    if (state.status == GoogleDriveSyncStatus.syncing) {
+      return state.lastResult ??
+          const GoogleDriveSyncResult.fail('sync_in_progress');
+    }
+    state = state.copyWith(
+      status: GoogleDriveSyncStatus.syncing,
+      clearMessage: true,
+      clearVersionInfo: true,
+      clearLastResult: true,
+    );
+    final result =
+        await ref.read(googleDriveSyncEngineProvider).connectAndSync(
+              passphrase: passphrase,
+              includeFileScope: includeFileScope,
+            );
+    _applyResult(result);
+    return result;
+  }
+
+  Future<GoogleDriveSyncResult> joinSharedSync({
+    required String fileId,
+    required String passphrase,
+  }) async {
+    if (state.status == GoogleDriveSyncStatus.syncing) {
+      return state.lastResult ??
+          const GoogleDriveSyncResult.fail('sync_in_progress');
+    }
+    state = state.copyWith(
+      status: GoogleDriveSyncStatus.syncing,
+      clearMessage: true,
+      clearVersionInfo: true,
+      clearLastResult: true,
+    );
+    final result = await ref.read(googleDriveSyncEngineProvider).joinSharedSync(
+          fileId: fileId,
+          passphrase: passphrase,
+        );
+    _applyResult(result);
+    return result;
+  }
+
+  void _applyResult(GoogleDriveSyncResult result) {
     state = state.copyWith(
       status: result.success
           ? GoogleDriveSyncStatus.success
@@ -1090,8 +1208,8 @@ class GoogleDriveSyncController extends Notifier<GoogleDriveSyncState> {
       remoteSchemaVersion: result.remoteSchemaVersion,
       remoteAppVersion: result.remoteAppVersion,
       localSchemaVersion: result.localSchemaVersion,
+      lastResult: result,
     );
-    return result;
   }
 }
 

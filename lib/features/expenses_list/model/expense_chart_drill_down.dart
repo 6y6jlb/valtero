@@ -1,5 +1,6 @@
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
+import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 
 /// Narrow [base] filters to the chart segment identified by [sliceKey].
 ExpenseListQuery? expenseChartDrillDownQuery({
@@ -73,4 +74,14 @@ bool expenseChartBreakdownUsesPayment(ExpenseChartBreakdown breakdown) {
 
 bool expenseChartBreakdownUsesCountry(ExpenseChartBreakdown breakdown) {
   return breakdown == ExpenseChartBreakdown.country;
+}
+
+/// Hint under the category chart: categories-only vs categories+subcategories.
+String chartTagKindHintText(
+  AppLocalizations l10n, {
+  required bool showSubcategories,
+}) {
+  return showSubcategories
+      ? l10n.chartTagKindHintSubcategories
+      : l10n.chartTagKindHintCategories;
 }

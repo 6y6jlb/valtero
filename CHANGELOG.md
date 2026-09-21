@@ -8,6 +8,28 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.9] - 2026-09-21
+
+### Added
+
+- Line and stacked-by-date column charts for expenses/income (fourth chart shape
+  alongside donut and classic columns); cash flow gains a line chart (income /
+  expense / net).
+- Categories vs Subcategories toggle on category charts and list grouping
+  (persisted per direction).
+- Google Drive sync: persistent “Syncing…” toast with spinner, then a success
+  toast with added expense/income counts (and skipped duplicates when any).
+
+### Changed
+
+- Cash-flow recent rows and the cash-flow list table show category tags like
+  expenses/income.
+- Chart-type and breakdown toggle icons keep a fixed size so switching views no
+  longer janks the layout on mobile.
+- Chart hover details float over the plot (sum-badge corner) instead of pushing
+  layout; plot content sits below overlay actions; hidden donut slices no longer
+  leave a blank arc.
+
 ## [1.1.8] - 2026-09-16
 
 ### Added

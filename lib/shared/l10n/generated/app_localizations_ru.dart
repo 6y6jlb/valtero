@@ -1163,11 +1163,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get chartByTagTrip => 'Поездки';
 
   @override
-  String get chartByTagCustom => 'Свои теги';
+  String get chartByTagCustom => 'Категория';
 
   @override
-  String get chartTagKindHint =>
-      'Каждая трата учитывается один раз внутри выбранного типа; без тега попадает в «не указано»';
+  String get chartTagKindHintCategories =>
+      'Каждая трата учитывается один раз внутри выбранного типа; без тега попадает в «не указано». Отображаются только категории.';
+
+  @override
+  String get chartTagKindHintSubcategories =>
+      'Каждая трата учитывается один раз внутри выбранного типа; без тега попадает в «не указано». Отображаются категории и подкатегории.';
 
   @override
   String chartMissingRatesAlert(int count) {
@@ -1190,6 +1194,38 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get chartTypeColumn => 'Столбчатая диаграмма';
+
+  @override
+  String get chartTypeColumnByDate => 'Столбцы по дате';
+
+  @override
+  String get chartTypeLine => 'Линейный график';
+
+  @override
+  String get chartShowCategories => 'Категории';
+
+  @override
+  String get chartShowSubcategories => 'Подкатегории';
+
+  @override
+  String get chartOtherSeries => 'Другое';
+
+  @override
+  String get googleDriveSyncInProgress => 'Синхронизация…';
+
+  @override
+  String googleDriveSyncDoneWithCounts(int expensesAdded, int incomesAdded) {
+    return 'Синхронизация завершена: добавлено расходов — $expensesAdded, доходов — $incomesAdded';
+  }
+
+  @override
+  String googleDriveSyncDoneWithDuplicates(
+    int expensesAdded,
+    int incomesAdded,
+    int skipped,
+  ) {
+    return 'Синхронизация завершена: добавлено расходов — $expensesAdded, доходов — $incomesAdded, пропущено дубликатов — $skipped';
+  }
 
   @override
   String get chartHelpBody =>

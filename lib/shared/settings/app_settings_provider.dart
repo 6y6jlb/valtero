@@ -254,6 +254,18 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     ));
   }
 
+  Future<void> setExpensesShowSubcategories(bool enabled) async {
+    final current = state.value;
+    if (current == null) return;
+    await _save(current.copyWith(expensesShowSubcategories: enabled));
+  }
+
+  Future<void> setIncomeShowSubcategories(bool enabled) async {
+    final current = state.value;
+    if (current == null) return;
+    await _save(current.copyWith(incomeShowSubcategories: enabled));
+  }
+
   Future<void> setCashFlowListDisplay({
     String? view,
     String? group,

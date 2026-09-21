@@ -2,14 +2,22 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
+import 'package:valtero/features/expenses_list/ui/chart_anim.dart';
+import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
+import 'package:valtero/features/expenses_list/ui/chart_selection_panel.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/money_text.dart';
 
 /// Vertical column chart for the same [DonutChartSlice] breakdown data.
+///
+/// Pass every slice plus [hiddenKeys]. Hidden bars animate to zero height.
+/// Hover details go to [onSelectionChanged] (rendered under the plot).
 class ColumnBreakdownChart extends ConsumerWidget {
   final List<DonutChartSlice> slices;
+  final Set<String> hiddenKeys;
   final String displayCurrency;
   final ValueChanged<DonutChartSlice>? onSegmentTap;
+  final ValueChanged<ChartSelectionDetail?>? onSelectionChanged;
   final bool hideSegmentAmounts;
   final double chartHeight;
   final String? emptyMessage;
@@ -17,8 +25,10 @@ class ColumnBreakdownChart extends ConsumerWidget {
   const ColumnBreakdownChart({
     super.key,
     required this.slices,
+    this.hiddenKeys = const {},
     required this.displayCurrency,
     this.onSegmentTap,
+    this.onSelectionChanged,
     this.hideSegmentAmounts = false,
     this.chartHeight = 312,
     this.emptyMessage,
@@ -36,6 +46,7 @@ class ColumnBreakdownChart extends ConsumerWidget {
     }
 
     final maxY = slices
+        .where((s) => !hiddenKeys.contains(s.key))
         .map((s) => s.amountMinor.toDouble().abs())
         .fold<double>(0, (a, b) => a > b ? a : b);
     final barWidth = (28.0 - slices.length * 1.2).clamp(6.0, 22.0);
@@ -44,7 +55,7 @@ class ColumnBreakdownChart extends ConsumerWidget {
     return SizedBox(
       height: chartHeight,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(4, 8, 12, 4),
+        padding: const EdgeInsets.fromLTRB(4, kChartOverlayTopInset, 12, 4),
         child: BarChart(
           BarChartData(
             alignment: BarChartAlignment.spaceAround,
@@ -53,44 +64,54 @@ class ColumnBreakdownChart extends ConsumerWidget {
             barTouchData: BarTouchData(
               enabled: true,
               touchTooltipData: BarTouchTooltipData(
-                getTooltipColor: (_) =>
-                    theme.colorScheme.inverseSurface.withValues(alpha: 0.92),
-                getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                  if (groupIndex < 0 || groupIndex >= slices.length) {
-                    return null;
-                  }
-                  final slice = slices[groupIndex];
-                  final amount = hideSegmentAmounts
-                      ? ''
-                      : formatMoneyOf(
-                          context,
-                          ref,
-                          amountMinor: slice.amountMinor,
-                          currencyCode: slice.currencyCode ?? displayCurrency,
-                        );
-                  return BarTooltipItem(
-                    amount.isEmpty ? slice.label : '${slice.label}\n$amount',
-                    TextStyle(
-                      color: theme.colorScheme.onInverseSurface,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
-                    ),
-                  );
-                },
+                getTooltipItem: (group, groupIndex, rod, rodIndex) => null,
               ),
               touchCallback: (event, response) {
+                final index = response?.spot?.touchedBarGroupIndex;
+                final onChanged = onSelectionChanged;
+                if (onChanged != null) {
+                  if (index == null ||
+                      index < 0 ||
+                      index >= slices.length ||
+                      hiddenKeys.contains(slices[index].key)) {
+                    if (event is FlPointerExitEvent) onChanged(null);
+                  } else {
+                    final slice = slices[index];
+                    onChanged(
+                      ChartSelectionDetail(
+                        title: slice.label,
+                        lines: [
+                          if (!hideSegmentAmounts)
+                            ChartSelectionLine(
+                              label: formatMoneyOf(
+                                context,
+                                ref,
+                                amountMinor: slice.amountMinor,
+                                currencyCode:
+                                    slice.currencyCode ?? displayCurrency,
+                              ),
+                              color: slice.color,
+                            ),
+                        ],
+                      ),
+                    );
+                  }
+                }
                 if (onSegmentTap == null) return;
                 if (event is! FlTapUpEvent) return;
-                final index = response?.spot?.touchedBarGroupIndex;
                 if (index == null || index < 0 || index >= slices.length) {
                   return;
                 }
+                if (hiddenKeys.contains(slices[index].key)) return;
                 onSegmentTap!(slices[index]);
               },
               mouseCursorResolver: (event, response) {
                 if (onSegmentTap == null) return SystemMouseCursors.basic;
                 final index = response?.spot?.touchedBarGroupIndex;
-                if (index != null && index >= 0 && index < slices.length) {
+                if (index != null &&
+                    index >= 0 &&
+                    index < slices.length &&
+                    !hiddenKeys.contains(slices[index].key)) {
                   return SystemMouseCursors.click;
                 }
                 return SystemMouseCursors.basic;
@@ -116,6 +137,7 @@ class ColumnBreakdownChart extends ConsumerWidget {
                       return const SizedBox.shrink();
                     }
                     final slice = slices[i];
+                    final muted = hiddenKeys.contains(slice.key);
                     return Padding(
                       padding: const EdgeInsets.only(top: 6),
                       child: Column(
@@ -129,9 +151,15 @@ class ColumnBreakdownChart extends ConsumerWidget {
                             style: theme.textTheme.labelSmall?.copyWith(
                               fontSize: 9,
                               height: 1.1,
+                              color: muted
+                                  ? theme.colorScheme.onSurfaceVariant
+                                  : null,
+                              decoration: muted
+                                  ? TextDecoration.lineThrough
+                                  : null,
                             ),
                           ),
-                          if (!hideSegmentAmounts)
+                          if (!hideSegmentAmounts && !muted)
                             Text(
                               formatMoneyOf(
                                 context,
@@ -168,24 +196,30 @@ class ColumnBreakdownChart extends ConsumerWidget {
             borderData: FlBorderData(show: false),
             barGroups: [
               for (var i = 0; i < slices.length; i++)
-                BarChartGroupData(
-                  x: i,
-                  barRods: [
-                    BarChartRodData(
-                      toY: slices[i].amountMinor.toDouble().abs() == 0
-                          ? 0.0001
-                          : slices[i].amountMinor.toDouble().abs(),
-                      color: slices[i].color,
-                      width: barWidth,
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(4),
+                () {
+                  final hidden = hiddenKeys.contains(slices[i].key);
+                  final raw = slices[i].amountMinor.toDouble().abs();
+                  final toY = hidden || raw == 0 ? 0.0001 : raw;
+                  return BarChartGroupData(
+                    x: i,
+                    barRods: [
+                      BarChartRodData(
+                        toY: toY,
+                        color: hidden
+                            ? slices[i].color.withValues(alpha: 0)
+                            : slices[i].color,
+                        width: barWidth,
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(4),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  );
+                }(),
             ],
           ),
-          duration: Duration.zero,
+          duration: kChartAnimDuration,
+          curve: kChartAnimCurve,
         ),
       ),
     );

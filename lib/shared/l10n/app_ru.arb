@@ -615,8 +615,9 @@
   "chartByTagCountry": "Страны",
   "chartByPayment": "Способ оплаты",
   "chartByTagTrip": "Поездки",
-  "chartByTagCustom": "Свои теги",
-  "chartTagKindHint": "Каждая трата учитывается один раз внутри выбранного типа; без тега попадает в «не указано»",
+  "chartByTagCustom": "Категория",
+  "chartTagKindHintCategories": "Каждая трата учитывается один раз внутри выбранного типа; без тега попадает в «не указано». Отображаются только категории.",
+  "chartTagKindHintSubcategories": "Каждая трата учитывается один раз внутри выбранного типа; без тега попадает в «не указано». Отображаются категории и подкатегории.",
   "chartMissingRatesAlert": "{count, plural, one{1 трата показана без курса конвертации} few{{count} траты показаны без курса конвертации} many{{count} трат показано без курса конвертации} other{{count} траты показаны без курса конвертации}}",
   "@chartMissingRatesAlert": {
     "placeholders": {
@@ -628,6 +629,27 @@
   "chartHelpTitle": "О графике",
   "chartTypeDonut": "Круговая диаграмма",
   "chartTypeColumn": "Столбчатая диаграмма",
+  "chartTypeColumnByDate": "Столбцы по дате",
+  "chartTypeLine": "Линейный график",
+  "chartShowCategories": "Категории",
+  "chartShowSubcategories": "Подкатегории",
+  "chartOtherSeries": "Другое",
+  "googleDriveSyncInProgress": "Синхронизация…",
+  "googleDriveSyncDoneWithCounts": "Синхронизация завершена: добавлено расходов — {expensesAdded}, доходов — {incomesAdded}",
+  "@googleDriveSyncDoneWithCounts": {
+    "placeholders": {
+      "expensesAdded": { "type": "int" },
+      "incomesAdded": { "type": "int" }
+    }
+  },
+  "googleDriveSyncDoneWithDuplicates": "Синхронизация завершена: добавлено расходов — {expensesAdded}, доходов — {incomesAdded}, пропущено дубликатов — {skipped}",
+  "@googleDriveSyncDoneWithDuplicates": {
+    "placeholders": {
+      "expensesAdded": { "type": "int" },
+      "incomesAdded": { "type": "int" },
+      "skipped": { "type": "int" }
+    }
+  },
   "chartHelpBody": "На графике учитываются траты во всех валютах. Если курс не указан, суммы показываются в исходной валюте. Итоги могут смешивать валюты, пока курсы не заданы.",
   "expensesSummaryHelpTitle": "О сводке расходов",
   "expensesSummaryHelpBody": "Итоги сгруппированы по сохранённой валюте. Кнопка конвертации переводит суммы в списке в одну валюту; итог конвертации показывает, сколько расходов удалось пересчитать.",

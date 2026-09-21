@@ -41,6 +41,11 @@ class ExpensesSheetListingViews extends ConsumerWidget {
   final ExpenseChartBreakdown chartBreakdown;
   final ExpenseChartType chartType;
   final String timeZoneId;
+  final DateTime? periodFrom;
+  final DateTime? periodTo;
+  final bool includeSubcategories;
+  final bool showSubcategories;
+  final ValueChanged<bool>? onShowSubcategoriesChanged;
   final ValueChanged<ExpenseChartBreakdown> onChartBreakdownChanged;
   final ValueChanged<ExpenseChartType> onChartTypeChanged;
   final ValueChanged<DonutChartSlice> onSegmentTap;
@@ -70,6 +75,11 @@ class ExpensesSheetListingViews extends ConsumerWidget {
     required this.chartBreakdown,
     required this.chartType,
     required this.timeZoneId,
+    this.periodFrom,
+    this.periodTo,
+    this.includeSubcategories = false,
+    this.showSubcategories = false,
+    this.onShowSubcategoriesChanged,
     required this.onChartBreakdownChanged,
     required this.onChartTypeChanged,
     required this.onSegmentTap,
@@ -122,34 +132,71 @@ class ExpensesSheetListingViews extends ConsumerWidget {
       ExpenseListViewMode.grouping => GroupedExpenseTable(rows: groupRows!),
       ExpenseListViewMode.chart => ExpenseChart(
           key: ValueKey(
-            'chart-$snapshotKey-${chartBreakdown.name}-$summaryCurrency',
+            'chart-$snapshotKey-${chartBreakdown.name}-$summaryCurrency-'
+            '${chartType.name}-$includeSubcategories',
           ),
-          future: aggregateExpensesForChart(
-            expenses: filtered,
-            primaryCurrency: summaryCurrency,
-            resolver: resolver,
-            breakdown: chartBreakdown,
-            expenseTags: expenseTags,
-            tagLabels: tagLabels,
-            tagById: {for (final t in tags) t.id: t},
-            paymentById: {for (final m in paymentMethods) m.id: m},
-            paymentLabels: paymentLabels,
-            untaggedLabel: unspecifiedLabelForChartBreakdown(
-              l10n,
-              chartBreakdown,
-            ),
-            countryLabel: (code) => countryDisplayName(
-              code,
-              languageCode: Localizations.localeOf(context).languageCode,
-            ),
-            timeZoneId: timeZoneId,
-          ),
+          slicesFuture: chartType == ExpenseChartType.columnByDate ||
+                  chartType == ExpenseChartType.line
+              ? null
+              : aggregateExpensesForChart(
+                  expenses: filtered,
+                  primaryCurrency: summaryCurrency,
+                  resolver: resolver,
+                  breakdown: chartBreakdown,
+                  expenseTags: expenseTags,
+                  tagLabels: tagLabels,
+                  tagById: {for (final t in tags) t.id: t},
+                  paymentById: {for (final m in paymentMethods) m.id: m},
+                  paymentLabels: paymentLabels,
+                  untaggedLabel: unspecifiedLabelForChartBreakdown(
+                    l10n,
+                    chartBreakdown,
+                  ),
+                  countryLabel: (code) => countryDisplayName(
+                    code,
+                    languageCode: Localizations.localeOf(context).languageCode,
+                  ),
+                  timeZoneId: timeZoneId,
+                  includeSubcategories: includeSubcategories,
+                ),
+          timeSeriesFuture: chartType == ExpenseChartType.columnByDate ||
+                  chartType == ExpenseChartType.line
+              ? aggregateExpensesForTimeSeries(
+                  expenses: filtered,
+                  primaryCurrency: summaryCurrency,
+                  resolver: resolver,
+                  targetBreakdown: chartBreakdown,
+                  expenseTags: expenseTags,
+                  tagLabels: tagLabels,
+                  tagById: {for (final t in tags) t.id: t},
+                  paymentById: {for (final m in paymentMethods) m.id: m},
+                  paymentLabels: paymentLabels,
+                  untaggedLabel: unspecifiedLabelForChartBreakdown(
+                    l10n,
+                    chartBreakdown,
+                  ),
+                  otherLabel: l10n.chartOtherSeries,
+                  periodFrom: periodFrom,
+                  periodTo: periodTo,
+                  countryLabel: (code) => countryDisplayName(
+                    code,
+                    languageCode: Localizations.localeOf(context).languageCode,
+                  ),
+                  timeZoneId: timeZoneId,
+                  includeSubcategories: includeSubcategories,
+                )
+              : null,
           primaryCurrency: summaryCurrency,
           chartBreakdown: chartBreakdown,
           chartType: chartType,
           onChartBreakdownChanged: onChartBreakdownChanged,
           onChartTypeChanged: onChartTypeChanged,
           onSegmentTap: onSegmentTap,
+          showSubcategories: showSubcategories,
+          onShowSubcategoriesChanged: chartBreakdown ==
+                  ExpenseChartBreakdown.tagCustom
+              ? onShowSubcategoriesChanged
+              : null,
         ),
     };
   }

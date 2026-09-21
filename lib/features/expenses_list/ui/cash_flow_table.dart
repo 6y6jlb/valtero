@@ -6,6 +6,7 @@ import 'package:valtero/features/expenses_list/ui/possible_duplicate_badge.dart'
 import 'package:valtero/features/expenses_list/ui/signed_money_text.dart';
 import 'package:valtero/shared/consts/countries.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/shared/utils/tag_label.dart';
 import 'package:valtero/widgets/date_text.dart';
 import 'package:valtero/widgets/flag_icon.dart';
 import 'package:valtero/widgets/money_text.dart';
@@ -17,6 +18,8 @@ const double _kTypeW = 90;
 const double _kAmountW = 140;
 const double _kOriginalAmountW = 120;
 const double _kPaymentW = 100;
+const double _kCountryW = 110;
+const double _kTagsW = 140;
 const double _kEditW = 40;
 const double _kDeleteW = 40;
 
@@ -33,19 +36,24 @@ const double _kTableMinWidth = 16 * 2 +
     _kColGap +
     _kPaymentW +
     _kColGap +
-    120 +
+    _kCountryW +
+    _kColGap +
+    _kTagsW +
     _kColGap +
     _kEditW +
     _kColGap +
     _kDeleteW;
 
-/// Merged cash-flow list table. Unlike the expense / income tables the amount
-/// column is signed and tinted per direction, and a type column names the
-/// direction; category tags are omitted because the two directions use
-/// different tag kinds.
+/// Merged cash-flow list table. Amount is signed and tinted per direction;
+/// a type column names the direction; tags come from the matching kind map.
 class CashFlowTable extends StatelessWidget {
   final List<RecentOperation> items;
   final Map<int, String> paymentLabels;
+  final Map<int, List<int>> expenseTags;
+  final Map<int, List<int>> incomeTags;
+  final Map<int, String> tagLabels;
+  final Map<int, int?> tagParentIds;
+  final String untaggedLabel;
   final String? displayCurrency;
   final int? Function(RecentOperation operation) convertedMinor;
   final ValueChanged<CashFlowSelectionKey> onDelete;
@@ -60,6 +68,11 @@ class CashFlowTable extends StatelessWidget {
     super.key,
     required this.items,
     this.paymentLabels = const {},
+    this.expenseTags = const {},
+    this.incomeTags = const {},
+    this.tagLabels = const {},
+    this.tagParentIds = const {},
+    this.untaggedLabel = '',
     required this.displayCurrency,
     required this.convertedMinor,
     required this.onDelete,
@@ -72,6 +85,16 @@ class CashFlowTable extends StatelessWidget {
   });
 
   bool get _hasSelection => selectedKeys.isNotEmpty;
+
+  String _tagLabel(RecentOperation op) {
+    final ids = op.kind == OperationKind.income
+        ? (incomeTags[op.id] ?? const <int>[])
+        : (expenseTags[op.id] ?? const <int>[]);
+    if (ids.isEmpty) return untaggedLabel;
+    final combined =
+        formatTagLabelsCombined(ids, tagLabels, tagParentIds);
+    return combined.isEmpty ? untaggedLabel : combined;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -145,8 +168,13 @@ class CashFlowTable extends StatelessWidget {
                         child: Text(l10n.paymentMethod, style: headerStyle),
                       ),
                       const SizedBox(width: _kColGap),
-                      Expanded(
+                      SizedBox(
+                        width: _kCountryW,
                         child: Text(l10n.country, style: headerStyle),
+                      ),
+                      const SizedBox(width: _kColGap),
+                      Expanded(
+                        child: Text(l10n.columnTags, style: headerStyle),
                       ),
                       const SizedBox(width: _kColGap),
                       const SizedBox(width: _kEditW),
@@ -163,6 +191,7 @@ class CashFlowTable extends StatelessWidget {
                         ? l10n.paymentMethodNone
                         : (paymentLabels[op.paymentMethodId!] ??
                             l10n.paymentMethodNone),
+                    tagsLabel: _tagLabel(op),
                     displayCurrency: displayCurrency,
                     convertedAmountMinor: convertedMinor(op),
                     selected: selectedKeys.contains(
@@ -190,6 +219,7 @@ class CashFlowTable extends StatelessWidget {
 class CashFlowTableRow extends ConsumerWidget {
   final RecentOperation operation;
   final String paymentLabel;
+  final String tagsLabel;
   final String? displayCurrency;
   final int? convertedAmountMinor;
   final bool selected;
@@ -203,6 +233,7 @@ class CashFlowTableRow extends ConsumerWidget {
     super.key,
     required this.operation,
     required this.paymentLabel,
+    required this.tagsLabel,
     required this.displayCurrency,
     required this.convertedAmountMinor,
     required this.selected,
@@ -329,7 +360,8 @@ class CashFlowTableRow extends ConsumerWidget {
             ),
           ),
           const SizedBox(width: _kColGap),
-          Expanded(
+          SizedBox(
+            width: _kCountryW,
             child: Row(
               children: [
                 if (countryCode != null && countryCode.isNotEmpty) ...[
@@ -344,6 +376,14 @@ class CashFlowTableRow extends ConsumerWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+          const SizedBox(width: _kColGap),
+          Expanded(
+            child: Text(
+              tagsLabel,
+              style: theme.textTheme.bodySmall,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           const SizedBox(width: _kColGap),

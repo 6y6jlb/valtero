@@ -615,8 +615,9 @@
   "chartByTagCountry": "Etiquetas de país",
   "chartByPayment": "Método de pago",
   "chartByTagTrip": "Etiquetas de viaje",
-  "chartByTagCustom": "Etiquetas personalizadas",
-  "chartTagKindHint": "Cada gasto cuenta una vez dentro de este tipo de etiqueta; las faltantes aparecen como no definidas",
+  "chartByTagCustom": "Categoría",
+  "chartTagKindHintCategories": "Cada gasto cuenta una vez dentro de este tipo de etiqueta; las faltantes aparecen como no definidas. Solo se muestran categorías principales.",
+  "chartTagKindHintSubcategories": "Cada gasto cuenta una vez dentro de este tipo de etiqueta; las faltantes aparecen como no definidas. Se muestran categorías y subcategorías.",
   "chartMissingRatesAlert": "{count, plural, one{1 gasto mostrado sin tipo de cambio} other{{count} gastos mostrados sin tipos de cambio}}",
   "@chartMissingRatesAlert": {
     "placeholders": {
@@ -628,6 +629,27 @@
   "chartHelpTitle": "Acerca del gráfico",
   "chartTypeDonut": "Gráfico de dona",
   "chartTypeColumn": "Gráfico de columnas",
+  "chartTypeColumnByDate": "Columnas por fecha",
+  "chartTypeLine": "Gráfico de líneas",
+  "chartShowCategories": "Categorías",
+  "chartShowSubcategories": "Subcategorías",
+  "chartOtherSeries": "Otros",
+  "googleDriveSyncInProgress": "Sincronizando…",
+  "googleDriveSyncDoneWithCounts": "Sincronización completada: {expensesAdded} gastos, {incomesAdded} ingresos añadidos",
+  "@googleDriveSyncDoneWithCounts": {
+    "placeholders": {
+      "expensesAdded": { "type": "int" },
+      "incomesAdded": { "type": "int" }
+    }
+  },
+  "googleDriveSyncDoneWithDuplicates": "Sincronización completada: {expensesAdded} gastos, {incomesAdded} ingresos añadidos, {skipped} omitidos como duplicados",
+  "@googleDriveSyncDoneWithDuplicates": {
+    "placeholders": {
+      "expensesAdded": { "type": "int" },
+      "incomesAdded": { "type": "int" },
+      "skipped": { "type": "int" }
+    }
+  },
   "chartHelpBody": "El gráfico incluye gastos en todas las monedas. Si falta un tipo de cambio, los importes se muestran en su moneda original. Los totales pueden mezclar monedas hasta que se definan los tipos de cambio.",
   "expensesSummaryHelpTitle": "Acerca del resumen de gastos",
   "expensesSummaryHelpBody": "Los totales se agrupan por moneda almacenada. Usa el botón de conversión para mostrar los importes de la lista en una moneda; el total convertido indica cuántos gastos se pudieron convertir.",

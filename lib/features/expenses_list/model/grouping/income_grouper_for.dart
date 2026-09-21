@@ -1,3 +1,4 @@
+import 'package:valtero/entities/tag/model/tag_hierarchy.dart';
 import 'package:valtero/entities/tag/model/tag_kind.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
 import 'package:valtero/features/expenses_list/model/grouping/income_grouper.dart';
@@ -59,32 +60,30 @@ final class _TagIncomeGrouper extends IncomeGrouperBase {
   @override
   Iterable<String> labelsFor(Income income, IncomeGroupingContext context) {
     final ids = context.incomeTags[income.id] ?? const <int>[];
-    final matching = <int>[
-      for (final id in ids)
-        if (context.tagById[id] != null &&
-            tagKindOf(context.tagById[id]!) == TagKind.income &&
-            context.tagById[id]!.parentTagId == null)
-          id,
-    ];
-    if (matching.isEmpty) {
-      for (final id in ids) {
-        final tag = context.tagById[id];
-        if (tag == null || tag.parentTagId == null) continue;
-        if (tagKindOf(tag) != TagKind.income) continue;
-        final parent = context.tagById[tag.parentTagId!];
-        if (parent != null &&
-            parent.parentTagId == null &&
-            tagKindOf(parent) == TagKind.income) {
-          matching.add(parent.id);
-        }
-      }
-    }
+    final matching = resolveCategoryTargets(
+      tagIds: ids,
+      kind: TagKind.income,
+      tagById: context.tagById,
+      includeSubcategories: context.includeSubcategories,
+    );
     if (matching.isEmpty) return [context.unspecifiedIncomeLabel];
     matching.sort(
       (a, b) => (context.tagById[a]?.sortOrder ?? 0)
           .compareTo(context.tagById[b]?.sortOrder ?? 0),
     );
-    return [context.tagLabels[matching.first] ?? '?'];
+    final tagId = matching.first;
+    if (context.includeSubcategories &&
+        context.tagById[tagId]?.parentTagId != null) {
+      return [
+        categoryTargetLabel(
+          tagId: tagId,
+          tagById: context.tagById,
+          tagLabels: context.tagLabels,
+          fallback: context.unspecifiedIncomeLabel,
+        ),
+      ];
+    }
+    return [context.tagLabels[tagId] ?? '?'];
   }
 }
 

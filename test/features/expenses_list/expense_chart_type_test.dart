@@ -12,4 +12,12 @@ void main() {
     expect(expenseChartTypeFromName('donut'), ExpenseChartType.donut);
     expect(expenseChartTypeFromName('column'), ExpenseChartType.column);
   });
+
+  test('expenseChartTypeFromName parses columnByDate and line', () {
+    expect(
+      expenseChartTypeFromName('columnByDate'),
+      ExpenseChartType.columnByDate,
+    );
+    expect(expenseChartTypeFromName('line'), ExpenseChartType.line);
+  });
 }

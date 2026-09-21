@@ -41,6 +41,8 @@ class AppSettings {
   final String expensesChartType;
   /// Last date-chart period: `day` | `week` | `month` | `year`.
   final String expensesChartDatePeriod;
+  /// When true, expense lists/charts show subcategory tags alongside categories.
+  final bool expensesShowSubcategories;
   /// Persisted income page listing mode: `list` | `grouping` | `chart`.
   final String incomeListView;
   /// Persisted income group-by when view is grouping.
@@ -51,6 +53,8 @@ class AppSettings {
   final String incomeChartType;
   /// Last income date-chart period: `day` | `week` | `month` | `year`.
   final String incomeChartDatePeriod;
+  /// When true, income lists/charts show subcategory tags alongside categories.
+  final bool incomeShowSubcategories;
   /// Persisted cash-flow page listing mode: `list` | `grouping` | `chart`.
   final String cashFlowListView;
   /// Persisted cash-flow group-by: `currency` | `date` | `country` | `payment`
@@ -113,11 +117,13 @@ class AppSettings {
     this.expensesChartBreakdown = 'currency',
     this.expensesChartType = 'donut',
     this.expensesChartDatePeriod = 'month',
+    this.expensesShowSubcategories = false,
     this.incomeListView = 'list',
     this.incomeListGroup = 'currency',
     this.incomeChartBreakdown = 'currency',
     this.incomeChartType = 'donut',
     this.incomeChartDatePeriod = 'month',
+    this.incomeShowSubcategories = false,
     this.cashFlowListView = 'list',
     this.cashFlowListGroup = 'currency',
     this.cashFlowChartDatePeriod = 'month',
@@ -179,11 +185,13 @@ class AppSettings {
     String? expensesChartBreakdown,
     String? expensesChartType,
     String? expensesChartDatePeriod,
+    bool? expensesShowSubcategories,
     String? incomeListView,
     String? incomeListGroup,
     String? incomeChartBreakdown,
     String? incomeChartType,
     String? incomeChartDatePeriod,
+    bool? incomeShowSubcategories,
     String? cashFlowListView,
     String? cashFlowListGroup,
     String? cashFlowChartDatePeriod,
@@ -246,12 +254,16 @@ class AppSettings {
       expensesChartType: expensesChartType ?? this.expensesChartType,
       expensesChartDatePeriod:
           expensesChartDatePeriod ?? this.expensesChartDatePeriod,
+      expensesShowSubcategories:
+          expensesShowSubcategories ?? this.expensesShowSubcategories,
       incomeListView: incomeListView ?? this.incomeListView,
       incomeListGroup: incomeListGroup ?? this.incomeListGroup,
       incomeChartBreakdown: incomeChartBreakdown ?? this.incomeChartBreakdown,
       incomeChartType: incomeChartType ?? this.incomeChartType,
       incomeChartDatePeriod:
           incomeChartDatePeriod ?? this.incomeChartDatePeriod,
+      incomeShowSubcategories:
+          incomeShowSubcategories ?? this.incomeShowSubcategories,
       cashFlowListView: cashFlowListView ?? this.cashFlowListView,
       cashFlowListGroup: cashFlowListGroup ?? this.cashFlowListGroup,
       cashFlowChartDatePeriod:
@@ -313,11 +325,13 @@ class AppSettings {
         'expensesChartBreakdown': expensesChartBreakdown,
         'expensesChartType': expensesChartType,
         'expensesChartDatePeriod': expensesChartDatePeriod,
+        'expensesShowSubcategories': expensesShowSubcategories,
         'incomeListView': incomeListView,
         'incomeListGroup': incomeListGroup,
         'incomeChartBreakdown': incomeChartBreakdown,
         'incomeChartType': incomeChartType,
         'incomeChartDatePeriod': incomeChartDatePeriod,
+        'incomeShowSubcategories': incomeShowSubcategories,
         'cashFlowListView': cashFlowListView,
         'cashFlowListGroup': cashFlowListGroup,
         'cashFlowChartDatePeriod': cashFlowChartDatePeriod,
@@ -392,6 +406,8 @@ class AppSettings {
         }
         return 'month';
       }(),
+      expensesShowSubcategories:
+          json['expensesShowSubcategories'] as bool? ?? false,
       incomeListView: json['incomeListView'] as String? ?? 'list',
       incomeListGroup: json['incomeListGroup'] as String? ?? 'currency',
       incomeChartBreakdown:
@@ -409,6 +425,7 @@ class AppSettings {
         }
         return 'month';
       }(),
+      incomeShowSubcategories: json['incomeShowSubcategories'] as bool? ?? false,
       cashFlowListView: json['cashFlowListView'] as String? ?? 'list',
       cashFlowListGroup: json['cashFlowListGroup'] as String? ?? 'currency',
       cashFlowChartDatePeriod:

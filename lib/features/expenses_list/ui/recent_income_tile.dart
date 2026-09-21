@@ -128,8 +128,9 @@ String? recentIncomeTagsLabel(
   Map<int, String> tagLabels, {
   Map<int, int?> tagParentIds = const {},
 }) {
-  final ids = incomeTags[incomeId] ?? const <int>[];
-  if (ids.isEmpty) return null;
-  final combined = formatTagLabelsCombined(ids, tagLabels, tagParentIds);
-  return combined.isEmpty ? null : combined;
+  return recentOperationTagsLabel(
+    tagIds: incomeTags[incomeId] ?? const <int>[],
+    tagLabels: tagLabels,
+    tagParentIds: tagParentIds,
+  );
 }

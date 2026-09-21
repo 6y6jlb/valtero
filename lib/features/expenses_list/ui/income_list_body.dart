@@ -232,6 +232,9 @@ class _IncomeListBodyState extends ConsumerState<IncomeListBody> {
     final settings = ref.watch(appSettingsProvider).value;
     final primary = settings?.primaryCurrency ?? 'RUB';
     final timeZoneId = settings?.timeZoneId ?? kSystemTimeZoneId;
+    final showSubcategories = settings == null
+        ? false
+        : incomeShowSubcategoriesFromSettings(settings);
     final tagLabels = {
       for (final t in tags) t.id: localizedTagLabel(context, t),
     };
@@ -295,6 +298,7 @@ class _IncomeListBodyState extends ConsumerState<IncomeListBody> {
                   unspecifiedPaymentLabel: l10n.paymentMethodUnspecified,
                   ascending: _applied.ascending,
                   timeZoneId: timeZoneId,
+                  includeSubcategories: showSubcategories,
                 ),
               )
             : null;
@@ -482,6 +486,13 @@ class _IncomeListBodyState extends ConsumerState<IncomeListBody> {
                                     chartBreakdown: _chartBreakdown,
                                     chartType: _chartType,
                                     timeZoneId: timeZoneId,
+                                    periodFrom: _applied.from,
+                                    periodTo: _applied.to,
+                                    includeSubcategories: showSubcategories,
+                                    showSubcategories: showSubcategories,
+                                    onShowSubcategoriesChanged: (v) => ref
+                                        .read(appSettingsProvider.notifier)
+                                        .setIncomeShowSubcategories(v),
                                     onChartBreakdownChanged: (b) {
                                       setState(() {
                                         _chartBreakdown = b;

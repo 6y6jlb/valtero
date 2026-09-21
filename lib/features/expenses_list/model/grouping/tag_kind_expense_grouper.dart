@@ -1,3 +1,4 @@
+import 'package:valtero/entities/tag/model/tag_hierarchy.dart';
 import 'package:valtero/entities/tag/model/tag_kind.dart';
 import 'package:valtero/features/expenses_list/model/grouping/expense_grouper.dart';
 import 'package:valtero/features/expenses_list/model/grouping/expense_grouping_context.dart';
@@ -14,28 +15,12 @@ final class TagKindExpenseGrouper extends ExpenseGrouperBase {
     ExpenseGroupingContext context,
   ) {
     final ids = context.expenseTags[expense.id] ?? const <int>[];
-    final matching = <int>[
-      for (final id in ids)
-        if (context.tagById[id] != null &&
-            tagKindOf(context.tagById[id]!) == kind &&
-            context.tagById[id]!.parentTagId == null)
-          id,
-    ];
-
-    if (matching.isEmpty) {
-      // Roll up subtag-only attachments to their parent label.
-      for (final id in ids) {
-        final tag = context.tagById[id];
-        if (tag == null || tag.parentTagId == null) continue;
-        if (tagKindOf(tag) != kind) continue;
-        final parent = context.tagById[tag.parentTagId!];
-        if (parent != null &&
-            parent.parentTagId == null &&
-            tagKindOf(parent) == kind) {
-          matching.add(parent.id);
-        }
-      }
-    }
+    final matching = resolveCategoryTargets(
+      tagIds: ids,
+      kind: kind,
+      tagById: context.tagById,
+      includeSubcategories: context.includeSubcategories,
+    );
 
     if (matching.isEmpty) {
       return [context.unspecifiedLabelFor(kind)];
@@ -45,6 +30,18 @@ final class TagKindExpenseGrouper extends ExpenseGrouperBase {
       (a, b) => (context.tagById[a]?.sortOrder ?? 0)
           .compareTo(context.tagById[b]?.sortOrder ?? 0),
     );
-    return [context.tagLabels[matching.first] ?? '?'];
+    final tagId = matching.first;
+    if (context.includeSubcategories &&
+        context.tagById[tagId]?.parentTagId != null) {
+      return [
+        categoryTargetLabel(
+          tagId: tagId,
+          tagById: context.tagById,
+          tagLabels: context.tagLabels,
+          fallback: context.unspecifiedLabelFor(kind),
+        ),
+      ];
+    }
+    return [context.tagLabels[tagId] ?? '?'];
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/cash_flow_aggregator.dart';
+import 'package:valtero/features/expenses_list/model/chart_time_series.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/model/expense_chart_drill_down.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
@@ -8,9 +9,7 @@ import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/expenses_list/model/recent_operation.dart';
 import 'package:valtero/features/expenses_list/model/transaction_direction.dart';
 import 'package:valtero/features/expenses_list/ui/breakdown_chart_view.dart';
-import 'package:valtero/features/expenses_list/ui/cash_flow_breakdown_icons.dart';
 import 'package:valtero/features/expenses_list/ui/cash_flow_chart_view.dart';
-import 'package:valtero/features/expenses_list/ui/chart_breakdown_icons.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_filter_summary_bar.dart';
 import 'package:valtero/features/expenses_list/ui/operation_direction_tabs.dart';
 import 'package:valtero/features/expenses_list/ui/recent_cash_flow_operations_list.dart';
@@ -35,6 +34,7 @@ class DashboardBody extends ConsumerStatefulWidget {
   final TransactionDirection direction;
   final ValueChanged<TransactionDirection> onDirectionChanged;
   final List<DonutChartSlice> slices;
+  final ChartTimeSeriesAggregation? timeSeries;
   final int missingRateCount;
   final String displayCurrency;
   final ExpenseChartBreakdown breakdown;
@@ -53,6 +53,8 @@ class DashboardBody extends ConsumerStatefulWidget {
   final bool hasSourceData;
   final ValueChanged<ExpenseChartBreakdown> onBreakdownChanged;
   final ValueChanged<ExpenseChartType> onChartTypeChanged;
+  final bool showSubcategories;
+  final ValueChanged<bool>? onShowSubcategoriesChanged;
   final VoidCallback onOpenFilters;
   final ValueChanged<DonutChartSlice>? onSegmentTap;
   final VoidCallback? onOpenGuide;
@@ -63,6 +65,7 @@ class DashboardBody extends ConsumerStatefulWidget {
     required this.direction,
     required this.onDirectionChanged,
     required this.slices,
+    this.timeSeries,
     required this.missingRateCount,
     required this.displayCurrency,
     required this.breakdown,
@@ -79,6 +82,8 @@ class DashboardBody extends ConsumerStatefulWidget {
     this.hasSourceData = false,
     required this.onBreakdownChanged,
     required this.onChartTypeChanged,
+    this.showSubcategories = false,
+    this.onShowSubcategoriesChanged,
     required this.onOpenFilters,
     this.onSegmentTap,
     this.onOpenGuide,
@@ -127,39 +132,36 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
         displayCurrency: widget.displayCurrency,
         chartType: widget.chartType,
         onChartTypeChanged: widget.onChartTypeChanged,
+        breakdown: widget.breakdown,
+        onBreakdownChanged: widget.onBreakdownChanged,
         hideAmounts: widget.missingRateCount > 0,
         emptyMessage: emptyMessage,
         emptyIcon: emptyIcon,
       );
     }
+    final missingRates = widget.timeSeries?.missingRateCount ??
+        widget.missingRateCount;
     return BreakdownChartView(
       key: ValueKey(
-        'dash-${widget.breakdown.name}-${widget.slices.length}',
+        'dash-${widget.breakdown.name}-${widget.slices.length}-'
+        '${widget.timeSeries?.points.length ?? 0}',
       ),
       slices: widget.slices,
+      timeSeries: widget.timeSeries,
       displayCurrency: widget.displayCurrency,
       chartType: widget.chartType,
       onChartTypeChanged: widget.onChartTypeChanged,
-      hideCenterTotal: widget.missingRateCount > 0 ||
+      breakdown: widget.breakdown,
+      onBreakdownChanged: widget.onBreakdownChanged,
+      showSubcategories: widget.showSubcategories,
+      onShowSubcategoriesChanged: widget.onShowSubcategoriesChanged,
+      hideCenterTotal: missingRates > 0 ||
           widget.breakdown == ExpenseChartBreakdown.currency,
-      hideSegmentAmounts: widget.missingRateCount > 0 &&
+      hideSegmentAmounts: missingRates > 0 &&
           widget.breakdown != ExpenseChartBreakdown.currency,
       emptyMessage: emptyMessage,
       emptyIcon: emptyIcon,
       onSegmentTap: widget.isSample ? null : widget.onSegmentTap,
-    );
-  }
-
-  Widget _buildBreakdownIcons() {
-    if (widget.direction == TransactionDirection.cashFlow) {
-      return CashFlowBreakdownIcons(
-        selected: widget.breakdown,
-        onChanged: widget.onBreakdownChanged,
-      );
-    }
-    return ChartBreakdownIcons(
-      selected: widget.breakdown,
-      onChanged: widget.onBreakdownChanged,
     );
   }
 
@@ -191,6 +193,7 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
           paymentLabels: widget.paymentLabels,
           expenseTags: widget.expenseTags,
           incomeTags: widget.incomeTags,
+          tagLabels: widget.tagLabels,
         ),
     };
   }
@@ -274,8 +277,6 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
             ),
             const SizedBox(height: 12),
             _buildChart(l10n),
-            const SizedBox(height: 8),
-            _buildBreakdownIcons(),
             if (widget.direction != TransactionDirection.cashFlow &&
                 (expenseChartBreakdownUsesTagKind(widget.breakdown) ||
                     expenseChartBreakdownUsesPayment(widget.breakdown))) ...[
@@ -283,7 +284,10 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
               Text(
                 expenseChartBreakdownUsesPayment(widget.breakdown)
                     ? l10n.chartPaymentHint
-                    : l10n.chartTagKindHint,
+                    : chartTagKindHintText(
+                        l10n,
+                        showSubcategories: widget.showSubcategories,
+                      ),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,

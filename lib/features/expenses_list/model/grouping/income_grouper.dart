@@ -13,6 +13,7 @@ class IncomeGroupingContext {
   final String unspecifiedPaymentLabel;
   final bool ascending;
   final String timeZoneId;
+  final bool includeSubcategories;
 
   const IncomeGroupingContext({
     required this.incomeTags,
@@ -24,6 +25,7 @@ class IncomeGroupingContext {
     required this.unspecifiedPaymentLabel,
     this.ascending = false,
     this.timeZoneId = kSystemTimeZoneId,
+    this.includeSubcategories = false,
   });
 }
 

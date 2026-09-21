@@ -38,6 +38,54 @@ void main() {
     });
   });
 
+  group('googleDriveSyncSuccessMessage', () {
+    test('uses syncOk when nothing was imported', () {
+      expect(
+        googleDriveSyncSuccessMessage(
+          l10n,
+          const GoogleDriveSyncResult.ok(),
+        ),
+        l10n.googleDriveSyncOk,
+      );
+    });
+
+    test('uses counts message when rows were added', () {
+      expect(
+        googleDriveSyncSuccessMessage(
+          l10n,
+          const GoogleDriveSyncResult.ok(expensesAdded: 2, incomesAdded: 1),
+        ),
+        l10n.googleDriveSyncDoneWithCounts(2, 1),
+      );
+    });
+
+    test('uses duplicates message when only skips are present', () {
+      expect(
+        googleDriveSyncSuccessMessage(
+          l10n,
+          const GoogleDriveSyncResult.ok(
+            expensesSkippedDuplicate: 3,
+          ),
+        ),
+        l10n.googleDriveSyncDoneWithDuplicates(0, 0, 3),
+      );
+    });
+
+    test('uses duplicates message when skips are present', () {
+      expect(
+        googleDriveSyncSuccessMessage(
+          l10n,
+          const GoogleDriveSyncResult.ok(
+            expensesAdded: 1,
+            incomesAdded: 0,
+            expensesSkippedDuplicate: 2,
+          ),
+        ),
+        l10n.googleDriveSyncDoneWithDuplicates(1, 0, 2),
+      );
+    });
+  });
+
   group('googleDriveSyncResultMessage', () {
     test('invalid_grant and missing_refresh_token map to reauth string', () {
       expect(

@@ -615,8 +615,9 @@
   "chartByTagCountry": "Oznake zemlje",
   "chartByPayment": "Način plaćanja",
   "chartByTagTrip": "Oznake putovanja",
-  "chartByTagCustom": "Prilagođene oznake",
-  "chartTagKindHint": "Svaki trošak se računa jednom unutar ove vrste oznake; nedostajuće oznake se prikazuju kao nije postavljeno",
+  "chartByTagCustom": "Kategorija",
+  "chartTagKindHintCategories": "Svaki trošak se računa jednom unutar ove vrste oznake; nedostajuće oznake se prikazuju kao nije postavljeno. Prikazuju se samo nadkategorije.",
+  "chartTagKindHintSubcategories": "Svaki trošak se računa jednom unutar ove vrste oznake; nedostajuće oznake se prikazuju kao nije postavljeno. Prikazuju se kategorije i potkategorije.",
   "chartMissingRatesAlert": "{count, plural, one{1 trošak prikazan bez kursa konverzije} few{{count} troška prikazana bez kursa konverzije} other{{count} troškova prikazano bez kursa konverzije}}",
   "@chartMissingRatesAlert": {
     "placeholders": {
@@ -628,6 +629,27 @@
   "chartHelpTitle": "O grafikonu",
   "chartTypeDonut": "Kružni grafikon",
   "chartTypeColumn": "Stubičasti grafikon",
+  "chartTypeColumnByDate": "Stubci po datumu",
+  "chartTypeLine": "Linijski grafikon",
+  "chartShowCategories": "Kategorije",
+  "chartShowSubcategories": "Potkategorije",
+  "chartOtherSeries": "Ostalo",
+  "googleDriveSyncInProgress": "Sinhronizacija…",
+  "googleDriveSyncDoneWithCounts": "Sinhronizacija završena: dodato {expensesAdded} troškova, {incomesAdded} prihoda",
+  "@googleDriveSyncDoneWithCounts": {
+    "placeholders": {
+      "expensesAdded": { "type": "int" },
+      "incomesAdded": { "type": "int" }
+    }
+  },
+  "googleDriveSyncDoneWithDuplicates": "Sinhronizacija završena: dodato {expensesAdded} troškova, {incomesAdded} prihoda, {skipped} preskočeno kao duplikati",
+  "@googleDriveSyncDoneWithDuplicates": {
+    "placeholders": {
+      "expensesAdded": { "type": "int" },
+      "incomesAdded": { "type": "int" },
+      "skipped": { "type": "int" }
+    }
+  },
   "chartHelpBody": "Grafikon uključuje troškove u svim valutama. Kada kurs nedostaje, iznosi se prikazuju u originalnoj valuti. Ukupni iznosi mogu mešati valute dok kursevi nisu postavljeni.",
   "expensesSummaryHelpTitle": "O rezimeu troškova",
   "expensesSummaryHelpBody": "Ukupni iznosi su grupisani po sačuvanoj valuti. Dugme za konverziju prikazuje iznose u listi u jednoj valuti; konvertovani ukupni iznos pokazuje koliko troškova je bilo moguće preračunati.",

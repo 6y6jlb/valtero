@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:valtero/entities/tag/model/tag_hierarchy.dart';
+import 'package:valtero/entities/tag/model/tag_kind.dart';
 import 'package:valtero/shared/database/app_database.dart';
 import 'package:valtero/shared/utils/tag_label.dart';
 
@@ -57,6 +58,64 @@ void main() {
 
       selectSubtag(selected: selected, tag: meds, tagById: tagById);
       expect(selected, {1});
+    });
+  });
+
+  group('resolveCategoryTargets', () {
+    final health = _tag(id: 1, name: 'health');
+    final doctor = _tag(id: 2, name: 'doctor', parentTagId: 1);
+    final transport = _tag(id: 3, name: 'transport');
+    final tagById = {1: health, 2: doctor, 3: transport};
+
+    test('default rolls subtag-only attachment up to parent', () {
+      expect(
+        resolveCategoryTargets(
+          tagIds: [2],
+          kind: TagKind.custom,
+          tagById: tagById,
+        ),
+        [1],
+      );
+    });
+
+    test('includeSubcategories keeps subtag as its own target', () {
+      expect(
+        resolveCategoryTargets(
+          tagIds: [1, 2],
+          kind: TagKind.custom,
+          tagById: tagById,
+          includeSubcategories: true,
+        ),
+        [2],
+      );
+    });
+
+    test('includeSubcategories keeps parent when no child attached', () {
+      expect(
+        resolveCategoryTargets(
+          tagIds: [3],
+          kind: TagKind.custom,
+          tagById: tagById,
+          includeSubcategories: true,
+        ),
+        [3],
+      );
+    });
+  });
+
+  group('categoryTargetLabel', () {
+    test('formats parent · child for subcategory targets', () {
+      final health = _tag(id: 1, name: 'Health');
+      final doctor = _tag(id: 2, name: 'Doctor', parentTagId: 1);
+      expect(
+        categoryTargetLabel(
+          tagId: 2,
+          tagById: {1: health, 2: doctor},
+          tagLabels: {1: 'Health', 2: 'Doctor'},
+          fallback: '?',
+        ),
+        'Health · Doctor',
+      );
     });
   });
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
+import 'package:valtero/features/expenses_list/ui/chart_toggle_icon.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 
 /// Compact date-breakdown toggles for the cash-flow chart (day/week/month/year
@@ -7,11 +8,13 @@ import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 class CashFlowBreakdownIcons extends StatelessWidget {
   final ExpenseChartBreakdown selected;
   final ValueChanged<ExpenseChartBreakdown> onChanged;
+  final bool compact;
 
   const CashFlowBreakdownIcons({
     super.key,
     required this.selected,
     required this.onChanged,
+    this.compact = false,
   });
 
   @override
@@ -20,6 +23,7 @@ class CashFlowBreakdownIcons extends StatelessWidget {
     final theme = Theme.of(context);
     final primary = theme.colorScheme.primary;
     final muted = theme.colorScheme.onSurfaceVariant;
+    final extent = compact ? ChartToggleIcon.extent : 48.0;
 
     Widget iconBtn({
       required ExpenseChartBreakdown value,
@@ -30,8 +34,14 @@ class CashFlowBreakdownIcons extends StatelessWidget {
       return IconButton(
         tooltip: tooltip,
         visualDensity: VisualDensity.compact,
+        constraints: BoxConstraints(minWidth: extent, minHeight: extent),
+        padding: EdgeInsets.zero,
         onPressed: () => onChanged(value),
-        icon: Icon(icon, color: isSelected ? primary : muted),
+        icon: Icon(
+          icon,
+          size: compact ? ChartToggleIcon.iconSize : null,
+          color: isSelected ? primary : muted,
+        ),
         style: IconButton.styleFrom(
           backgroundColor: isSelected
               ? primary.withValues(alpha: 0.12)

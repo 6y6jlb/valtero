@@ -240,6 +240,9 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
     final settings = ref.watch(appSettingsProvider).value;
     final primary = settings?.primaryCurrency ?? 'RUB';
     final timeZoneId = settings?.timeZoneId ?? kSystemTimeZoneId;
+    final showSubcategories = settings == null
+        ? false
+        : expensesShowSubcategoriesFromSettings(settings);
     final tagLabels = {
       for (final t in tags) t.id: localizedTagLabel(context, t),
     };
@@ -303,6 +306,7 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                   unspecifiedPaymentLabel: l10n.paymentMethodUnspecified,
                   ascending: _applied.ascending,
                   timeZoneId: timeZoneId,
+                  includeSubcategories: showSubcategories,
                 ),
               )
             : null;
@@ -473,6 +477,13 @@ class _ExpensesSheetBodyState extends ConsumerState<ExpensesSheetBody> {
                                   chartBreakdown: _chartBreakdown,
                                   chartType: _chartType,
                                   timeZoneId: timeZoneId,
+                                  periodFrom: _applied.from,
+                                  periodTo: _applied.to,
+                                  includeSubcategories: showSubcategories,
+                                  showSubcategories: showSubcategories,
+                                  onShowSubcategoriesChanged: (v) => ref
+                                      .read(appSettingsProvider.notifier)
+                                      .setExpensesShowSubcategories(v),
                                   onChartBreakdownChanged: (b) {
                                     setState(() {
                                       _chartBreakdown = b;

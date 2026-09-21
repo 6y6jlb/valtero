@@ -80,7 +80,7 @@ class _JoinSharedSyncBodyState extends ConsumerState<_JoinSharedSyncBody> {
     if (phrase.length < 8) return;
     setState(() => _joining = true);
     final result = await ref
-        .read(googleDriveSyncEngineProvider)
+        .read(googleDriveSyncControllerProvider.notifier)
         .joinSharedSync(fileId: selected.id, passphrase: phrase);
     if (!mounted) return;
     setState(() => _joining = false);

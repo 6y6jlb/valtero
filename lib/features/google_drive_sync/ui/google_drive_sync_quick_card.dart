@@ -4,7 +4,6 @@ import 'package:valtero/entities/integrations/google_drive_sync/model/google_dri
 import 'package:valtero/entities/integrations/model/integration_registry.dart';
 import 'package:valtero/features/google_drive_sync/model/google_drive_sync_engine.dart';
 import 'package:valtero/features/google_drive_sync/model/google_drive_sync_messages.dart';
-import 'package:valtero/features/google_drive_sync/ui/google_drive_remote_newer_schema_dialog.dart';
 import 'package:valtero/features/integrations/model/integration_ui_meta.dart';
 import 'package:valtero/features/integrations/ui/integration_config_modal.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
@@ -12,8 +11,6 @@ import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/widgets/action_success_status_icon.dart';
 import 'package:valtero/widgets/app_button.dart';
 import 'package:valtero/widgets/app_close_icon_button.dart';
-import 'package:valtero/widgets/app_toast.dart';
-
 /// Google Drive sync status + Sync now / setup actions (Backup & sync card).
 class GoogleDriveSyncQuickCard extends ConsumerStatefulWidget {
   /// When false (e.g. backup export/import running), all card actions are disabled.
@@ -81,15 +78,9 @@ class _GoogleDriveSyncQuickCardState
       return;
     }
     final message = googleDriveSyncResultMessage(l10n, result);
-    if (result.messageKey == 'remote_newer_schema') {
-      await showGoogleDriveRemoteNewerSchemaDialog(context, message: message);
-      return;
-    }
     if (needsGoogleReauth(result.messageKey)) {
       await _promptReauth(message);
-      return;
     }
-    showAppToast(context, message);
   }
 
   /// Shown when the stored Google credentials went stale (e.g. the user was
@@ -132,7 +123,7 @@ class _GoogleDriveSyncQuickCardState
     }
     setState(() => _openingIntegration = true);
     final result = await ref
-        .read(googleDriveSyncEngineProvider)
+        .read(googleDriveSyncControllerProvider.notifier)
         .connectAndSync(
           passphrase: passphrase,
           includeFileScope:
@@ -147,7 +138,10 @@ class _GoogleDriveSyncQuickCardState
       setState(() {});
       return;
     }
-    showAppToast(context, googleDriveSyncResultMessage(l10n, result));
+    if (needsGoogleReauth(result.messageKey)) {
+      final message = googleDriveSyncResultMessage(l10n, result);
+      await _promptReauth(message);
+    }
   }
 
   Future<void> _openGoogleDriveIntegration() async {

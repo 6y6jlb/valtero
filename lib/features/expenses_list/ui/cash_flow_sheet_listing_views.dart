@@ -10,7 +10,6 @@ import 'package:valtero/features/expenses_list/model/cash_flow_selection_key.dar
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/expenses_list/model/recent_operation.dart';
 import 'package:valtero/features/expenses_list/ui/expense_delete_flow.dart';
-import 'package:valtero/features/expenses_list/ui/cash_flow_breakdown_icons.dart';
 import 'package:valtero/features/expenses_list/ui/cash_flow_chart_view.dart';
 import 'package:valtero/features/expenses_list/ui/cash_flow_table.dart';
 import 'package:valtero/features/expenses_list/ui/grouped_cash_flow_table.dart';
@@ -33,6 +32,11 @@ class CashFlowSheetListingViews extends ConsumerWidget {
   final VoidCallback onToggleSelectAll;
   final bool allSelectableSelected;
   final Map<int, String> paymentLabels;
+  final Map<int, List<int>> expenseTags;
+  final Map<int, List<int>> incomeTags;
+  final Map<int, String> tagLabels;
+  final Map<int, int?> tagParentIds;
+  final String untaggedLabel;
   final String? displayCurrency;
   final int? Function(RecentOperation operation) convertedMinor;
   final String summaryCurrency;
@@ -59,6 +63,11 @@ class CashFlowSheetListingViews extends ConsumerWidget {
     required this.onToggleSelectAll,
     required this.allSelectableSelected,
     required this.paymentLabels,
+    this.expenseTags = const {},
+    this.incomeTags = const {},
+    this.tagLabels = const {},
+    this.tagParentIds = const {},
+    this.untaggedLabel = '',
     required this.displayCurrency,
     required this.convertedMinor,
     required this.summaryCurrency,
@@ -80,6 +89,11 @@ class CashFlowSheetListingViews extends ConsumerWidget {
             CashFlowTable(
               items: pageItems,
               paymentLabels: paymentLabels,
+              expenseTags: expenseTags,
+              incomeTags: incomeTags,
+              tagLabels: tagLabels,
+              tagParentIds: tagParentIds,
+              untaggedLabel: untaggedLabel,
               displayCurrency: displayCurrency,
               convertedMinor: convertedMinor,
               selectedKeys: selectedKeys,
@@ -203,13 +217,10 @@ class _CashFlowChartView extends StatelessWidget {
                 displayCurrency: displayCurrency,
                 chartType: chartType,
                 onChartTypeChanged: onChartTypeChanged,
+                breakdown: chartDatePeriod,
+                onBreakdownChanged: onChartDatePeriodChanged,
                 hideAmounts: aggregation.missingRateCount > 0,
                 emptyMessage: emptyMessage,
-              ),
-              const SizedBox(height: 8),
-              CashFlowBreakdownIcons(
-                selected: chartDatePeriod,
-                onChanged: onChartDatePeriodChanged,
               ),
             ],
           ),

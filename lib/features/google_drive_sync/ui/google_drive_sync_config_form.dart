@@ -8,14 +8,12 @@ import 'package:valtero/widgets/passphrase_text_field.dart';
 import 'package:valtero/features/google_drive_sync/model/google_drive_sync_engine.dart';
 import 'package:valtero/features/google_drive_sync/model/google_drive_sync_messages.dart';
 import 'package:valtero/features/google_drive_sync/ui/google_drive_join_sheet.dart';
-import 'package:valtero/features/google_drive_sync/ui/google_drive_remote_newer_schema_dialog.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/shared/settings/app_settings_provider.dart';
 import 'package:valtero/widgets/app_toast.dart';
 import 'package:valtero/widgets/action_success_status_icon.dart';
 import 'package:valtero/widgets/app_button.dart';
 import 'package:valtero/widgets/app_close_icon_button.dart';
-import 'package:valtero/widgets/app_ok_button.dart';
 
 class GoogleDriveSyncConfigForm extends ConsumerStatefulWidget {
   const GoogleDriveSyncConfigForm({super.key});
@@ -101,18 +99,13 @@ class _GoogleDriveSyncConfigFormState
       result,
       includeAndroidOAuthHint: true,
     );
-    if (!result.success && result.messageKey == 'remote_newer_schema') {
-      if (!mounted) return;
-      await showGoogleDriveRemoteNewerSchemaDialog(context, message: message);
+    if (result.success) {
+      setState(() => _status = null);
+      // Success / sync-progress toasts are owned by GoogleDriveSyncToastListener.
       return;
     }
-    if (result.success) {
-      if (result.messageKey == 'syncOk') {
-        setState(() => _status = null);
-        return;
-      }
-      setState(() => _status = null);
-      showAppToast(context, message);
+    if (result.messageKey == 'remote_newer_schema') {
+      // Schema dialog is owned by GoogleDriveSyncToastListener.
       return;
     }
     setState(() => _status = message);
@@ -196,7 +189,7 @@ class _GoogleDriveSyncConfigFormState
       _status = null;
     });
     final result = await ref
-        .read(googleDriveSyncEngineProvider)
+        .read(googleDriveSyncControllerProvider.notifier)
         .connectAndSync(
           passphrase: passphrase,
           includeFileScope:
