@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:valtero/features/expenses_list/model/chart_overlay_layout.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/expenses_list/ui/chart_toggle_icon.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
@@ -8,22 +9,24 @@ import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 /// When [compact] is true, buttons use the same 36px footprint as
 /// [ChartToggleIcon]. Otherwise they stay at 48px for standalone rows.
 ///
-/// When all icons fit on one line they stay in a single row; otherwise they
-/// wrap into two rows split as evenly as possible (e.g. 4 + 4).
+/// When [maxIconsPerRow] is set (e.g. 4 on narrow screens), icons wrap into
+/// rows of that length. Otherwise they stay in one row when width allows,
+/// or split evenly into two rows.
 class ChartBreakdownIcons extends StatelessWidget {
   final ExpenseChartBreakdown selected;
   final ValueChanged<ExpenseChartBreakdown> onChanged;
   final bool compact;
+  final int? maxIconsPerRow;
 
   const ChartBreakdownIcons({
     super.key,
     required this.selected,
     required this.onChanged,
     this.compact = false,
+    this.maxIconsPerRow,
   });
 
-  double get _iconExtent =>
-      compact ? ChartToggleIcon.extent : 48.0;
+  double get _iconExtent => compact ? ChartToggleIcon.extent : 48.0;
 
   @override
   Widget build(BuildContext context) {
@@ -107,30 +110,45 @@ class ChartBreakdownIcons extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final n = icons.length;
-        final fitsOneRow = !constraints.maxWidth.isFinite ||
-            constraints.maxWidth >= extent * n;
-        if (fitsOneRow) {
+        final forced = maxIconsPerRow;
+        final List<int> rowLengths;
+        if (forced != null && forced > 0 && forced < n) {
+          rowLengths = chunkChartOverlayIconRows(n, forced);
+        } else if (constraints.maxWidth.isFinite &&
+            constraints.maxWidth < extent * n) {
+          final topCount = (n + 1) ~/ 2;
+          rowLengths = [topCount, n - topCount];
+        } else {
+          rowLengths = [n];
+        }
+
+        if (rowLengths.length == 1) {
           return Row(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: icons,
           );
         }
-        final topCount = (n + 1) ~/ 2;
+
+        final rows = <Widget>[];
+        var offset = 0;
+        for (var i = 0; i < rowLengths.length; i++) {
+          final len = rowLengths[i];
+          if (i > 0) {
+            rows.add(const SizedBox(height: kChartOverlayIconRowGap));
+          }
+          rows.add(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: icons.sublist(offset, offset + len),
+            ),
+          );
+          offset += len;
+        }
         return Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: icons.sublist(0, topCount),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: icons.sublist(topCount),
-            ),
-          ],
+          children: rows,
         );
       },
     );

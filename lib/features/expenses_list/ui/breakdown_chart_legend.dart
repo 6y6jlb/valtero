@@ -93,22 +93,23 @@ class _SubcategoryLegendToggle extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // No ClipRect: scaled Material Switch is ~17.6px tall in a 16px
+            // box; clipping cut the track. Overflow paints outside the
+            // footprint without changing layout size.
             SizedBox(
               width: _trackWidth,
               height: _trackHeight,
-              child: ClipRect(
-                child: OverflowBox(
-                  alignment: Alignment.center,
-                  maxWidth: _trackWidth / _switchScale,
-                  maxHeight: _trackHeight / _switchScale,
-                  child: Transform.scale(
-                    scale: _switchScale,
-                    child: IgnorePointer(
-                      child: Switch(
-                        value: value,
-                        onChanged: (_) {},
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
+              child: OverflowBox(
+                alignment: Alignment.center,
+                maxWidth: _trackWidth / _switchScale,
+                maxHeight: _trackHeight / _switchScale,
+                child: Transform.scale(
+                  scale: _switchScale,
+                  child: IgnorePointer(
+                    child: Switch(
+                      value: value,
+                      onChanged: (_) {},
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                   ),
                 ),

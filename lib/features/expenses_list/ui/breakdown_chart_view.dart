@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:valtero/features/expenses_list/model/chart_overlay_layout.dart';
 import 'package:valtero/features/expenses_list/model/chart_time_series.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
@@ -273,39 +274,49 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
 
     return Column(
       children: [
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Align(
-              alignment: Alignment.centerRight,
-              child: ChartOverlayControls(
-                chartType: widget.chartType,
-                onChartTypeChanged: widget.onChartTypeChanged,
-                availableChartTypes: widget.availableChartTypes,
-                breakdown: widget.breakdown,
-                onBreakdownChanged: widget.onBreakdownChanged,
-                cashFlowPeriodOnly: widget.cashFlowPeriodOnly,
-              ),
-            ),
-            if (showColumnTotal && _selection == null)
-              Positioned(
-                top: 0,
-                left: 0,
-                child: IgnorePointer(
-                  child: _ChartTotalBadge(
-                    label: l10n.summaryTotal,
-                    primaryText: totalPrimaryText,
-                    compactText: totalCompactText,
-                  ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final narrow = isChartOverlayNarrow(constraints.maxWidth);
+            final maxIcons = narrow
+                ? kChartOverlayNarrowMaxIconsPerRow
+                : null;
+            // Donut has no corner selection; column total uses the same slot.
+            final badge = widget.chartType == ExpenseChartType.donut
+                ? null
+                : ChartSelectionPanel(
+                    detail: _selection,
+                    totalLabel: showColumnTotal && _selection == null
+                        ? l10n.summaryTotal
+                        : null,
+                    totalAmountText: showColumnTotal && _selection == null
+                        ? totalPrimaryText
+                        : null,
+                  );
+
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (badge != null)
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: badge,
+                    ),
+                  )
+                else
+                  const Spacer(),
+                ChartOverlayControls(
+                  chartType: widget.chartType,
+                  onChartTypeChanged: widget.onChartTypeChanged,
+                  availableChartTypes: widget.availableChartTypes,
+                  breakdown: widget.breakdown,
+                  onBreakdownChanged: widget.onBreakdownChanged,
+                  cashFlowPeriodOnly: widget.cashFlowPeriodOnly,
+                  maxIconsPerRow: maxIcons,
                 ),
-              ),
-            if (widget.chartType != ExpenseChartType.donut)
-              Positioned(
-                top: 0,
-                left: 0,
-                child: ChartSelectionPanel(detail: _selection),
-              ),
-          ],
+              ],
+            );
+          },
         ),
         const SizedBox(height: 4),
         SizedBox(
@@ -451,57 +462,6 @@ class _ChartCenterTotal extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class _ChartTotalBadge extends StatelessWidget {
-  final String label;
-  final String primaryText;
-  final String compactText;
-
-  static const _maxWidth = 120.0;
-
-  const _ChartTotalBadge({
-    required this.label,
-    required this.primaryText,
-    required this.compactText,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final amountStyle = theme.textTheme.titleSmall?.copyWith(
-      fontWeight: FontWeight.w700,
-    );
-    final amountText = _textFitsWidth(primaryText, amountStyle, _maxWidth)
-        ? primaryText
-        : compactText;
-    return Material(
-      color: theme.colorScheme.surface.withValues(alpha: 0.88),
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: _maxWidth),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label,
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                Text(amountText, maxLines: 1, style: amountStyle),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/cash_flow_aggregator.dart';
+import 'package:valtero/features/expenses_list/model/chart_overlay_layout.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/expenses_list/ui/breakdown_chart_view.dart';
 import 'package:valtero/features/expenses_list/ui/cash_flow_chart.dart';
@@ -42,7 +43,7 @@ class CashFlowChartView extends ConsumerWidget {
     this.chartHeight = 312,
   });
 
-  Widget _overlayControls() {
+  Widget _overlayControls({int? maxIconsPerRow}) {
     return ChartOverlayControls(
       chartType: chartType,
       onChartTypeChanged: onChartTypeChanged,
@@ -50,6 +51,22 @@ class CashFlowChartView extends ConsumerWidget {
       breakdown: breakdown,
       onBreakdownChanged: onBreakdownChanged,
       cashFlowPeriodOnly: true,
+      maxIconsPerRow: maxIconsPerRow,
+    );
+  }
+
+  Widget _chromeOnlyOverlay() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final narrow = isChartOverlayNarrow(constraints.maxWidth);
+        return Align(
+          alignment: Alignment.centerRight,
+          child: _overlayControls(
+            maxIconsPerRow:
+                narrow ? kChartOverlayNarrowMaxIconsPerRow : null,
+          ),
+        );
+      },
     );
   }
 
@@ -86,10 +103,7 @@ class CashFlowChartView extends ConsumerWidget {
     if (chartType == ExpenseChartType.line) {
       return Column(
         children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: _overlayControls(),
-          ),
+          _chromeOnlyOverlay(),
           const SizedBox(height: 4),
           CashFlowLineChart(
             buckets: buckets,
@@ -107,10 +121,7 @@ class CashFlowChartView extends ConsumerWidget {
     // on expenses/income, which do not apply to income-vs-expense buckets.
     return Column(
       children: [
-        Align(
-          alignment: Alignment.centerRight,
-          child: _overlayControls(),
-        ),
+        _chromeOnlyOverlay(),
         const SizedBox(height: 4),
         CashFlowChart(
           buckets: buckets,

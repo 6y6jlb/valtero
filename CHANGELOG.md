@@ -8,6 +8,21 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.12] - 2026-09-22
+
+### Fixed
+
+- Chart subcategory switch no longer clips vertically in the legend.
+- On narrow screens, chart overlay actions wrap at most 4 icons per row so the
+  sum / selection badge no longer overlaps them; long titles ellipsize while
+  the amount stays full.
+- Chart-type actions are visually separated from breakdown / period icons (rule
+  under types); selected chart-type icons use a circular wash with a slightly
+  bluer tint.
+- Dashboard direction tab switch shows a chart-slot loader instead of flashing
+  an empty chart stub while aggregation finishes. Tapping a multi-line chart
+  selection badge opens a detail sheet; single-line totals stay overlay-only.
+
 ## [1.1.11] - 2026-09-21
 
 ### Fixed

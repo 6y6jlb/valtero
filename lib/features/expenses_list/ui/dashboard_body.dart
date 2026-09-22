@@ -48,6 +48,9 @@ class DashboardBody extends ConsumerStatefulWidget {
   final Map<int, String> tagLabels;
   final Map<int, String> paymentLabels;
   final bool isSample;
+  /// True while chart aggregation is in flight — show a spinner in the chart
+  /// slot instead of an empty stub (avoids flash on direction tab switch).
+  final bool chartLoading;
   /// True when the user has any rows of the active kind (before filters).
   /// Used so empty charts say "nothing matches" vs "none yet".
   final bool hasSourceData;
@@ -79,6 +82,7 @@ class DashboardBody extends ConsumerStatefulWidget {
     required this.tagLabels,
     required this.paymentLabels,
     required this.isSample,
+    this.chartLoading = false,
     this.hasSourceData = false,
     required this.onBreakdownChanged,
     required this.onChartTypeChanged,
@@ -108,6 +112,13 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
   }
 
   Widget _buildChart(AppLocalizations l10n) {
+    if (widget.chartLoading) {
+      // Match default chartHeight so the layout does not jump when data lands.
+      return const SizedBox(
+        height: 312,
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
     final emptyYet = switch (widget.direction) {
       TransactionDirection.income => l10n.noIncomeYet,
       TransactionDirection.expenses => l10n.noExpenses,
@@ -236,14 +247,16 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
               ),
             ),
             const SizedBox(height: 12),
-            if (widget.isSample) ...[
+            if (widget.isSample && !widget.chartLoading) ...[
               _DashboardSampleBanner(
                 onOpenGuide: widget.onOpenGuide,
                 onRestoreFromBackup: widget.onRestoreFromBackup,
               ),
               const SizedBox(height: 16),
             ],
-            if (!widget.isSample && widget.missingRateCount > 0)
+            if (!widget.isSample &&
+                !widget.chartLoading &&
+                widget.missingRateCount > 0)
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: MaterialBanner(
@@ -277,7 +290,8 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
             ),
             const SizedBox(height: 12),
             _buildChart(l10n),
-            if (widget.direction != TransactionDirection.cashFlow &&
+            if (!widget.chartLoading &&
+                widget.direction != TransactionDirection.cashFlow &&
                 (expenseChartBreakdownUsesTagKind(widget.breakdown) ||
                     expenseChartBreakdownUsesPayment(widget.breakdown))) ...[
               const SizedBox(height: 4),

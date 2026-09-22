@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 
+/// Selection tint for chart overlay icons — app primary shifted toward blue.
+Color chartOverlaySelectionColor(ColorScheme scheme) {
+  return Color.lerp(scheme.primary, const Color(0xFF2563EB), 0.42)!;
+}
+
 /// Fixed-size icon button for chart-type toggles (donut / column / line / …).
 ///
 /// Size is locked so switching chart types never changes the toggle row’s
-/// footprint (avoids layout jank on mobile).
+/// footprint (avoids layout jank on mobile). Selected state uses the same
+/// circular wash as breakdown / period icons.
 class ChartToggleIcon extends StatelessWidget {
   final String tooltip;
   final bool selected;
@@ -24,6 +30,8 @@ class ChartToggleIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final selectedColor = chartOverlaySelectionColor(theme.colorScheme);
+    final muted = theme.colorScheme.onSurfaceVariant;
     return IconButton(
       tooltip: tooltip,
       visualDensity: VisualDensity.compact,
@@ -36,9 +44,12 @@ class ChartToggleIcon extends StatelessWidget {
       icon: Icon(
         icon,
         size: iconSize,
-        color: selected
-            ? theme.colorScheme.primary
-            : theme.colorScheme.onSurfaceVariant,
+        color: selected ? selectedColor : muted,
+      ),
+      style: IconButton.styleFrom(
+        backgroundColor: selected
+            ? selectedColor.withValues(alpha: 0.14)
+            : Colors.transparent,
       ),
     );
   }
