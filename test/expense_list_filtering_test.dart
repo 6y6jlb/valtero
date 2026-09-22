@@ -112,4 +112,20 @@ void main() {
       expect(onJan15Pacific.map((e) => e.id), [11]);
     });
   });
+
+  test('sortExpenses orders by amount after display-currency conversion', () {
+    final sorted = sortExpenses(
+      list: [
+        _expense(id: 1, currency: 'EUR'),
+        _expense(id: 2, currency: 'USD'),
+      ],
+      query: const ExpenseListQuery(
+        sort: ExpenseListSortField.amount,
+        ascending: true,
+      ),
+      displayCurrency: 'USD',
+      displayRates: const {'EUR': 2, 'USD': 1},
+    );
+    expect(sorted.map((e) => e.id), [2, 1]);
+  });
 }

@@ -31,8 +31,17 @@ List<CurrencyIncomeSummary> aggregateIncomesByCurrency(
   ];
 }
 
-/// Stable key for chart FutureBuilder invalidation when the filtered set changes.
+/// Stable fingerprint for [FutureBuilder] keys when income data changes.
 String incomesSnapshotKey(Iterable<Income> incomes) {
-  final ids = incomes.map((e) => e.id).toList()..sort();
-  return ids.join(',');
+  final buffer = StringBuffer();
+  for (final e in incomes) {
+    buffer
+      ..write(e.id)
+      ..write(':')
+      ..write(e.storedAmountMinor)
+      ..write(':')
+      ..write(e.storedCurrencyCode)
+      ..write(';');
+  }
+  return buffer.toString();
 }

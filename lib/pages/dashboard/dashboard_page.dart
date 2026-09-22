@@ -362,7 +362,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
     // Shared chrome for loading: keep tabs/filters; spinner only in chart slot.
     // [recent*] keep the list stable while aggregation finishes.
-    DashboardBody loadingBody({
+    Widget loadingBody({
       List<Expense> recentExpenses = const [],
       Map<int, List<int>> expenseTags = const {},
       List<Income> recentIncomes = const [],

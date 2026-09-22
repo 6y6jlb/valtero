@@ -8,6 +8,16 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.13] - 2026-09-22
+
+### Fixed
+
+- Income charts refresh when an amount or currency changes.
+
+### Changed
+
+- Automated tests cover money, filters, and sync logic. Widget and chart-chrome checks are no longer part of the suite.
+
 ## [1.1.12] - 2026-09-22
 
 ### Fixed

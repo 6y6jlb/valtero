@@ -59,18 +59,6 @@ void main() {
       );
     });
 
-    test('uses duplicates message when only skips are present', () {
-      expect(
-        googleDriveSyncSuccessMessage(
-          l10n,
-          const GoogleDriveSyncResult.ok(
-            expensesSkippedDuplicate: 3,
-          ),
-        ),
-        l10n.googleDriveSyncDoneWithDuplicates(0, 0, 3),
-      );
-    });
-
     test('uses duplicates message when skips are present', () {
       expect(
         googleDriveSyncSuccessMessage(

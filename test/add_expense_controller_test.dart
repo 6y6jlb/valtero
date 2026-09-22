@@ -40,12 +40,14 @@ void main() {
   late AppDatabase db;
   late ProviderContainer container;
   late AppSettings settings;
+  late InMemoryExchangeRateStore rates;
 
   setUp(() {
     db = AppDatabase(NativeDatabase.memory());
     settings = AppSettings.initial();
+    rates = InMemoryExchangeRateStore();
     final resolver = RateResolver(
-      store: InMemoryExchangeRateStore(),
+      store: rates,
       exchangeRateApi: _NoopProvider(),
       frankfurter: _NoopProvider(),
       readSettings: () => settings,
@@ -86,6 +88,56 @@ void main() {
     expect(row.originalCurrencyCode, 'USD');
     expect(row.note, 'coffee');
     expect(await db.getTagIdsForExpense(id), [tagId]);
+  });
+
+  test('save with convert stores the converted amount', () async {
+    await rates.upsertRate(
+      base: 'USD',
+      target: 'EUR',
+      source: 'manual',
+      rate: 2,
+      fetchedAt: DateTime.now(),
+    );
+    final controller = container.read(addExpenseControllerProvider);
+    final id = await controller.save(
+      AddExpenseInput(
+        originalAmountMinor: 1000,
+        originalCurrencyCode: 'USD',
+        convert: true,
+        targetCurrencyCode: 'EUR',
+        occurredAt: DateTime(2026, 3, 1),
+      ),
+    );
+
+    final row = await db.getExpenseById(id);
+    expect(row!.originalAmountMinor, 1000);
+    expect(row.originalCurrencyCode, 'USD');
+    expect(row.storedAmountMinor, 2000);
+    expect(row.storedCurrencyCode, 'EUR');
+    expect(row.rateUsed, 2);
+  });
+
+  test('save with convert throws when the rate is missing', () async {
+    final controller = container.read(addExpenseControllerProvider);
+    await expectLater(
+      controller.save(
+        AddExpenseInput(
+          originalAmountMinor: 1000,
+          originalCurrencyCode: 'USD',
+          convert: true,
+          targetCurrencyCode: 'EUR',
+          occurredAt: DateTime(2026, 3, 1),
+        ),
+      ),
+      throwsA(
+        isA<StateError>().having(
+          (e) => e.message,
+          'message',
+          'rate_unavailable',
+        ),
+      ),
+    );
+    expect(await db.getAllExpenses(), isEmpty);
   });
 
   test('update changes amount and country', () async {

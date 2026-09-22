@@ -68,35 +68,5 @@ void main() {
         100 + 200,
       );
     });
-
-    test('leaves all series when caller skips cap for subcategories', () {
-      final series = [
-        for (var i = 0; i < 8; i++)
-          ChartSeriesDef(
-            key: 's$i',
-            label: 'S$i',
-            color: Colors.blue,
-            iconKey: 'food',
-          ),
-      ];
-      final points = [
-        ChartTimeSeriesPoint(
-          dateKey: '2026-01',
-          dateLabel: '2026-01',
-          amountBySeriesKey: {
-            for (var i = 0; i < 8; i++) 's$i': 100,
-          },
-          totalMinor: 800,
-        ),
-      ];
-      // Aggregators skip capChartSeries when includeSubcategories is true.
-      expect(series.length, 8);
-      expect(
-        series.every((s) => s.key != kChartOtherSeriesKey),
-        isTrue,
-      );
-      expect(points.first.amountBySeriesKey.length, 8);
-      expect(series.first.iconKey, 'food');
-    });
   });
 }

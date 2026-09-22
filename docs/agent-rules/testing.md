@@ -10,21 +10,27 @@ Guidelines for unit and feature tests in Valtero.
 
 ## What to cover
 
+Test decisions and data: minor-unit amounts, conversion, filters and sorts, duplicates, aggregations, parsers, schema, crypto/sync, and log redaction.
+
 | Layer | Prefer | Examples |
 | --- | --- | --- |
 | Pure utils / model | Unit tests | `Money`, `formatMoneyDisplay`, `filterExpenses`, chart drill-down, groupers |
 | Controllers with DB/rates | Feature-ish unit tests with fakes / memory DB | `AddExpenseController.save` / `update` |
-| Widgets / full UI | Skip unless the bug is UI-only; keep thin | — |
+| Infrastructure | Unit tests | schema migrate, backup crypto, OAuth token shapes, `LogRedactor` |
+| Widgets / chart chrome | Do not test | icons, button labels, spinners, FAB rotation, donut radii, overlay icon rows |
+
+Do **not** add `testWidgets`, golden, or layout tests for visual chrome (icons, labels, spinners, hit targets, donut radii, overlay row chunking, overlay width).
 
 ## Rules
 
 1. Put tests under `test/`, mirror domain names (`money_display_test.dart`, `expense_list_filtering_test.dart`).
-2. One logical behavior per `test(...)`; name with the expected outcome.
+2. One logical behavior per `test(...)`; name with the expected outcome. Delete a test that never calls the function it claims to check.
 3. Do **not** hit the network in unit/feature tests — fake `RateResolver` / Dio.
 4. Money stays in **integer minor units** in fixtures.
 5. When adding a pure helper or changing filter/money/rate logic in the same PR, add or extend a test.
 6. Schema / migration: add fixture upgrade tests for breaking `migrate_to_vN` changes. Never wipe user DB on upgrade.
 7. When a Drift / generated model gains a **required** field (e.g. new non-null column), update **all** hand-built `Expense(...)` / table-row fixtures across `test/` — not only the new feature’s tests.
+8. Extract a shared fake only when the same harness is copied in more than two files. Keep parallel expense and income tests: they guard separate save paths.
 
 ## In-memory `AppDatabase` — one live instance
 
