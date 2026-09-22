@@ -15,12 +15,9 @@ const kChartPlotPadding = EdgeInsets.fromLTRB(4, 8, 12, 4);
 const kDonutPlotPadding = EdgeInsets.all(8);
 
 /// Chart-type icons and optional breakdown/period icons, laid out above
-/// the plot (top-right). Chart types sit above a short right-aligned rule;
-/// breakdown / period icons follow with the same row gap as wrapped targets.
-///
-/// When [maxIconsPerRow] is set (narrow screens), icon rows wrap at that
-/// count and the column is width-bounded so [Wrap]/[LayoutBuilder] see a
-/// finite max width.
+/// the plot (top-right). Chart types sit on one row above a short
+/// right-aligned rule; breakdown / period icons follow and, on narrow
+/// screens, wrap at [maxIconsPerRow].
 class ChartOverlayControls extends StatelessWidget {
   final ExpenseChartType chartType;
   final ValueChanged<ExpenseChartType> onChartTypeChanged;
@@ -28,6 +25,9 @@ class ChartOverlayControls extends StatelessWidget {
   final ExpenseChartBreakdown? breakdown;
   final ValueChanged<ExpenseChartBreakdown>? onBreakdownChanged;
   final bool cashFlowPeriodOnly;
+
+  /// When set, breakdown / period icons wrap at this count. Chart-type
+  /// icons are not wrapped.
   final int? maxIconsPerRow;
 
   const ChartOverlayControls({
@@ -92,25 +92,14 @@ class ChartOverlayControls extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final toggleIcons = _chartToggleIcons(l10n);
-    final showBreakdown =
-        breakdown != null && onBreakdownChanged != null;
+    final showBreakdown = breakdown != null && onBreakdownChanged != null;
     final maxPerRow = maxIconsPerRow;
-    final maxWidth = maxPerRow != null
-        ? maxPerRow * ChartToggleIcon.extent + 4
-        : null;
     final surface = theme.colorScheme.surface.withValues(alpha: 0.88);
-    final dividerColor =
-        theme.colorScheme.outlineVariant.withValues(alpha: 0.55);
+    final dividerColor = theme.colorScheme.outlineVariant.withValues(
+      alpha: 0.55,
+    );
 
-    final typesRow = toggleIcons.length <= 2
-        ? Row(
-            mainAxisSize: MainAxisSize.min,
-            children: toggleIcons,
-          )
-        : Wrap(
-            alignment: WrapAlignment.end,
-            children: toggleIcons,
-          );
+    final typesRow = Row(mainAxisSize: MainAxisSize.min, children: toggleIcons);
 
     // Short rule ≈ ⅓ of the type-icon row, flush to the trailing edge.
     final typeRowWidth = toggleIcons.length * ChartToggleIcon.extent;
@@ -153,10 +142,19 @@ class ChartOverlayControls extends StatelessWidget {
       ),
     );
 
-    if (maxWidth == null) return column;
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: maxWidth),
-      child: column,
-    );
+    return column;
   }
+}
+
+/// Insets [child] on the trailing side by the system bar (navigation / gesture
+/// bar sits there after a landscape rotation) so chart actions stay visible.
+Widget padClearOfEndSystemBar(BuildContext context, Widget child) {
+  final safe = MediaQuery.paddingOf(context);
+  final rtl = Directionality.of(context) == TextDirection.rtl;
+  final end = rtl ? safe.left : safe.right;
+  if (end <= 0) return child;
+  return Padding(
+    padding: EdgeInsetsDirectional.only(end: end),
+    child: child,
+  );
 }

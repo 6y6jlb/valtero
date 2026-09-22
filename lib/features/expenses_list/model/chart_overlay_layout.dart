@@ -1,7 +1,8 @@
-/// Max chart-type / breakdown icons per row on narrow chart chrome.
+/// Max breakdown / period (target) icons per row on narrow chart chrome.
+/// Chart-type icons always stay on a single row.
 const kChartOverlayNarrowMaxIconsPerRow = 4;
 
-/// Parent width below which overlay actions wrap to [kChartOverlayNarrowMaxIconsPerRow].
+/// Parent width below which target icons wrap to [kChartOverlayNarrowMaxIconsPerRow].
 const kChartOverlayNarrowWidth = 600.0;
 
 /// Vertical gap between wrapped overlay icon rows, and between chart-type

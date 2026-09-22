@@ -272,144 +272,151 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
         widget.breakdown == ExpenseChartBreakdown.tagCustom &&
         widget.onShowSubcategoriesChanged != null;
 
-    return Column(
-      children: [
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final narrow = isChartOverlayNarrow(constraints.maxWidth);
-            final maxIcons = narrow
-                ? kChartOverlayNarrowMaxIconsPerRow
-                : null;
-            // Donut has no corner selection; column total uses the same slot.
-            final badge = widget.chartType == ExpenseChartType.donut
-                ? null
-                : ChartSelectionPanel(
-                    detail: _selection,
-                    totalLabel: showColumnTotal && _selection == null
-                        ? l10n.summaryTotal
-                        : null,
-                    totalAmountText: showColumnTotal && _selection == null
-                        ? totalPrimaryText
-                        : null,
-                  );
+    return padClearOfEndSystemBar(
+      context,
+      Column(
+        children: [
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final narrow = isChartOverlayNarrow(constraints.maxWidth);
+              final maxIcons = narrow
+                  ? kChartOverlayNarrowMaxIconsPerRow
+                  : null;
+              // Donut has no corner selection; column total uses the same slot.
+              final badge = widget.chartType == ExpenseChartType.donut
+                  ? null
+                  : ChartSelectionPanel(
+                      detail: _selection,
+                      totalLabel: showColumnTotal && _selection == null
+                          ? l10n.summaryTotal
+                          : null,
+                      totalAmountText: showColumnTotal && _selection == null
+                          ? totalPrimaryText
+                          : null,
+                    );
 
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (badge != null)
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: badge,
-                    ),
-                  )
-                else
-                  const Spacer(),
-                ChartOverlayControls(
-                  chartType: widget.chartType,
-                  onChartTypeChanged: widget.onChartTypeChanged,
-                  availableChartTypes: widget.availableChartTypes,
-                  breakdown: widget.breakdown,
-                  onBreakdownChanged: widget.onBreakdownChanged,
-                  cashFlowPeriodOnly: widget.cashFlowPeriodOnly,
-                  maxIconsPerRow: maxIcons,
-                ),
-              ],
-            );
-          },
-        ),
-        const SizedBox(height: 4),
-        SizedBox(
-          height: widget.chartHeight,
-          child: ClipRect(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 280),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
-              transitionBuilder: (child, animation) {
-                final fade = CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOut,
-                );
-                final slide = Tween<Offset>(
-                  begin: const Offset(0.04, 0),
-                  end: Offset.zero,
-                ).animate(fade);
-                return FadeTransition(
-                  opacity: fade,
-                  child: SlideTransition(position: slide, child: child),
-                );
-              },
-              child: KeyedSubtree(
-                key: ValueKey(widget.chartType),
-                child: _buildChartChild(
-                  l10n: l10n,
-                  allSlices: all,
-                  allSeries: allSeries,
-                  hiddenKeys: _hiddenKeys,
-                  donutCenterOverlay: showDonutCenterTotal
-                      ? _ChartCenterTotal(
-                          label: l10n.summaryTotal,
-                          primaryText: totalPrimaryText,
-                          compactText: totalCompactText,
-                        )
-                      : null,
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (badge != null)
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: badge,
+                      ),
+                    )
+                  else
+                    const Spacer(),
+                  ChartOverlayControls(
+                    chartType: widget.chartType,
+                    onChartTypeChanged: widget.onChartTypeChanged,
+                    availableChartTypes: widget.availableChartTypes,
+                    breakdown: widget.breakdown,
+                    onBreakdownChanged: widget.onBreakdownChanged,
+                    cashFlowPeriodOnly: widget.cashFlowPeriodOnly,
+                    maxIconsPerRow: maxIcons,
+                  ),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 4),
+          SizedBox(
+            height: widget.chartHeight,
+            child: ClipRect(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 280),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (child, animation) {
+                  final fade = CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOut,
+                  );
+                  final slide = Tween<Offset>(
+                    begin: const Offset(0.04, 0),
+                    end: Offset.zero,
+                  ).animate(fade);
+                  return FadeTransition(
+                    opacity: fade,
+                    child: SlideTransition(position: slide, child: child),
+                  );
+                },
+                child: KeyedSubtree(
+                  key: ValueKey(widget.chartType),
+                  child: _buildChartChild(
+                    l10n: l10n,
+                    allSlices: all,
+                    allSeries: allSeries,
+                    hiddenKeys: _hiddenKeys,
+                    donutCenterOverlay: showDonutCenterTotal
+                        ? _ChartCenterTotal(
+                            label: l10n.summaryTotal,
+                            primaryText: totalPrimaryText,
+                            compactText: totalCompactText,
+                          )
+                        : null,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 8),
-        if (isTimeSeries)
-          BreakdownChartLegend(
-            items: [
-              if (widget.chartType == ExpenseChartType.line)
-                (
-                  key: kChartTotalSeriesKey,
-                  label: l10n.summaryTotal,
-                  color: theme.colorScheme.onSurface,
-                  iconKey: null,
-                  flagCode: null,
-                  flagIsCurrency: false,
-                ),
-              for (final s in allSeries)
-                (
-                  key: s.key,
-                  label: s.label,
-                  color: s.color,
-                  iconKey: s.iconKey,
-                  flagCode: s.flagCode,
-                  flagIsCurrency: s.flagIsCurrency,
-                ),
-            ],
-            hiddenKeys: _hiddenKeys,
-            onToggle: _toggle,
-            showSubcategories: showSubToggle ? widget.showSubcategories : null,
-            onShowSubcategoriesChanged: showSubToggle
-                ? widget.onShowSubcategoriesChanged
-                : null,
-          )
-        else
-          BreakdownChartLegend(
-            items: [
-              for (final s in all)
-                (
-                  key: s.key,
-                  label: s.label,
-                  color: s.color,
-                  iconKey: s.iconKey,
-                  flagCode: s.flagCode,
-                  flagIsCurrency: s.flagIsCurrency,
-                ),
-            ],
-            hiddenKeys: _hiddenKeys,
-            onToggle: _toggle,
-            showSubcategories: showSubToggle ? widget.showSubcategories : null,
-            onShowSubcategoriesChanged: showSubToggle
-                ? widget.onShowSubcategoriesChanged
-                : null,
-          ),
-      ],
+          const SizedBox(height: 8),
+          if (isTimeSeries)
+            BreakdownChartLegend(
+              items: [
+                if (widget.chartType == ExpenseChartType.line)
+                  (
+                    key: kChartTotalSeriesKey,
+                    label: l10n.summaryTotal,
+                    color: theme.colorScheme.onSurface,
+                    iconKey: null,
+                    flagCode: null,
+                    flagIsCurrency: false,
+                  ),
+                for (final s in allSeries)
+                  (
+                    key: s.key,
+                    label: s.label,
+                    color: s.color,
+                    iconKey: s.iconKey,
+                    flagCode: s.flagCode,
+                    flagIsCurrency: s.flagIsCurrency,
+                  ),
+              ],
+              hiddenKeys: _hiddenKeys,
+              onToggle: _toggle,
+              showSubcategories: showSubToggle
+                  ? widget.showSubcategories
+                  : null,
+              onShowSubcategoriesChanged: showSubToggle
+                  ? widget.onShowSubcategoriesChanged
+                  : null,
+            )
+          else
+            BreakdownChartLegend(
+              items: [
+                for (final s in all)
+                  (
+                    key: s.key,
+                    label: s.label,
+                    color: s.color,
+                    iconKey: s.iconKey,
+                    flagCode: s.flagCode,
+                    flagIsCurrency: s.flagIsCurrency,
+                  ),
+              ],
+              hiddenKeys: _hiddenKeys,
+              onToggle: _toggle,
+              showSubcategories: showSubToggle
+                  ? widget.showSubcategories
+                  : null,
+              onShowSubcategoriesChanged: showSubToggle
+                  ? widget.onShowSubcategoriesChanged
+                  : null,
+            ),
+        ],
+      ),
     );
   }
 }

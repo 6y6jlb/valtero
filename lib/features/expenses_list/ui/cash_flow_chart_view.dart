@@ -62,8 +62,7 @@ class CashFlowChartView extends ConsumerWidget {
         return Align(
           alignment: Alignment.centerRight,
           child: _overlayControls(
-            maxIconsPerRow:
-                narrow ? kChartOverlayNarrowMaxIconsPerRow : null,
+            maxIconsPerRow: narrow ? kChartOverlayNarrowMaxIconsPerRow : null,
           ),
         );
       },
@@ -101,37 +100,43 @@ class CashFlowChartView extends ConsumerWidget {
     }
 
     if (chartType == ExpenseChartType.line) {
-      return Column(
-        children: [
-          _chromeOnlyOverlay(),
-          const SizedBox(height: 4),
-          CashFlowLineChart(
-            buckets: buckets,
-            displayCurrency: displayCurrency,
-            hideAmounts: hideAmounts,
-            emptyMessage: emptyMessage,
-            chartHeight: chartHeight,
-          ),
-        ],
+      return padClearOfEndSystemBar(
+        context,
+        Column(
+          children: [
+            _chromeOnlyOverlay(),
+            const SizedBox(height: 4),
+            CashFlowLineChart(
+              buckets: buckets,
+              displayCurrency: displayCurrency,
+              hideAmounts: hideAmounts,
+              emptyMessage: emptyMessage,
+              chartHeight: chartHeight,
+            ),
+          ],
+        ),
       );
     }
 
     // Grouped bars by period (day/week/month/year) — cash-flow's "by date"
     // chart. No separate columnByDate type: that icon is for category stacks
     // on expenses/income, which do not apply to income-vs-expense buckets.
-    return Column(
-      children: [
-        _chromeOnlyOverlay(),
-        const SizedBox(height: 4),
-        CashFlowChart(
-          buckets: buckets,
-          displayCurrency: displayCurrency,
-          hideBarAmounts: hideAmounts,
-          emptyMessage: emptyMessage,
-          emptyIcon: emptyIcon,
-          chartHeight: chartHeight,
-        ),
-      ],
+    return padClearOfEndSystemBar(
+      context,
+      Column(
+        children: [
+          _chromeOnlyOverlay(),
+          const SizedBox(height: 4),
+          CashFlowChart(
+            buckets: buckets,
+            displayCurrency: displayCurrency,
+            hideBarAmounts: hideAmounts,
+            emptyMessage: emptyMessage,
+            emptyIcon: emptyIcon,
+            chartHeight: chartHeight,
+          ),
+        ],
+      ),
     );
   }
 }

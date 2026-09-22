@@ -8,6 +8,13 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.14] - 2026-09-22
+
+### Fixed
+
+- Chart type actions (donut, columns, line) stay on one row on a phone. Country, date, tag, and other target actions still wrap at four per row.
+- In landscape, the chart shifts clear of the system navigation bar so those actions are not covered.
+
 ## [1.1.13] - 2026-09-22
 
 ### Fixed
