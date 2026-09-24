@@ -10,6 +10,7 @@ import 'package:valtero/features/expenses_list/model/cycle_transition_direction.
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/expenses_list/ui/chart_breakdown_row.dart';
 import 'package:valtero/features/expenses_list/ui/chart_empty_placeholder.dart';
+import 'package:valtero/features/expenses_list/ui/chart_axis_title.dart';
 import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
 import 'package:valtero/features/expenses_list/ui/chart_tooltip_style.dart';
 import 'package:valtero/features/expenses_list/ui/directional_slide_switcher.dart';
@@ -197,8 +198,8 @@ class _CashFlowLineChartState extends ConsumerState<CashFlowLineChart> {
                         if (i % stride != 0 && i != buckets.length - 1) {
                           return const SizedBox.shrink();
                         }
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 6),
+                        return chartBottomAxisTitle(
+                          meta: meta,
                           child: Text(
                             buckets[i].label,
                             maxLines: 1,

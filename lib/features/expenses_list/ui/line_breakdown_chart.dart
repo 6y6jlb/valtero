@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/chart_time_series.dart';
 import 'package:valtero/features/expenses_list/ui/chart_anim.dart';
+import 'package:valtero/features/expenses_list/ui/chart_axis_title.dart';
 import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
 import 'package:valtero/features/expenses_list/ui/chart_tooltip_style.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
@@ -205,8 +206,8 @@ class LineBreakdownChart extends ConsumerWidget {
                     if (i % stride != 0 && i != points.length - 1) {
                       return const SizedBox.shrink();
                     }
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 6),
+                    return chartBottomAxisTitle(
+                      meta: meta,
                       child: Text(
                         points[i].dateLabel,
                         maxLines: 1,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/ui/chart_anim.dart';
+import 'package:valtero/features/expenses_list/ui/chart_axis_title.dart';
 import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
 import 'package:valtero/features/expenses_list/ui/chart_tooltip_style.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
@@ -130,8 +131,8 @@ class ColumnBreakdownChart extends ConsumerWidget {
                     }
                     final slice = slices[i];
                     final muted = hiddenKeys.contains(slice.key);
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 6),
+                    return chartBottomAxisTitle(
+                      meta: meta,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [

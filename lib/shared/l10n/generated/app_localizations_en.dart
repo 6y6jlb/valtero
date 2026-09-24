@@ -54,6 +54,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsThanks => 'Thanks';
 
   @override
+  String get settingsWhatsNew => 'What\'s new';
+
+  @override
+  String get whatsNewTitle => 'What\'s new';
+
+  @override
+  String get whatsNewDescription =>
+      'Highlights from recent app updates. Notes are in English for now.';
+
+  @override
   String get thanksTitle => 'Thanks';
 
   @override

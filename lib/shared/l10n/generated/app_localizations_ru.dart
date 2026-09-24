@@ -54,6 +54,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsThanks => 'Благодарности';
 
   @override
+  String get settingsWhatsNew => 'Что нового';
+
+  @override
+  String get whatsNewTitle => 'Что нового';
+
+  @override
+  String get whatsNewDescription =>
+      'Кратко о недавних обновлениях приложения. Текст пока на английском.';
+
+  @override
   String get thanksTitle => 'Благодарности';
 
   @override

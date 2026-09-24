@@ -54,6 +54,16 @@ class AppLocalizationsSr extends AppLocalizations {
   String get settingsThanks => 'Zahvalnost';
 
   @override
+  String get settingsWhatsNew => 'Šta je novo';
+
+  @override
+  String get whatsNewTitle => 'Šta je novo';
+
+  @override
+  String get whatsNewDescription =>
+      'Kratak pregled nedavnih ažuriranja. Beleške su za sada na engleskom.';
+
+  @override
   String get thanksTitle => 'Zahvalnost';
 
   @override

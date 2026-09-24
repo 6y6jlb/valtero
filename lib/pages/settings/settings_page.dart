@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/about_support/ui/contact_developer_sheet.dart';
+import 'package:valtero/features/about_support/ui/release_notes_sheet.dart';
 import 'package:valtero/features/about_support/ui/thanks_sheet.dart';
 import 'package:valtero/features/currency_settings/ui/currency_settings_panel.dart';
 import 'package:valtero/features/data_sync/ui/data_sync_flow.dart';
@@ -370,6 +371,12 @@ class SettingsPage extends ConsumerWidget {
                   title: Text(l10n.settingsDebug),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => showDebugLogsSheet(context),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.campaign_outlined),
+                  title: Text(l10n.settingsWhatsNew),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => showReleaseNotesSheet(context),
                 ),
                 ListTile(
                   leading: const Icon(

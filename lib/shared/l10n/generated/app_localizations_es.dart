@@ -54,6 +54,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settingsThanks => 'Agradecimientos';
 
   @override
+  String get settingsWhatsNew => 'Novedades';
+
+  @override
+  String get whatsNewTitle => 'Novedades';
+
+  @override
+  String get whatsNewDescription =>
+      'Resumen de actualizaciones recientes. Las notas están en inglés por ahora.';
+
+  @override
   String get thanksTitle => 'Agradecimientos';
 
   @override

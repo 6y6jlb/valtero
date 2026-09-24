@@ -192,6 +192,24 @@ abstract class AppLocalizations {
   /// **'Thanks'**
   String get settingsThanks;
 
+  /// No description provided for @settingsWhatsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s new'**
+  String get settingsWhatsNew;
+
+  /// No description provided for @whatsNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s new'**
+  String get whatsNewTitle;
+
+  /// No description provided for @whatsNewDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Highlights from recent app updates. Notes are in English for now.'**
+  String get whatsNewDescription;
+
   /// No description provided for @thanksTitle.
   ///
   /// In en, this message translates to:

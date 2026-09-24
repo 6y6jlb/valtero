@@ -8,6 +8,18 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.18] - 2026-09-24
+
+### Fixed
+
+- Column and line chart date labels stay inside the plot (edge titles no longer
+  clip off the sides after the interactive chart slide).
+
+### Added
+
+- Settings → What's new: short English release notes for app updates (before
+  Thanks).
+
 ## [1.1.17] - 2026-09-24
 
 ### Changed
@@ -54,10 +66,6 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 ### Fixed
 
 - Income charts refresh when an amount or currency changes.
-
-### Changed
-
-- Automated tests cover money, filters, and sync logic. Widget and chart-chrome checks are no longer part of the suite.
 
 ## [1.1.12] - 2026-09-22
 
@@ -288,7 +296,6 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
   direction-specific list FAB); sibling FABs stay bottom-aligned when a menu opens.
 - Create/edit tag (and payment method) use the standard bottom sheet instead of a
   centered dialog.
-- Agent rule: default modals are bottom sheets (`docs/agent-rules/modal-sheets.md`).
 
 ## [1.0.0] - 2026-09-09
 
