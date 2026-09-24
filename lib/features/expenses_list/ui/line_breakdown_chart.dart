@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/chart_time_series.dart';
 import 'package:valtero/features/expenses_list/ui/chart_anim.dart';
 import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
-import 'package:valtero/features/expenses_list/ui/chart_selection_panel.dart';
+import 'package:valtero/features/expenses_list/ui/chart_tooltip_style.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/money_text.dart';
 
@@ -16,8 +16,7 @@ import 'package:valtero/widgets/money_text.dart';
 /// zero instead of being removed, so the plot eases instead of jumping.
 /// The total line is the sum of non-hidden series at each point.
 ///
-/// Hover / touch details are reported via [onSelectionChanged] so the parent
-/// can render them in the chrome row above the plot.
+/// Hover / touch shows an in-plot tooltip.
 class LineBreakdownChart extends ConsumerWidget {
   final List<ChartSeriesDef> series;
   final List<ChartTimeSeriesPoint> points;
@@ -27,7 +26,6 @@ class LineBreakdownChart extends ConsumerWidget {
   final bool hideAmounts;
   final String? emptyMessage;
   final Color? totalColor;
-  final ValueChanged<ChartSelectionDetail?>? onSelectionChanged;
 
   const LineBreakdownChart({
     super.key,
@@ -39,7 +37,6 @@ class LineBreakdownChart extends ConsumerWidget {
     this.hideAmounts = false,
     this.emptyMessage,
     this.totalColor,
-    this.onSelectionChanged,
   });
 
   bool get _hideTotalLine => hiddenKeys.contains(kChartTotalSeriesKey);
@@ -52,56 +49,6 @@ class LineBreakdownChart extends ConsumerWidget {
       sum += point.amountBySeriesKey[s.key] ?? 0;
     }
     return sum;
-  }
-
-  ChartSelectionDetail? _detailForIndex(
-    BuildContext context,
-    WidgetRef ref,
-    AppLocalizations l10n,
-    Color totalLineColor,
-    int i,
-    List<int> visibleTotals,
-  ) {
-    if (i < 0 || i >= points.length) return null;
-    final point = points[i];
-    final visibleTotal = visibleTotals[i];
-    final lines = <ChartSelectionLine>[];
-    if (!_hideTotalLine && visibleTotal > 0) {
-      lines.add(
-        ChartSelectionLine(
-          label: l10n.summaryTotal,
-          amountText: hideAmounts
-              ? null
-              : formatMoneyOf(
-                  context,
-                  ref,
-                  amountMinor: visibleTotal,
-                  currencyCode: displayCurrency,
-                ),
-          color: totalLineColor,
-        ),
-      );
-    }
-    for (final s in series) {
-      if (hiddenKeys.contains(s.key)) continue;
-      final amountMinor = point.amountBySeriesKey[s.key] ?? 0;
-      if (amountMinor <= 0) continue;
-      lines.add(
-        ChartSelectionLine(
-          label: s.label,
-          amountText: hideAmounts
-              ? null
-              : formatMoneyOf(
-                  context,
-                  ref,
-                  amountMinor: amountMinor,
-                  currencyCode: displayCurrency,
-                ),
-          color: s.color,
-        ),
-      );
-    }
-    return ChartSelectionDetail(title: point.dateLabel, lines: lines);
   }
 
   @override
@@ -185,31 +132,55 @@ class LineBreakdownChart extends ConsumerWidget {
             maxY: maxY <= 0 ? 1 : maxY * 1.12,
             lineTouchData: LineTouchData(
               enabled: true,
-              // Keep spot indicators; selection text lives under the plot.
               touchTooltipData: LineTouchTooltipData(
-                getTooltipItems: (touchedSpots) =>
-                    touchedSpots.map((_) => null).toList(),
+                getTooltipColor: (_) => chartTooltipBg(context),
+                fitInsideHorizontally: true,
+                fitInsideVertically: true,
+                maxContentWidth: 200,
+                getTooltipItems: (touchedSpots) {
+                  if (touchedSpots.isEmpty) return [];
+                  final i = touchedSpots.first.x.round();
+                  if (i < 0 || i >= points.length) {
+                    return touchedSpots.map((_) => null).toList();
+                  }
+                  final point = points[i];
+                  final items = <LineTooltipItem?>[];
+                  // One combined header as first item; null for the rest.
+                  final buf = StringBuffer(point.dateLabel);
+                  if (!_hideTotalLine && visibleTotals[i] > 0) {
+                    buf.write('\n${l10n.summaryTotal}');
+                    if (!hideAmounts) {
+                      buf.write(
+                        ': ${formatMoneyOf(context, ref, amountMinor: visibleTotals[i], currencyCode: displayCurrency)}',
+                      );
+                    }
+                  }
+                  for (final s in series) {
+                    if (hiddenKeys.contains(s.key)) continue;
+                    final amountMinor = point.amountBySeriesKey[s.key] ?? 0;
+                    if (amountMinor <= 0) continue;
+                    buf.write('\n${s.label}');
+                    if (!hideAmounts) {
+                      buf.write(
+                        ': ${formatMoneyOf(context, ref, amountMinor: amountMinor, currencyCode: displayCurrency)}',
+                      );
+                    }
+                  }
+                  for (var s = 0; s < touchedSpots.length; s++) {
+                    if (s == 0) {
+                      items.add(
+                        chartLineTooltipItem(
+                          context: context,
+                          text: buf.toString(),
+                        ),
+                      );
+                    } else {
+                      items.add(null);
+                    }
+                  }
+                  return items;
+                },
               ),
-              touchCallback: (event, response) {
-                final onChanged = onSelectionChanged;
-                if (onChanged == null) return;
-                final spots = response?.lineBarSpots;
-                if (spots == null || spots.isEmpty) {
-                  if (event is FlPointerExitEvent) onChanged(null);
-                  return;
-                }
-                final i = spots.first.x.round();
-                onChanged(
-                  _detailForIndex(
-                    context,
-                    ref,
-                    l10n,
-                    totalLineColor,
-                    i,
-                    visibleTotals,
-                  ),
-                );
-              },
             ),
             titlesData: FlTitlesData(
               topTitles: const AxisTitles(

@@ -2627,7 +2627,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionCashFlowBody.
   ///
   /// In en, this message translates to:
-  /// **'The Cash flow tab compares income and expenses. The default chart is a donut of total income vs expenses; switch to grouped bars for day, week, month, or year. Filters apply by date and currency; category and payment filters stay on the Expenses or Income tabs.'**
+  /// **'The Cash flow tab compares income and expenses. The default chart is a donut of total income vs expenses; switch to grouped bars or a line for day, week, month, or year (icons under the chart). Horizontal swipe on the chart cycles the period. Filters apply by date and currency; category and payment filters stay on the Expenses or Income tabs.'**
   String get guideSectionCashFlowBody;
 
   /// No description provided for @paymentMethod.
@@ -3419,7 +3419,7 @@ abstract class AppLocalizations {
   /// No description provided for @guideSectionChartsBody.
   ///
   /// In en, this message translates to:
-  /// **'The dashboard donut chart breaks down spending by country, payment method, category, months, or currency. Switch the breakdown with the icons above the chart. Missing country, payment, or category appear as not set. Tap a segment to open matching expenses. Tap a legend chip to show or hide that slice. Below the chart, the last 10 expenses are listed with a link to the full list. Open Show expenses for list, grouping, and chart views with sort and pagination.'**
+  /// **'The dashboard chart breaks down spending by country, payment method, category, period, or currency. Switch the breakdown with the icons under the chart (above the legend), or swipe horizontally on the chart. Swipe horizontally outside the chart to switch Cash flow / Expenses / Income. Missing country, payment, or category appear as not set. Tap a segment to open matching expenses. Tap a legend chip to show or hide that slice. Below the chart, recent expenses are listed with a link to the full list. Open Show expenses for list, grouping, and chart views with sort and pagination.'**
   String get guideSectionChartsBody;
 
   /// No description provided for @guideSectionExchangeRatesTitle.

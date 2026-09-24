@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:valtero/features/expenses_list/model/chart_overlay_layout.dart';
+import 'package:valtero/features/expenses_list/model/chart_breakdown_options.dart';
 import 'package:valtero/features/expenses_list/model/chart_time_series.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/expenses_list/ui/breakdown_chart_legend.dart';
+import 'package:valtero/features/expenses_list/ui/chart_breakdown_row.dart';
 import 'package:valtero/features/expenses_list/ui/chart_empty_placeholder.dart';
+import 'package:valtero/features/expenses_list/ui/chart_horizontal_cycle.dart';
 import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
-import 'package:valtero/features/expenses_list/ui/chart_selection_panel.dart';
 import 'package:valtero/features/expenses_list/ui/column_breakdown_chart.dart';
 import 'package:valtero/features/expenses_list/ui/donut_breakdown_chart.dart';
 import 'package:valtero/features/expenses_list/ui/line_breakdown_chart.dart';
@@ -26,8 +27,9 @@ bool _isTimeSeriesChartType(ExpenseChartType type) {
   return type == ExpenseChartType.columnByDate || type == ExpenseChartType.line;
 }
 
-/// Donut / column / time-series chart with type + breakdown chrome above
-/// the plot and a centered total in the donut hole.
+/// Donut / column / time-series chart with type icons above the plot,
+/// breakdown icons in a scrollable row above the legend, and a centered
+/// total in the donut hole.
 class BreakdownChartView extends ConsumerStatefulWidget {
   final List<DonutChartSlice> slices;
   final ChartTimeSeriesAggregation? timeSeries;
@@ -76,14 +78,10 @@ class BreakdownChartView extends ConsumerStatefulWidget {
 
 class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
   final Set<String> _hiddenKeys = {};
-  ChartSelectionDetail? _selection;
 
   @override
   void didUpdateWidget(covariant BreakdownChartView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.chartType != widget.chartType) {
-      _selection = null;
-    }
     final nextKeys = <String>{
       for (final s in widget.slices) s.key,
       if (widget.timeSeries != null)
@@ -98,33 +96,7 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
     };
     if (nextKeys.length != oldKeys.length || !nextKeys.containsAll(oldKeys)) {
       _hiddenKeys.removeWhere((k) => !nextKeys.contains(k));
-      _selection = null;
     }
-  }
-
-  void _setSelection(ChartSelectionDetail? detail) {
-    if (identical(_selection, detail)) return;
-    if (_selection == null && detail == null) return;
-    if (_selection != null &&
-        detail != null &&
-        _selection!.title == detail.title &&
-        _sameLines(_selection!.lines, detail.lines)) {
-      return;
-    }
-    setState(() => _selection = detail);
-  }
-
-  static bool _sameLines(
-    List<ChartSelectionLine> a,
-    List<ChartSelectionLine> b,
-  ) {
-    if (a.length != b.length) return false;
-    for (var i = 0; i < a.length; i++) {
-      if (a[i].label != b[i].label || a[i].amountText != b[i].amountText) {
-        return false;
-      }
-    }
-    return true;
   }
 
   void _toggle(String key) {
@@ -134,7 +106,6 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
       } else {
         _hiddenKeys.add(key);
       }
-      _selection = null;
     });
   }
 
@@ -166,7 +137,6 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
           hiddenKeys: hiddenKeys,
           displayCurrency: widget.displayCurrency,
           onSegmentTap: widget.onSegmentTap,
-          onSelectionChanged: _setSelection,
           hideSegmentAmounts: widget.hideSegmentAmounts,
           chartHeight: widget.chartHeight,
           emptyMessage: widget.emptyMessage,
@@ -188,7 +158,6 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
           hideAmounts: widget.hideSegmentAmounts,
           chartHeight: widget.chartHeight,
           emptyMessage: widget.emptyMessage,
-          onSelectionChanged: _setSelection,
         );
       case ExpenseChartType.line:
         final ts = widget.timeSeries;
@@ -207,7 +176,6 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
           hideAmounts: widget.hideSegmentAmounts,
           chartHeight: widget.chartHeight,
           emptyMessage: widget.emptyMessage,
-          onSelectionChanged: _setSelection,
         );
     }
   }
@@ -257,11 +225,6 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
       compact: true,
     );
 
-    final showColumnTotal =
-        widget.showTotal &&
-        !widget.hideCenterTotal &&
-        widget.chartType == ExpenseChartType.column &&
-        visible.isNotEmpty;
     final showDonutCenterTotal =
         widget.showTotal &&
         !widget.hideCenterTotal &&
@@ -272,95 +235,78 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
         widget.breakdown == ExpenseChartBreakdown.tagCustom &&
         widget.onShowSubcategoriesChanged != null;
 
+    final showBreakdownRow =
+        widget.breakdown != null && widget.onBreakdownChanged != null;
+
+    Widget plot = SizedBox(
+      height: widget.chartHeight,
+      child: ClipRect(
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 280),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (child, animation) {
+            final fade = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOut,
+            );
+            final slide = Tween<Offset>(
+              begin: const Offset(0.04, 0),
+              end: Offset.zero,
+            ).animate(fade);
+            return FadeTransition(
+              opacity: fade,
+              child: SlideTransition(position: slide, child: child),
+            );
+          },
+          child: KeyedSubtree(
+            key: ValueKey(widget.chartType),
+            child: _buildChartChild(
+              l10n: l10n,
+              allSlices: all,
+              allSeries: allSeries,
+              hiddenKeys: _hiddenKeys,
+              donutCenterOverlay: showDonutCenterTotal
+                  ? _ChartCenterTotal(
+                      label: l10n.summaryTotal,
+                      primaryText: totalPrimaryText,
+                      compactText: totalCompactText,
+                    )
+                  : null,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    plot = wrapChartBreakdownCycle(
+      child: plot,
+      breakdown: widget.breakdown,
+      onChanged: widget.onBreakdownChanged,
+      order: widget.cashFlowPeriodOnly
+          ? kCashFlowChartBreakdownOrder
+          : kExpenseChartBreakdownOrder,
+    );
+
     return padClearOfEndSystemBar(
       context,
       Column(
         children: [
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final narrow = isChartOverlayNarrow(constraints.maxWidth);
-              final maxIcons = narrow
-                  ? kChartOverlayNarrowMaxIconsPerRow
-                  : null;
-              // Donut has no corner selection; column total uses the same slot.
-              final badge = widget.chartType == ExpenseChartType.donut
-                  ? null
-                  : ChartSelectionPanel(
-                      detail: _selection,
-                      totalLabel: showColumnTotal && _selection == null
-                          ? l10n.summaryTotal
-                          : null,
-                      totalAmountText: showColumnTotal && _selection == null
-                          ? totalPrimaryText
-                          : null,
-                    );
-
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (badge != null)
-                    Expanded(
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: badge,
-                      ),
-                    )
-                  else
-                    const Spacer(),
-                  ChartOverlayControls(
-                    chartType: widget.chartType,
-                    onChartTypeChanged: widget.onChartTypeChanged,
-                    availableChartTypes: widget.availableChartTypes,
-                    breakdown: widget.breakdown,
-                    onBreakdownChanged: widget.onBreakdownChanged,
-                    cashFlowPeriodOnly: widget.cashFlowPeriodOnly,
-                    maxIconsPerRow: maxIcons,
-                  ),
-                ],
-              );
-            },
+          ChartOverlayControls(
+            chartType: widget.chartType,
+            onChartTypeChanged: widget.onChartTypeChanged,
+            availableChartTypes: widget.availableChartTypes,
           ),
           const SizedBox(height: 4),
-          SizedBox(
-            height: widget.chartHeight,
-            child: ClipRect(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 280),
-                switchInCurve: Curves.easeOutCubic,
-                switchOutCurve: Curves.easeInCubic,
-                transitionBuilder: (child, animation) {
-                  final fade = CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.easeOut,
-                  );
-                  final slide = Tween<Offset>(
-                    begin: const Offset(0.04, 0),
-                    end: Offset.zero,
-                  ).animate(fade);
-                  return FadeTransition(
-                    opacity: fade,
-                    child: SlideTransition(position: slide, child: child),
-                  );
-                },
-                child: KeyedSubtree(
-                  key: ValueKey(widget.chartType),
-                  child: _buildChartChild(
-                    l10n: l10n,
-                    allSlices: all,
-                    allSeries: allSeries,
-                    hiddenKeys: _hiddenKeys,
-                    donutCenterOverlay: showDonutCenterTotal
-                        ? _ChartCenterTotal(
-                            label: l10n.summaryTotal,
-                            primaryText: totalPrimaryText,
-                            compactText: totalCompactText,
-                          )
-                        : null,
-                  ),
-                ),
-              ),
+          plot,
+          if (showBreakdownRow) ...[
+            const SizedBox(height: 4),
+            ChartBreakdownRow(
+              selected: widget.breakdown!,
+              onChanged: widget.onBreakdownChanged!,
+              cashFlowPeriodOnly: widget.cashFlowPeriodOnly,
             ),
-          ),
+          ],
           const SizedBox(height: 8),
           if (isTimeSeries)
             BreakdownChartLegend(

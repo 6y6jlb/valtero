@@ -1445,7 +1445,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guideSectionCashFlowBody =>
-      'La pestaña Flujo de caja compara ingresos y gastos. El gráfico predeterminado es un donut de ingresos vs gastos totales; puedes cambiar a barras por día, semana, mes o año. Los filtros de fecha y moneda aplican; categoría y pago quedan en las pestañas Gastos o Ingresos.';
+      'La pestaña Flujo de caja compara ingresos y gastos. El gráfico predeterminado es un donut de ingresos vs gastos totales; puedes cambiar a barras o línea por día, semana, mes o año (iconos bajo el gráfico). Un desliz horizontal sobre el gráfico cambia el periodo. Los filtros de fecha y moneda aplican; categoría y pago quedan en las pestañas Gastos o Ingresos.';
 
   @override
   String get paymentMethod => 'Pago';
@@ -1888,7 +1888,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guideSectionChartsBody =>
-      'El gráfico de dona del panel desglosa el gasto por país, método de pago, categoría, meses o moneda. Cambia el desglose con los iconos sobre el gráfico. País, pago o categoría ausentes aparecen como no definidos. Toca un segmento para abrir gastos coincidentes. Toca un chip de la leyenda para mostrar u ocultar esa porción. Bajo el gráfico, los últimos 10 gastos y un enlace a la lista completa. «Ver gastos» ofrece lista, agrupación y gráfico con orden y paginación.';
+      'El gráfico del panel desglosa el gasto por país, método de pago, categoría, periodo o moneda. Cambia el desglose con los iconos bajo el gráfico (encima de la leyenda) o desliza horizontalmente sobre el gráfico. Fuera del gráfico, el desliz horizontal cambia Flujo de caja / Gastos / Ingresos. País, pago o categoría ausentes aparecen como no definidos. Toca un segmento para abrir gastos coincidentes. Toca un chip de la leyenda para mostrar u ocultar esa porción. Bajo el gráfico, gastos recientes y un enlace a la lista completa. «Ver gastos» ofrece lista, agrupación y gráfico con orden y paginación.';
 
   @override
   String get guideSectionExchangeRatesTitle => 'Tipos de cambio';

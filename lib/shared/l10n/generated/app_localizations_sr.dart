@@ -1442,7 +1442,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get guideSectionCashFlowBody =>
-      'Kartica Tok novca poredi prihode i troškove. Podrazumevani grafik je krofna (ukupni prihod vs trošak); možeš prebaciti na stubove po danu, nedelji, mesecu ili godini. Filteri datuma i valute važe; kategorija i plaćanje ostaju na karticama Troškovi ili Prihodi.';
+      'Kartica Tok novca poredi prihode i troškove. Podrazumevani grafik je krofna (ukupni prihod vs trošak); stubovi ili linija po danu, nedelji, mesecu ili godini (ikone ispod grafikona). Horizontalni potez po grafikonu menja period. Filteri datuma i valute važe; kategorija i plaćanje ostaju na karticama Troškovi ili Prihodi.';
 
   @override
   String get paymentMethod => 'Plaćanje';
@@ -1887,7 +1887,7 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get guideSectionChartsBody =>
-      'Krofna na kontrolnoj tabli razlaže potrošnju po zemlji, načinu plaćanja, kategoriji, mesecima ili valuti. Ikone iznad grafikona menjaju razlaganje. Nedostajuća zemlja, plaćanje ili kategorija prikazuju se kao nije navedeno. Dodirnite segment da otvorite odgovarajuće troškove. Čip legende prikazuje ili skriva isečak. Ispod grafikona su poslednjih 10 troškova i link na punu listu. „Prikaži troškove“ nudi listu, grupisanje i grafikon sa sortiranjem i paginacijom.';
+      'Grafikon na kontrolnoj tabli razlaže potrošnju po zemlji, načinu plaćanja, kategoriji, periodu ili valuti. Ikone ispod grafikona (iznad legende) menjaju razlaganje; horizontalni potez po grafikonu radi isto. Van grafikona horizontalni potez menja Tok novca / Troškove / Prihode. Nedostajuća zemlja, plaćanje ili kategorija prikazuju se kao nije navedeno. Dodirnite segment da otvorite odgovarajuće troškove. Čip legende prikazuje ili skriva isečak. Ispod grafikona su nedavni troškovi i link na punu listu. „Prikaži troškove“ nudi listu, grupisanje i grafikon sa sortiranjem i paginacijom.';
 
   @override
   String get guideSectionExchangeRatesTitle => 'Kursevi';

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/cash_flow_aggregator.dart';
-import 'package:valtero/features/expenses_list/model/chart_overlay_layout.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/expenses_list/ui/breakdown_chart_view.dart';
 import 'package:valtero/features/expenses_list/ui/cash_flow_chart.dart';
@@ -43,32 +42,6 @@ class CashFlowChartView extends ConsumerWidget {
     this.chartHeight = 312,
   });
 
-  Widget _overlayControls({int? maxIconsPerRow}) {
-    return ChartOverlayControls(
-      chartType: chartType,
-      onChartTypeChanged: onChartTypeChanged,
-      availableChartTypes: _kCashFlowChartTypes,
-      breakdown: breakdown,
-      onBreakdownChanged: onBreakdownChanged,
-      cashFlowPeriodOnly: true,
-      maxIconsPerRow: maxIconsPerRow,
-    );
-  }
-
-  Widget _chromeOnlyOverlay() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final narrow = isChartOverlayNarrow(constraints.maxWidth);
-        return Align(
-          alignment: Alignment.centerRight,
-          child: _overlayControls(
-            maxIconsPerRow: narrow ? kChartOverlayNarrowMaxIconsPerRow : null,
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
@@ -104,7 +77,11 @@ class CashFlowChartView extends ConsumerWidget {
         context,
         Column(
           children: [
-            _chromeOnlyOverlay(),
+            ChartOverlayControls(
+              chartType: chartType,
+              onChartTypeChanged: onChartTypeChanged,
+              availableChartTypes: _kCashFlowChartTypes,
+            ),
             const SizedBox(height: 4),
             CashFlowLineChart(
               buckets: buckets,
@@ -112,20 +89,24 @@ class CashFlowChartView extends ConsumerWidget {
               hideAmounts: hideAmounts,
               emptyMessage: emptyMessage,
               chartHeight: chartHeight,
+              breakdown: breakdown,
+              onBreakdownChanged: onBreakdownChanged,
             ),
           ],
         ),
       );
     }
 
-    // Grouped bars by period (day/week/month/year) — cash-flow's "by date"
-    // chart. No separate columnByDate type: that icon is for category stacks
-    // on expenses/income, which do not apply to income-vs-expense buckets.
+    // Grouped bars by period (day/week/month/year).
     return padClearOfEndSystemBar(
       context,
       Column(
         children: [
-          _chromeOnlyOverlay(),
+          ChartOverlayControls(
+            chartType: chartType,
+            onChartTypeChanged: onChartTypeChanged,
+            availableChartTypes: _kCashFlowChartTypes,
+          ),
           const SizedBox(height: 4),
           CashFlowChart(
             buckets: buckets,
@@ -134,6 +115,8 @@ class CashFlowChartView extends ConsumerWidget {
             emptyMessage: emptyMessage,
             emptyIcon: emptyIcon,
             chartHeight: chartHeight,
+            breakdown: breakdown,
+            onBreakdownChanged: onBreakdownChanged,
           ),
         ],
       ),

@@ -4,11 +4,13 @@ import 'package:valtero/features/add_expense/ui/add_expense_sheet.dart';
 import 'package:valtero/features/add_income/ui/add_income_sheet.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
 import 'package:valtero/features/expenses_list/model/cash_flow_list_selection.dart';
+import 'package:valtero/features/expenses_list/model/cycle_index.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_selection.dart';
 import 'package:valtero/features/expenses_list/model/income_list_selection.dart';
 import 'package:valtero/features/expenses_list/model/transaction_direction.dart';
 import 'package:valtero/features/expenses_list/ui/cash_flow_bulk_fab_actions.dart';
 import 'package:valtero/features/expenses_list/ui/cash_flow_list_body.dart';
+import 'package:valtero/features/expenses_list/ui/chart_horizontal_cycle.dart';
 import 'package:valtero/features/expenses_list/ui/expense_bulk_fab_actions.dart';
 import 'package:valtero/features/expenses_list/ui/income_bulk_fab_actions.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_sheet.dart';
@@ -107,22 +109,46 @@ class _ExpensesPageState extends ConsumerState<ExpensesPage> {
         if (hasIncomeSelection) const IncomeBulkFabActions(),
         if (hasCashFlowSelection) const CashFlowBulkFabActions(),
       ],
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-            child: OperationDirectionTabs(
-              selected: _direction,
-              onChanged: (next) {
-                setState(() => _direction = next);
-                ref
-                    .read(appSettingsProvider.notifier)
-                    .setDashboardDirection(next.settingsValue);
-              },
+      body: ChartHorizontalCycle(
+        onNext: () {
+          final next = cycleIndex(
+            TransactionDirection.values,
+            _direction,
+            forward: true,
+          );
+          setState(() => _direction = next);
+          ref
+              .read(appSettingsProvider.notifier)
+              .setDashboardDirection(next.settingsValue);
+        },
+        onPrevious: () {
+          final next = cycleIndex(
+            TransactionDirection.values,
+            _direction,
+            forward: false,
+          );
+          setState(() => _direction = next);
+          ref
+              .read(appSettingsProvider.notifier)
+              .setDashboardDirection(next.settingsValue);
+        },
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: OperationDirectionTabs(
+                selected: _direction,
+                onChanged: (next) {
+                  setState(() => _direction = next);
+                  ref
+                      .read(appSettingsProvider.notifier)
+                      .setDashboardDirection(next.settingsValue);
+                },
+              ),
             ),
-          ),
-          Expanded(child: body),
-        ],
+            Expanded(child: body),
+          ],
+        ),
       ),
     );
   }

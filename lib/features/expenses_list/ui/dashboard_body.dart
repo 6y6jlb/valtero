@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/cash_flow_aggregator.dart';
 import 'package:valtero/features/expenses_list/model/chart_time_series.dart';
+import 'package:valtero/features/expenses_list/model/cycle_index.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/model/expense_chart_drill_down.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
@@ -10,6 +11,7 @@ import 'package:valtero/features/expenses_list/model/recent_operation.dart';
 import 'package:valtero/features/expenses_list/model/transaction_direction.dart';
 import 'package:valtero/features/expenses_list/ui/breakdown_chart_view.dart';
 import 'package:valtero/features/expenses_list/ui/cash_flow_chart_view.dart';
+import 'package:valtero/features/expenses_list/ui/chart_horizontal_cycle.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_filter_summary_bar.dart';
 import 'package:valtero/features/expenses_list/ui/operation_direction_tabs.dart';
 import 'package:valtero/features/expenses_list/ui/recent_cash_flow_operations_list.dart';
@@ -217,7 +219,22 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
     final visibleCount = _recentVisibleCount.clamp(0, totalRecent);
     final hasMoreRecent = visibleCount < totalRecent;
 
-    return NotificationListener<ScrollNotification>(
+    return ChartHorizontalCycle(
+      onNext: () => widget.onDirectionChanged(
+        cycleIndex(
+          TransactionDirection.values,
+          widget.direction,
+          forward: true,
+        ),
+      ),
+      onPrevious: () => widget.onDirectionChanged(
+        cycleIndex(
+          TransactionDirection.values,
+          widget.direction,
+          forward: false,
+        ),
+      ),
+      child: NotificationListener<ScrollNotification>(
       onNotification: (notification) {
         if (!hasMoreRecent || _recentLoadScheduled) return false;
         if (!isNearScrollBottom(notification)) return false;
@@ -323,6 +340,7 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
           ],
         ),
       ),
+    ),
     );
   }
 }

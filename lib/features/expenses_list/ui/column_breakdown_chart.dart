@@ -4,20 +4,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/ui/chart_anim.dart';
 import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
-import 'package:valtero/features/expenses_list/ui/chart_selection_panel.dart';
+import 'package:valtero/features/expenses_list/ui/chart_tooltip_style.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/money_text.dart';
 
 /// Vertical column chart for the same [DonutChartSlice] breakdown data.
 ///
 /// Pass every slice plus [hiddenKeys]. Hidden bars animate to zero height.
-/// Hover details go to [onSelectionChanged] (rendered in the chrome row).
+/// Hover / touch shows an in-plot tooltip.
 class ColumnBreakdownChart extends ConsumerWidget {
   final List<DonutChartSlice> slices;
   final Set<String> hiddenKeys;
   final String displayCurrency;
   final ValueChanged<DonutChartSlice>? onSegmentTap;
-  final ValueChanged<ChartSelectionDetail?>? onSelectionChanged;
   final bool hideSegmentAmounts;
   final double chartHeight;
   final String? emptyMessage;
@@ -28,7 +27,6 @@ class ColumnBreakdownChart extends ConsumerWidget {
     this.hiddenKeys = const {},
     required this.displayCurrency,
     this.onSegmentTap,
-    this.onSelectionChanged,
     this.hideSegmentAmounts = false,
     this.chartHeight = 312,
     this.emptyMessage,
@@ -64,41 +62,35 @@ class ColumnBreakdownChart extends ConsumerWidget {
             barTouchData: BarTouchData(
               enabled: true,
               touchTooltipData: BarTouchTooltipData(
-                getTooltipItem: (group, groupIndex, rod, rodIndex) => null,
+                getTooltipColor: (_) => chartTooltipBg(context),
+                fitInsideHorizontally: true,
+                fitInsideVertically: true,
+                getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                  if (groupIndex < 0 || groupIndex >= slices.length) {
+                    return null;
+                  }
+                  final slice = slices[groupIndex];
+                  if (hiddenKeys.contains(slice.key)) return null;
+                  return chartBarTooltipItem(
+                    context: context,
+                    title: slice.label,
+                    amountOrLabel: hideSegmentAmounts
+                        ? null
+                        : formatMoneyOf(
+                            context,
+                            ref,
+                            amountMinor: slice.amountMinor,
+                            currencyCode:
+                                slice.currencyCode ?? displayCurrency,
+                          ),
+                    accent: slice.color,
+                  );
+                },
               ),
               touchCallback: (event, response) {
-                final index = response?.spot?.touchedBarGroupIndex;
-                final onChanged = onSelectionChanged;
-                if (onChanged != null) {
-                  if (index == null ||
-                      index < 0 ||
-                      index >= slices.length ||
-                      hiddenKeys.contains(slices[index].key)) {
-                    if (event is FlPointerExitEvent) onChanged(null);
-                  } else {
-                    final slice = slices[index];
-                    onChanged(
-                      ChartSelectionDetail(
-                        title: slice.label,
-                        lines: [
-                          if (!hideSegmentAmounts)
-                            ChartSelectionLine(
-                              label: formatMoneyOf(
-                                context,
-                                ref,
-                                amountMinor: slice.amountMinor,
-                                currencyCode:
-                                    slice.currencyCode ?? displayCurrency,
-                              ),
-                              color: slice.color,
-                            ),
-                        ],
-                      ),
-                    );
-                  }
-                }
                 if (onSegmentTap == null) return;
                 if (event is! FlTapUpEvent) return;
+                final index = response?.spot?.touchedBarGroupIndex;
                 if (index == null || index < 0 || index >= slices.length) {
                   return;
                 }

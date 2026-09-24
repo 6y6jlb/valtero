@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/chart_time_series.dart';
 import 'package:valtero/features/expenses_list/ui/chart_anim.dart';
 import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
-import 'package:valtero/features/expenses_list/ui/chart_selection_panel.dart';
+import 'package:valtero/features/expenses_list/ui/chart_tooltip_style.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/money_text.dart';
 
@@ -15,8 +15,7 @@ import 'package:valtero/widgets/money_text.dart';
 /// Pass the full [series] list plus [hiddenKeys]. Hidden stack segments
 /// animate to zero height so the bar eases instead of jumping.
 ///
-/// Hover / touch details are reported via [onSelectionChanged] so the parent
-/// can render them in the chrome row above the plot.
+/// Hover / touch shows an in-plot tooltip (title + total + series lines).
 class StackedColumnTimeChart extends ConsumerWidget {
   final List<ChartSeriesDef> series;
   final List<ChartTimeSeriesPoint> points;
@@ -25,7 +24,6 @@ class StackedColumnTimeChart extends ConsumerWidget {
   final double chartHeight;
   final bool hideAmounts;
   final String? emptyMessage;
-  final ValueChanged<ChartSelectionDetail?>? onSelectionChanged;
 
   const StackedColumnTimeChart({
     super.key,
@@ -36,7 +34,6 @@ class StackedColumnTimeChart extends ConsumerWidget {
     this.chartHeight = 312,
     this.hideAmounts = false,
     this.emptyMessage,
-    this.onSelectionChanged,
   });
 
   int _visibleTotalAt(ChartTimeSeriesPoint point) {
@@ -49,7 +46,7 @@ class StackedColumnTimeChart extends ConsumerWidget {
     return sum;
   }
 
-  ChartSelectionDetail? _detailForIndex(
+  BarTooltipItem? _tooltipForIndex(
     BuildContext context,
     WidgetRef ref,
     AppLocalizations l10n,
@@ -58,20 +55,21 @@ class StackedColumnTimeChart extends ConsumerWidget {
     if (groupIndex < 0 || groupIndex >= points.length) return null;
     final point = points[groupIndex];
     final visibleTotal = _visibleTotalAt(point);
-    final lines = <ChartSelectionLine>[];
+    final children = <TextSpan>[];
     if (hideAmounts) {
-      lines.add(ChartSelectionLine(label: l10n.summaryTotal));
+      children.add(
+        TextSpan(
+          text: '\n${l10n.summaryTotal}',
+          style: chartTooltipBodyStyle(context),
+        ),
+      );
     } else {
       if (visibleTotal > 0) {
-        lines.add(
-          ChartSelectionLine(
-            label: l10n.summaryTotal,
-            amountText: formatMoneyOf(
-              context,
-              ref,
-              amountMinor: visibleTotal,
-              currencyCode: displayCurrency,
-            ),
+        children.add(
+          TextSpan(
+            text:
+                '\n${l10n.summaryTotal}: ${formatMoneyOf(context, ref, amountMinor: visibleTotal, currencyCode: displayCurrency)}',
+            style: chartTooltipBodyStyle(context),
           ),
         );
       }
@@ -79,21 +77,21 @@ class StackedColumnTimeChart extends ConsumerWidget {
         if (hiddenKeys.contains(s.key)) continue;
         final amount = point.amountBySeriesKey[s.key] ?? 0;
         if (amount <= 0) continue;
-        lines.add(
-          ChartSelectionLine(
-            label: s.label,
-            amountText: formatMoneyOf(
-              context,
-              ref,
-              amountMinor: amount,
-              currencyCode: displayCurrency,
-            ),
-            color: s.color,
+        children.add(
+          TextSpan(
+            text:
+                '\n${s.label}: ${formatMoneyOf(context, ref, amountMinor: amount, currencyCode: displayCurrency)}',
+            style: chartTooltipBodyStyle(context, color: s.color),
           ),
         );
       }
     }
-    return ChartSelectionDetail(title: point.dateLabel, lines: lines);
+    return BarTooltipItem(
+      point.dateLabel,
+      chartTooltipTitleStyle(context),
+      textAlign: TextAlign.left,
+      children: children.isEmpty ? null : children,
+    );
   }
 
   @override
@@ -126,18 +124,13 @@ class StackedColumnTimeChart extends ConsumerWidget {
             barTouchData: BarTouchData(
               enabled: true,
               touchTooltipData: BarTouchTooltipData(
-                getTooltipItem: (group, groupIndex, rod, rodIndex) => null,
+                getTooltipColor: (_) => chartTooltipBg(context),
+                fitInsideHorizontally: true,
+                fitInsideVertically: true,
+                maxContentWidth: 200,
+                getTooltipItem: (group, groupIndex, rod, rodIndex) =>
+                    _tooltipForIndex(context, ref, l10n, groupIndex),
               ),
-              touchCallback: (event, response) {
-                final onChanged = onSelectionChanged;
-                if (onChanged == null) return;
-                final index = response?.spot?.touchedBarGroupIndex;
-                if (index == null || index < 0 || index >= points.length) {
-                  if (event is FlPointerExitEvent) onChanged(null);
-                  return;
-                }
-                onChanged(_detailForIndex(context, ref, l10n, index));
-              },
             ),
             titlesData: FlTitlesData(
               topTitles: const AxisTitles(

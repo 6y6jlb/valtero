@@ -5,6 +5,7 @@ import 'package:valtero/features/expenses_list/model/donut_chart_layout.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/ui/chart_anim.dart';
 import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
+import 'package:valtero/features/expenses_list/ui/chart_tooltip_style.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/money_text.dart';
 
@@ -15,9 +16,8 @@ import 'package:valtero/widgets/money_text.dart';
 /// visibility. Otherwise the widget keeps its own set when [showLegend] is on.
 /// Hidden slices keep a near-zero value so the pie can tween instead of jump.
 ///
-/// Ring radii stay at the preferred size when the plot is large enough;
-/// they only shrink if the *plot* is narrower than the ring (chrome lives
-/// outside this widget).
+/// Hover / long-press shows a floating tip over the ring (fl_chart has no
+/// built-in pie tooltip).
 class DonutBreakdownChart extends ConsumerStatefulWidget {
   final List<DonutChartSlice> slices;
   final Set<String>? hiddenKeys;
@@ -55,6 +55,7 @@ class DonutBreakdownChart extends ConsumerStatefulWidget {
 
 class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
   final Set<String> _localHiddenKeys = {};
+  int? _hoveredIndex;
 
   Set<String> get _hiddenKeys => widget.hiddenKeys ?? _localHiddenKeys;
 
@@ -66,6 +67,7 @@ class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
     final oldKeys = {for (final s in oldWidget.slices) s.key};
     if (nextKeys.length != oldKeys.length || !nextKeys.containsAll(oldKeys)) {
       _localHiddenKeys.removeWhere((k) => !nextKeys.contains(k));
+      _hoveredIndex = null;
     }
   }
 
@@ -78,6 +80,11 @@ class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
         _localHiddenKeys.add(key);
       }
     });
+  }
+
+  void _setHover(int? index) {
+    if (_hoveredIndex == index) return;
+    setState(() => _hoveredIndex = index);
   }
 
   @override
@@ -100,9 +107,6 @@ class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
         .toList(growable: false);
     final total = visible.fold<int>(0, (sum, s) => sum + s.amountMinor);
 
-    // Stable section count matching [all] so hide/show can tween values.
-    // Hidden keep a near-zero raw value and are excluded from the min-sweep
-    // floor so they do not leave a blank arc in the ring.
     final hiddenFlags = [for (final slice in all) hidden.contains(slice.key)];
     final rawValues = [
       for (var i = 0; i < all.length; i++)
@@ -116,6 +120,15 @@ class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
       rawValues,
       hidden: hiddenFlags,
     );
+
+    final hover = _hoveredIndex;
+    DonutChartSlice? hoverSlice;
+    if (hover != null &&
+        hover >= 0 &&
+        hover < all.length &&
+        !hidden.contains(all[hover].key)) {
+      hoverSlice = all[hover];
+    }
 
     return Column(
       children: [
@@ -143,11 +156,27 @@ class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
                                 centerSpaceRadius: radii.centerSpaceRadius,
                                 pieTouchData: PieTouchData(
                                   touchCallback: (event, response) {
-                                    if (widget.onSegmentTap == null) return;
-                                    if (event is! FlTapUpEvent) return;
                                     final index = response
                                         ?.touchedSection
                                         ?.touchedSectionIndex;
+                                    if (event is FlPointerExitEvent) {
+                                      _setHover(null);
+                                    } else if (index != null &&
+                                        index >= 0 &&
+                                        index < all.length &&
+                                        !hidden.contains(all[index].key)) {
+                                      _setHover(index);
+                                    } else if (event is FlTapUpEvent ||
+                                        event is FlLongPressEnd ||
+                                        event is FlPanEndEvent) {
+                                      // Keep tip until leave / next segment.
+                                    } else if (response?.touchedSection ==
+                                        null) {
+                                      _setHover(null);
+                                    }
+
+                                    if (widget.onSegmentTap == null) return;
+                                    if (event is! FlTapUpEvent) return;
                                     if (index == null ||
                                         index < 0 ||
                                         index >= all.length) {
@@ -195,6 +224,22 @@ class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
                                       2 *
                                       kDonutCenterTotalWidthFactor,
                                   child: overlay,
+                                ),
+                              ),
+                            if (hoverSlice != null)
+                              Positioned(
+                                top: 8,
+                                left: 8,
+                                right: 8,
+                                child: IgnorePointer(
+                                  child: Align(
+                                    alignment: Alignment.topCenter,
+                                    child: _DonutHoverTip(
+                                      slice: hoverSlice,
+                                      displayCurrency: widget.displayCurrency,
+                                      hideAmount: widget.hideSegmentAmounts,
+                                    ),
+                                  ),
                                 ),
                               ),
                           ],
@@ -255,6 +300,55 @@ class _DonutBreakdownChartState extends ConsumerState<DonutBreakdownChart> {
         color: Colors.white,
         fontWeight: FontWeight.w600,
         height: 1.15,
+      ),
+    );
+  }
+}
+
+class _DonutHoverTip extends ConsumerWidget {
+  final DonutChartSlice slice;
+  final String displayCurrency;
+  final bool hideAmount;
+
+  const _DonutHoverTip({
+    required this.slice,
+    required this.displayCurrency,
+    required this.hideAmount,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Material(
+      color: chartTooltipBg(context),
+      borderRadius: BorderRadius.circular(8),
+      elevation: 1,
+      shadowColor: Colors.black26,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              slice.label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: chartTooltipTitleStyle(context),
+            ),
+            if (!hideAmount) ...[
+              const SizedBox(height: 2),
+              Text(
+                formatMoneyOf(
+                  context,
+                  ref,
+                  amountMinor: slice.amountMinor,
+                  currencyCode: slice.currencyCode ?? displayCurrency,
+                ),
+                maxLines: 1,
+                style: chartTooltipBodyStyle(context, color: slice.color),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }

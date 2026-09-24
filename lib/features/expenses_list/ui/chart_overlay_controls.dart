@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:valtero/features/expenses_list/model/chart_overlay_layout.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
-import 'package:valtero/features/expenses_list/ui/cash_flow_breakdown_icons.dart';
-import 'package:valtero/features/expenses_list/ui/chart_breakdown_icons.dart';
 import 'package:valtero/features/expenses_list/ui/chart_toggle_icon.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 
@@ -14,31 +11,17 @@ const kChartPlotPadding = EdgeInsets.fromLTRB(4, 8, 12, 4);
 /// the plot, so this is only a little air around the pie (not a chrome inset).
 const kDonutPlotPadding = EdgeInsets.all(8);
 
-/// Chart-type icons and optional breakdown/period icons, laid out above
-/// the plot (top-right). Chart types sit on one row above a short
-/// right-aligned rule; breakdown / period icons follow and, on narrow
-/// screens, wrap at [maxIconsPerRow].
+/// Chart-type icons laid out above the plot (top-right).
 class ChartOverlayControls extends StatelessWidget {
   final ExpenseChartType chartType;
   final ValueChanged<ExpenseChartType> onChartTypeChanged;
   final List<ExpenseChartType> availableChartTypes;
-  final ExpenseChartBreakdown? breakdown;
-  final ValueChanged<ExpenseChartBreakdown>? onBreakdownChanged;
-  final bool cashFlowPeriodOnly;
-
-  /// When set, breakdown / period icons wrap at this count. Chart-type
-  /// icons are not wrapped.
-  final int? maxIconsPerRow;
 
   const ChartOverlayControls({
     super.key,
     required this.chartType,
     required this.onChartTypeChanged,
     required this.availableChartTypes,
-    this.breakdown,
-    this.onBreakdownChanged,
-    this.cashFlowPeriodOnly = false,
-    this.maxIconsPerRow,
   });
 
   List<Widget> _chartToggleIcons(AppLocalizations l10n) {
@@ -92,57 +75,20 @@ class ChartOverlayControls extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final toggleIcons = _chartToggleIcons(l10n);
-    final showBreakdown = breakdown != null && onBreakdownChanged != null;
-    final maxPerRow = maxIconsPerRow;
     final surface = theme.colorScheme.surface.withValues(alpha: 0.88);
-    final dividerColor = theme.colorScheme.outlineVariant.withValues(
-      alpha: 0.55,
-    );
 
-    final typesRow = Row(mainAxisSize: MainAxisSize.min, children: toggleIcons);
-
-    // Short rule ≈ ⅓ of the type-icon row, flush to the trailing edge.
-    final typeRowWidth = toggleIcons.length * ChartToggleIcon.extent;
-    final dividerWidth = typeRowWidth / 3;
-
-    final column = Material(
-      color: surface,
-      elevation: 0,
-      borderRadius: BorderRadius.circular(20),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            typesRow,
-            if (showBreakdown) ...[
-              const SizedBox(height: kChartOverlayIconRowGap),
-              SizedBox(
-                width: dividerWidth,
-                height: 1,
-                child: ColoredBox(color: dividerColor),
-              ),
-              const SizedBox(height: kChartOverlayIconRowGap),
-              cashFlowPeriodOnly
-                  ? CashFlowBreakdownIcons(
-                      selected: breakdown!,
-                      onChanged: onBreakdownChanged!,
-                      compact: true,
-                    )
-                  : ChartBreakdownIcons(
-                      selected: breakdown!,
-                      onChanged: onBreakdownChanged!,
-                      compact: true,
-                      maxIconsPerRow: maxPerRow,
-                    ),
-            ],
-          ],
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Material(
+        color: surface,
+        elevation: 0,
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: Row(mainAxisSize: MainAxisSize.min, children: toggleIcons),
         ),
       ),
     );
-
-    return column;
   }
 }
 

@@ -8,6 +8,16 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.15] - 2026-09-24
+
+### Changed
+
+- Chart chrome is more compact on phones: type icons stay top-right; country /
+  tag / period targets move to one scrollable row above the legend. Hover and
+  touch details show as in-plot tooltips instead of a left summary badge.
+- Horizontal swipe on the chart cycles breakdown; outside the chart it cycles
+  Cash flow / Expenses / Income.
+
 ## [1.1.14] - 2026-09-22
 
 ### Fixed

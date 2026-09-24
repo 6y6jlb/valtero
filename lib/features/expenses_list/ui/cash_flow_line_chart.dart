@@ -4,19 +4,25 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/cash_flow_aggregator.dart';
+import 'package:valtero/features/expenses_list/model/chart_breakdown_options.dart';
+import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
+import 'package:valtero/features/expenses_list/ui/chart_breakdown_row.dart';
 import 'package:valtero/features/expenses_list/ui/chart_empty_placeholder.dart';
+import 'package:valtero/features/expenses_list/ui/chart_horizontal_cycle.dart';
 import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
-import 'package:valtero/features/expenses_list/ui/chart_selection_panel.dart';
+import 'package:valtero/features/expenses_list/ui/chart_tooltip_style.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/money_text.dart';
 
 /// Line chart for income, expense, and net cash flow over time.
-class CashFlowLineChart extends ConsumerStatefulWidget {
+class CashFlowLineChart extends ConsumerWidget {
   final List<CashFlowBucket> buckets;
   final String displayCurrency;
   final double chartHeight;
   final bool hideAmounts;
   final String? emptyMessage;
+  final ExpenseChartBreakdown? breakdown;
+  final ValueChanged<ExpenseChartBreakdown>? onBreakdownChanged;
 
   const CashFlowLineChart({
     super.key,
@@ -25,38 +31,21 @@ class CashFlowLineChart extends ConsumerStatefulWidget {
     this.chartHeight = 312,
     this.hideAmounts = false,
     this.emptyMessage,
+    this.breakdown,
+    this.onBreakdownChanged,
   });
 
   @override
-  ConsumerState<CashFlowLineChart> createState() => _CashFlowLineChartState();
-}
-
-class _CashFlowLineChartState extends ConsumerState<CashFlowLineChart> {
-  ChartSelectionDetail? _selection;
-
-  @override
-  void didUpdateWidget(covariant CashFlowLineChart oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!identical(oldWidget.buckets, widget.buckets)) {
-      _selection = null;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final incomeColor = theme.colorScheme.tertiary;
     final expenseColor = theme.colorScheme.error;
     final netColor = theme.colorScheme.onSurface;
-    final buckets = widget.buckets;
-    final hideAmounts = widget.hideAmounts;
-    final displayCurrency = widget.displayCurrency;
-    final chartHeight = widget.chartHeight;
 
     if (buckets.isEmpty) {
       return ChartEmptyPlaceholder(
-        message: widget.emptyMessage ?? l10n.noMatchingOperations,
+        message: emptyMessage ?? l10n.noMatchingOperations,
         icon: Icons.show_chart_outlined,
         height: chartHeight * 0.55,
       );
@@ -100,179 +89,181 @@ class _CashFlowLineChartState extends ConsumerState<CashFlowLineChart> {
       };
     }
 
-    return Column(
-      children: [
-        SizedBox(
-          height: chartHeight,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Padding(
-                padding: kChartPlotPadding,
-                child: LineChart(
-                  LineChartData(
-                    minX: 0,
-                    maxX: buckets.length <= 1
-                        ? 1
-                        : (buckets.length - 1).toDouble(),
-                    minY: minY < 0 ? minY - yPad : 0,
-                    maxY: maxY <= 0 && minY >= 0 ? 1 : maxY + yPad,
-                    lineTouchData: LineTouchData(
-                      enabled: true,
-                      touchTooltipData: LineTouchTooltipData(
-                        getTooltipItems: (touchedSpots) =>
-                            touchedSpots.map((_) => null).toList(),
-                      ),
-                      touchCallback: (event, response) {
-                        final spots = response?.lineBarSpots;
-                        if (spots == null || spots.isEmpty) {
-                          if (event is FlPointerExitEvent) {
-                            setState(() => _selection = null);
-                          }
-                          return;
-                        }
-                        final i = spots.first.x.round();
-                        if (i < 0 || i >= buckets.length) return;
-                        final bucket = buckets[i];
-                        final lines = <ChartSelectionLine>[];
-                        final seen = <int>{};
-                        for (final spot in spots) {
-                          if (!seen.add(spot.barIndex)) continue;
-                          final amountMinor = amountForBar(
-                            spot.barIndex,
-                            bucket,
+    final showBreakdown = breakdown != null && onBreakdownChanged != null;
+
+    Widget plot = SizedBox(
+      height: chartHeight,
+      child: Padding(
+        padding: kChartPlotPadding,
+        child: LineChart(
+              LineChartData(
+                minX: 0,
+                maxX: buckets.length <= 1
+                    ? 1
+                    : (buckets.length - 1).toDouble(),
+                minY: minY < 0 ? minY - yPad : 0,
+                maxY: maxY <= 0 && minY >= 0 ? 1 : maxY + yPad,
+                lineTouchData: LineTouchData(
+                  enabled: true,
+                  touchTooltipData: LineTouchTooltipData(
+                    getTooltipColor: (_) => chartTooltipBg(context),
+                    fitInsideHorizontally: true,
+                    fitInsideVertically: true,
+                    maxContentWidth: 200,
+                    getTooltipItems: (touchedSpots) {
+                      if (touchedSpots.isEmpty) return [];
+                      final i = touchedSpots.first.x.round();
+                      if (i < 0 || i >= buckets.length) {
+                        return touchedSpots.map((_) => null).toList();
+                      }
+                      final bucket = buckets[i];
+                      final buf = StringBuffer(bucket.label);
+                      final seen = <int>{};
+                      for (final spot in touchedSpots) {
+                        if (!seen.add(spot.barIndex)) continue;
+                        final amountMinor =
+                            amountForBar(spot.barIndex, bucket);
+                        if (!hideAmounts && amountMinor == 0) continue;
+                        buf.write('\n${lineLabel(spot.barIndex)}');
+                        if (!hideAmounts) {
+                          buf.write(
+                            ': ${formatMoneyOf(context, ref, amountMinor: amountMinor, currencyCode: displayCurrency)}',
                           );
-                          if (!hideAmounts && amountMinor == 0) continue;
-                          lines.add(
-                            ChartSelectionLine(
-                              label: lineLabel(spot.barIndex),
-                              amountText: hideAmounts
-                                  ? null
-                                  : formatMoneyOf(
-                                      context,
-                                      ref,
-                                      amountMinor: amountMinor,
-                                      currencyCode: displayCurrency,
-                                    ),
-                              color: lineColor(spot.barIndex),
+                        }
+                      }
+                      return [
+                        for (var s = 0; s < touchedSpots.length; s++)
+                          if (s == 0)
+                            chartLineTooltipItem(
+                              context: context,
+                              text: buf.toString(),
+                              accent: lineColor(touchedSpots.first.barIndex),
+                            )
+                          else
+                            null,
+                      ];
+                    },
+                  ),
+                ),
+                titlesData: FlTitlesData(
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  leftTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 28,
+                      interval: 1,
+                      getTitlesWidget: (value, meta) {
+                        final i = value.round();
+                        if (i < 0 || i >= buckets.length) {
+                          return const SizedBox.shrink();
+                        }
+                        if (i % stride != 0 && i != buckets.length - 1) {
+                          return const SizedBox.shrink();
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Text(
+                            buckets[i].label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              fontSize: 9,
+                              height: 1.1,
                             ),
-                          );
-                        }
-                        setState(() {
-                          _selection = ChartSelectionDetail(
-                            title: bucket.label,
-                            lines: lines,
-                          );
-                        });
+                          ),
+                        );
                       },
                     ),
-                    titlesData: FlTitlesData(
-                      topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      leftTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 28,
-                          interval: 1,
-                          getTitlesWidget: (value, meta) {
-                            final i = value.round();
-                            if (i < 0 || i >= buckets.length) {
-                              return const SizedBox.shrink();
-                            }
-                            if (i % stride != 0 && i != buckets.length - 1) {
-                              return const SizedBox.shrink();
-                            }
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 6),
-                              child: Text(
-                                buckets[i].label,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.center,
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  fontSize: 9,
-                                  height: 1.1,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    gridData: FlGridData(
-                      show: true,
-                      drawVerticalLine: false,
-                      getDrawingHorizontalLine: (value) => FlLine(
-                        color: theme.colorScheme.outlineVariant.withValues(
-                          alpha: 0.5,
-                        ),
-                        strokeWidth: 1,
-                      ),
-                    ),
-                    borderData: FlBorderData(show: false),
-                    lineBarsData: [
-                      LineChartBarData(
-                        spots: [
-                          for (var i = 0; i < buckets.length; i++)
-                            FlSpot(
-                              i.toDouble(),
-                              buckets[i].incomeTotalMinor.toDouble(),
-                            ),
-                        ],
-                        isCurved: true,
-                        preventCurveOverShooting: true,
-                        color: incomeColor,
-                        barWidth: 2,
-                        dotData: const FlDotData(show: false),
-                      ),
-                      LineChartBarData(
-                        spots: [
-                          for (var i = 0; i < buckets.length; i++)
-                            FlSpot(
-                              i.toDouble(),
-                              buckets[i].expenseTotalMinor.toDouble(),
-                            ),
-                        ],
-                        isCurved: true,
-                        preventCurveOverShooting: true,
-                        color: expenseColor,
-                        barWidth: 2,
-                        dotData: const FlDotData(show: false),
-                      ),
-                      LineChartBarData(
-                        spots: [
-                          for (var i = 0; i < buckets.length; i++)
-                            FlSpot(
-                              i.toDouble(),
-                              buckets[i].netMinor.toDouble(),
-                            ),
-                        ],
-                        isCurved: true,
-                        preventCurveOverShooting: true,
-                        color: netColor,
-                        barWidth: 3.5,
-                        dotData: const FlDotData(show: false),
-                      ),
-                    ],
                   ),
-                  duration: Duration.zero,
                 ),
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  getDrawingHorizontalLine: (value) => FlLine(
+                    color: theme.colorScheme.outlineVariant.withValues(
+                      alpha: 0.5,
+                    ),
+                    strokeWidth: 1,
+                  ),
+                ),
+                borderData: FlBorderData(show: false),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: [
+                      for (var i = 0; i < buckets.length; i++)
+                        FlSpot(
+                          i.toDouble(),
+                          buckets[i].incomeTotalMinor.toDouble(),
+                        ),
+                    ],
+                    isCurved: true,
+                    preventCurveOverShooting: true,
+                    color: incomeColor,
+                    barWidth: 2,
+                    dotData: const FlDotData(show: false),
+                  ),
+                  LineChartBarData(
+                    spots: [
+                      for (var i = 0; i < buckets.length; i++)
+                        FlSpot(
+                          i.toDouble(),
+                          buckets[i].expenseTotalMinor.toDouble(),
+                        ),
+                    ],
+                    isCurved: true,
+                    preventCurveOverShooting: true,
+                    color: expenseColor,
+                    barWidth: 2,
+                    dotData: const FlDotData(show: false),
+                  ),
+                  LineChartBarData(
+                    spots: [
+                      for (var i = 0; i < buckets.length; i++)
+                        FlSpot(
+                          i.toDouble(),
+                          buckets[i].netMinor.toDouble(),
+                        ),
+                    ],
+                    isCurved: true,
+                    preventCurveOverShooting: true,
+                    color: netColor,
+                    barWidth: 3.5,
+                    dotData: const FlDotData(show: false),
+                  ),
+                ],
               ),
-              Positioned(
-                top: 0,
-                left: 0,
-                child: ChartSelectionPanel(detail: _selection),
-              ),
-            ],
+              duration: Duration.zero,
+            ),
           ),
-        ),
+    );
+
+    plot = wrapChartBreakdownCycle(
+      child: plot,
+      breakdown: breakdown,
+      onChanged: onBreakdownChanged,
+      order: kCashFlowChartBreakdownOrder,
+    );
+
+    return Column(
+      children: [
+        plot,
+        if (showBreakdown) ...[
+          const SizedBox(height: 4),
+          ChartBreakdownRow(
+            selected: breakdown!,
+            onChanged: onBreakdownChanged!,
+            cashFlowPeriodOnly: true,
+          ),
+        ],
         const SizedBox(height: 8),
         Wrap(
           spacing: 16,
