@@ -9,12 +9,14 @@ import 'package:valtero/features/expenses_list/ui/chart_empty_placeholder.dart';
 import 'package:valtero/features/expenses_list/ui/chart_horizontal_cycle.dart';
 import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
 import 'package:valtero/features/expenses_list/ui/chart_tooltip_style.dart';
+import 'package:valtero/features/expenses_list/ui/directional_slide_switcher.dart';
+import 'package:valtero/features/expenses_list/model/cycle_transition_direction.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/money_text.dart';
 
 /// Grouped bar chart comparing income vs. expenses per period
 /// (day/week/month/year, see [CashFlowBucket]).
-class CashFlowChart extends ConsumerWidget {
+class CashFlowChart extends ConsumerStatefulWidget {
   final List<CashFlowBucket> buckets;
   final String displayCurrency;
   final double chartHeight;
@@ -37,16 +39,43 @@ class CashFlowChart extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CashFlowChart> createState() => _CashFlowChartState();
+}
+
+class _CashFlowChartState extends ConsumerState<CashFlowChart> {
+  bool _breakdownSlideForward = true;
+
+  @override
+  void didUpdateWidget(covariant CashFlowChart oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final oldB = oldWidget.breakdown;
+    final newB = widget.breakdown;
+    if (oldB != null && newB != null && oldB != newB) {
+      _breakdownSlideForward = cycleTransitionForward(
+        kCashFlowChartBreakdownOrder,
+        oldB,
+        newB,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final incomeColor = theme.colorScheme.tertiary;
     final expenseColor = theme.colorScheme.error;
+    final buckets = widget.buckets;
+    final displayCurrency = widget.displayCurrency;
+    final chartHeight = widget.chartHeight;
+    final hideBarAmounts = widget.hideBarAmounts;
+    final breakdown = widget.breakdown;
+    final onBreakdownChanged = widget.onBreakdownChanged;
 
     if (buckets.isEmpty) {
       return ChartEmptyPlaceholder(
-        message: emptyMessage ?? l10n.noMatchingOperations,
-        icon: emptyIcon,
+        message: widget.emptyMessage ?? l10n.noMatchingOperations,
+        icon: widget.emptyIcon,
         height: chartHeight * 0.55,
       );
     }
@@ -188,34 +217,44 @@ class CashFlowChart extends ConsumerWidget {
       order: kCashFlowChartBreakdownOrder,
     );
 
+    final legend = Wrap(
+      spacing: 16,
+      runSpacing: 4,
+      alignment: WrapAlignment.center,
+      children: [
+        _LegendDot(
+          color: incomeColor,
+          label: l10n.cashFlowIncome,
+          icon: Icons.south_west,
+        ),
+        _LegendDot(
+          color: expenseColor,
+          label: l10n.cashFlowExpense,
+          icon: Icons.north_east,
+        ),
+      ],
+    );
+
     return Column(
       children: [
-        plot,
         if (showBreakdown) ...[
-          const SizedBox(height: 4),
           ChartBreakdownRow(
-            selected: breakdown!,
-            onChanged: onBreakdownChanged!,
+            selected: breakdown,
+            onChanged: onBreakdownChanged,
             cashFlowPeriodOnly: true,
           ),
+          const SizedBox(height: 4),
         ],
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 16,
-          runSpacing: 4,
-          alignment: WrapAlignment.center,
-          children: [
-            _LegendDot(
-              color: incomeColor,
-              label: l10n.cashFlowIncome,
-              icon: Icons.south_west,
-            ),
-            _LegendDot(
-              color: expenseColor,
-              label: l10n.cashFlowExpense,
-              icon: Icons.north_east,
-            ),
-          ],
+        DirectionalSlideSwitcher(
+          switchKey: breakdown ?? 'cash-flow-bars',
+          forward: _breakdownSlideForward,
+          child: Column(
+            children: [
+              plot,
+              const SizedBox(height: 8),
+              legend,
+            ],
+          ),
         ),
       ],
     );

@@ -5,12 +5,14 @@ import 'package:valtero/features/add_income/ui/add_income_sheet.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_query.dart';
 import 'package:valtero/features/expenses_list/model/cash_flow_list_selection.dart';
 import 'package:valtero/features/expenses_list/model/cycle_index.dart';
+import 'package:valtero/features/expenses_list/model/cycle_transition_direction.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_selection.dart';
 import 'package:valtero/features/expenses_list/model/income_list_selection.dart';
 import 'package:valtero/features/expenses_list/model/transaction_direction.dart';
 import 'package:valtero/features/expenses_list/ui/cash_flow_bulk_fab_actions.dart';
 import 'package:valtero/features/expenses_list/ui/cash_flow_list_body.dart';
 import 'package:valtero/features/expenses_list/ui/chart_horizontal_cycle.dart';
+import 'package:valtero/features/expenses_list/ui/directional_slide_switcher.dart';
 import 'package:valtero/features/expenses_list/ui/expense_bulk_fab_actions.dart';
 import 'package:valtero/features/expenses_list/ui/income_bulk_fab_actions.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_sheet.dart';
@@ -51,17 +53,76 @@ class ExpensesPage extends ConsumerStatefulWidget {
 
 class _ExpensesPageState extends ConsumerState<ExpensesPage> {
   late TransactionDirection _direction;
+  bool _directionSlideForward = true;
+  late ScrollController _scrollController;
+  double _preservedOffset = 0;
+  final List<ScrollController> _pendingDispose = [];
 
   @override
   void initState() {
     super.initState();
     _direction = widget.initialDirection;
+    _scrollController = ScrollController(
+      initialScrollOffset: _preservedOffset,
+    );
+    _scrollController.addListener(_rememberOffset);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       ref
           .read(appSettingsProvider.notifier)
           .setDashboardDirection(widget.initialDirection.settingsValue);
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_rememberOffset);
+    _scrollController.dispose();
+    for (final c in _pendingDispose) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  void _rememberOffset() {
+    if (_scrollController.hasClients) {
+      _preservedOffset = _scrollController.offset;
+    }
+  }
+
+  void _replaceScrollControllerKeepingOffset() {
+    final oldController = _scrollController;
+    _preservedOffset =
+        oldController.hasClients ? oldController.offset : _preservedOffset;
+    oldController.removeListener(_rememberOffset);
+    _pendingDispose.add(oldController);
+    _scrollController = ScrollController(
+      initialScrollOffset: _preservedOffset,
+    );
+    _scrollController.addListener(_rememberOffset);
+    Future<void>.delayed(kDirectionalSlideDuration * 2, () {
+      if (!mounted) return;
+      for (final c in List<ScrollController>.from(_pendingDispose)) {
+        c.dispose();
+        _pendingDispose.remove(c);
+      }
+    });
+  }
+
+  void _setDirection(TransactionDirection next) {
+    if (next == _direction) return;
+    setState(() {
+      _directionSlideForward = cycleTransitionForward(
+        TransactionDirection.values,
+        _direction,
+        next,
+      );
+      _direction = next;
+      _replaceScrollControllerKeepingOffset();
+    });
+    ref
+        .read(appSettingsProvider.notifier)
+        .setDashboardDirection(next.settingsValue);
   }
 
   @override
@@ -110,43 +171,40 @@ class _ExpensesPageState extends ConsumerState<ExpensesPage> {
         if (hasCashFlowSelection) const CashFlowBulkFabActions(),
       ],
       body: ChartHorizontalCycle(
-        onNext: () {
-          final next = cycleIndex(
+        onNext: () => _setDirection(
+          cycleIndex(
             TransactionDirection.values,
             _direction,
             forward: true,
-          );
-          setState(() => _direction = next);
-          ref
-              .read(appSettingsProvider.notifier)
-              .setDashboardDirection(next.settingsValue);
-        },
-        onPrevious: () {
-          final next = cycleIndex(
+          ),
+        ),
+        onPrevious: () => _setDirection(
+          cycleIndex(
             TransactionDirection.values,
             _direction,
             forward: false,
-          );
-          setState(() => _direction = next);
-          ref
-              .read(appSettingsProvider.notifier)
-              .setDashboardDirection(next.settingsValue);
-        },
+          ),
+        ),
         child: Column(
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               child: OperationDirectionTabs(
                 selected: _direction,
-                onChanged: (next) {
-                  setState(() => _direction = next);
-                  ref
-                      .read(appSettingsProvider.notifier)
-                      .setDashboardDirection(next.settingsValue);
-                },
+                onChanged: _setDirection,
               ),
             ),
-            Expanded(child: body),
+            Expanded(
+              child: DirectionalSlideSwitcher(
+                switchKey: _direction,
+                forward: _directionSlideForward,
+                expand: true,
+                child: PrimaryScrollController(
+                  controller: _scrollController,
+                  child: body,
+                ),
+              ),
+            ),
           ],
         ),
       ),

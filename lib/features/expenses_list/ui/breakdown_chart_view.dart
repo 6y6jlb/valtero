@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/chart_breakdown_options.dart';
 import 'package:valtero/features/expenses_list/model/chart_time_series.dart';
+import 'package:valtero/features/expenses_list/model/cycle_transition_direction.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/expenses_list/ui/breakdown_chart_legend.dart';
@@ -10,6 +11,7 @@ import 'package:valtero/features/expenses_list/ui/chart_empty_placeholder.dart';
 import 'package:valtero/features/expenses_list/ui/chart_horizontal_cycle.dart';
 import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
 import 'package:valtero/features/expenses_list/ui/column_breakdown_chart.dart';
+import 'package:valtero/features/expenses_list/ui/directional_slide_switcher.dart';
 import 'package:valtero/features/expenses_list/ui/donut_breakdown_chart.dart';
 import 'package:valtero/features/expenses_list/ui/line_breakdown_chart.dart';
 import 'package:valtero/features/expenses_list/ui/stacked_column_time_chart.dart';
@@ -78,10 +80,21 @@ class BreakdownChartView extends ConsumerStatefulWidget {
 
 class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
   final Set<String> _hiddenKeys = {};
+  bool _breakdownSlideForward = true;
+
+  List<ExpenseChartBreakdown> get _breakdownOrder => widget.cashFlowPeriodOnly
+      ? kCashFlowChartBreakdownOrder
+      : kExpenseChartBreakdownOrder;
 
   @override
   void didUpdateWidget(covariant BreakdownChartView oldWidget) {
     super.didUpdateWidget(oldWidget);
+    final oldB = oldWidget.breakdown;
+    final newB = widget.breakdown;
+    if (oldB != null && newB != null && oldB != newB) {
+      _breakdownSlideForward =
+          cycleTransitionForward(_breakdownOrder, oldB, newB);
+    }
     final nextKeys = <String>{
       for (final s in widget.slices) s.key,
       if (widget.timeSeries != null)
@@ -283,9 +296,64 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
       child: plot,
       breakdown: widget.breakdown,
       onChanged: widget.onBreakdownChanged,
-      order: widget.cashFlowPeriodOnly
-          ? kCashFlowChartBreakdownOrder
-          : kExpenseChartBreakdownOrder,
+      order: _breakdownOrder,
+    );
+
+    final legend = isTimeSeries
+        ? BreakdownChartLegend(
+            items: [
+              if (widget.chartType == ExpenseChartType.line)
+                (
+                  key: kChartTotalSeriesKey,
+                  label: l10n.summaryTotal,
+                  color: theme.colorScheme.onSurface,
+                  iconKey: null,
+                  flagCode: null,
+                  flagIsCurrency: false,
+                ),
+              for (final s in allSeries)
+                (
+                  key: s.key,
+                  label: s.label,
+                  color: s.color,
+                  iconKey: s.iconKey,
+                  flagCode: s.flagCode,
+                  flagIsCurrency: s.flagIsCurrency,
+                ),
+            ],
+            hiddenKeys: _hiddenKeys,
+            onToggle: _toggle,
+            showSubcategories: showSubToggle ? widget.showSubcategories : null,
+            onShowSubcategoriesChanged: showSubToggle
+                ? widget.onShowSubcategoriesChanged
+                : null,
+          )
+        : BreakdownChartLegend(
+            items: [
+              for (final s in all)
+                (
+                  key: s.key,
+                  label: s.label,
+                  color: s.color,
+                  iconKey: s.iconKey,
+                  flagCode: s.flagCode,
+                  flagIsCurrency: s.flagIsCurrency,
+                ),
+            ],
+            hiddenKeys: _hiddenKeys,
+            onToggle: _toggle,
+            showSubcategories: showSubToggle ? widget.showSubcategories : null,
+            onShowSubcategoriesChanged: showSubToggle
+                ? widget.onShowSubcategoriesChanged
+                : null,
+          );
+
+    final plotAndLegend = Column(
+      children: [
+        plot,
+        const SizedBox(height: 8),
+        legend,
+      ],
     );
 
     return padClearOfEndSystemBar(
@@ -297,8 +365,6 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
             onChartTypeChanged: widget.onChartTypeChanged,
             availableChartTypes: widget.availableChartTypes,
           ),
-          const SizedBox(height: 4),
-          plot,
           if (showBreakdownRow) ...[
             const SizedBox(height: 4),
             ChartBreakdownRow(
@@ -307,60 +373,12 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
               cashFlowPeriodOnly: widget.cashFlowPeriodOnly,
             ),
           ],
-          const SizedBox(height: 8),
-          if (isTimeSeries)
-            BreakdownChartLegend(
-              items: [
-                if (widget.chartType == ExpenseChartType.line)
-                  (
-                    key: kChartTotalSeriesKey,
-                    label: l10n.summaryTotal,
-                    color: theme.colorScheme.onSurface,
-                    iconKey: null,
-                    flagCode: null,
-                    flagIsCurrency: false,
-                  ),
-                for (final s in allSeries)
-                  (
-                    key: s.key,
-                    label: s.label,
-                    color: s.color,
-                    iconKey: s.iconKey,
-                    flagCode: s.flagCode,
-                    flagIsCurrency: s.flagIsCurrency,
-                  ),
-              ],
-              hiddenKeys: _hiddenKeys,
-              onToggle: _toggle,
-              showSubcategories: showSubToggle
-                  ? widget.showSubcategories
-                  : null,
-              onShowSubcategoriesChanged: showSubToggle
-                  ? widget.onShowSubcategoriesChanged
-                  : null,
-            )
-          else
-            BreakdownChartLegend(
-              items: [
-                for (final s in all)
-                  (
-                    key: s.key,
-                    label: s.label,
-                    color: s.color,
-                    iconKey: s.iconKey,
-                    flagCode: s.flagCode,
-                    flagIsCurrency: s.flagIsCurrency,
-                  ),
-              ],
-              hiddenKeys: _hiddenKeys,
-              onToggle: _toggle,
-              showSubcategories: showSubToggle
-                  ? widget.showSubcategories
-                  : null,
-              onShowSubcategoriesChanged: showSubToggle
-                  ? widget.onShowSubcategoriesChanged
-                  : null,
-            ),
+          const SizedBox(height: 4),
+          DirectionalSlideSwitcher(
+            switchKey: widget.breakdown ?? widget.chartType,
+            forward: _breakdownSlideForward,
+            child: plotAndLegend,
+          ),
         ],
       ),
     );

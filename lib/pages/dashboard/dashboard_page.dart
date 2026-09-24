@@ -25,6 +25,7 @@ import 'package:valtero/features/expenses_list/model/expenses_list_display_prefs
 import 'package:valtero/features/expenses_list/model/income_chart_aggregator.dart';
 import 'package:valtero/features/expenses_list/model/income_list_filtering.dart';
 import 'package:valtero/features/expenses_list/model/transaction_direction.dart';
+import 'package:valtero/features/expenses_list/model/cycle_transition_direction.dart';
 import 'package:valtero/features/expenses_list/ui/dashboard_body.dart';
 import 'package:valtero/features/expenses_list/ui/expense_payment_filter_dialog.dart';
 import 'package:valtero/features/expenses_list/ui/expense_tag_filter_dialog.dart';
@@ -64,6 +65,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   /// Bumps [DashboardBody] key so recent pagination resets after filter apply.
   int _filterGeneration = 0;
   TransactionDirection? _directionOverride;
+
+  /// Last tab change slides forward (next) when true.
+  bool _directionSlideForward = true;
 
   /// Avoids restarting chart aggregation when [build] re-runs for unrelated
   /// provider updates (e.g. persisting dashboardDirection to Hive).
@@ -144,8 +148,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   void _changeDirection(TransactionDirection next) {
     if (next == _direction) return;
     setState(() {
+      _directionSlideForward = cycleTransitionForward(
+        TransactionDirection.values,
+        _direction,
+        next,
+      );
       _directionOverride = next;
-      _filterGeneration++;
     });
     ref
         .read(appSettingsProvider.notifier)
@@ -263,9 +271,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     bool showSubcategories = false,
   }) {
     return DashboardBody(
-      key: ValueKey('${_direction.name}-$_filterGeneration'),
+      key: ValueKey('dash-$_filterGeneration'),
       direction: _direction,
       onDirectionChanged: _changeDirection,
+      directionSlideForward: _directionSlideForward,
       slices: slices,
       timeSeries: timeSeries,
       missingRateCount: missingRateCount,

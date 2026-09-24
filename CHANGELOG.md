@@ -8,6 +8,16 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.16] - 2026-09-24
+
+### Changed
+
+- Switching Cash flow / Expenses / Income (and chart breakdown) uses a parallel
+  horizontal slide; the previous page exits while the next enters.
+- Vertical scroll position is kept across those switches instead of jumping to
+  the top. Chart aggregation no longer blanks the plot with a spinner when a
+  previous chart for the same tab is already on screen.
+
 ## [1.1.15] - 2026-09-24
 
 ### Changed

@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:valtero/features/expenses_list/model/chart_breakdown_options.dart';
 import 'package:valtero/features/expenses_list/model/cycle_index.dart';
+import 'package:valtero/features/expenses_list/model/cycle_transition_direction.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/expenses_list/model/transaction_direction.dart';
 
@@ -51,6 +52,63 @@ void main() {
       expect(r.steps, 1);
       expect(r.forward, isTrue);
       expect(r.accum, -14);
+    });
+  });
+
+  group('cycleTransitionForward', () {
+    test('adjacent next is forward', () {
+      expect(
+        cycleTransitionForward(
+          TransactionDirection.values,
+          TransactionDirection.cashFlow,
+          TransactionDirection.expenses,
+        ),
+        isTrue,
+      );
+    });
+
+    test('adjacent previous is backward', () {
+      expect(
+        cycleTransitionForward(
+          TransactionDirection.values,
+          TransactionDirection.expenses,
+          TransactionDirection.cashFlow,
+        ),
+        isFalse,
+      );
+    });
+
+    test('wrap last to first is forward', () {
+      expect(
+        cycleTransitionForward(
+          TransactionDirection.values,
+          TransactionDirection.income,
+          TransactionDirection.cashFlow,
+        ),
+        isTrue,
+      );
+    });
+
+    test('wrap first to last is backward', () {
+      expect(
+        cycleTransitionForward(
+          TransactionDirection.values,
+          TransactionDirection.cashFlow,
+          TransactionDirection.income,
+        ),
+        isFalse,
+      );
+    });
+
+    test('same value prefers forward', () {
+      expect(
+        cycleTransitionForward(
+          kExpenseChartBreakdownOrder,
+          ExpenseChartBreakdown.day,
+          ExpenseChartBreakdown.day,
+        ),
+        isTrue,
+      );
     });
   });
 

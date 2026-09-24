@@ -11,11 +11,13 @@ import 'package:valtero/features/expenses_list/ui/chart_empty_placeholder.dart';
 import 'package:valtero/features/expenses_list/ui/chart_horizontal_cycle.dart';
 import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
 import 'package:valtero/features/expenses_list/ui/chart_tooltip_style.dart';
+import 'package:valtero/features/expenses_list/ui/directional_slide_switcher.dart';
+import 'package:valtero/features/expenses_list/model/cycle_transition_direction.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/money_text.dart';
 
 /// Line chart for income, expense, and net cash flow over time.
-class CashFlowLineChart extends ConsumerWidget {
+class CashFlowLineChart extends ConsumerStatefulWidget {
   final List<CashFlowBucket> buckets;
   final String displayCurrency;
   final double chartHeight;
@@ -36,16 +38,43 @@ class CashFlowLineChart extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CashFlowLineChart> createState() => _CashFlowLineChartState();
+}
+
+class _CashFlowLineChartState extends ConsumerState<CashFlowLineChart> {
+  bool _breakdownSlideForward = true;
+
+  @override
+  void didUpdateWidget(covariant CashFlowLineChart oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final oldB = oldWidget.breakdown;
+    final newB = widget.breakdown;
+    if (oldB != null && newB != null && oldB != newB) {
+      _breakdownSlideForward = cycleTransitionForward(
+        kCashFlowChartBreakdownOrder,
+        oldB,
+        newB,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final incomeColor = theme.colorScheme.tertiary;
     final expenseColor = theme.colorScheme.error;
     final netColor = theme.colorScheme.onSurface;
+    final buckets = widget.buckets;
+    final hideAmounts = widget.hideAmounts;
+    final displayCurrency = widget.displayCurrency;
+    final chartHeight = widget.chartHeight;
+    final breakdown = widget.breakdown;
+    final onBreakdownChanged = widget.onBreakdownChanged;
 
     if (buckets.isEmpty) {
       return ChartEmptyPlaceholder(
-        message: emptyMessage ?? l10n.noMatchingOperations,
+        message: widget.emptyMessage ?? l10n.noMatchingOperations,
         icon: Icons.show_chart_outlined,
         height: chartHeight * 0.55,
       );
@@ -253,35 +282,45 @@ class CashFlowLineChart extends ConsumerWidget {
       order: kCashFlowChartBreakdownOrder,
     );
 
+    final legend = Wrap(
+      spacing: 16,
+      runSpacing: 4,
+      alignment: WrapAlignment.center,
+      children: [
+        _LegendDot(
+          color: incomeColor,
+          label: l10n.cashFlowIncome,
+          icon: Icons.south_west,
+        ),
+        _LegendDot(
+          color: expenseColor,
+          label: l10n.cashFlowExpense,
+          icon: Icons.north_east,
+        ),
+        _LegendDot(color: netColor, label: l10n.summaryTotal),
+      ],
+    );
+
     return Column(
       children: [
-        plot,
         if (showBreakdown) ...[
-          const SizedBox(height: 4),
           ChartBreakdownRow(
-            selected: breakdown!,
-            onChanged: onBreakdownChanged!,
+            selected: breakdown,
+            onChanged: onBreakdownChanged,
             cashFlowPeriodOnly: true,
           ),
+          const SizedBox(height: 4),
         ],
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 16,
-          runSpacing: 4,
-          alignment: WrapAlignment.center,
-          children: [
-            _LegendDot(
-              color: incomeColor,
-              label: l10n.cashFlowIncome,
-              icon: Icons.south_west,
-            ),
-            _LegendDot(
-              color: expenseColor,
-              label: l10n.cashFlowExpense,
-              icon: Icons.north_east,
-            ),
-            _LegendDot(color: netColor, label: l10n.summaryTotal),
-          ],
+        DirectionalSlideSwitcher(
+          switchKey: breakdown ?? 'cash-flow-line',
+          forward: _breakdownSlideForward,
+          child: Column(
+            children: [
+              plot,
+              const SizedBox(height: 8),
+              legend,
+            ],
+          ),
         ),
       ],
     );

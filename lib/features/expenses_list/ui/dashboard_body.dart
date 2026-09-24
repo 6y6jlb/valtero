@@ -12,6 +12,7 @@ import 'package:valtero/features/expenses_list/model/transaction_direction.dart'
 import 'package:valtero/features/expenses_list/ui/breakdown_chart_view.dart';
 import 'package:valtero/features/expenses_list/ui/cash_flow_chart_view.dart';
 import 'package:valtero/features/expenses_list/ui/chart_horizontal_cycle.dart';
+import 'package:valtero/features/expenses_list/ui/directional_slide_switcher.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_filter_summary_bar.dart';
 import 'package:valtero/features/expenses_list/ui/operation_direction_tabs.dart';
 import 'package:valtero/features/expenses_list/ui/recent_cash_flow_operations_list.dart';
@@ -27,14 +28,14 @@ import 'package:valtero/widgets/infinite_scroll_ellipsis.dart';
 const kDashboardRecentInitial = 5;
 const kDashboardRecentBatch = 5;
 
-/// Scrollable dashboard content: direction tabs, sample banner, filters,
-/// chart, recent list. [direction] switches the chart/list between
-/// expenses, income, and combined cash flow (see [TransactionDirection]);
-/// callers pass the matching slices/buckets/recent rows for the active
-/// direction while keeping the expense-only path untouched by default.
+/// Scrollable dashboard content: direction tabs stay fixed; filters, chart,
+/// and recent list slide horizontally when [direction] changes.
 class DashboardBody extends ConsumerStatefulWidget {
   final TransactionDirection direction;
   final ValueChanged<TransactionDirection> onDirectionChanged;
+
+  /// Slide direction for the last tab change (true = next / from the right).
+  final bool directionSlideForward;
   final List<DonutChartSlice> slices;
   final ChartTimeSeriesAggregation? timeSeries;
   final int missingRateCount;
@@ -50,11 +51,12 @@ class DashboardBody extends ConsumerStatefulWidget {
   final Map<int, String> tagLabels;
   final Map<int, String> paymentLabels;
   final bool isSample;
-  /// True while chart aggregation is in flight — show a spinner in the chart
-  /// slot instead of an empty stub (avoids flash on direction tab switch).
+
+  /// True while chart aggregation is in flight. Keeps the previous chart
+  /// visible when possible instead of replacing the plot with a spinner.
   final bool chartLoading;
+
   /// True when the user has any rows of the active kind (before filters).
-  /// Used so empty charts say "nothing matches" vs "none yet".
   final bool hasSourceData;
   final ValueChanged<ExpenseChartBreakdown> onBreakdownChanged;
   final ValueChanged<ExpenseChartType> onChartTypeChanged;
@@ -69,6 +71,7 @@ class DashboardBody extends ConsumerStatefulWidget {
     super.key,
     required this.direction,
     required this.onDirectionChanged,
+    this.directionSlideForward = true,
     required this.slices,
     this.timeSeries,
     required this.missingRateCount,
@@ -104,6 +107,100 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
   int _recentVisibleCount = kDashboardRecentInitial;
   bool _recentLoadScheduled = false;
 
+  late ScrollController _scrollController;
+  double _preservedOffset = 0;
+  final List<ScrollController> _pendingDispose = [];
+
+  List<DonutChartSlice>? _cachedSlices;
+  ChartTimeSeriesAggregation? _cachedTimeSeries;
+  List<CashFlowBucket>? _cachedBuckets;
+  int? _cachedMissingRates;
+  ExpenseChartBreakdown? _cachedBreakdown;
+  ExpenseChartType? _cachedChartType;
+  TransactionDirection? _cachedDirection;
+  bool? _cachedShowSubcategories;
+  bool? _cachedIsSample;
+  bool? _cachedHasSourceData;
+  String? _cachedDisplayCurrency;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController(
+      initialScrollOffset: _preservedOffset,
+    );
+    _scrollController.addListener(_rememberOffset);
+    _cacheChartIfReady();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_rememberOffset);
+    _scrollController.dispose();
+    for (final c in _pendingDispose) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  void _rememberOffset() {
+    if (_scrollController.hasClients) {
+      _preservedOffset = _scrollController.offset;
+    }
+  }
+
+  void _cacheChartIfReady() {
+    if (widget.chartLoading) return;
+    _cachedSlices = widget.slices;
+    _cachedTimeSeries = widget.timeSeries;
+    _cachedBuckets = widget.cashFlowBuckets;
+    _cachedMissingRates = widget.missingRateCount;
+    _cachedBreakdown = widget.breakdown;
+    _cachedChartType = widget.chartType;
+    _cachedDirection = widget.direction;
+    _cachedShowSubcategories = widget.showSubcategories;
+    _cachedIsSample = widget.isSample;
+    _cachedHasSourceData = widget.hasSourceData;
+    _cachedDisplayCurrency = widget.displayCurrency;
+  }
+
+  bool get _hasCachedChart =>
+      _cachedDirection == widget.direction &&
+      (_cachedSlices != null ||
+          _cachedTimeSeries != null ||
+          _cachedBuckets != null);
+
+  @override
+  void didUpdateWidget(covariant DashboardBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.direction != widget.direction) {
+      final oldController = _scrollController;
+      _preservedOffset =
+          oldController.hasClients ? oldController.offset : _preservedOffset;
+      oldController.removeListener(_rememberOffset);
+      _pendingDispose.add(oldController);
+      _scrollController = ScrollController(
+        initialScrollOffset: _preservedOffset,
+      );
+      _scrollController.addListener(_rememberOffset);
+      Future<void>.delayed(kDirectionalSlideDuration * 2, () {
+        if (!mounted) return;
+        for (final c in List<ScrollController>.from(_pendingDispose)) {
+          c.dispose();
+          _pendingDispose.remove(c);
+        }
+      });
+      // New direction: keep pagination count; clear chart cache if direction
+      // mismatch so we don't flash the wrong chart during load.
+      if (_cachedDirection != widget.direction) {
+        _cachedSlices = null;
+        _cachedTimeSeries = null;
+        _cachedBuckets = null;
+      }
+    }
+    _cacheChartIfReady();
+  }
+
   int _totalRecentCount() {
     return switch (widget.direction) {
       TransactionDirection.expenses => widget.recentExpenses.length,
@@ -114,67 +211,84 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
   }
 
   Widget _buildChart(AppLocalizations l10n) {
-    if (widget.chartLoading) {
-      // Match default chartHeight so the layout does not jump when data lands.
+    final useCache = widget.chartLoading && _hasCachedChart;
+    if (widget.chartLoading && !_hasCachedChart) {
       return const SizedBox(
         height: 312,
         child: Center(child: CircularProgressIndicator()),
       );
     }
-    final emptyYet = switch (widget.direction) {
+
+    final direction = useCache ? _cachedDirection! : widget.direction;
+    final slices = useCache ? (_cachedSlices ?? const []) : widget.slices;
+    final timeSeries = useCache ? _cachedTimeSeries : widget.timeSeries;
+    final buckets = useCache
+        ? (_cachedBuckets ?? const <CashFlowBucket>[])
+        : widget.cashFlowBuckets;
+    final missingRateCount =
+        useCache ? (_cachedMissingRates ?? 0) : widget.missingRateCount;
+    final breakdown = useCache ? _cachedBreakdown! : widget.breakdown;
+    final chartType = useCache ? _cachedChartType! : widget.chartType;
+    final showSubcategories =
+        useCache ? (_cachedShowSubcategories ?? false) : widget.showSubcategories;
+    final isSample = useCache ? (_cachedIsSample ?? false) : widget.isSample;
+    final hasSourceData =
+        useCache ? (_cachedHasSourceData ?? false) : widget.hasSourceData;
+    final displayCurrency =
+        useCache ? (_cachedDisplayCurrency ?? widget.displayCurrency) : widget.displayCurrency;
+
+    final emptyYet = switch (direction) {
       TransactionDirection.income => l10n.noIncomeYet,
       TransactionDirection.expenses => l10n.noExpenses,
       TransactionDirection.cashFlow => l10n.noOperationsYet,
     };
-    final emptyFiltered = switch (widget.direction) {
+    final emptyFiltered = switch (direction) {
       TransactionDirection.income => l10n.noMatchingIncome,
       TransactionDirection.expenses => l10n.noMatchingExpenses,
       TransactionDirection.cashFlow => l10n.noMatchingOperations,
     };
-    final emptyMessage = widget.isSample || !widget.hasSourceData
-        ? emptyYet
-        : emptyFiltered;
-    final emptyIcon = switch (widget.direction) {
+    final emptyMessage =
+        isSample || !hasSourceData ? emptyYet : emptyFiltered;
+    final emptyIcon = switch (direction) {
       TransactionDirection.income => Icons.south_west_outlined,
       TransactionDirection.expenses => Icons.north_east_outlined,
       TransactionDirection.cashFlow => Icons.pie_chart_outline,
     };
-    if (widget.direction == TransactionDirection.cashFlow) {
+    if (direction == TransactionDirection.cashFlow) {
       return CashFlowChartView(
-        buckets: widget.cashFlowBuckets,
-        displayCurrency: widget.displayCurrency,
-        chartType: widget.chartType,
+        buckets: buckets,
+        displayCurrency: displayCurrency,
+        chartType: chartType,
         onChartTypeChanged: widget.onChartTypeChanged,
-        breakdown: widget.breakdown,
+        breakdown: breakdown,
         onBreakdownChanged: widget.onBreakdownChanged,
-        hideAmounts: widget.missingRateCount > 0,
+        hideAmounts: missingRateCount > 0,
         emptyMessage: emptyMessage,
         emptyIcon: emptyIcon,
       );
     }
-    final missingRates = widget.timeSeries?.missingRateCount ??
-        widget.missingRateCount;
+    final missingRates = timeSeries?.missingRateCount ?? missingRateCount;
     return BreakdownChartView(
       key: ValueKey(
-        'dash-${widget.breakdown.name}-${widget.slices.length}-'
-        '${widget.timeSeries?.points.length ?? 0}',
+        'dash-${breakdown.name}-${slices.length}-'
+        '${timeSeries?.points.length ?? 0}',
       ),
-      slices: widget.slices,
-      timeSeries: widget.timeSeries,
-      displayCurrency: widget.displayCurrency,
-      chartType: widget.chartType,
+      slices: slices,
+      timeSeries: timeSeries,
+      displayCurrency: displayCurrency,
+      chartType: chartType,
       onChartTypeChanged: widget.onChartTypeChanged,
-      breakdown: widget.breakdown,
+      breakdown: breakdown,
       onBreakdownChanged: widget.onBreakdownChanged,
-      showSubcategories: widget.showSubcategories,
+      showSubcategories: showSubcategories,
       onShowSubcategoriesChanged: widget.onShowSubcategoriesChanged,
       hideCenterTotal: missingRates > 0 ||
-          widget.breakdown == ExpenseChartBreakdown.currency,
+          breakdown == ExpenseChartBreakdown.currency,
       hideSegmentAmounts: missingRates > 0 &&
-          widget.breakdown != ExpenseChartBreakdown.currency,
+          breakdown != ExpenseChartBreakdown.currency,
       emptyMessage: emptyMessage,
       emptyIcon: emptyIcon,
-      onSegmentTap: widget.isSample ? null : widget.onSegmentTap,
+      onSegmentTap: isSample ? null : widget.onSegmentTap,
     );
   }
 
@@ -211,30 +325,12 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
     };
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
+  Widget _buildScrollBody(AppLocalizations l10n, ThemeData theme) {
     final totalRecent = _totalRecentCount();
     final visibleCount = _recentVisibleCount.clamp(0, totalRecent);
     final hasMoreRecent = visibleCount < totalRecent;
 
-    return ChartHorizontalCycle(
-      onNext: () => widget.onDirectionChanged(
-        cycleIndex(
-          TransactionDirection.values,
-          widget.direction,
-          forward: true,
-        ),
-      ),
-      onPrevious: () => widget.onDirectionChanged(
-        cycleIndex(
-          TransactionDirection.values,
-          widget.direction,
-          forward: false,
-        ),
-      ),
-      child: NotificationListener<ScrollNotification>(
+    return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
         if (!hasMoreRecent || _recentLoadScheduled) return false;
         if (!isNearScrollBottom(notification)) return false;
@@ -253,17 +349,10 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
       child: RefreshIndicator(
         onRefresh: () => triggerPullToRefreshSync(context, ref),
         child: ListView(
+          controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, kFabBottomPadding),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, kFabBottomPadding),
           children: [
-            Align(
-              alignment: Alignment.center,
-              child: OperationDirectionTabs(
-                selected: widget.direction,
-                onChanged: widget.onDirectionChanged,
-              ),
-            ),
-            const SizedBox(height: 12),
             if (widget.isSample && !widget.chartLoading) ...[
               _DashboardSampleBanner(
                 onOpenGuide: widget.onOpenGuide,
@@ -340,7 +429,52 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
           ],
         ),
       ),
-    ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+
+    return ChartHorizontalCycle(
+      onNext: () => widget.onDirectionChanged(
+        cycleIndex(
+          TransactionDirection.values,
+          widget.direction,
+          forward: true,
+        ),
+      ),
+      onPrevious: () => widget.onDirectionChanged(
+        cycleIndex(
+          TransactionDirection.values,
+          widget.direction,
+          forward: false,
+        ),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: Align(
+              alignment: Alignment.center,
+              child: OperationDirectionTabs(
+                selected: widget.direction,
+                onChanged: widget.onDirectionChanged,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Expanded(
+            child: DirectionalSlideSwitcher(
+              switchKey: widget.direction,
+              forward: widget.directionSlideForward,
+              expand: true,
+              child: _buildScrollBody(l10n, theme),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -368,34 +502,35 @@ class _DashboardSampleBanner extends StatelessWidget {
       color: theme.colorScheme.secondaryContainer.withValues(alpha: 0.55),
       borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               l10n.dashboardSampleChartLabel,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSecondaryContainer,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            if (onOpenGuide != null)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton(
-                  onPressed: onOpenGuide,
-                  style: linkStyle,
-                  child: Text(l10n.dashboardOpenGuide),
-                ),
-              ),
-            if (onRestoreFromBackup != null)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton(
-                  onPressed: onRestoreFromBackup,
-                  style: linkStyle,
-                  child: Text(l10n.dashboardRestoreFromBackup),
-                ),
-              ),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 12,
+              runSpacing: 4,
+              children: [
+                if (onOpenGuide != null)
+                  TextButton(
+                    style: linkStyle,
+                    onPressed: onOpenGuide,
+                    child: Text(l10n.dashboardOpenGuide),
+                  ),
+                if (onRestoreFromBackup != null)
+                  TextButton(
+                    style: linkStyle,
+                    onPressed: onRestoreFromBackup,
+                    child: Text(l10n.dashboardRestoreFromBackup),
+                  ),
+              ],
+            ),
           ],
         ),
       ),
