@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/cash_flow_aggregator.dart';
 import 'package:valtero/features/expenses_list/model/chart_breakdown_options.dart';
+import 'package:valtero/features/expenses_list/model/cycle_index.dart';
+import 'package:valtero/features/expenses_list/model/cycle_transition_direction.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/expenses_list/ui/chart_breakdown_row.dart';
 import 'package:valtero/features/expenses_list/ui/chart_empty_placeholder.dart';
-import 'package:valtero/features/expenses_list/ui/chart_horizontal_cycle.dart';
 import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
 import 'package:valtero/features/expenses_list/ui/chart_tooltip_style.dart';
 import 'package:valtero/features/expenses_list/ui/directional_slide_switcher.dart';
-import 'package:valtero/features/expenses_list/model/cycle_transition_direction.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
 import 'package:valtero/widgets/money_text.dart';
 
@@ -210,12 +210,42 @@ class _CashFlowChartState extends ConsumerState<CashFlowChart> {
           ),
     );
 
-    plot = wrapChartBreakdownCycle(
-      child: plot,
-      breakdown: breakdown,
-      onChanged: onBreakdownChanged,
-      order: kCashFlowChartBreakdownOrder,
-    );
+    plot = showBreakdown
+        ? InteractiveSlidePager(
+            pageKey: breakdown,
+            externalForward: _breakdownSlideForward,
+            onNext: () => onBreakdownChanged(
+              cycleIndex(
+                kCashFlowChartBreakdownOrder,
+                breakdown,
+                forward: true,
+              ),
+            ),
+            onPrevious: () => onBreakdownChanged(
+              cycleIndex(
+                kCashFlowChartBreakdownOrder,
+                breakdown,
+                forward: false,
+              ),
+            ),
+            child: plot,
+          )
+        : plot;
+
+    final incomeTotal =
+        buckets.fold<int>(0, (sum, b) => sum + b.incomeTotalMinor);
+    final expenseTotal =
+        buckets.fold<int>(0, (sum, b) => sum + b.expenseTotalMinor);
+    String? amountOf(int minor) {
+      if (hideBarAmounts) return null;
+      return formatMoneyOf(
+        context,
+        ref,
+        amountMinor: minor,
+        currencyCode: displayCurrency,
+        hideFraction: true,
+      );
+    }
 
     final legend = Wrap(
       spacing: 16,
@@ -225,11 +255,13 @@ class _CashFlowChartState extends ConsumerState<CashFlowChart> {
         _LegendDot(
           color: incomeColor,
           label: l10n.cashFlowIncome,
+          amountLabel: amountOf(incomeTotal),
           icon: Icons.south_west,
         ),
         _LegendDot(
           color: expenseColor,
           label: l10n.cashFlowExpense,
+          amountLabel: amountOf(expenseTotal),
           icon: Icons.north_east,
         ),
       ],
@@ -237,25 +269,17 @@ class _CashFlowChartState extends ConsumerState<CashFlowChart> {
 
     return Column(
       children: [
+        plot,
         if (showBreakdown) ...[
+          const SizedBox(height: 4),
           ChartBreakdownRow(
             selected: breakdown,
             onChanged: onBreakdownChanged,
             cashFlowPeriodOnly: true,
           ),
-          const SizedBox(height: 4),
         ],
-        DirectionalSlideSwitcher(
-          switchKey: breakdown ?? 'cash-flow-bars',
-          forward: _breakdownSlideForward,
-          child: Column(
-            children: [
-              plot,
-              const SizedBox(height: 8),
-              legend,
-            ],
-          ),
-        ),
+        const SizedBox(height: 8),
+        legend,
       ],
     );
   }
@@ -264,26 +288,48 @@ class _CashFlowChartState extends ConsumerState<CashFlowChart> {
 class _LegendDot extends StatelessWidget {
   final Color color;
   final String label;
+  final String? amountLabel;
   final IconData? icon;
 
-  const _LegendDot({required this.color, required this.label, this.icon});
+  const _LegendDot({
+    required this.color,
+    required this.label,
+    this.amountLabel,
+    this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final muted = theme.colorScheme.onSurfaceVariant;
     return Row(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (icon != null)
-          Icon(icon, size: 16, color: color)
-        else
-          Container(
-            width: 10,
-            height: 10,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
+        Padding(
+          padding: EdgeInsets.only(top: amountLabel != null ? 2 : 0),
+          child: icon != null
+              ? Icon(icon, size: 16, color: color)
+              : Container(
+                  width: 10,
+                  height: 10,
+                  decoration:
+                      BoxDecoration(color: color, shape: BoxShape.circle),
+                ),
+        ),
         const SizedBox(width: 6),
-        Text(label, style: theme.textTheme.labelMedium),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: theme.textTheme.labelMedium),
+            if (amountLabel != null)
+              Text(
+                amountLabel!,
+                style: theme.textTheme.labelSmall?.copyWith(color: muted),
+              ),
+          ],
+        ),
       ],
     );
   }

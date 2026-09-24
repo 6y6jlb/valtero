@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:valtero/shared/l10n/generated/app_localizations.dart';
+import 'package:valtero/widgets/glass_surface.dart';
 
 /// Floating icon action strip shown when one or more operations are selected.
 class OperationBulkActionBar extends StatelessWidget {
@@ -22,51 +23,53 @@ class OperationBulkActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final radius = BorderRadius.circular(28);
+    final fg = glassFabOnPlate(scheme);
 
-    return Material(
-      elevation: 8,
-      color: theme.colorScheme.primaryContainer,
-      borderRadius: BorderRadius.circular(28),
-      clipBehavior: Clip.antiAlias,
-      child: IconTheme(
-        data: IconThemeData(color: theme.colorScheme.onPrimaryContainer),
-        child: DefaultTextStyle(
-          style: theme.textTheme.labelLarge!.copyWith(
-            color: theme.colorScheme.onPrimaryContainer,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Text(l10n.bulkSelectedCount(selectedCount)),
-                ),
-                IconButton(
-                  tooltip: l10n.bulkChangeTags,
-                  onPressed: onChangeTags,
-                  icon: const Icon(Icons.label_outline),
-                ),
-                IconButton(
-                  tooltip: l10n.bulkChangeCountry,
-                  onPressed: onChangeCountry,
-                  icon: const Icon(Icons.flag_outlined),
-                ),
-                IconButton(
-                  tooltip: l10n.bulkChangeCurrency,
-                  onPressed: onChangeCurrency,
-                  icon: const Icon(Icons.currency_exchange),
-                ),
-                IconButton(
-                  tooltip: l10n.delete,
-                  onPressed: onDelete,
-                  icon: Icon(
-                    Icons.delete_outline,
-                    color: theme.colorScheme.error,
+    return GlassSurface(
+      borderRadius: radius,
+      tint: glassFabTint(scheme),
+      child: Material(
+        type: MaterialType.transparency,
+        child: IconTheme(
+          data: IconThemeData(color: fg),
+          child: DefaultTextStyle(
+            style: theme.textTheme.labelLarge!.copyWith(color: fg),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Text(l10n.bulkSelectedCount(selectedCount)),
                   ),
-                ),
-              ],
+                  IconButton(
+                    tooltip: l10n.bulkChangeTags,
+                    onPressed: onChangeTags,
+                    icon: const Icon(Icons.label_outline),
+                  ),
+                  IconButton(
+                    tooltip: l10n.bulkChangeCountry,
+                    onPressed: onChangeCountry,
+                    icon: const Icon(Icons.flag_outlined),
+                  ),
+                  IconButton(
+                    tooltip: l10n.bulkChangeCurrency,
+                    onPressed: onChangeCurrency,
+                    icon: const Icon(Icons.currency_exchange),
+                  ),
+                  IconButton(
+                    tooltip: l10n.delete,
+                    onPressed: onDelete,
+                    icon: Icon(
+                      Icons.delete_outline,
+                      color: scheme.error,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

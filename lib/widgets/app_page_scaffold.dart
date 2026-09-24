@@ -10,10 +10,10 @@ const double _kFabGap = 12;
 
 /// Page scaffold with optional add-operation FAB (`+` → expense / income).
 ///
-/// Put extra FABs (e.g. Show list menu) in [extraFabs]; they sit to the left
-/// of the add button. Each FAB is [Positioned] from the right with a fixed
-/// offset so opening a submenu (taller / wider) grows left/up and never
-/// moves its neighbor — [ExpandFabMenu] does not report a layout width.
+/// Put extra FABs (e.g. Show list menu, bulk bars) in [extraFabs]; they sit to
+/// the left of the add button. Each FAB is [Positioned] from the right with a
+/// fixed offset so opening a submenu grows left/up and never moves its
+/// neighbor. Expandable FABs use frosted [GlassSurface] fills individually.
 ///
 /// Expandable FABs share [ExpandFabScope]. The FAB slot is a full-area stack
 /// so open menus keep a real hit target; a translucent barrier behind the
@@ -80,8 +80,6 @@ class _AppPageScaffoldState extends State<AppPageScaffold> {
       right += _kFabSize + _kFabGap;
     }
 
-    // Extras from nearest-to-add to further left (list order = left→right on
-    // screen, so place them right-to-left here).
     for (var i = widget.extraFabs.length - 1; i >= 0; i--) {
       fabs.add(
         Positioned(
@@ -91,9 +89,6 @@ class _AppPageScaffoldState extends State<AppPageScaffold> {
           child: widget.extraFabs[i],
         ),
       );
-      // Closed add is always 56; extras may be extended — next offset still
-      // uses 56 so a closed extended Show keeps a 12px gap to the add FAB.
-      // Opening an extra grows left from this anchor and does not move add.
       right += _kFabSize + _kFabGap;
     }
 
@@ -113,8 +108,6 @@ class _AppPageScaffoldState extends State<AppPageScaffold> {
 
           Widget? fab = widget.floatingActionButton;
           if (fab == null && hasBuiltInFabs) {
-            // Barrier stays mounted (IgnorePointer when closed) so inserting it
-            // never shifts Stack child indices and remounts ExpandFabMenu.
             fab = SizedBox(
               width: size.width - 32,
               height: size.height - 32,

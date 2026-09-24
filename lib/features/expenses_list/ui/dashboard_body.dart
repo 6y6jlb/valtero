@@ -11,7 +11,6 @@ import 'package:valtero/features/expenses_list/model/recent_operation.dart';
 import 'package:valtero/features/expenses_list/model/transaction_direction.dart';
 import 'package:valtero/features/expenses_list/ui/breakdown_chart_view.dart';
 import 'package:valtero/features/expenses_list/ui/cash_flow_chart_view.dart';
-import 'package:valtero/features/expenses_list/ui/chart_horizontal_cycle.dart';
 import 'package:valtero/features/expenses_list/ui/directional_slide_switcher.dart';
 import 'package:valtero/features/expenses_list/ui/expenses_filter_summary_bar.dart';
 import 'package:valtero/features/expenses_list/ui/operation_direction_tabs.dart';
@@ -437,44 +436,131 @@ class _DashboardBodyState extends ConsumerState<DashboardBody> {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
-    return ChartHorizontalCycle(
-      onNext: () => widget.onDirectionChanged(
-        cycleIndex(
-          TransactionDirection.values,
-          widget.direction,
-          forward: true,
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          child: Align(
+            alignment: Alignment.center,
+            child: OperationDirectionTabs(
+              selected: widget.direction,
+              onChanged: widget.onDirectionChanged,
+            ),
+          ),
         ),
-      ),
-      onPrevious: () => widget.onDirectionChanged(
-        cycleIndex(
-          TransactionDirection.values,
-          widget.direction,
-          forward: false,
-        ),
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: Align(
-              alignment: Alignment.center,
-              child: OperationDirectionTabs(
-                selected: widget.direction,
-                onChanged: widget.onDirectionChanged,
+        const SizedBox(height: 12),
+        Expanded(
+          child: InteractiveSlidePager(
+            pageKey: widget.direction,
+            externalForward: widget.directionSlideForward,
+            expand: true,
+            onNext: () => widget.onDirectionChanged(
+              cycleIndex(
+                TransactionDirection.values,
+                widget.direction,
+                forward: true,
               ),
             ),
+            onPrevious: () => widget.onDirectionChanged(
+              cycleIndex(
+                TransactionDirection.values,
+                widget.direction,
+                forward: false,
+              ),
+            ),
+            neighborBuilder: (forward) {
+              final next = cycleIndex(
+                TransactionDirection.values,
+                widget.direction,
+                forward: forward,
+              );
+              return IgnorePointer(
+                child: _buildNeighborPeek(l10n, theme, next),
+              );
+            },
+            child: _buildScrollBody(l10n, theme),
           ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: DirectionalSlideSwitcher(
-              switchKey: widget.direction,
-              forward: widget.directionSlideForward,
-              expand: true,
-              child: _buildScrollBody(l10n, theme),
+        ),
+      ],
+    );
+  }
+
+  /// Lightweight peek of the adjacent tab: filters + chart-sized placeholder +
+  /// the recent list for that direction (all three lists are already loaded).
+  Widget _buildNeighborPeek(
+    AppLocalizations l10n,
+    ThemeData theme,
+    TransactionDirection direction,
+  ) {
+    final totalRecent = switch (direction) {
+      TransactionDirection.expenses => widget.recentExpenses.length,
+      TransactionDirection.income => widget.recentIncomes.length,
+      TransactionDirection.cashFlow =>
+        widget.recentExpenses.length + widget.recentIncomes.length,
+    };
+    final visibleCount = _recentVisibleCount.clamp(0, totalRecent);
+    final recent = switch (direction) {
+      TransactionDirection.expenses => RecentOperationsList(
+          expenses: ([...widget.recentExpenses]
+                ..sort((a, b) => b.occurredAt.compareTo(a.occurredAt)))
+              .take(visibleCount)
+              .toList(),
+          expenseTags: widget.expenseTags,
+          tagLabels: widget.tagLabels,
+          paymentLabels: widget.paymentLabels,
+        ),
+      TransactionDirection.income => RecentIncomeOperationsList(
+          incomes: ([...widget.recentIncomes]
+                ..sort((a, b) => b.occurredAt.compareTo(a.occurredAt)))
+              .take(visibleCount)
+              .toList(),
+          incomeTags: widget.incomeTags,
+          tagLabels: widget.tagLabels,
+          paymentLabels: widget.paymentLabels,
+        ),
+      TransactionDirection.cashFlow => RecentCashFlowOperationsList(
+          operations: mergeRecentOperations(
+            expenses: widget.recentExpenses,
+            incomes: widget.recentIncomes,
+          ).take(visibleCount).toList(),
+          paymentLabels: widget.paymentLabels,
+          expenseTags: widget.expenseTags,
+          incomeTags: widget.incomeTags,
+          tagLabels: widget.tagLabels,
+        ),
+    };
+
+    return ListView(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, kFabBottomPadding),
+      children: [
+        ExpensesFilterSummaryBar(
+          draft: widget.applied,
+          onTap: () {},
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 312,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerHighest
+                  .withValues(alpha: 0.35),
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
+        ),
+        if (!widget.isSample && totalRecent > 0) ...[
+          const SizedBox(height: 20),
+          Text(
+            l10n.recentOperations,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 4),
+          recent,
         ],
-      ),
+      ],
     );
   }
 }

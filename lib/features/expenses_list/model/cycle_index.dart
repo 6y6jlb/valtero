@@ -12,28 +12,6 @@ T cycleIndex<T>(List<T> items, T current, {required bool forward}) {
   return items[next];
 }
 
-/// Default distance a horizontal drag / scroll must travel for one cycle step.
+/// Trackpad / pointer-scroll travel that commits one interactive slide step
+/// (see [shouldCommitDragCycle] in `drag_cycle_settle.dart`).
 const kChartHorizontalCycleThreshold = 56.0;
-
-/// Result of folding one horizontal delta into a cycle accumulator.
-typedef HorizontalCycleAccum = ({double accum, int steps, bool forward});
-
-/// Accumulates [dx] into [accum] and reports how many cycle steps to fire.
-///
-/// Negative [dx] (swipe left / content scrolls right) → [HorizontalCycleAccum.forward]
-/// is true (call onNext). Positive [dx] → previous. Remainder stays in [accum].
-HorizontalCycleAccum consumeHorizontalCycleDelta({
-  required double accum,
-  required double dx,
-  double threshold = kChartHorizontalCycleThreshold,
-}) {
-  final nextAccum = accum + dx;
-  if (nextAccum.abs() < threshold) {
-    return (accum: nextAccum, steps: 0, forward: nextAccum < 0);
-  }
-  final steps = (nextAccum.abs() / threshold).floor();
-  final forward = nextAccum < 0;
-  final remainder =
-      nextAccum.sign * (nextAccum.abs() % threshold);
-  return (accum: remainder, steps: steps, forward: forward);
-}

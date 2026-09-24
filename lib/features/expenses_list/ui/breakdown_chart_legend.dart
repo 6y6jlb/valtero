@@ -10,6 +10,7 @@ typedef BreakdownLegendItem = ({
   String? iconKey,
   String? flagCode,
   bool flagIsCurrency,
+  String? amountLabel,
 });
 
 /// Shared legend chips for donut / column / time-series breakdown charts.
@@ -52,6 +53,7 @@ class BreakdownChartLegend extends StatelessWidget {
         for (final item in items)
           _LegendChip(
             label: item.label,
+            amountLabel: item.amountLabel,
             color: item.color,
             visible: !hiddenKeys.contains(item.key),
             seriesKey: item.key,
@@ -126,6 +128,7 @@ class _SubcategoryLegendToggle extends StatelessWidget {
 
 class _LegendChip extends StatelessWidget {
   final String label;
+  final String? amountLabel;
   final Color color;
   final bool visible;
   final String seriesKey;
@@ -136,6 +139,7 @@ class _LegendChip extends StatelessWidget {
 
   const _LegendChip({
     required this.label,
+    required this.amountLabel,
     required this.color,
     required this.visible,
     required this.seriesKey,
@@ -185,6 +189,14 @@ class _LegendChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final muted = theme.colorScheme.onSurfaceVariant;
+    final labelStyle = theme.textTheme.labelMedium?.copyWith(
+      color: visible ? null : muted,
+      decoration: visible ? null : TextDecoration.lineThrough,
+    );
+    final amountStyle = theme.textTheme.labelSmall?.copyWith(
+      color: visible ? muted : muted.withValues(alpha: 0.7),
+      decoration: visible ? null : TextDecoration.lineThrough,
+    );
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(6),
@@ -192,19 +204,27 @@ class _LegendChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
         child: Row(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              width: _glyphSize,
-              height: _glyphSize,
-              child: Center(child: _glyph(theme)),
+            Padding(
+              padding: EdgeInsets.only(
+                top: amountLabel != null ? 2 : 0,
+              ),
+              child: SizedBox(
+                width: _glyphSize,
+                height: _glyphSize,
+                child: Center(child: _glyph(theme)),
+              ),
             ),
             const SizedBox(width: 6),
-            Text(
-              label,
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: visible ? null : muted,
-                decoration: visible ? null : TextDecoration.lineThrough,
-              ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: labelStyle),
+                if (amountLabel != null)
+                  Text(amountLabel!, style: amountStyle),
+              ],
             ),
           ],
         ),

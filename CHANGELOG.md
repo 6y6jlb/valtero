@@ -8,6 +8,20 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.17] - 2026-09-24
+
+### Changed
+
+- Tab and chart-breakdown switches follow the finger: the current page and the
+  next slide in parallel; release past ~30% width (or a short trackpad burst)
+  commits, otherwise the page springs back. Vertical scroll offset stays put.
+- Chart legend chips show the series amount under the label (hidden when rates
+  are missing).
+- Breakdown / period targets sit above the legend on every chart type and
+  screen width, not above the plot.
+- Bottom Show / Create / bulk actions use individual frosted plates (Telegram-
+  like neutrals; real blur depends on the platform).
+
 ## [1.1.16] - 2026-09-24
 
 ### Changed

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/chart_breakdown_options.dart';
 import 'package:valtero/features/expenses_list/model/chart_time_series.dart';
+import 'package:valtero/features/expenses_list/model/cycle_index.dart';
 import 'package:valtero/features/expenses_list/model/cycle_transition_direction.dart';
 import 'package:valtero/features/expenses_list/model/donut_chart_slice.dart';
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/expenses_list/ui/breakdown_chart_legend.dart';
 import 'package:valtero/features/expenses_list/ui/chart_breakdown_row.dart';
 import 'package:valtero/features/expenses_list/ui/chart_empty_placeholder.dart';
-import 'package:valtero/features/expenses_list/ui/chart_horizontal_cycle.dart';
 import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
 import 'package:valtero/features/expenses_list/ui/column_breakdown_chart.dart';
 import 'package:valtero/features/expenses_list/ui/directional_slide_switcher.dart';
@@ -292,12 +292,41 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
       ),
     );
 
-    plot = wrapChartBreakdownCycle(
-      child: plot,
-      breakdown: widget.breakdown,
-      onChanged: widget.onBreakdownChanged,
-      order: _breakdownOrder,
-    );
+    plot = showBreakdownRow
+        ? InteractiveSlidePager(
+            pageKey: widget.breakdown!,
+            externalForward: _breakdownSlideForward,
+            onNext: () => widget.onBreakdownChanged!(
+              cycleIndex(_breakdownOrder, widget.breakdown!, forward: true),
+            ),
+            onPrevious: () => widget.onBreakdownChanged!(
+              cycleIndex(_breakdownOrder, widget.breakdown!, forward: false),
+            ),
+            child: plot,
+          )
+        : plot;
+
+    String? amountLabel(int amountMinor, {String? currencyCode}) {
+      if (widget.hideSegmentAmounts) return null;
+      return formatMoneyOf(
+        context,
+        ref,
+        amountMinor: amountMinor,
+        currencyCode: currencyCode ?? widget.displayCurrency,
+        hideFraction: true,
+      );
+    }
+
+    int seriesTotal(String key) {
+      if (ts == null) return 0;
+      if (key == kChartTotalSeriesKey) {
+        return ts.points.fold<int>(0, (sum, p) => sum + p.totalMinor);
+      }
+      return ts.points.fold<int>(
+        0,
+        (sum, p) => sum + (p.amountBySeriesKey[key] ?? 0),
+      );
+    }
 
     final legend = isTimeSeries
         ? BreakdownChartLegend(
@@ -310,6 +339,7 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
                   iconKey: null,
                   flagCode: null,
                   flagIsCurrency: false,
+                  amountLabel: amountLabel(seriesTotal(kChartTotalSeriesKey)),
                 ),
               for (final s in allSeries)
                 (
@@ -319,6 +349,7 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
                   iconKey: s.iconKey,
                   flagCode: s.flagCode,
                   flagIsCurrency: s.flagIsCurrency,
+                  amountLabel: amountLabel(seriesTotal(s.key)),
                 ),
             ],
             hiddenKeys: _hiddenKeys,
@@ -338,6 +369,10 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
                   iconKey: s.iconKey,
                   flagCode: s.flagCode,
                   flagIsCurrency: s.flagIsCurrency,
+                  amountLabel: amountLabel(
+                    s.amountMinor,
+                    currencyCode: s.currencyCode,
+                  ),
                 ),
             ],
             hiddenKeys: _hiddenKeys,
@@ -348,14 +383,6 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
                 : null,
           );
 
-    final plotAndLegend = Column(
-      children: [
-        plot,
-        const SizedBox(height: 8),
-        legend,
-      ],
-    );
-
     return padClearOfEndSystemBar(
       context,
       Column(
@@ -365,6 +392,8 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
             onChartTypeChanged: widget.onChartTypeChanged,
             availableChartTypes: widget.availableChartTypes,
           ),
+          const SizedBox(height: 4),
+          plot,
           if (showBreakdownRow) ...[
             const SizedBox(height: 4),
             ChartBreakdownRow(
@@ -373,12 +402,8 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
               cashFlowPeriodOnly: widget.cashFlowPeriodOnly,
             ),
           ],
-          const SizedBox(height: 4),
-          DirectionalSlideSwitcher(
-            switchKey: widget.breakdown ?? widget.chartType,
-            forward: _breakdownSlideForward,
-            child: plotAndLegend,
-          ),
+          const SizedBox(height: 8),
+          legend,
         ],
       ),
     );

@@ -11,7 +11,6 @@ import 'package:valtero/features/expenses_list/model/income_list_selection.dart'
 import 'package:valtero/features/expenses_list/model/transaction_direction.dart';
 import 'package:valtero/features/expenses_list/ui/cash_flow_bulk_fab_actions.dart';
 import 'package:valtero/features/expenses_list/ui/cash_flow_list_body.dart';
-import 'package:valtero/features/expenses_list/ui/chart_horizontal_cycle.dart';
 import 'package:valtero/features/expenses_list/ui/directional_slide_switcher.dart';
 import 'package:valtero/features/expenses_list/ui/expense_bulk_fab_actions.dart';
 import 'package:valtero/features/expenses_list/ui/income_bulk_fab_actions.dart';
@@ -125,6 +124,17 @@ class _ExpensesPageState extends ConsumerState<ExpensesPage> {
         .setDashboardDirection(next.settingsValue);
   }
 
+  Widget _bodyFor(TransactionDirection direction, ExpenseListQuery initialQuery) {
+    return switch (direction) {
+      TransactionDirection.expenses => ExpensesSheetBody(
+          initial: initialQuery,
+          showTitleBar: false,
+        ),
+      TransactionDirection.income => IncomeListBody(initial: initialQuery),
+      TransactionDirection.cashFlow => CashFlowListBody(initial: initialQuery),
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -138,15 +148,6 @@ class _ExpensesPageState extends ConsumerState<ExpensesPage> {
         ref.watch(cashFlowListSelectionProvider).isNotEmpty;
     final initialQuery =
         widget.initial ?? ExpenseListQuery.sessionDefaults(timeZoneId: tzId);
-
-    final Widget body = switch (_direction) {
-      TransactionDirection.expenses => ExpensesSheetBody(
-          initial: initialQuery,
-          showTitleBar: false,
-        ),
-      TransactionDirection.income => IncomeListBody(initial: initialQuery),
-      TransactionDirection.cashFlow => CashFlowListBody(initial: initialQuery),
-    };
 
     final title = switch (_direction) {
       TransactionDirection.expenses => l10n.navExpenses,
@@ -170,43 +171,51 @@ class _ExpensesPageState extends ConsumerState<ExpensesPage> {
         if (hasIncomeSelection) const IncomeBulkFabActions(),
         if (hasCashFlowSelection) const CashFlowBulkFabActions(),
       ],
-      body: ChartHorizontalCycle(
-        onNext: () => _setDirection(
-          cycleIndex(
-            TransactionDirection.values,
-            _direction,
-            forward: true,
-          ),
-        ),
-        onPrevious: () => _setDirection(
-          cycleIndex(
-            TransactionDirection.values,
-            _direction,
-            forward: false,
-          ),
-        ),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: OperationDirectionTabs(
-                selected: _direction,
-                onChanged: _setDirection,
-              ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: OperationDirectionTabs(
+              selected: _direction,
+              onChanged: _setDirection,
             ),
-            Expanded(
-              child: DirectionalSlideSwitcher(
-                switchKey: _direction,
-                forward: _directionSlideForward,
-                expand: true,
-                child: PrimaryScrollController(
-                  controller: _scrollController,
-                  child: body,
+          ),
+          Expanded(
+            child: InteractiveSlidePager(
+              pageKey: _direction,
+              externalForward: _directionSlideForward,
+              expand: true,
+              onNext: () => _setDirection(
+                cycleIndex(
+                  TransactionDirection.values,
+                  _direction,
+                  forward: true,
                 ),
               ),
+              onPrevious: () => _setDirection(
+                cycleIndex(
+                  TransactionDirection.values,
+                  _direction,
+                  forward: false,
+                ),
+              ),
+              neighborBuilder: (forward) {
+                final next = cycleIndex(
+                  TransactionDirection.values,
+                  _direction,
+                  forward: forward,
+                );
+                return IgnorePointer(
+                  child: _bodyFor(next, initialQuery),
+                );
+              },
+              child: PrimaryScrollController(
+                controller: _scrollController,
+                child: _bodyFor(_direction, initialQuery),
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

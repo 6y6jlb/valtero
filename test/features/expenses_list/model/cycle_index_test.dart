@@ -26,35 +26,6 @@ void main() {
     });
   });
 
-  group('consumeHorizontalCycleDelta', () {
-    test('accumulates below threshold without steps', () {
-      final r = consumeHorizontalCycleDelta(accum: 0, dx: -20);
-      expect(r.steps, 0);
-      expect(r.accum, -20);
-    });
-
-    test('negative dx past threshold fires forward steps', () {
-      final r = consumeHorizontalCycleDelta(accum: 0, dx: -56);
-      expect(r.steps, 1);
-      expect(r.forward, isTrue);
-      expect(r.accum, 0);
-    });
-
-    test('positive dx past threshold fires previous steps', () {
-      final r = consumeHorizontalCycleDelta(accum: 0, dx: 112);
-      expect(r.steps, 2);
-      expect(r.forward, isFalse);
-      expect(r.accum, 0);
-    });
-
-    test('keeps remainder after steps', () {
-      final r = consumeHorizontalCycleDelta(accum: -10, dx: -60);
-      expect(r.steps, 1);
-      expect(r.forward, isTrue);
-      expect(r.accum, -14);
-    });
-  });
-
   group('cycleTransitionForward', () {
     test('adjacent next is forward', () {
       expect(
