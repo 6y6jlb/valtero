@@ -225,7 +225,7 @@ Future<IncomeChartAggregation> aggregateIncomesForChart({
       case ExpenseChartBreakdown.currency:
         final key = from;
         amounts[key] = (amounts[key] ?? 0) + income.storedAmountMinor;
-        labels[key] = currencySymbolFor(key);
+        labels[key] = currencyLegendLabel(key);
         colors[key] ??= chartColorAt(key.hashCode);
         sliceCurrencies[key] = key;
         flagCodes[key] ??= key;
@@ -355,7 +355,7 @@ void _resolveIncomeTimeSeriesSeries({
     case ExpenseChartBreakdown.currency:
       final key = income.storedCurrencyCode.toUpperCase();
       amounts[key] = amount;
-      labels[key] = currencySymbolFor(key);
+      labels[key] = currencyLegendLabel(key);
       colors[key] ??= chartColorAt(key.hashCode);
       flagCodes[key] ??= key;
       flagIsCurrency[key] = true;
@@ -496,7 +496,7 @@ Future<ChartTimeSeriesAggregation> aggregateIncomesForTimeSeries({
       final key = fromCurrency;
       // Converted amount so series + totals share the display currency axis.
       sliceAmounts[key] = amount;
-      sliceLabels[key] = currencySymbolFor(key);
+      sliceLabels[key] = currencyLegendLabel(key);
       sliceColors[key] = chartColorAt(key.hashCode);
       sliceFlagCodes[key] = key;
       sliceFlagIsCurrency[key] = true;

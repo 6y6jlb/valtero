@@ -131,11 +131,12 @@ class _CashFlowLineChartState extends ConsumerState<CashFlowLineChart> {
         padding: kChartPlotPadding,
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final plan = planChartAxisLabelsForTexts(
+            final layout = planChartAxisLabelsForTexts(
               labels: [for (final b in buckets) b.label],
-              plotWidth: constraints.maxWidth,
+              chartWidth: constraints.maxWidth,
               style: labelStyle,
             );
+            final plan = layout.plan;
             return LineChart(
               LineChartData(
                 minX: 0,
@@ -190,11 +191,11 @@ class _CashFlowLineChartState extends ConsumerState<CashFlowLineChart> {
                   topTitles: const AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
                   ),
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
+                  rightTitles: chartAxisEdgeSpacer(
+                    reservedSize: layout.edgeInset,
                   ),
-                  leftTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
+                  leftTitles: chartAxisEdgeSpacer(
+                    reservedSize: layout.edgeInset,
                   ),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(

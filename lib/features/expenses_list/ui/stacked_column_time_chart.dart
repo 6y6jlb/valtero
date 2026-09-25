@@ -122,11 +122,12 @@ class StackedColumnTimeChart extends ConsumerWidget {
         padding: kChartPlotPadding,
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final plan = planChartAxisLabelsForTexts(
+            final layout = planChartAxisLabelsForTexts(
               labels: [for (final p in points) p.dateLabel],
-              plotWidth: constraints.maxWidth,
+              chartWidth: constraints.maxWidth,
               style: labelStyle,
             );
+            final plan = layout.plan;
             return BarChart(
               BarChartData(
                 alignment: BarChartAlignment.spaceAround,
@@ -147,11 +148,11 @@ class StackedColumnTimeChart extends ConsumerWidget {
                   topTitles: const AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
                   ),
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
+                  rightTitles: chartAxisEdgeSpacer(
+                    reservedSize: layout.edgeInset,
                   ),
-                  leftTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
+                  leftTitles: chartAxisEdgeSpacer(
+                    reservedSize: layout.edgeInset,
                   ),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(

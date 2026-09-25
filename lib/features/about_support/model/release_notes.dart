@@ -15,6 +15,13 @@ class AppReleaseNotes {
 /// User-facing history. Keep brief; no agent rules, tests, or tooling.
 const kAppReleaseNotes = <AppReleaseNotes>[
   AppReleaseNotes(
+    version: '1.1.20',
+    lines: [
+      'Chart dates keep clearer gaps and stay fully visible on small screens.',
+      'Currency legends show the symbol and code together (e.g. ₽ RUB).',
+    ],
+  ),
+  AppReleaseNotes(
     version: '1.1.19',
     lines: [
       'Chart dates space out so they do not overlap; a single year still shows a point on the line.',

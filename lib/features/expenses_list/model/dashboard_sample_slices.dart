@@ -177,19 +177,19 @@ List<DonutChartSlice> dashboardSampleSlices(
       return [
         DonutChartSlice(
           key: 'RUB',
-          label: currencySymbolFor('RUB'),
+          label: currencyLegendLabel('RUB'),
           amountMinor: 520000,
           color: chartColorAt(0),
         ),
         DonutChartSlice(
           key: 'USD',
-          label: currencySymbolFor('USD'),
+          label: currencyLegendLabel('USD'),
           amountMinor: 210000,
           color: chartColorAt(1),
         ),
         DonutChartSlice(
           key: 'EUR',
-          label: currencySymbolFor('EUR'),
+          label: currencyLegendLabel('EUR'),
           amountMinor: 150000,
           color: chartColorAt(2),
         ),

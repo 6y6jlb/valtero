@@ -19,4 +19,20 @@ void main() {
       expect(hasCurrencySymbol('BTC'), isFalse);
     });
   });
+
+  group('currencyLegendLabel', () {
+    test('pairs glyph with ISO code', () {
+      expect(currencyLegendLabel('RUB'), '₽ RUB');
+      expect(currencyLegendLabel('usd'), r'$ USD');
+    });
+
+    test('ISO-only codes stay as the code alone', () {
+      expect(currencyLegendLabel('BTC'), 'BTC');
+    });
+
+    test('empty input stays empty', () {
+      expect(currencyLegendLabel(''), '');
+      expect(currencyLegendLabel('   '), '');
+    });
+  });
 }

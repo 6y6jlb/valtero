@@ -8,6 +8,18 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.20] - 2026-09-25
+
+### Fixed
+
+- Time-series date labels use denser bar spacing when thinning ticks, drop a
+  second label when two would sit flush, and reserve real left/right axis space
+  so edge dates are not clipped on narrow screens.
+
+### Changed
+
+- Currency breakdown legend chips show the glyph plus ISO code (e.g. `₽ RUB`).
+
 ## [1.1.19] - 2026-09-25
 
 ### Fixed

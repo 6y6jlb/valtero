@@ -18,22 +18,24 @@ void main() {
     });
 
     test('wide plot keeps stride 1', () {
+      // pitch = 500/5 = 100; slot = 40+12 = 52 → adjacent gaps fit.
       final plan = planChartAxisLabels(
         labelCount: 5,
         plotWidth: 500,
         maxLabelWidth: 40,
-        minGap: 8,
+        minGap: 12,
       );
       expect(plan.stride, 1);
       expect(plan.includeLast, isTrue);
     });
 
     test('narrow plot increases stride', () {
+      // pitch = 200/12 ≈ 16.7; slot = 82 → need stride ≥ 5.
       final plan = planChartAxisLabels(
         labelCount: 12,
         plotWidth: 200,
         maxLabelWidth: 70,
-        minGap: 8,
+        minGap: 12,
       );
       expect(plan.stride, greaterThan(1));
       var shown = 0;
@@ -42,23 +44,60 @@ void main() {
           shown++;
         }
       }
-      // At most floor(200 / 78) = 2 slots with this slot size.
       expect(shown, lessThanOrEqualTo(3));
     });
 
+    test('two labels need enough gap or drop the last', () {
+      // pitch = 100/2 = 50; slot = 70+12 = 82 → gap 50 < 82 → only first.
+      final plan = planChartAxisLabels(
+        labelCount: 2,
+        plotWidth: 100,
+        maxLabelWidth: 70,
+        minGap: 12,
+      );
+      expect(
+        shouldShowChartAxisLabel(index: 0, labelCount: 2, plan: plan),
+        isTrue,
+      );
+      expect(
+        shouldShowChartAxisLabel(index: 1, labelCount: 2, plan: plan),
+        isFalse,
+      );
+    });
+
+    test('two labels show when track is wide enough', () {
+      // pitch = 200/2 = 100; slot = 82 → both fit.
+      final plan = planChartAxisLabels(
+        labelCount: 2,
+        plotWidth: 200,
+        maxLabelWidth: 70,
+        minGap: 12,
+      );
+      expect(plan.stride, 1);
+      expect(plan.includeLast, isTrue);
+      expect(
+        shouldShowChartAxisLabel(index: 1, labelCount: 2, plan: plan),
+        isTrue,
+      );
+    });
+
     test('drops forced last when it would collide', () {
-      // Five labels, room for two slots: stride 3 shows 0 and 3; forcing
-      // index 4 would exceed the slot budget.
+      // pitch = 32; slot = 82. stride 3 fits 0+3 without last; adding 4
+      // leaves only 32px to the previous tick.
       final plan = planChartAxisLabels(
         labelCount: 5,
         plotWidth: 160,
         maxLabelWidth: 70,
-        minGap: 8,
+        minGap: 12,
       );
-      expect(plan.stride, greaterThan(1));
+      expect(plan.stride, 3);
       expect(plan.includeLast, isFalse);
       expect(
         shouldShowChartAxisLabel(index: 0, labelCount: 5, plan: plan),
+        isTrue,
+      );
+      expect(
+        shouldShowChartAxisLabel(index: 3, labelCount: 5, plan: plan),
         isTrue,
       );
       expect(
@@ -100,7 +139,6 @@ void main() {
 
     test('hides last when includeLast is false', () {
       const plan = (stride: 2, includeLast: false);
-      // Last index 5 is not a stride tick (0, 2, 4).
       expect(
         shouldShowChartAxisLabel(index: 5, labelCount: 6, plan: plan),
         isFalse,

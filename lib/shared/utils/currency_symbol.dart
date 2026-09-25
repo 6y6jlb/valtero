@@ -36,3 +36,12 @@ bool hasCurrencySymbol(String code) {
   if (upper.isEmpty) return false;
   return currencySymbolFor(upper) != upper;
 }
+
+/// Chart / legend label: `₽ RUB`, or just `BTC` when there is no glyph.
+String currencyLegendLabel(String code) {
+  final upper = code.trim().toUpperCase();
+  if (upper.isEmpty) return upper;
+  final symbol = currencySymbolFor(upper);
+  if (symbol == upper) return upper;
+  return '$symbol $upper';
+}

@@ -4,15 +4,22 @@ import 'dart:math' show max;
 /// final index is forced on even when it is not a stride tick.
 typedef ChartAxisLabelPlan = ({int stride, bool includeLast});
 
+/// Axis plan plus horizontal inset so centered edge titles are not clipped.
+typedef ChartAxisLabelLayout = ({ChartAxisLabelPlan plan, double edgeInset});
+
 /// Picks a label stride so adjacent titles do not overlap on [plotWidth].
 ///
-/// [maxLabelWidth] is the painted width of the longest label (same text style
-/// as the axis). [minGap] is the minimum clear space between label boxes.
+/// [plotWidth] should be the bottom-axis track only (chart width minus left /
+/// right [edgeInset]). Tick pitch is `plotWidth / labelCount` — the tighter
+/// bar `spaceAround` spacing — so line charts stay a bit conservative too.
+///
+/// [maxLabelWidth] is the painted width of the longest label. [minGap] is the
+/// clear space required between neighboring label boxes.
 ChartAxisLabelPlan planChartAxisLabels({
   required int labelCount,
   required double plotWidth,
   required double maxLabelWidth,
-  double minGap = 8,
+  double minGap = 12,
 }) {
   if (labelCount <= 1) {
     return (stride: 1, includeLast: true);
@@ -23,24 +30,34 @@ ChartAxisLabelPlan planChartAxisLabels({
   }
 
   final slot = maxLabelWidth + minGap;
-  final maxLabels = max(1, (plotWidth / slot).floor());
 
   var stride = 1;
   while (stride < labelCount) {
-    final withLast = _shownCount(labelCount, stride, includeLast: true);
-    if (withLast <= maxLabels) {
+    if (_shownLabelsFit(
+      labelCount: labelCount,
+      stride: stride,
+      includeLast: true,
+      plotWidth: plotWidth,
+      slot: slot,
+    )) {
       break;
     }
-    final withoutLast = _shownCount(labelCount, stride, includeLast: false);
-    if (withoutLast <= maxLabels) {
+    if (_shownLabelsFit(
+      labelCount: labelCount,
+      stride: stride,
+      includeLast: false,
+      plotWidth: plotWidth,
+      slot: slot,
+    )) {
       return (stride: stride, includeLast: false);
     }
     stride++;
   }
 
-  final includeLast = !_lastCollidesWithPrevious(
+  final includeLast = _shownLabelsFit(
     labelCount: labelCount,
     stride: stride,
+    includeLast: true,
     plotWidth: plotWidth,
     slot: slot,
   );
@@ -59,29 +76,40 @@ bool shouldShowChartAxisLabel({
   return false;
 }
 
-int _shownCount(int labelCount, int stride, {required bool includeLast}) {
-  var count = 0;
+List<int> _shownIndices(
+  int labelCount,
+  int stride, {
+  required bool includeLast,
+}) {
+  final indices = <int>[];
   for (var i = 0; i < labelCount; i++) {
     if (i % stride == 0) {
-      count++;
+      indices.add(i);
     } else if (includeLast && i == labelCount - 1) {
-      count++;
+      indices.add(i);
     }
   }
-  return count;
+  return indices;
 }
 
-bool _lastCollidesWithPrevious({
+/// Centers are [pitch] apart per index step (`plotWidth / labelCount`).
+bool _shownLabelsFit({
   required int labelCount,
   required int stride,
+  required bool includeLast,
   required double plotWidth,
   required double slot,
 }) {
-  if (labelCount <= 1) return false;
-  final last = labelCount - 1;
-  if (last % stride == 0) return false;
-  final previous = (last ~/ stride) * stride;
-  final span = labelCount - 1;
-  final pixelGap = ((last - previous) / span) * plotWidth;
-  return pixelGap < slot;
+  final indices = _shownIndices(
+    labelCount,
+    stride,
+    includeLast: includeLast,
+  );
+  if (indices.length <= 1) return true;
+  final pitch = plotWidth / labelCount;
+  for (var k = 0; k < indices.length - 1; k++) {
+    final gap = (indices[k + 1] - indices[k]) * pitch;
+    if (gap < slot) return false;
+  }
+  return true;
 }
