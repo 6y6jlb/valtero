@@ -81,7 +81,11 @@ class _CashFlowLineChartState extends ConsumerState<CashFlowLineChart> {
       );
     }
 
-    final stride = max(1, (buckets.length / 6).ceil());
+    final labelStyle = theme.textTheme.labelSmall?.copyWith(
+      fontSize: 9,
+      height: 1.1,
+    );
+    final showDots = buckets.length == 1;
     const incomeBarIndex = 0;
     const expenseBarIndex = 1;
 
@@ -125,7 +129,14 @@ class _CashFlowLineChartState extends ConsumerState<CashFlowLineChart> {
       height: chartHeight,
       child: Padding(
         padding: kChartPlotPadding,
-        child: LineChart(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final plan = planChartAxisLabelsForTexts(
+              labels: [for (final b in buckets) b.label],
+              plotWidth: constraints.maxWidth,
+              style: labelStyle,
+            );
+            return LineChart(
               LineChartData(
                 minX: 0,
                 maxX: buckets.length <= 1
@@ -192,10 +203,11 @@ class _CashFlowLineChartState extends ConsumerState<CashFlowLineChart> {
                       interval: 1,
                       getTitlesWidget: (value, meta) {
                         final i = value.round();
-                        if (i < 0 || i >= buckets.length) {
-                          return const SizedBox.shrink();
-                        }
-                        if (i % stride != 0 && i != buckets.length - 1) {
+                        if (!shouldShowChartAxisLabel(
+                          index: i,
+                          labelCount: buckets.length,
+                          plan: plan,
+                        )) {
                           return const SizedBox.shrink();
                         }
                         return chartBottomAxisTitle(
@@ -205,10 +217,7 @@ class _CashFlowLineChartState extends ConsumerState<CashFlowLineChart> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.center,
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              fontSize: 9,
-                              height: 1.1,
-                            ),
+                            style: labelStyle,
                           ),
                         );
                       },
@@ -239,7 +248,7 @@ class _CashFlowLineChartState extends ConsumerState<CashFlowLineChart> {
                     preventCurveOverShooting: true,
                     color: incomeColor,
                     barWidth: 2,
-                    dotData: const FlDotData(show: false),
+                    dotData: FlDotData(show: showDots),
                   ),
                   LineChartBarData(
                     spots: [
@@ -253,7 +262,7 @@ class _CashFlowLineChartState extends ConsumerState<CashFlowLineChart> {
                     preventCurveOverShooting: true,
                     color: expenseColor,
                     barWidth: 2,
-                    dotData: const FlDotData(show: false),
+                    dotData: FlDotData(show: showDots),
                   ),
                   LineChartBarData(
                     spots: [
@@ -267,13 +276,15 @@ class _CashFlowLineChartState extends ConsumerState<CashFlowLineChart> {
                     preventCurveOverShooting: true,
                     color: netColor,
                     barWidth: 3.5,
-                    dotData: const FlDotData(show: false),
+                    dotData: FlDotData(show: showDots),
                   ),
                 ],
               ),
               duration: Duration.zero,
-            ),
-          ),
+            );
+          },
+        ),
+      ),
     );
 
     plot = showBreakdown

@@ -8,6 +8,19 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.19] - 2026-09-25
+
+### Fixed
+
+- Time-series chart date labels thin out by plot width so neighboring dates no
+  longer overlap or look like they spilled onto the next slide; a single-point
+  year line shows a visible marker.
+
+### Changed
+
+- Bottom Show / Create / bulk actions use solid `primaryContainer` plates
+  (same as the selected direction tab), without frosted blur.
+
 ## [1.1.18] - 2026-09-24
 
 ### Fixed

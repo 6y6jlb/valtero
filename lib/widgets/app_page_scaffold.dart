@@ -13,7 +13,7 @@ const double _kFabGap = 12;
 /// Put extra FABs (e.g. Show list menu, bulk bars) in [extraFabs]; they sit to
 /// the left of the add button. Each FAB is [Positioned] from the right with a
 /// fixed offset so opening a submenu grows left/up and never moves its
-/// neighbor. Expandable FABs use frosted [GlassSurface] fills individually.
+/// neighbor. Expandable FABs use solid [GlassSurface] plates individually.
 ///
 /// Expandable FABs share [ExpandFabScope]. The FAB slot is a full-area stack
 /// so open menus keep a real hit target; a translucent barrier behind the

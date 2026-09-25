@@ -1,28 +1,23 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
-/// Telegram-like frosted control (circle FAB, extended pill, bulk bar).
+/// Solid rounded plate for sticky bottom FABs and bulk bars.
 ///
-/// Neutral translucent fill + soft drop shadow. No stroked rim (Linux often
-/// paints rounded borders jagged). [BackdropFilter] when the backend supports
-/// it; the high-opacity fill still reads clean when blur is a no-op.
+/// Fill is [ColorScheme.primaryContainer] (same as a selected bookmark tab).
+/// Shape stays circle / pill / bar via [borderRadius]; no blur.
 /// Put [MaterialType.transparency] + [InkWell] inside [child] for ripples.
 class GlassSurface extends StatelessWidget {
   final Widget child;
   final BorderRadius borderRadius;
   final Color tint;
-  final double blurSigma;
 
   const GlassSurface({
     super.key,
     required this.child,
     required this.borderRadius,
     required this.tint,
-    this.blurSigma = 20,
   });
 
-  /// Circular 56×56 glass disc (standard FAB footprint).
+  /// Circular 56×56 disc (standard FAB footprint).
   factory GlassSurface.circle({
     Key? key,
     required Widget child,
@@ -59,42 +54,27 @@ class GlassSurface extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: borderRadius,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-          child: ColoredBox(
-            color: tint,
-            child: child,
-          ),
+        child: ColoredBox(
+          color: tint,
+          child: child,
         ),
       ),
     );
   }
 }
 
-/// Neutral frosted plate — Telegram light/dark floating chrome.
-Color glassFabTint(ColorScheme scheme) {
-  if (scheme.brightness == Brightness.dark) {
-    // Near-opaque dark plate so content behind doesn't muddy icons.
-    return const Color(0xE62C2C2E);
-  }
-  return Colors.white.withValues(alpha: 0.94);
-}
+/// Closed FAB / bulk bar fill — matches selected bookmark tab.
+Color glassFabTint(ColorScheme scheme) => scheme.primaryContainer;
 
-/// Same family for open-menu chips (slightly more opaque so labels stay crisp).
-Color glassFabActionTint(ColorScheme scheme) {
-  if (scheme.brightness == Brightness.dark) {
-    return const Color(0xF02C2C2E);
-  }
-  return Colors.white.withValues(alpha: 0.97);
-}
+/// Open-menu chip fill (same solid plate as the closed trigger).
+Color glassFabActionTint(ColorScheme scheme) => scheme.primaryContainer;
 
-/// Accent on glass (Telegram-style blue/primary glyph on a white plate).
-Color glassFabAccent(ColorScheme scheme) => scheme.primary;
+/// Icons and labels on the FAB plate.
+Color glassFabAccent(ColorScheme scheme) => scheme.onPrimaryContainer;
 
-/// Body text / secondary glyphs on glass.
-Color glassFabOnPlate(ColorScheme scheme) => scheme.onSurface;
+/// Body text / secondary glyphs on the FAB plate.
+Color glassFabOnPlate(ColorScheme scheme) => scheme.onPrimaryContainer;
 
 /// Solid secondary fill — kept for contrast helpers / legacy callers.
-Color expandFabActionBackgroundSolid(ColorScheme scheme) {
-  return glassFabActionTint(scheme).withValues(alpha: 1);
-}
+Color expandFabActionBackgroundSolid(ColorScheme scheme) =>
+    scheme.primaryContainer;

@@ -16,12 +16,13 @@ class ExpandFabAction {
   });
 }
 
-/// Theme primary FAB that expands upward into lighter text-only actions.
+/// Theme FAB that expands upward into text-only actions.
 ///
-/// Triggers and menu chips use frosted [GlassSurface] fills (individual glass
-/// controls, not a shared dock plate). Tree shape is identical open or closed
-/// so [_TriggerFab] keeps its [AnimationController] across toggles. Pair with
-/// [AppPageScaffold] `Positioned(right: …)` anchors so neighbors never shift.
+/// Triggers and menu chips use solid [GlassSurface] plates
+/// (`primaryContainer` / `onPrimaryContainer`, same as selected tabs). Tree
+/// shape is identical open or closed so [_TriggerFab] keeps its
+/// [AnimationController] across toggles. Pair with [AppPageScaffold]
+/// `Positioned(right: …)` anchors so neighbors never shift.
 class ExpandFabMenu extends StatefulWidget {
   final String heroTag;
   final String closedTooltip;

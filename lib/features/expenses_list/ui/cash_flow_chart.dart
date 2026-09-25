@@ -81,20 +81,27 @@ class _CashFlowChartState extends ConsumerState<CashFlowChart> {
       );
     }
 
+    final labelStyle = theme.textTheme.labelSmall?.copyWith(fontSize: 9);
     final maxY = buckets.fold<double>(0, (max, b) {
       final biggest = b.incomeTotalMinor > b.expenseTotalMinor
           ? b.incomeTotalMinor
           : b.expenseTotalMinor;
       return biggest > max ? biggest.toDouble() : max;
     });
-    final showBottomTitles = buckets.length <= 10;
     final showBreakdown = breakdown != null && onBreakdownChanged != null;
 
     Widget plot = SizedBox(
       height: chartHeight,
       child: Padding(
         padding: kChartPlotPadding,
-        child: BarChart(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final plan = planChartAxisLabelsForTexts(
+              labels: [for (final b in buckets) b.label],
+              plotWidth: constraints.maxWidth,
+              style: labelStyle,
+            );
+            return BarChart(
               BarChartData(
                 alignment: BarChartAlignment.spaceAround,
                 maxY: maxY <= 0 ? 1 : maxY * 1.15,
@@ -146,11 +153,15 @@ class _CashFlowChartState extends ConsumerState<CashFlowChart> {
                   ),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
-                      showTitles: showBottomTitles,
+                      showTitles: true,
                       reservedSize: 32,
                       getTitlesWidget: (value, meta) {
                         final i = value.toInt();
-                        if (i < 0 || i >= buckets.length) {
+                        if (!shouldShowChartAxisLabel(
+                          index: i,
+                          labelCount: buckets.length,
+                          plan: plan,
+                        )) {
                           return const SizedBox.shrink();
                         }
                         return chartBottomAxisTitle(
@@ -160,9 +171,7 @@ class _CashFlowChartState extends ConsumerState<CashFlowChart> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.center,
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              fontSize: 9,
-                            ),
+                            style: labelStyle,
                           ),
                         );
                       },
@@ -207,8 +216,10 @@ class _CashFlowChartState extends ConsumerState<CashFlowChart> {
                 ],
               ),
               duration: Duration.zero,
-            ),
-          ),
+            );
+          },
+        ),
+      ),
     );
 
     plot = showBreakdown

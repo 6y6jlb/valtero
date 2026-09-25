@@ -63,7 +63,11 @@ class LineBreakdownChart extends ConsumerWidget {
       );
     }
 
-    final stride = max(1, (points.length / 6).ceil());
+    final labelStyle = theme.textTheme.labelSmall?.copyWith(
+      fontSize: 9,
+      height: 1.1,
+    );
+    final showDots = points.length == 1;
     final totalLineColor = totalColor ?? theme.colorScheme.onSurface;
     final visibleTotals = [
       for (final point in points) _visibleTotalAt(point),
@@ -99,7 +103,7 @@ class LineBreakdownChart extends ConsumerWidget {
             preventCurveOverShooting: true,
             color: hidden ? s.color.withValues(alpha: 0) : s.color,
             barWidth: 2,
-            dotData: const FlDotData(show: false),
+            dotData: FlDotData(show: showDots && !hidden),
           );
         }(),
       // Always keep the total bar so show/hide tweens instead of remounting.
@@ -117,7 +121,7 @@ class LineBreakdownChart extends ConsumerWidget {
             ? totalLineColor.withValues(alpha: 0)
             : totalLineColor,
         barWidth: 3.5,
-        dotData: const FlDotData(show: false),
+        dotData: FlDotData(show: showDots && !_hideTotalLine),
       ),
     ];
 
@@ -125,117 +129,125 @@ class LineBreakdownChart extends ConsumerWidget {
       height: chartHeight,
       child: Padding(
         padding: kChartPlotPadding,
-        child: LineChart(
-          LineChartData(
-            minX: 0,
-            maxX: points.length <= 1 ? 1 : (points.length - 1).toDouble(),
-            minY: 0,
-            maxY: maxY <= 0 ? 1 : maxY * 1.12,
-            lineTouchData: LineTouchData(
-              enabled: true,
-              touchTooltipData: LineTouchTooltipData(
-                getTooltipColor: (_) => chartTooltipBg(context),
-                fitInsideHorizontally: true,
-                fitInsideVertically: true,
-                maxContentWidth: 200,
-                getTooltipItems: (touchedSpots) {
-                  if (touchedSpots.isEmpty) return [];
-                  final i = touchedSpots.first.x.round();
-                  if (i < 0 || i >= points.length) {
-                    return touchedSpots.map((_) => null).toList();
-                  }
-                  final point = points[i];
-                  final items = <LineTooltipItem?>[];
-                  // One combined header as first item; null for the rest.
-                  final buf = StringBuffer(point.dateLabel);
-                  if (!_hideTotalLine && visibleTotals[i] > 0) {
-                    buf.write('\n${l10n.summaryTotal}');
-                    if (!hideAmounts) {
-                      buf.write(
-                        ': ${formatMoneyOf(context, ref, amountMinor: visibleTotals[i], currencyCode: displayCurrency)}',
-                      );
-                    }
-                  }
-                  for (final s in series) {
-                    if (hiddenKeys.contains(s.key)) continue;
-                    final amountMinor = point.amountBySeriesKey[s.key] ?? 0;
-                    if (amountMinor <= 0) continue;
-                    buf.write('\n${s.label}');
-                    if (!hideAmounts) {
-                      buf.write(
-                        ': ${formatMoneyOf(context, ref, amountMinor: amountMinor, currencyCode: displayCurrency)}',
-                      );
-                    }
-                  }
-                  for (var s = 0; s < touchedSpots.length; s++) {
-                    if (s == 0) {
-                      items.add(
-                        chartLineTooltipItem(
-                          context: context,
-                          text: buf.toString(),
-                        ),
-                      );
-                    } else {
-                      items.add(null);
-                    }
-                  }
-                  return items;
-                },
-              ),
-            ),
-            titlesData: FlTitlesData(
-              topTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              rightTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              leftTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 28,
-                  interval: 1,
-                  getTitlesWidget: (value, meta) {
-                    final i = value.round();
-                    if (i < 0 || i >= points.length) {
-                      return const SizedBox.shrink();
-                    }
-                    if (i % stride != 0 && i != points.length - 1) {
-                      return const SizedBox.shrink();
-                    }
-                    return chartBottomAxisTitle(
-                      meta: meta,
-                      child: Text(
-                        points[i].dateLabel,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          fontSize: 9,
-                          height: 1.1,
-                        ),
-                      ),
-                    );
-                  },
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final plan = planChartAxisLabelsForTexts(
+              labels: [for (final p in points) p.dateLabel],
+              plotWidth: constraints.maxWidth,
+              style: labelStyle,
+            );
+            return LineChart(
+              LineChartData(
+                minX: 0,
+                maxX: points.length <= 1 ? 1 : (points.length - 1).toDouble(),
+                minY: 0,
+                maxY: maxY <= 0 ? 1 : maxY * 1.12,
+                lineTouchData: LineTouchData(
+                  enabled: true,
+                  touchTooltipData: LineTouchTooltipData(
+                    getTooltipColor: (_) => chartTooltipBg(context),
+                    fitInsideHorizontally: true,
+                    fitInsideVertically: true,
+                    maxContentWidth: 200,
+                    getTooltipItems: (touchedSpots) {
+                      if (touchedSpots.isEmpty) return [];
+                      final i = touchedSpots.first.x.round();
+                      if (i < 0 || i >= points.length) {
+                        return touchedSpots.map((_) => null).toList();
+                      }
+                      final point = points[i];
+                      final items = <LineTooltipItem?>[];
+                      // One combined header as first item; null for the rest.
+                      final buf = StringBuffer(point.dateLabel);
+                      if (!_hideTotalLine && visibleTotals[i] > 0) {
+                        buf.write('\n${l10n.summaryTotal}');
+                        if (!hideAmounts) {
+                          buf.write(
+                            ': ${formatMoneyOf(context, ref, amountMinor: visibleTotals[i], currencyCode: displayCurrency)}',
+                          );
+                        }
+                      }
+                      for (final s in series) {
+                        if (hiddenKeys.contains(s.key)) continue;
+                        final amountMinor = point.amountBySeriesKey[s.key] ?? 0;
+                        if (amountMinor <= 0) continue;
+                        buf.write('\n${s.label}');
+                        if (!hideAmounts) {
+                          buf.write(
+                            ': ${formatMoneyOf(context, ref, amountMinor: amountMinor, currencyCode: displayCurrency)}',
+                          );
+                        }
+                      }
+                      for (var s = 0; s < touchedSpots.length; s++) {
+                        if (s == 0) {
+                          items.add(
+                            chartLineTooltipItem(
+                              context: context,
+                              text: buf.toString(),
+                            ),
+                          );
+                        } else {
+                          items.add(null);
+                        }
+                      }
+                      return items;
+                    },
+                  ),
                 ),
+                titlesData: FlTitlesData(
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  leftTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 28,
+                      interval: 1,
+                      getTitlesWidget: (value, meta) {
+                        final i = value.round();
+                        if (!shouldShowChartAxisLabel(
+                          index: i,
+                          labelCount: points.length,
+                          plan: plan,
+                        )) {
+                          return const SizedBox.shrink();
+                        }
+                        return chartBottomAxisTitle(
+                          meta: meta,
+                          child: Text(
+                            points[i].dateLabel,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: labelStyle,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  getDrawingHorizontalLine: (value) => FlLine(
+                    color: theme.colorScheme.outlineVariant
+                        .withValues(alpha: 0.5),
+                    strokeWidth: 1,
+                  ),
+                ),
+                borderData: FlBorderData(show: false),
+                lineBarsData: lineBars,
               ),
-            ),
-            gridData: FlGridData(
-              show: true,
-              drawVerticalLine: false,
-              getDrawingHorizontalLine: (value) => FlLine(
-                color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
-                strokeWidth: 1,
-              ),
-            ),
-            borderData: FlBorderData(show: false),
-            lineBarsData: lineBars,
-          ),
-          duration: kChartAnimDuration,
-          curve: kChartAnimCurve,
+              duration: kChartAnimDuration,
+              curve: kChartAnimCurve,
+            );
+          },
         ),
       ),
     );

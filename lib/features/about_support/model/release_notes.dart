@@ -15,6 +15,13 @@ class AppReleaseNotes {
 /// User-facing history. Keep brief; no agent rules, tests, or tooling.
 const kAppReleaseNotes = <AppReleaseNotes>[
   AppReleaseNotes(
+    version: '1.1.19',
+    lines: [
+      'Chart dates space out so they do not overlap; a single year still shows a point on the line.',
+      'Show, Create, and bulk actions match the selected tab colors.',
+    ],
+  ),
+  AppReleaseNotes(
     version: '1.1.18',
     lines: [
       'Chart date labels stay fully visible on columns and lines.',

@@ -106,7 +106,10 @@ class StackedColumnTimeChart extends ConsumerWidget {
       );
     }
 
-    final stride = max(1, (points.length / 6).ceil());
+    final labelStyle = theme.textTheme.labelSmall?.copyWith(
+      fontSize: 9,
+      height: 1.1,
+    );
     final maxY = points.fold<double>(
       0,
       (m, p) => max(m, _visibleTotalAt(p).toDouble()),
@@ -117,100 +120,108 @@ class StackedColumnTimeChart extends ConsumerWidget {
       height: chartHeight,
       child: Padding(
         padding: kChartPlotPadding,
-        child: BarChart(
-          BarChartData(
-            alignment: BarChartAlignment.spaceAround,
-            maxY: maxY <= 0 ? 1 : maxY * 1.12,
-            minY: 0,
-            barTouchData: BarTouchData(
-              enabled: true,
-              touchTooltipData: BarTouchTooltipData(
-                getTooltipColor: (_) => chartTooltipBg(context),
-                fitInsideHorizontally: true,
-                fitInsideVertically: true,
-                maxContentWidth: 200,
-                getTooltipItem: (group, groupIndex, rod, rodIndex) =>
-                    _tooltipForIndex(context, ref, l10n, groupIndex),
-              ),
-            ),
-            titlesData: FlTitlesData(
-              topTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              rightTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              leftTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 28,
-                  interval: 1,
-                  getTitlesWidget: (value, meta) {
-                    final i = value.round();
-                    if (i < 0 || i >= points.length) {
-                      return const SizedBox.shrink();
-                    }
-                    if (i % stride != 0 && i != points.length - 1) {
-                      return const SizedBox.shrink();
-                    }
-                    return chartBottomAxisTitle(
-                      meta: meta,
-                      child: Text(
-                        points[i].dateLabel,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          fontSize: 9,
-                          height: 1.1,
-                        ),
-                      ),
-                    );
-                  },
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final plan = planChartAxisLabelsForTexts(
+              labels: [for (final p in points) p.dateLabel],
+              plotWidth: constraints.maxWidth,
+              style: labelStyle,
+            );
+            return BarChart(
+              BarChartData(
+                alignment: BarChartAlignment.spaceAround,
+                maxY: maxY <= 0 ? 1 : maxY * 1.12,
+                minY: 0,
+                barTouchData: BarTouchData(
+                  enabled: true,
+                  touchTooltipData: BarTouchTooltipData(
+                    getTooltipColor: (_) => chartTooltipBg(context),
+                    fitInsideHorizontally: true,
+                    fitInsideVertically: true,
+                    maxContentWidth: 200,
+                    getTooltipItem: (group, groupIndex, rod, rodIndex) =>
+                        _tooltipForIndex(context, ref, l10n, groupIndex),
+                  ),
                 ),
+                titlesData: FlTitlesData(
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  leftTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 28,
+                      interval: 1,
+                      getTitlesWidget: (value, meta) {
+                        final i = value.round();
+                        if (!shouldShowChartAxisLabel(
+                          index: i,
+                          labelCount: points.length,
+                          plan: plan,
+                        )) {
+                          return const SizedBox.shrink();
+                        }
+                        return chartBottomAxisTitle(
+                          meta: meta,
+                          child: Text(
+                            points[i].dateLabel,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: labelStyle,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  getDrawingHorizontalLine: (value) => FlLine(
+                    color: theme.colorScheme.outlineVariant
+                        .withValues(alpha: 0.5),
+                    strokeWidth: 1,
+                  ),
+                ),
+                borderData: FlBorderData(show: false),
+                barGroups: [
+                  for (var i = 0; i < points.length; i++)
+                    () {
+                      final visibleTotal = _visibleTotalAt(points[i]);
+                      return BarChartGroupData(
+                        x: i,
+                        barRods: [
+                          BarChartRodData(
+                            toY: visibleTotal <= 0
+                                ? 0.0001
+                                : visibleTotal.toDouble(),
+                            width: barWidth,
+                            color: series.isEmpty
+                                ? theme.colorScheme.onSurface
+                                : null,
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(4),
+                            ),
+                            rodStackItems: series.isEmpty
+                                ? const []
+                                : _stackItemsForPoint(points[i]),
+                          ),
+                        ],
+                      );
+                    }(),
+                ],
               ),
-            ),
-            gridData: FlGridData(
-              show: true,
-              drawVerticalLine: false,
-              getDrawingHorizontalLine: (value) => FlLine(
-                color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
-                strokeWidth: 1,
-              ),
-            ),
-            borderData: FlBorderData(show: false),
-            barGroups: [
-              for (var i = 0; i < points.length; i++)
-                () {
-                  final visibleTotal = _visibleTotalAt(points[i]);
-                  return BarChartGroupData(
-                    x: i,
-                    barRods: [
-                      BarChartRodData(
-                        toY: visibleTotal <= 0
-                            ? 0.0001
-                            : visibleTotal.toDouble(),
-                        width: barWidth,
-                        color: series.isEmpty
-                            ? theme.colorScheme.onSurface
-                            : null,
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(4),
-                        ),
-                        rodStackItems: series.isEmpty
-                            ? const []
-                            : _stackItemsForPoint(points[i]),
-                      ),
-                    ],
-                  );
-                }(),
-            ],
-          ),
-          duration: kChartAnimDuration,
-          curve: kChartAnimCurve,
+              duration: kChartAnimDuration,
+              curve: kChartAnimCurve,
+            );
+          },
         ),
       ),
     );
