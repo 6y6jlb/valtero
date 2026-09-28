@@ -11,17 +11,22 @@ const kChartPlotPadding = EdgeInsets.fromLTRB(4, 8, 12, 4);
 /// the plot, so this is only a little air around the pie (not a chrome inset).
 const kDonutPlotPadding = EdgeInsets.all(8);
 
-/// Chart-type icons laid out above the plot (top-right).
+/// Chart-type icons above the plot (trailing). An optional [leading] control
+/// sits on the opposite side — the subcategory switch on tag charts.
 class ChartOverlayControls extends StatelessWidget {
   final ExpenseChartType chartType;
   final ValueChanged<ExpenseChartType> onChartTypeChanged;
   final List<ExpenseChartType> availableChartTypes;
+
+  /// Optional control on the leading side (opposite the chart-type icons).
+  final Widget? leading;
 
   const ChartOverlayControls({
     super.key,
     required this.chartType,
     required this.onChartTypeChanged,
     required this.availableChartTypes,
+    this.leading,
   });
 
   List<Widget> _chartToggleIcons(AppLocalizations l10n) {
@@ -77,17 +82,108 @@ class ChartOverlayControls extends StatelessWidget {
     final toggleIcons = _chartToggleIcons(l10n);
     final surface = theme.colorScheme.surface.withValues(alpha: 0.88);
 
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Material(
-        color: surface,
-        elevation: 0,
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2),
-          child: Row(mainAxisSize: MainAxisSize.min, children: toggleIcons),
+    return Row(
+      children: [
+        if (leading != null)
+          Expanded(
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: leading,
+            ),
+          )
+        else
+          const Spacer(),
+        Material(
+          color: surface,
+          elevation: 0,
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: Row(mainAxisSize: MainAxisSize.min, children: toggleIcons),
+          ),
         ),
-      ),
+      ],
+    );
+  }
+}
+
+/// Subcategory switch for category (tag) charts. Sits above the plot, opposite
+/// the chart-type icons. Shown only when that breakdown is active.
+class ChartSubcategoryToggle extends StatelessWidget {
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const ChartSubcategoryToggle({
+    super.key,
+    required this.value,
+    required this.onChanged,
+  });
+
+  /// Fixed footprint; scale Material Switch into it (FittedBox reflows during
+  /// the thumb animation and looks like a size jump).
+  static const _trackWidth = 28.0;
+  static const _trackHeight = 16.0;
+  static const _switchScale = 0.55;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final surface = theme.colorScheme.surface.withValues(alpha: 0.88);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+            child: Material(
+              color: surface,
+              borderRadius: BorderRadius.circular(20),
+              child: InkWell(
+                onTap: () => onChanged(!value),
+                borderRadius: BorderRadius.circular(20),
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(10, 6, 6, 6),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          l10n.chartShowSubcategories,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.labelMedium,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      SizedBox(
+                        width: _trackWidth,
+                        height: _trackHeight,
+                        child: OverflowBox(
+                          alignment: Alignment.center,
+                          maxWidth: _trackWidth / _switchScale,
+                          maxHeight: _trackHeight / _switchScale,
+                          child: Transform.scale(
+                            scale: _switchScale,
+                            child: IgnorePointer(
+                              child: Switch(
+                                value: value,
+                                onChanged: (_) {},
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

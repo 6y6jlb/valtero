@@ -92,8 +92,11 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
     final oldB = oldWidget.breakdown;
     final newB = widget.breakdown;
     if (oldB != null && newB != null && oldB != newB) {
-      _breakdownSlideForward =
-          cycleTransitionForward(_breakdownOrder, oldB, newB);
+      _breakdownSlideForward = cycleTransitionForward(
+        _breakdownOrder,
+        oldB,
+        newB,
+      );
     }
     final nextKeys = <String>{
       for (final s in widget.slices) s.key,
@@ -354,10 +357,6 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
             ],
             hiddenKeys: _hiddenKeys,
             onToggle: _toggle,
-            showSubcategories: showSubToggle ? widget.showSubcategories : null,
-            onShowSubcategoriesChanged: showSubToggle
-                ? widget.onShowSubcategoriesChanged
-                : null,
           )
         : BreakdownChartLegend(
             items: [
@@ -377,10 +376,6 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
             ],
             hiddenKeys: _hiddenKeys,
             onToggle: _toggle,
-            showSubcategories: showSubToggle ? widget.showSubcategories : null,
-            onShowSubcategoriesChanged: showSubToggle
-                ? widget.onShowSubcategoriesChanged
-                : null,
           );
 
     return padClearOfEndSystemBar(
@@ -391,6 +386,12 @@ class _BreakdownChartViewState extends ConsumerState<BreakdownChartView> {
             chartType: widget.chartType,
             onChartTypeChanged: widget.onChartTypeChanged,
             availableChartTypes: widget.availableChartTypes,
+            leading: showSubToggle
+                ? ChartSubcategoryToggle(
+                    value: widget.showSubcategories,
+                    onChanged: widget.onShowSubcategoriesChanged!,
+                  )
+                : null,
           ),
           const SizedBox(height: 4),
           plot,

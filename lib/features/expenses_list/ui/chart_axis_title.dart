@@ -8,6 +8,9 @@ export 'package:valtero/features/expenses_list/model/chart_axis_label_stride.dar
     show
         ChartAxisLabelLayout,
         ChartAxisLabelPlan,
+        chartPlotWidthForBottomLabels,
+        kChartAxisLabelGap,
+        kChartAxisLabelMaxWidth,
         planChartAxisLabels,
         shouldShowChartAxisLabel;
 
@@ -18,11 +21,7 @@ Widget chartBottomAxisTitle({
   required Widget child,
   double space = 6,
 }) {
-  return SideTitleWidget(
-    meta: meta,
-    space: space,
-    child: child,
-  );
+  return SideTitleWidget(meta: meta, space: space, child: child);
 }
 
 /// Empty left/right axis spacer so centered edge dates are not clipped.

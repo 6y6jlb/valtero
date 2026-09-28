@@ -15,6 +15,15 @@ class AppReleaseNotes {
 /// User-facing history. Keep brief; no agent rules, tests, or tooling.
 const kAppReleaseNotes = <AppReleaseNotes>[
   AppReleaseNotes(
+    version: '1.1.21',
+    lines: [
+      'Category column labels scroll inside the chart when the window is too narrow.',
+      'Long subcategory names wrap, so columns stay closer together.',
+      'The subcategory switch sits above tag charts, opposite the chart type icons.',
+      'Chart legends line up on the left, except on very wide windows.',
+    ],
+  ),
+  AppReleaseNotes(
     version: '1.1.20',
     lines: [
       'Chart dates keep clearer gaps and stay fully visible on small screens.',

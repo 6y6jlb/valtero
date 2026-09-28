@@ -116,6 +116,51 @@ void main() {
     });
   });
 
+  group('chartPlotWidthForBottomLabels', () {
+    test('empty axis has no width', () {
+      expect(
+        chartPlotWidthForBottomLabels(labelCount: 0, maxLabelWidth: 80),
+        0,
+      );
+    });
+
+    test('slot is the label plus the gap', () {
+      expect(
+        chartPlotWidthForBottomLabels(
+          labelCount: 4,
+          maxLabelWidth: 80,
+          minGap: 8,
+          minSlot: 40,
+        ),
+        352,
+      );
+    });
+
+    test('short labels still get a minimum slot', () {
+      expect(
+        chartPlotWidthForBottomLabels(
+          labelCount: 3,
+          maxLabelWidth: 10,
+          minGap: 8,
+          minSlot: 40,
+        ),
+        120,
+      );
+    });
+
+    test('very long labels cap the slot', () {
+      expect(
+        chartPlotWidthForBottomLabels(
+          labelCount: 2,
+          maxLabelWidth: 500,
+          minGap: 8,
+          minSlot: 40,
+        ),
+        2 * (kChartAxisLabelMaxWidth + 8),
+      );
+    });
+  });
+
   group('shouldShowChartAxisLabel', () {
     test('shows stride ticks and optional last', () {
       const plan = (stride: 2, includeLast: true);

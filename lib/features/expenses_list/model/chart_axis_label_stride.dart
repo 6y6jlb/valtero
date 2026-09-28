@@ -1,4 +1,4 @@
-import 'dart:math' show max;
+import 'dart:math' show max, min;
 
 /// How many axis indices to skip between shown bottom labels, and whether the
 /// final index is forced on even when it is not a stride tick.
@@ -64,6 +64,27 @@ ChartAxisLabelPlan planChartAxisLabels({
   return (stride: stride, includeLast: includeLast);
 }
 
+/// Long axis titles wrap or ellipsize past this so one subcategory name cannot
+/// widen every column. Extra text uses a second line inside the slot.
+const kChartAxisLabelMaxWidth = 96.0;
+
+/// Clear space kept between neighboring bottom-axis title boxes.
+const kChartAxisLabelGap = 8.0;
+
+/// Minimum plot width so [labelCount] bottom titles of [maxLabelWidth] do not
+/// overlap. Each slot is at least [minSlot].
+double chartPlotWidthForBottomLabels({
+  required int labelCount,
+  required double maxLabelWidth,
+  double minGap = kChartAxisLabelGap,
+  double minSlot = 40,
+}) {
+  if (labelCount <= 0) return 0;
+  final capped = min(max(maxLabelWidth, 0), kChartAxisLabelMaxWidth);
+  final slot = max(capped + minGap, minSlot);
+  return labelCount * slot;
+}
+
 /// Whether bottom-axis index [index] should show a title for [plan].
 bool shouldShowChartAxisLabel({
   required int index,
@@ -100,11 +121,7 @@ bool _shownLabelsFit({
   required double plotWidth,
   required double slot,
 }) {
-  final indices = _shownIndices(
-    labelCount,
-    stride,
-    includeLast: includeLast,
-  );
+  final indices = _shownIndices(labelCount, stride, includeLast: includeLast);
   if (indices.length <= 1) return true;
   final pitch = plotWidth / labelCount;
   for (var k = 0; k < indices.length - 1; k++) {

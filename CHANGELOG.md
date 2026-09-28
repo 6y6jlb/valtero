@@ -8,6 +8,22 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.21] - 2026-09-28
+
+### Fixed
+
+- Category column charts scroll horizontally inside the plot when axis labels
+  would overlap on a narrow window. The legend and chart controls stay put.
+- Subcategory names no longer stretch every column to the longest label; long
+  names wrap onto a second line and columns stay closer together.
+
+### Changed
+
+- The subcategory switch sits above tag charts, opposite the chart-type icons.
+  It stays hidden for other breakdowns.
+- Chart legend chips align to the leading edge on phones, medium windows, and
+  the default desktop size. They stay centered only on wide layouts.
+
 ## [1.1.20] - 2026-09-25
 
 ### Fixed
