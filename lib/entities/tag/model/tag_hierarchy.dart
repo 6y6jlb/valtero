@@ -4,14 +4,14 @@ import 'package:valtero/shared/database/app_database.dart';
 bool isSubcategory(Tag tag) => tag.parentTagId != null;
 
 List<Tag> topLevelTags(Iterable<Tag> tags) => [
-      for (final t in tags)
-        if (t.parentTagId == null) t,
-    ];
+  for (final t in tags)
+    if (t.parentTagId == null) t,
+];
 
 List<Tag> childrenOf(Iterable<Tag> tags, int parentId) => [
-      for (final t in tags)
-        if (t.parentTagId == parentId) t,
-    ];
+  for (final t in tags)
+    if (t.parentTagId == parentId) t,
+];
 
 /// Resolves which tag ids are the "target" set for [kind] given the tags
 /// attached to an operation.
@@ -73,6 +73,9 @@ List<int> resolveCategoryTargets({
   return matching;
 }
 
+/// Joins a parent category and its subcategory in legends and tooltips.
+const kCategoryTargetSeparator = ' · ';
+
 /// Display label for a resolved category/subcategory target.
 String categoryTargetLabel({
   required int tagId,
@@ -87,7 +90,16 @@ String categoryTargetLabel({
   final parentLabel = tagLabels[parentId] ?? tagById[parentId]?.name;
   final childLabel = tagLabels[tagId] ?? tag.name;
   if (parentLabel == null || parentLabel.isEmpty) return childLabel;
-  return '$parentLabel · $childLabel';
+  return '$parentLabel$kCategoryTargetSeparator$childLabel';
+}
+
+/// Axis title for a [categoryTargetLabel]. A subcategory drops the parent
+/// prefix; a top-level category is unchanged.
+String categoryAxisTitle(String label) {
+  final index = label.lastIndexOf(kCategoryTargetSeparator);
+  if (index < 0) return label;
+  final child = label.substring(index + kCategoryTargetSeparator.length).trim();
+  return child.isEmpty ? label : child;
 }
 
 /// Top-level category id of [kind] currently in [selected], if any.
@@ -98,9 +110,7 @@ int? selectedTopLevelTagId(
 ) {
   for (final id in selected) {
     final tag = tagById[id];
-    if (tag != null &&
-        tag.parentTagId == null &&
-        tagKindOf(tag) == kind) {
+    if (tag != null && tag.parentTagId == null && tagKindOf(tag) == kind) {
       return id;
     }
   }
@@ -108,11 +118,7 @@ int? selectedTopLevelTagId(
 }
 
 /// Subcategory id under [parentId] currently in [selected], if any.
-int? selectedSubtagId(
-  Set<int> selected,
-  Map<int, Tag> tagById,
-  int parentId,
-) {
+int? selectedSubtagId(Set<int> selected, Map<int, Tag> tagById, int parentId) {
   for (final id in selected) {
     final tag = tagById[id];
     if (tag != null && tag.parentTagId == parentId) return id;

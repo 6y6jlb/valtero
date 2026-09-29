@@ -10,6 +10,7 @@ import 'package:valtero/features/expenses_list/model/cycle_transition_direction.
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/expenses_list/ui/chart_breakdown_row.dart';
 import 'package:valtero/features/expenses_list/ui/chart_empty_placeholder.dart';
+import 'package:valtero/features/expenses_list/ui/chart_axis_scroll.dart';
 import 'package:valtero/features/expenses_list/ui/chart_axis_title.dart';
 import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
 import 'package:valtero/features/expenses_list/ui/chart_tooltip_style.dart';
@@ -129,161 +130,157 @@ class _CashFlowLineChartState extends ConsumerState<CashFlowLineChart> {
       height: chartHeight,
       child: Padding(
         padding: kChartPlotPadding,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final layout = planChartAxisLabelsForTexts(
-              labels: [for (final b in buckets) b.label],
-              chartWidth: constraints.maxWidth,
-              style: labelStyle,
-            );
-            final plan = layout.plan;
-            return LineChart(
-              LineChartData(
-                minX: 0,
-                maxX: buckets.length <= 1
-                    ? 1
-                    : (buckets.length - 1).toDouble(),
-                minY: minY < 0 ? minY - yPad : 0,
-                maxY: maxY <= 0 && minY >= 0 ? 1 : maxY + yPad,
-                lineTouchData: LineTouchData(
-                  enabled: true,
-                  touchTooltipData: LineTouchTooltipData(
-                    getTooltipColor: (_) => chartTooltipBg(context),
-                    fitInsideHorizontally: true,
-                    fitInsideVertically: true,
-                    maxContentWidth: 200,
-                    getTooltipItems: (touchedSpots) {
-                      if (touchedSpots.isEmpty) return [];
-                      final i = touchedSpots.first.x.round();
-                      if (i < 0 || i >= buckets.length) {
-                        return touchedSpots.map((_) => null).toList();
-                      }
-                      final bucket = buckets[i];
-                      final buf = StringBuffer(bucket.label);
-                      final seen = <int>{};
-                      for (final spot in touchedSpots) {
-                        if (!seen.add(spot.barIndex)) continue;
-                        final amountMinor =
-                            amountForBar(spot.barIndex, bucket);
-                        if (!hideAmounts && amountMinor == 0) continue;
-                        buf.write('\n${lineLabel(spot.barIndex)}');
-                        if (!hideAmounts) {
-                          buf.write(
-                            ': ${formatMoneyOf(context, ref, amountMinor: amountMinor, currencyCode: displayCurrency)}',
+        child: ChartAxisScroll(
+          contentWidth: chartAxisTrackWidth(buckets.length, points: true),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final plotWidth = max(
+                0.0,
+                constraints.maxWidth - 2 * kChartAngledEdgeInset,
+              );
+              return LineChart(
+                LineChartData(
+                  minX: kChartLineMinX,
+                  maxX: chartLineMaxX(
+                    pointCount: buckets.length,
+                    plotWidth: plotWidth,
+                  ),
+                  minY: minY < 0 ? minY - yPad : 0,
+                  maxY: maxY <= 0 && minY >= 0 ? 1 : maxY + yPad,
+                  lineTouchData: LineTouchData(
+                    enabled: true,
+                    touchTooltipData: LineTouchTooltipData(
+                      getTooltipColor: (_) => chartTooltipBg(context),
+                      fitInsideHorizontally: true,
+                      fitInsideVertically: true,
+                      maxContentWidth: 200,
+                      getTooltipItems: (touchedSpots) {
+                        if (touchedSpots.isEmpty) return [];
+                        final i = touchedSpots.first.x.round();
+                        if (i < 0 || i >= buckets.length) {
+                          return touchedSpots.map((_) => null).toList();
+                        }
+                        final bucket = buckets[i];
+                        final buf = StringBuffer(bucket.label);
+                        final seen = <int>{};
+                        for (final spot in touchedSpots) {
+                          if (!seen.add(spot.barIndex)) continue;
+                          final amountMinor = amountForBar(
+                            spot.barIndex,
+                            bucket,
                           );
+                          if (!hideAmounts && amountMinor == 0) continue;
+                          buf.write('\n${lineLabel(spot.barIndex)}');
+                          if (!hideAmounts) {
+                            buf.write(
+                              ': ${formatMoneyOf(context, ref, amountMinor: amountMinor, currencyCode: displayCurrency)}',
+                            );
+                          }
                         }
-                      }
-                      return [
-                        for (var s = 0; s < touchedSpots.length; s++)
-                          if (s == 0)
-                            chartLineTooltipItem(
-                              context: context,
-                              text: buf.toString(),
-                              accent: lineColor(touchedSpots.first.barIndex),
-                            )
-                          else
-                            null,
-                      ];
-                    },
-                  ),
-                ),
-                titlesData: FlTitlesData(
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  rightTitles: chartAxisEdgeSpacer(
-                    reservedSize: layout.edgeInset,
-                  ),
-                  leftTitles: chartAxisEdgeSpacer(
-                    reservedSize: layout.edgeInset,
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 28,
-                      interval: 1,
-                      getTitlesWidget: (value, meta) {
-                        final i = value.round();
-                        if (!shouldShowChartAxisLabel(
-                          index: i,
-                          labelCount: buckets.length,
-                          plan: plan,
-                        )) {
-                          return const SizedBox.shrink();
-                        }
-                        return chartBottomAxisTitle(
-                          meta: meta,
-                          child: Text(
-                            buckets[i].label,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: labelStyle,
-                          ),
-                        );
+                        return [
+                          for (var s = 0; s < touchedSpots.length; s++)
+                            if (s == 0)
+                              chartLineTooltipItem(
+                                context: context,
+                                text: buf.toString(),
+                                accent: lineColor(touchedSpots.first.barIndex),
+                              )
+                            else
+                              null,
+                        ];
                       },
                     ),
                   ),
-                ),
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                  getDrawingHorizontalLine: (value) => FlLine(
-                    color: theme.colorScheme.outlineVariant.withValues(
-                      alpha: 0.5,
+                  titlesData: FlTitlesData(
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
                     ),
-                    strokeWidth: 1,
+                    rightTitles: chartAxisEdgeSpacer(
+                      reservedSize: kChartAngledEdgeInset,
+                    ),
+                    leftTitles: chartAxisEdgeSpacer(
+                      reservedSize: kChartAngledEdgeInset,
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: kChartAngledLabelExtent,
+                        interval: 1,
+                        getTitlesWidget: (value, meta) {
+                          final i = value.round();
+                          if (i < 0 || i >= buckets.length) {
+                            return const SizedBox.shrink();
+                          }
+                          return chartAngledAxisTitle(
+                            meta: meta,
+                            child: Text(
+                              buckets[i].label,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: labelStyle,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ),
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    getDrawingHorizontalLine: (value) => FlLine(
+                      color: theme.colorScheme.outlineVariant.withValues(
+                        alpha: 0.5,
+                      ),
+                      strokeWidth: 1,
+                    ),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: [
+                        for (var i = 0; i < buckets.length; i++)
+                          FlSpot(
+                            i.toDouble(),
+                            buckets[i].incomeTotalMinor.toDouble(),
+                          ),
+                      ],
+                      isCurved: true,
+                      preventCurveOverShooting: true,
+                      color: incomeColor,
+                      barWidth: 2,
+                      dotData: FlDotData(show: showDots),
+                    ),
+                    LineChartBarData(
+                      spots: [
+                        for (var i = 0; i < buckets.length; i++)
+                          FlSpot(
+                            i.toDouble(),
+                            buckets[i].expenseTotalMinor.toDouble(),
+                          ),
+                      ],
+                      isCurved: true,
+                      preventCurveOverShooting: true,
+                      color: expenseColor,
+                      barWidth: 2,
+                      dotData: FlDotData(show: showDots),
+                    ),
+                    LineChartBarData(
+                      spots: [
+                        for (var i = 0; i < buckets.length; i++)
+                          FlSpot(i.toDouble(), buckets[i].netMinor.toDouble()),
+                      ],
+                      isCurved: true,
+                      preventCurveOverShooting: true,
+                      color: netColor,
+                      barWidth: 3.5,
+                      dotData: FlDotData(show: showDots),
+                    ),
+                  ],
                 ),
-                borderData: FlBorderData(show: false),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: [
-                      for (var i = 0; i < buckets.length; i++)
-                        FlSpot(
-                          i.toDouble(),
-                          buckets[i].incomeTotalMinor.toDouble(),
-                        ),
-                    ],
-                    isCurved: true,
-                    preventCurveOverShooting: true,
-                    color: incomeColor,
-                    barWidth: 2,
-                    dotData: FlDotData(show: showDots),
-                  ),
-                  LineChartBarData(
-                    spots: [
-                      for (var i = 0; i < buckets.length; i++)
-                        FlSpot(
-                          i.toDouble(),
-                          buckets[i].expenseTotalMinor.toDouble(),
-                        ),
-                    ],
-                    isCurved: true,
-                    preventCurveOverShooting: true,
-                    color: expenseColor,
-                    barWidth: 2,
-                    dotData: FlDotData(show: showDots),
-                  ),
-                  LineChartBarData(
-                    spots: [
-                      for (var i = 0; i < buckets.length; i++)
-                        FlSpot(
-                          i.toDouble(),
-                          buckets[i].netMinor.toDouble(),
-                        ),
-                    ],
-                    isCurved: true,
-                    preventCurveOverShooting: true,
-                    color: netColor,
-                    barWidth: 3.5,
-                    dotData: FlDotData(show: showDots),
-                  ),
-                ],
-              ),
-              duration: Duration.zero,
-            );
-          },
+                duration: Duration.zero,
+              );
+            },
+          ),
         ),
       ),
     );
@@ -310,10 +307,14 @@ class _CashFlowLineChartState extends ConsumerState<CashFlowLineChart> {
           )
         : plot;
 
-    final incomeTotal =
-        buckets.fold<int>(0, (sum, b) => sum + b.incomeTotalMinor);
-    final expenseTotal =
-        buckets.fold<int>(0, (sum, b) => sum + b.expenseTotalMinor);
+    final incomeTotal = buckets.fold<int>(
+      0,
+      (sum, b) => sum + b.incomeTotalMinor,
+    );
+    final expenseTotal = buckets.fold<int>(
+      0,
+      (sum, b) => sum + b.expenseTotalMinor,
+    );
     final netTotal = incomeTotal - expenseTotal;
     String? amountOf(int minor) {
       if (hideAmounts) return null;
@@ -397,8 +398,10 @@ class _LegendDot extends StatelessWidget {
               : Container(
                   width: 10,
                   height: 10,
-                  decoration:
-                      BoxDecoration(color: color, shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                  ),
                 ),
         ),
         const SizedBox(width: 6),

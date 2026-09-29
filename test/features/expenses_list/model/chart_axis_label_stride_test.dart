@@ -116,48 +116,61 @@ void main() {
     });
   });
 
-  group('chartPlotWidthForBottomLabels', () {
+  group('chartAxisTrackWidth', () {
     test('empty axis has no width', () {
+      expect(chartAxisTrackWidth(0), 0);
+      expect(chartAxisTrackWidth(0, points: true), 0);
+    });
+
+    test('columns use one slot each plus the edge insets', () {
       expect(
-        chartPlotWidthForBottomLabels(labelCount: 0, maxLabelWidth: 80),
-        0,
+        chartAxisTrackWidth(4),
+        4 * kChartColumnSlot + kChartAngledLeading + 2 * kChartAngledEdgeInset,
       );
     });
 
-    test('slot is the label plus the gap', () {
+    test('line points space by the gaps between them', () {
       expect(
-        chartPlotWidthForBottomLabels(
-          labelCount: 4,
-          maxLabelWidth: 80,
-          minGap: 8,
-          minSlot: 40,
-        ),
-        352,
+        chartAxisTrackWidth(1, points: true),
+        kChartColumnSlot + kChartAngledLeading + 2 * kChartAngledEdgeInset,
+      );
+      expect(
+        chartAxisTrackWidth(5, points: true),
+        4 * kChartColumnSlot + kChartAngledLeading + 2 * kChartAngledEdgeInset,
+      );
+    });
+  });
+
+  group('chartGroupsSpace', () {
+    test('keeps column centers one slot apart', () {
+      expect(
+        chartGroupsSpace(kChartBarWidth),
+        kChartColumnSlot - kChartBarWidth,
       );
     });
 
-    test('short labels still get a minimum slot', () {
+    test('does not use a negative gap', () {
+      expect(chartGroupsSpace(kChartColumnSlot + 8), 0);
+    });
+  });
+
+  group('chartLeadingGroupWidth', () {
+    test('plus the group gap is one column slot', () {
       expect(
-        chartPlotWidthForBottomLabels(
-          labelCount: 3,
-          maxLabelWidth: 10,
-          minGap: 8,
-          minSlot: 40,
-        ),
-        120,
+        chartLeadingGroupWidth(kChartBarWidth) +
+            chartGroupsSpace(kChartBarWidth),
+        kChartAngledLeading,
       );
     });
+  });
 
-    test('very long labels cap the slot', () {
-      expect(
-        chartPlotWidthForBottomLabels(
-          labelCount: 2,
-          maxLabelWidth: 500,
-          minGap: 8,
-          minSlot: 40,
-        ),
-        2 * (kChartAxisLabelMaxWidth + 8),
-      );
+  group('chartLineMaxX', () {
+    test('keeps the last point inside a narrow plot', () {
+      expect(chartLineMaxX(pointCount: 5, plotWidth: 40), 4);
+    });
+
+    test('extends past the last point when the plot is wider', () {
+      expect(chartLineMaxX(pointCount: 3, plotWidth: kChartColumnSlot * 6), 5);
     });
   });
 

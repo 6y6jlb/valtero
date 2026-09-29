@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/chart_time_series.dart';
 import 'package:valtero/features/expenses_list/ui/chart_anim.dart';
+import 'package:valtero/features/expenses_list/ui/chart_axis_scroll.dart';
 import 'package:valtero/features/expenses_list/ui/chart_axis_title.dart';
 import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
 import 'package:valtero/features/expenses_list/ui/chart_tooltip_style.dart';
@@ -114,115 +115,104 @@ class StackedColumnTimeChart extends ConsumerWidget {
       0,
       (m, p) => max(m, _visibleTotalAt(p).toDouble()),
     );
-    final barWidth = (28.0 - points.length * 1.2).clamp(6.0, 22.0);
-
     return SizedBox(
       height: chartHeight,
       child: Padding(
         padding: kChartPlotPadding,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final layout = planChartAxisLabelsForTexts(
-              labels: [for (final p in points) p.dateLabel],
-              chartWidth: constraints.maxWidth,
-              style: labelStyle,
-            );
-            final plan = layout.plan;
-            return BarChart(
-              BarChartData(
-                alignment: BarChartAlignment.spaceAround,
-                maxY: maxY <= 0 ? 1 : maxY * 1.12,
-                minY: 0,
-                barTouchData: BarTouchData(
-                  enabled: true,
-                  touchTooltipData: BarTouchTooltipData(
-                    getTooltipColor: (_) => chartTooltipBg(context),
-                    fitInsideHorizontally: true,
-                    fitInsideVertically: true,
-                    maxContentWidth: 200,
-                    getTooltipItem: (group, groupIndex, rod, rodIndex) =>
-                        _tooltipForIndex(context, ref, l10n, groupIndex),
-                  ),
+        child: ChartAxisScroll(
+          contentWidth: chartAxisTrackWidth(points.length),
+          child: BarChart(
+            BarChartData(
+              alignment: BarChartAlignment.start,
+              groupsSpace: chartGroupsSpace(kChartBarWidth),
+              maxY: maxY <= 0 ? 1 : maxY * 1.12,
+              minY: 0,
+              barTouchData: BarTouchData(
+                enabled: true,
+                touchTooltipData: BarTouchTooltipData(
+                  getTooltipColor: (_) => chartTooltipBg(context),
+                  fitInsideHorizontally: true,
+                  fitInsideVertically: true,
+                  maxContentWidth: 200,
+                  getTooltipItem: (group, groupIndex, rod, rodIndex) =>
+                      _tooltipForIndex(context, ref, l10n, group.x.toInt()),
                 ),
-                titlesData: FlTitlesData(
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  rightTitles: chartAxisEdgeSpacer(
-                    reservedSize: layout.edgeInset,
-                  ),
-                  leftTitles: chartAxisEdgeSpacer(
-                    reservedSize: layout.edgeInset,
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 28,
-                      interval: 1,
-                      getTitlesWidget: (value, meta) {
-                        final i = value.round();
-                        if (!shouldShowChartAxisLabel(
-                          index: i,
-                          labelCount: points.length,
-                          plan: plan,
-                        )) {
-                          return const SizedBox.shrink();
-                        }
-                        return chartBottomAxisTitle(
-                          meta: meta,
-                          child: Text(
-                            points[i].dateLabel,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: labelStyle,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                  getDrawingHorizontalLine: (value) => FlLine(
-                    color: theme.colorScheme.outlineVariant
-                        .withValues(alpha: 0.5),
-                    strokeWidth: 1,
-                  ),
-                ),
-                borderData: FlBorderData(show: false),
-                barGroups: [
-                  for (var i = 0; i < points.length; i++)
-                    () {
-                      final visibleTotal = _visibleTotalAt(points[i]);
-                      return BarChartGroupData(
-                        x: i,
-                        barRods: [
-                          BarChartRodData(
-                            toY: visibleTotal <= 0
-                                ? 0.0001
-                                : visibleTotal.toDouble(),
-                            width: barWidth,
-                            color: series.isEmpty
-                                ? theme.colorScheme.onSurface
-                                : null,
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(4),
-                            ),
-                            rodStackItems: series.isEmpty
-                                ? const []
-                                : _stackItemsForPoint(points[i]),
-                          ),
-                        ],
-                      );
-                    }(),
-                ],
               ),
-              duration: kChartAnimDuration,
-              curve: kChartAnimCurve,
-            );
-          },
+              titlesData: FlTitlesData(
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                rightTitles: chartAxisEdgeSpacer(
+                  reservedSize: kChartAngledEdgeInset,
+                ),
+                leftTitles: chartAxisEdgeSpacer(
+                  reservedSize: kChartAngledEdgeInset,
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: kChartAngledLabelExtent,
+                    interval: 1,
+                    getTitlesWidget: (value, meta) {
+                      final i = value.round();
+                      if (i < 0 || i >= points.length) {
+                        return const SizedBox.shrink();
+                      }
+                      return chartAngledAxisTitle(
+                        meta: meta,
+                        child: Text(
+                          points[i].dateLabel,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: labelStyle,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              gridData: FlGridData(
+                show: true,
+                drawVerticalLine: false,
+                getDrawingHorizontalLine: (value) => FlLine(
+                  color: theme.colorScheme.outlineVariant.withValues(
+                    alpha: 0.5,
+                  ),
+                  strokeWidth: 1,
+                ),
+              ),
+              borderData: FlBorderData(show: false),
+              barGroups: [
+                chartLeadingSpacerGroup(kChartBarWidth),
+                for (var i = 0; i < points.length; i++)
+                  () {
+                    final visibleTotal = _visibleTotalAt(points[i]);
+                    return BarChartGroupData(
+                      x: i,
+                      barRods: [
+                        BarChartRodData(
+                          toY: visibleTotal <= 0
+                              ? 0.0001
+                              : visibleTotal.toDouble(),
+                          width: kChartBarWidth,
+                          color: series.isEmpty
+                              ? theme.colorScheme.onSurface
+                              : null,
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(4),
+                          ),
+                          rodStackItems: series.isEmpty
+                              ? const []
+                              : _stackItemsForPoint(points[i]),
+                        ),
+                      ],
+                    );
+                  }(),
+              ],
+            ),
+            duration: kChartAnimDuration,
+            curve: kChartAnimCurve,
+          ),
         ),
       ),
     );

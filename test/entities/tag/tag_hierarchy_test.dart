@@ -26,22 +26,20 @@ Tag _tag({
 
 void main() {
   group('tag hierarchy selection', () {
-    test('selectTopLevelTag replaces same-kind category and clears old subtag',
-        () {
-      final health = _tag(id: 1, name: 'health');
-      final doctor = _tag(id: 2, name: 'doctor', parentTagId: 1);
-      final transport = _tag(id: 3, name: 'transport');
-      final tagById = {1: health, 2: doctor, 3: transport};
-      final selected = {1, 2};
+    test(
+      'selectTopLevelTag replaces same-kind category and clears old subtag',
+      () {
+        final health = _tag(id: 1, name: 'health');
+        final doctor = _tag(id: 2, name: 'doctor', parentTagId: 1);
+        final transport = _tag(id: 3, name: 'transport');
+        final tagById = {1: health, 2: doctor, 3: transport};
+        final selected = {1, 2};
 
-      selectTopLevelTag(
-        selected: selected,
-        tag: transport,
-        tagById: tagById,
-      );
+        selectTopLevelTag(selected: selected, tag: transport, tagById: tagById);
 
-      expect(selected, {3});
-    });
+        expect(selected, {3});
+      },
+    );
 
     test('selectSubtag toggles under selected parent', () {
       final health = _tag(id: 1, name: 'health');
@@ -116,6 +114,11 @@ void main() {
         ),
         'Health · Doctor',
       );
+    });
+
+    test('axis title keeps only the subcategory', () {
+      expect(categoryAxisTitle('Health · Doctor'), 'Doctor');
+      expect(categoryAxisTitle('Health'), 'Health');
     });
   });
 

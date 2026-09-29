@@ -8,6 +8,7 @@ import 'package:valtero/features/expenses_list/model/cycle_transition_direction.
 import 'package:valtero/features/expenses_list/model/expense_list_view.dart';
 import 'package:valtero/features/expenses_list/ui/chart_breakdown_row.dart';
 import 'package:valtero/features/expenses_list/ui/chart_empty_placeholder.dart';
+import 'package:valtero/features/expenses_list/ui/chart_axis_scroll.dart';
 import 'package:valtero/features/expenses_list/ui/chart_axis_title.dart';
 import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
 import 'package:valtero/features/expenses_list/ui/chart_tooltip_style.dart';
@@ -94,131 +95,124 @@ class _CashFlowChartState extends ConsumerState<CashFlowChart> {
       height: chartHeight,
       child: Padding(
         padding: kChartPlotPadding,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final layout = planChartAxisLabelsForTexts(
-              labels: [for (final b in buckets) b.label],
-              chartWidth: constraints.maxWidth,
-              style: labelStyle,
-            );
-            final plan = layout.plan;
-            return BarChart(
-              BarChartData(
-                alignment: BarChartAlignment.spaceAround,
-                maxY: maxY <= 0 ? 1 : maxY * 1.15,
-                minY: 0,
-                barTouchData: BarTouchData(
-                  enabled: true,
-                  touchTooltipData: BarTouchTooltipData(
-                    getTooltipColor: (_) => chartTooltipBg(context),
-                    fitInsideHorizontally: true,
-                    fitInsideVertically: true,
-                    getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                      if (groupIndex < 0 || groupIndex >= buckets.length) {
-                        return null;
+        child: ChartAxisScroll(
+          contentWidth: chartAxisTrackWidth(buckets.length),
+          child: BarChart(
+            BarChartData(
+              alignment: BarChartAlignment.start,
+              groupsSpace: chartGroupsSpace(10 + 10 + 4),
+              maxY: maxY <= 0 ? 1 : maxY * 1.15,
+              minY: 0,
+              barTouchData: BarTouchData(
+                enabled: true,
+                touchTooltipData: BarTouchTooltipData(
+                  getTooltipColor: (_) => chartTooltipBg(context),
+                  fitInsideHorizontally: true,
+                  fitInsideVertically: true,
+                  getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                    final i = group.x.toInt();
+                    if (i < 0 || i >= buckets.length) {
+                      return null;
+                    }
+                    final bucket = buckets[i];
+                    final isIncome = rodIndex == 0;
+                    final amountMinor = isIncome
+                        ? bucket.incomeTotalMinor
+                        : bucket.expenseTotalMinor;
+                    final kind = isIncome
+                        ? l10n.cashFlowIncome
+                        : l10n.cashFlowExpense;
+                    final accent = isIncome ? incomeColor : expenseColor;
+                    final amount = hideBarAmounts
+                        ? null
+                        : formatMoneyOf(
+                            context,
+                            ref,
+                            amountMinor: amountMinor,
+                            currencyCode: displayCurrency,
+                          );
+                    return chartBarTooltipItem(
+                      context: context,
+                      title: '${bucket.label}\n$kind',
+                      amountOrLabel: amount,
+                      accent: accent,
+                    );
+                  },
+                ),
+              ),
+              titlesData: FlTitlesData(
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                rightTitles: chartAxisEdgeSpacer(
+                  reservedSize: kChartAngledEdgeInset,
+                ),
+                leftTitles: chartAxisEdgeSpacer(
+                  reservedSize: kChartAngledEdgeInset,
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: kChartAngledLabelExtent,
+                    interval: 1,
+                    getTitlesWidget: (value, meta) {
+                      final i = value.toInt();
+                      if (i < 0 || i >= buckets.length) {
+                        return const SizedBox.shrink();
                       }
-                      final bucket = buckets[groupIndex];
-                      final isIncome = rodIndex == 0;
-                      final amountMinor = isIncome
-                          ? bucket.incomeTotalMinor
-                          : bucket.expenseTotalMinor;
-                      final kind =
-                          isIncome ? l10n.cashFlowIncome : l10n.cashFlowExpense;
-                      final accent = isIncome ? incomeColor : expenseColor;
-                      final amount = hideBarAmounts
-                          ? null
-                          : formatMoneyOf(
-                              context,
-                              ref,
-                              amountMinor: amountMinor,
-                              currencyCode: displayCurrency,
-                            );
-                      return chartBarTooltipItem(
-                        context: context,
-                        title: '${bucket.label}\n$kind',
-                        amountOrLabel: amount,
-                        accent: accent,
+                      return chartAngledAxisTitle(
+                        meta: meta,
+                        child: Text(
+                          buckets[i].label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: labelStyle,
+                        ),
                       );
                     },
                   ),
                 ),
-                titlesData: FlTitlesData(
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  rightTitles: chartAxisEdgeSpacer(
-                    reservedSize: layout.edgeInset,
-                  ),
-                  leftTitles: chartAxisEdgeSpacer(
-                    reservedSize: layout.edgeInset,
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 32,
-                      getTitlesWidget: (value, meta) {
-                        final i = value.toInt();
-                        if (!shouldShowChartAxisLabel(
-                          index: i,
-                          labelCount: buckets.length,
-                          plan: plan,
-                        )) {
-                          return const SizedBox.shrink();
-                        }
-                        return chartBottomAxisTitle(
-                          meta: meta,
-                          child: Text(
-                            buckets[i].label,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: labelStyle,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                  getDrawingHorizontalLine: (value) => FlLine(
-                    color: theme.colorScheme.outlineVariant.withValues(
-                      alpha: 0.5,
-                    ),
-                    strokeWidth: 1,
-                  ),
-                ),
-                borderData: FlBorderData(show: false),
-                barGroups: [
-                  for (var i = 0; i < buckets.length; i++)
-                    BarChartGroupData(
-                      x: i,
-                      barsSpace: 4,
-                      barRods: [
-                        BarChartRodData(
-                          toY: buckets[i].incomeTotalMinor.toDouble(),
-                          color: incomeColor,
-                          width: 10,
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(3),
-                          ),
-                        ),
-                        BarChartRodData(
-                          toY: buckets[i].expenseTotalMinor.toDouble(),
-                          color: expenseColor,
-                          width: 10,
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(3),
-                          ),
-                        ),
-                      ],
-                    ),
-                ],
               ),
-              duration: Duration.zero,
-            );
-          },
+              gridData: FlGridData(
+                show: true,
+                drawVerticalLine: false,
+                getDrawingHorizontalLine: (value) => FlLine(
+                  color: theme.colorScheme.outlineVariant.withValues(
+                    alpha: 0.5,
+                  ),
+                  strokeWidth: 1,
+                ),
+              ),
+              borderData: FlBorderData(show: false),
+              barGroups: [
+                chartLeadingSpacerGroup(10 + 10 + 4),
+                for (var i = 0; i < buckets.length; i++)
+                  BarChartGroupData(
+                    x: i,
+                    barsSpace: 4,
+                    barRods: [
+                      BarChartRodData(
+                        toY: buckets[i].incomeTotalMinor.toDouble(),
+                        color: incomeColor,
+                        width: 10,
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(3),
+                        ),
+                      ),
+                      BarChartRodData(
+                        toY: buckets[i].expenseTotalMinor.toDouble(),
+                        color: expenseColor,
+                        width: 10,
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(3),
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+            duration: Duration.zero,
+          ),
         ),
       ),
     );
@@ -245,10 +239,14 @@ class _CashFlowChartState extends ConsumerState<CashFlowChart> {
           )
         : plot;
 
-    final incomeTotal =
-        buckets.fold<int>(0, (sum, b) => sum + b.incomeTotalMinor);
-    final expenseTotal =
-        buckets.fold<int>(0, (sum, b) => sum + b.expenseTotalMinor);
+    final incomeTotal = buckets.fold<int>(
+      0,
+      (sum, b) => sum + b.incomeTotalMinor,
+    );
+    final expenseTotal = buckets.fold<int>(
+      0,
+      (sum, b) => sum + b.expenseTotalMinor,
+    );
     String? amountOf(int minor) {
       if (hideBarAmounts) return null;
       return formatMoneyOf(
@@ -326,8 +324,10 @@ class _LegendDot extends StatelessWidget {
               : Container(
                   width: 10,
                   height: 10,
-                  decoration:
-                      BoxDecoration(color: color, shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                  ),
                 ),
         ),
         const SizedBox(width: 6),

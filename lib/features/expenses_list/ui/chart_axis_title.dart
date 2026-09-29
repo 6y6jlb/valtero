@@ -8,9 +8,19 @@ export 'package:valtero/features/expenses_list/model/chart_axis_label_stride.dar
     show
         ChartAxisLabelLayout,
         ChartAxisLabelPlan,
-        chartPlotWidthForBottomLabels,
-        kChartAxisLabelGap,
-        kChartAxisLabelMaxWidth,
+        chartAxisTrackWidth,
+        chartGroupsSpace,
+        chartLeadingGroupWidth,
+        chartLineMaxX,
+        kChartAngledEdgeInset,
+        kChartAngledLeading,
+        kChartAngledLabelExtent,
+        kChartAngledLabelGap,
+        kChartAngledLabelMaxWidth,
+        kChartAxisLabelAngle,
+        kChartBarWidth,
+        kChartColumnSlot,
+        kChartLineMinX,
         planChartAxisLabels,
         shouldShowChartAxisLabel;
 
@@ -22,6 +32,37 @@ Widget chartBottomAxisTitle({
   double space = 6,
 }) {
   return SideTitleWidget(meta: meta, space: space, child: child);
+}
+
+/// Bottom-axis title rotated [kChartAxisLabelAngle] so it reads left to right.
+///
+/// [kChartAngledLabelMaxWidth] caps the line; longer names ellipsize.
+Widget chartAngledAxisTitle({required TitleMeta meta, required Widget child}) {
+  return SideTitleWidget(
+    meta: meta,
+    space: kChartAngledLabelGap,
+    angle: kChartAxisLabelAngle,
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: kChartAngledLabelMaxWidth),
+      child: child,
+    ),
+  );
+}
+
+/// Invisible first group. Together with [groupsSpace] it occupies one column
+/// slot inside the plot, so the grid still starts at the left edge.
+BarChartGroupData chartLeadingSpacerGroup(double groupWidth) {
+  return BarChartGroupData(
+    x: -1,
+    barRods: [
+      BarChartRodData(
+        toY: 0.0001,
+        width: chartLeadingGroupWidth(groupWidth),
+        color: const Color(0x00000000),
+        borderRadius: BorderRadius.zero,
+      ),
+    ],
+  );
 }
 
 /// Empty left/right axis spacer so centered edge dates are not clipped.

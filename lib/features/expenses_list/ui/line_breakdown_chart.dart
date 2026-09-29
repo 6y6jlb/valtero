@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:valtero/features/expenses_list/model/chart_time_series.dart';
 import 'package:valtero/features/expenses_list/ui/chart_anim.dart';
+import 'package:valtero/features/expenses_list/ui/chart_axis_scroll.dart';
 import 'package:valtero/features/expenses_list/ui/chart_axis_title.dart';
 import 'package:valtero/features/expenses_list/ui/chart_overlay_controls.dart';
 import 'package:valtero/features/expenses_list/ui/chart_tooltip_style.dart';
@@ -69,19 +70,14 @@ class LineBreakdownChart extends ConsumerWidget {
     );
     final showDots = points.length == 1;
     final totalLineColor = totalColor ?? theme.colorScheme.onSurface;
-    final visibleTotals = [
-      for (final point in points) _visibleTotalAt(point),
-    ];
+    final visibleTotals = [for (final point in points) _visibleTotalAt(point)];
 
     var maxY = 0.0;
     for (var i = 0; i < points.length; i++) {
       maxY = max(maxY, visibleTotals[i].toDouble());
       for (final s in series) {
         if (hiddenKeys.contains(s.key)) continue;
-        maxY = max(
-          maxY,
-          (points[i].amountBySeriesKey[s.key] ?? 0).toDouble(),
-        );
+        maxY = max(maxY, (points[i].amountBySeriesKey[s.key] ?? 0).toDouble());
       }
     }
 
@@ -129,126 +125,127 @@ class LineBreakdownChart extends ConsumerWidget {
       height: chartHeight,
       child: Padding(
         padding: kChartPlotPadding,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final layout = planChartAxisLabelsForTexts(
-              labels: [for (final p in points) p.dateLabel],
-              chartWidth: constraints.maxWidth,
-              style: labelStyle,
-            );
-            final plan = layout.plan;
-            return LineChart(
-              LineChartData(
-                minX: 0,
-                maxX: points.length <= 1 ? 1 : (points.length - 1).toDouble(),
-                minY: 0,
-                maxY: maxY <= 0 ? 1 : maxY * 1.12,
-                lineTouchData: LineTouchData(
-                  enabled: true,
-                  touchTooltipData: LineTouchTooltipData(
-                    getTooltipColor: (_) => chartTooltipBg(context),
-                    fitInsideHorizontally: true,
-                    fitInsideVertically: true,
-                    maxContentWidth: 200,
-                    getTooltipItems: (touchedSpots) {
-                      if (touchedSpots.isEmpty) return [];
-                      final i = touchedSpots.first.x.round();
-                      if (i < 0 || i >= points.length) {
-                        return touchedSpots.map((_) => null).toList();
-                      }
-                      final point = points[i];
-                      final items = <LineTooltipItem?>[];
-                      // One combined header as first item; null for the rest.
-                      final buf = StringBuffer(point.dateLabel);
-                      if (!_hideTotalLine && visibleTotals[i] > 0) {
-                        buf.write('\n${l10n.summaryTotal}');
-                        if (!hideAmounts) {
-                          buf.write(
-                            ': ${formatMoneyOf(context, ref, amountMinor: visibleTotals[i], currencyCode: displayCurrency)}',
-                          );
-                        }
-                      }
-                      for (final s in series) {
-                        if (hiddenKeys.contains(s.key)) continue;
-                        final amountMinor = point.amountBySeriesKey[s.key] ?? 0;
-                        if (amountMinor <= 0) continue;
-                        buf.write('\n${s.label}');
-                        if (!hideAmounts) {
-                          buf.write(
-                            ': ${formatMoneyOf(context, ref, amountMinor: amountMinor, currencyCode: displayCurrency)}',
-                          );
-                        }
-                      }
-                      for (var s = 0; s < touchedSpots.length; s++) {
-                        if (s == 0) {
-                          items.add(
-                            chartLineTooltipItem(
-                              context: context,
-                              text: buf.toString(),
-                            ),
-                          );
-                        } else {
-                          items.add(null);
-                        }
-                      }
-                      return items;
-                    },
+        child: ChartAxisScroll(
+          contentWidth: chartAxisTrackWidth(points.length, points: true),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final plotWidth = max(
+                0.0,
+                constraints.maxWidth - 2 * kChartAngledEdgeInset,
+              );
+              return LineChart(
+                LineChartData(
+                  minX: kChartLineMinX,
+                  maxX: chartLineMaxX(
+                    pointCount: points.length,
+                    plotWidth: plotWidth,
                   ),
-                ),
-                titlesData: FlTitlesData(
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  rightTitles: chartAxisEdgeSpacer(
-                    reservedSize: layout.edgeInset,
-                  ),
-                  leftTitles: chartAxisEdgeSpacer(
-                    reservedSize: layout.edgeInset,
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 28,
-                      interval: 1,
-                      getTitlesWidget: (value, meta) {
-                        final i = value.round();
-                        if (!shouldShowChartAxisLabel(
-                          index: i,
-                          labelCount: points.length,
-                          plan: plan,
-                        )) {
-                          return const SizedBox.shrink();
+                  minY: 0,
+                  maxY: maxY <= 0 ? 1 : maxY * 1.12,
+                  lineTouchData: LineTouchData(
+                    enabled: true,
+                    touchTooltipData: LineTouchTooltipData(
+                      getTooltipColor: (_) => chartTooltipBg(context),
+                      fitInsideHorizontally: true,
+                      fitInsideVertically: true,
+                      maxContentWidth: 200,
+                      getTooltipItems: (touchedSpots) {
+                        if (touchedSpots.isEmpty) return [];
+                        final i = touchedSpots.first.x.round();
+                        if (i < 0 || i >= points.length) {
+                          return touchedSpots.map((_) => null).toList();
                         }
-                        return chartBottomAxisTitle(
-                          meta: meta,
-                          child: Text(
-                            points[i].dateLabel,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: labelStyle,
-                          ),
-                        );
+                        final point = points[i];
+                        final items = <LineTooltipItem?>[];
+                        // One combined header as first item; null for the rest.
+                        final buf = StringBuffer(point.dateLabel);
+                        if (!_hideTotalLine && visibleTotals[i] > 0) {
+                          buf.write('\n${l10n.summaryTotal}');
+                          if (!hideAmounts) {
+                            buf.write(
+                              ': ${formatMoneyOf(context, ref, amountMinor: visibleTotals[i], currencyCode: displayCurrency)}',
+                            );
+                          }
+                        }
+                        for (final s in series) {
+                          if (hiddenKeys.contains(s.key)) continue;
+                          final amountMinor =
+                              point.amountBySeriesKey[s.key] ?? 0;
+                          if (amountMinor <= 0) continue;
+                          buf.write('\n${s.label}');
+                          if (!hideAmounts) {
+                            buf.write(
+                              ': ${formatMoneyOf(context, ref, amountMinor: amountMinor, currencyCode: displayCurrency)}',
+                            );
+                          }
+                        }
+                        for (var s = 0; s < touchedSpots.length; s++) {
+                          if (s == 0) {
+                            items.add(
+                              chartLineTooltipItem(
+                                context: context,
+                                text: buf.toString(),
+                              ),
+                            );
+                          } else {
+                            items.add(null);
+                          }
+                        }
+                        return items;
                       },
                     ),
                   ),
-                ),
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                  getDrawingHorizontalLine: (value) => FlLine(
-                    color: theme.colorScheme.outlineVariant
-                        .withValues(alpha: 0.5),
-                    strokeWidth: 1,
+                  titlesData: FlTitlesData(
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    rightTitles: chartAxisEdgeSpacer(
+                      reservedSize: kChartAngledEdgeInset,
+                    ),
+                    leftTitles: chartAxisEdgeSpacer(
+                      reservedSize: kChartAngledEdgeInset,
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: kChartAngledLabelExtent,
+                        interval: 1,
+                        getTitlesWidget: (value, meta) {
+                          final i = value.round();
+                          if (i < 0 || i >= points.length) {
+                            return const SizedBox.shrink();
+                          }
+                          return chartAngledAxisTitle(
+                            meta: meta,
+                            child: Text(
+                              points[i].dateLabel,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: labelStyle,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ),
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    getDrawingHorizontalLine: (value) => FlLine(
+                      color: theme.colorScheme.outlineVariant.withValues(
+                        alpha: 0.5,
+                      ),
+                      strokeWidth: 1,
+                    ),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  lineBarsData: lineBars,
                 ),
-                borderData: FlBorderData(show: false),
-                lineBarsData: lineBars,
-              ),
-              duration: kChartAnimDuration,
-              curve: kChartAnimCurve,
-            );
-          },
+                duration: kChartAnimDuration,
+                curve: kChartAnimCurve,
+              );
+            },
+          ),
         ),
       ),
     );

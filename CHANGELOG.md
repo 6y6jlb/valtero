@@ -8,6 +8,20 @@ via the repo-root [`VERSION`](VERSION) file (`x.y.z+build`).
 
 ## [Unreleased]
 
+## [1.1.22] - 2026-09-29
+
+### Fixed
+
+- Angled axis titles no longer clip the first column or run into the next one.
+  The chart grid stays full width; columns keep a fixed pitch, with one empty
+  slot inside the plot before the first column and spare room on the right.
+- The chart scrollbar no longer throws when the pointer hovers the plot.
+
+### Changed
+
+- Column and date titles read left to right at 45° and are capped in length.
+- Subcategory axis titles show only the subcategory, without the parent prefix.
+
 ## [1.1.21] - 2026-09-28
 
 ### Fixed

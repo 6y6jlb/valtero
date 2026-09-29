@@ -1,4 +1,4 @@
-import 'dart:math' show max, min;
+import 'dart:math' show max, pi;
 
 /// How many axis indices to skip between shown bottom labels, and whether the
 /// final index is forced on even when it is not a stride tick.
@@ -64,25 +64,71 @@ ChartAxisLabelPlan planChartAxisLabels({
   return (stride: stride, includeLast: includeLast);
 }
 
-/// Long axis titles wrap or ellipsize past this so one subcategory name cannot
-/// widen every column. Extra text uses a second line inside the slot.
-const kChartAxisLabelMaxWidth = 96.0;
+/// Pitch between neighboring columns, or between neighboring line-chart points.
+/// The same value on every chart so a bar does not change width with the label.
+const kChartColumnSlot = 36.0;
 
-/// Clear space kept between neighboring bottom-axis title boxes.
-const kChartAxisLabelGap = 8.0;
+/// Width of a single column rod. Cash-flow groups keep two narrower rods
+/// inside the same [kChartColumnSlot].
+const kChartBarWidth = 16.0;
 
-/// Minimum plot width so [labelCount] bottom titles of [maxLabelWidth] do not
-/// overlap. Each slot is at least [minSlot].
-double chartPlotWidthForBottomLabels({
-  required int labelCount,
-  required double maxLabelWidth,
-  double minGap = kChartAxisLabelGap,
-  double minSlot = 40,
-}) {
-  if (labelCount <= 0) return 0;
-  final capped = min(max(maxLabelWidth, 0), kChartAxisLabelMaxWidth);
-  final slot = max(capped + minGap, minSlot);
-  return labelCount * slot;
+/// Fixed left/right inset so the first column is not flush with the edge.
+const kChartAngledEdgeInset = 12.0;
+
+/// Empty slot inside the plot, before the first column. A 45° title hangs
+/// left of its bar; this keeps that title inside the grid instead of in a
+/// margin outside it.
+const kChartAngledLeading = kChartColumnSlot;
+
+/// −45°: the title reads left to right and rises from its column.
+const kChartAxisLabelAngle = -pi / 4;
+
+/// Longest painted width of a rotated title. Wider names ellipsize so they
+/// do not run into the next column.
+const kChartAngledLabelMaxWidth = 64.0;
+
+/// Gap between the column foot and the rotated title.
+const kChartAngledLabelGap = 12.0;
+
+/// Fixed bottom band for the capped 45° titles.
+const kChartAngledLabelExtent = 72.0;
+
+/// Chart width for [count] columns, or for [count] line points when [points]
+/// is true. Does not depend on label length.
+double chartAxisTrackWidth(int count, {bool points = false}) {
+  if (count <= 0) return 0;
+  final span = points ? (count <= 1 ? 1 : count - 1) : count;
+  return span * kChartColumnSlot +
+      kChartAngledLeading +
+      2 * kChartAngledEdgeInset;
+}
+
+/// Width of a transparent first group so the next column starts
+/// [kChartAngledLeading] from the left of the plot.
+double chartLeadingGroupWidth(double groupWidth) {
+  final width = kChartAngledLeading - chartGroupsSpace(groupWidth);
+  return width < 1 ? 1 : width;
+}
+
+/// Line charts start at this x so the first point sits one slot in from the
+/// left edge of the grid.
+const kChartLineMinX = -1.0;
+
+/// Space between bar groups so their centers stay [kChartColumnSlot] apart
+/// when the chart is wider than the groups and they stay packed at the start.
+double chartGroupsSpace(double groupWidth) {
+  final gap = kChartColumnSlot - groupWidth;
+  return gap < 0 ? 0 : gap;
+}
+
+/// Line-chart [maxX] so points stay [kChartColumnSlot] apart. [kChartLineMinX]
+/// reserves one slot of grid left of the first point; spare plot width stays
+/// to the right of the last point.
+double chartLineMaxX({required int pointCount, required double plotWidth}) {
+  final last = pointCount <= 1 ? 1.0 : (pointCount - 1).toDouble();
+  if (plotWidth <= 0 || kChartColumnSlot <= 0) return last;
+  final fitted = plotWidth / kChartColumnSlot + kChartLineMinX;
+  return fitted > last ? fitted : last;
 }
 
 /// Whether bottom-axis index [index] should show a title for [plan].

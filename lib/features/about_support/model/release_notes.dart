@@ -15,6 +15,14 @@ class AppReleaseNotes {
 /// User-facing history. Keep brief; no agent rules, tests, or tooling.
 const kAppReleaseNotes = <AppReleaseNotes>[
   AppReleaseNotes(
+    version: '1.1.22',
+    lines: [
+      'Chart titles sit at 45° and stay short enough not to cover the next column.',
+      'Subcategory charts label the subcategory only.',
+      'The chart fills the card; columns stay packed, with room inside the plot before the first title.',
+    ],
+  ),
+  AppReleaseNotes(
     version: '1.1.21',
     lines: [
       'Category column labels scroll inside the chart when the window is too narrow.',
